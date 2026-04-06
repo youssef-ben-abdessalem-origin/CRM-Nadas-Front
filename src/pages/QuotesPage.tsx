@@ -20,6 +20,7 @@ const QuotesPage: React.FC = () => {
   const [detailQuote, setDetailQuote] = useState<any | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
   const [form, setForm] = useState({ name: "", customer: "", amount: "", dueDate: "", notes: "" });
+  const [query, setQuery] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -46,8 +47,22 @@ const QuotesPage: React.FC = () => {
 
   const fmt = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(v);
 
+  // Derived filtered quotes based on search query
+  const filteredQuotes = quotes.filter((q: any) => {
+    const text = [q.name, q.customerName || q.customer, q.notes].filter(Boolean).join(" ").toLowerCase();
+    return text.includes((query || "").toLowerCase());
+  });
+
   return (
     <CRMLayout title="Quotes">
+      <div className="p-4">
+        <Input
+          placeholder="Search quotes..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-72"
+        />
+      </div>
       <Card>
         <CardHeader className="flex items-center justify-between">
           <CardTitle>Quotes</CardTitle>
@@ -58,7 +73,7 @@ const QuotesPage: React.FC = () => {
         <CardContent>
           {isLoading ? (
             <div>Loading quotes...</div>
-          ) : quotes && quotes.length > 0 ? (
+          ) : filteredQuotes && filteredQuotes.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -70,7 +85,7 @@ const QuotesPage: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {quotes.map((q: any) => (
+                {filteredQuotes.map((q: any) => (
                   <TableRow key={q.id} className="cursor-pointer" onClick={() => onRowClick(q)}>
                     <TableCell className="font-medium">{q.name || q.id}</TableCell>
                     <TableCell>{q.customerName || q.customer || "—"}</TableCell>
@@ -82,7 +97,7 @@ const QuotesPage: React.FC = () => {
               </TableBody>
             </Table>
           ) : (
-            <div className="text-muted-foreground">No quotes yet.</div>
+            <div className="text-muted-foreground">{query.trim() ? "No quotes match your search." : "No quotes yet."}</div>
           )}
         </CardContent>
       </Card>
