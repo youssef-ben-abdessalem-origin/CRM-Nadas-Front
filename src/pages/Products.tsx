@@ -68,141 +68,118 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
 
-type ProductCategory =
-  | "Software"
-  | "Hardware"
-  | "Service"
-  | "Subscription"
-  | "Support"
-  | "Training"
-  | "Other";
-type ProductStatus = "active" | "draft" | "discontinued";
+export type ProductType = "SERVICE" | "PHYSICAL" | "SUBSCRIPTION";
 
-interface Product {
-  id: number;
-  name: string;
-  sku: string;
-  description: string;
-  categoryId: number;
-  categoryName: string;
-  status: string;
-  pricingModelId: number;
-  pricingModelName: string;
-  unitPrice: number;
-  cost: number;
-  margin: number;
-  currency: string;
-  stock: number;
-  reorderLevel: number;
-  unitId: number;
-  unitName: string;
-  taxRate: number;
-  tags: string;
-  created: string;
-  lastUpdated: string;
-  totalSold: number;
-  totalRevenue: number;
+export interface PriceBookItem {
+  id: string;
+  priceBookId: string;
+  priceBook: { name: string; currency: string };
+  price: number;
+  billingType: "ONE_TIME" | "RECURRING";
+  billingPeriod: "NONE" | "MONTHLY" | "YEARLY" | "WEEKLY";
+  discountAllowed: boolean;
 }
 
-const categoryConfig: Record<
-  ProductCategory,
-  { label: string; color: string }
-> = {
-  Software: {
-    label: "Software",
-    color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  },
-  Hardware: {
-    label: "Hardware",
-    color: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-  },
-  Service: {
-    label: "Service",
-    color: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-  },
-  Subscription: {
-    label: "Subscription",
-    color: "bg-green-500/10 text-green-500 border-green-500/20",
-  },
-  Support: {
-    label: "Support",
-    color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-  },
-  Training: {
-    label: "Training",
-    color: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
-  },
-  Other: {
-    label: "Other",
-    color: "bg-slate-500/10 text-slate-500 border-slate-500/20",
-  },
-};
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  name: string;
+  sku: string;
+  attributes: any;
+  isDefault: boolean;
+  isActive: boolean;
+  prices: PriceBookItem[];
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  type: ProductType;
+  categoryId: string | null;
+  category: { id: string; name: string } | null;
+  brandId: string | null;
+  brand: { id: string; name: string } | null;
+  isActive: boolean;
+  isSellable: boolean;
+  isPurchasable: boolean;
+  variants: ProductVariant[];
+  createdAt: string;
+  updatedAt: string;
+  // Legacy fields for UI compatibility if needed
+  totalSold?: number;
+  totalRevenue?: number;
+}
+
+
 
 // ProductForm component moved OUTSIDE Products component to prevent remounting
 interface ProductFormProps {
   formData: {
     name: string;
-    sku: string;
+    code: string;
     description: string;
+    type: ProductType;
     categoryId: string;
-    pricingModelId: string;
-    unitPrice: string;
-    cost: string;
-    stock: string;
-    reorderLevel: string;
-    unitId: string;
-    taxRate: string;
-    tags: string;
+    brandId: string;
+    isActive: boolean;
+    isSellable: boolean;
+    isPurchasable: boolean;
   };
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   categories: any[];
-  units: any[];
-  pricingModels: any[];
+  brands: any[];
 }
 
-const ProductForm = ({ formData, setFormData, categories, units, pricingModels }: ProductFormProps) => {
-  const unitPrice = parseFloat(formData.unitPrice) || 0;
-  const cost = parseFloat(formData.cost) || 0;
-  const margin =
-    unitPrice > 0 ? Math.round(((unitPrice - cost) / unitPrice) * 100) : 0;
-
+const ProductForm = ({ formData, setFormData, categories, brands }: ProductFormProps) => {
   return (
     <div className="space-y-6 py-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>
-            Name <span className="text-red-500">*</span>
-          </Label>
+          <Label>Name <span className="text-red-500">*</span></Label>
           <Input
-            placeholder="Enterprise Cloud Platform"
+            placeholder="Enterprise Product Name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
         </div>
         <div className="space-y-2">
-          <Label>
-            SKU <span className="text-red-500">*</span>
-          </Label>
+          <Label>Product Code (Unique) <span className="text-red-500">*</span></Label>
           <Input
-            placeholder="ECP-001"
-            value={formData.sku}
-            onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+            placeholder="PRD-001"
+            value={formData.code}
+            onChange={(e) => setFormData({ ...formData, code: e.target.value })}
           />
+        </div>
+        <div className="space-y-2">
+          <Label>Product Type</Label>
+          <Select
+            value={formData.type}
+            onValueChange={(v: ProductType) => setFormData({ ...formData, type: v })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="PHYSICAL">Physical Goods</SelectItem>
+              <SelectItem value="SERVICE">Professional Service</SelectItem>
+              <SelectItem value="SUBSCRIPTION">SaaS / Subscription</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label>Category</Label>
           <Select
             value={formData.categoryId}
-            onValueChange={(v) =>
-              setFormData({ ...formData, categoryId: v })
-            }
+            onValueChange={(v) => setFormData({ ...formData, categoryId: v })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
               {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id.toString()}>
+                <SelectItem key={cat.id} value={cat.id}>
                   {cat.name}
                 </SelectItem>
               ))}
@@ -210,147 +187,74 @@ const ProductForm = ({ formData, setFormData, categories, units, pricingModels }
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Pricing Model</Label>
+          <Label>Brand</Label>
           <Select
-            value={formData.pricingModelId}
-            onValueChange={(v) =>
-              setFormData({ ...formData, pricingModelId: v })
-            }
+            value={formData.brandId}
+            onValueChange={(v) => setFormData({ ...formData, brandId: v })}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select model" />
+              <SelectValue placeholder="Select brand" />
             </SelectTrigger>
             <SelectContent>
-              {pricingModels.map((model: any) => (
-                <SelectItem key={model.id} value={model.id.toString()}>
-                  {model.name}
+              {brands.map((brand) => (
+                <SelectItem key={brand.id} value={brand.id}>
+                  {brand.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>Unit</Label>
-          <Select
-            value={formData.unitId}
-            onValueChange={(v) =>
-              setFormData({ ...formData, unitId: v })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select unit" />
-            </SelectTrigger>
-            <SelectContent>
-              {units.map((unit) => (
-                <SelectItem key={unit.id} value={unit.id.toString()}>
-                  {unit.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>Unit Price</Label>
-          <Input
-            type="number"
-            placeholder="4999"
-            value={formData.unitPrice}
-            onChange={(e) =>
-              setFormData({ ...formData, unitPrice: e.target.value })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Cost</Label>
-          <Input
-            type="number"
-            placeholder="1200"
-            value={formData.cost}
-            onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Stock</Label>
-          <Input
-            type="number"
-            placeholder="999"
-            value={formData.stock}
-            onChange={(e) =>
-              setFormData({ ...formData, stock: e.target.value })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Reorder Level</Label>
-          <Input
-            type="number"
-            placeholder="10"
-            value={formData.reorderLevel}
-            onChange={(e) =>
-              setFormData({ ...formData, reorderLevel: e.target.value })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Tax Rate (%)</Label>
-          <Input
-            type="number"
-            placeholder="0"
-            value={formData.taxRate}
-            onChange={(e) =>
-              setFormData({ ...formData, taxRate: e.target.value })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Tags (comma separated)</Label>
-          <Input
-            placeholder="cloud, enterprise, platform"
-            value={formData.tags}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-          />
         </div>
       </div>
 
-      {margin > 0 && (
-        <div className="bg-muted/50 p-4 rounded-lg">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Calculated Margin</span>
-            <span
-              className={`font-semibold ${margin >= 70
-                  ? "text-green-500"
-                  : margin >= 50
-                    ? "text-amber-500"
-                    : "text-red-500"
-                }`}
-            >
-              {margin}%
-            </span>
-          </div>
+      <div className="flex items-center gap-6 p-4 bg-muted/30 rounded-lg">
+        <div className="flex items-center gap-2">
+           <input
+            type="checkbox"
+            id="isSellable"
+            checked={formData.isSellable}
+            onChange={(e) => setFormData({ ...formData, isSellable: e.target.checked })}
+            className="h-4 w-4 rounded border-gray-300"
+          />
+          <Label htmlFor="isSellable" className="cursor-pointer">Sellable</Label>
         </div>
-      )}
+        <div className="flex items-center gap-2">
+           <input
+            type="checkbox"
+            id="isPurchasable"
+            checked={formData.isPurchasable}
+            onChange={(e) => setFormData({ ...formData, isPurchasable: e.target.checked })}
+            className="h-4 w-4 rounded border-gray-300"
+          />
+          <Label htmlFor="isPurchasable" className="cursor-pointer">Purchasable</Label>
+        </div>
+        <div className="flex items-center gap-2">
+           <input
+            type="checkbox"
+            id="isActive"
+            checked={formData.isActive}
+            onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+            className="h-4 w-4 rounded border-gray-300"
+          />
+          <Label htmlFor="isActive" className="cursor-pointer">Active</Label>
+        </div>
+      </div>
 
       <div className="space-y-2">
         <Label>Description</Label>
         <Textarea
-          placeholder="Product description..."
+          placeholder="Product details and value prop..."
           value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          className="resize-none"
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           rows={3}
         />
       </div>
     </div>
   );
 };
-
 const Products = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
-  const [filterPricing, setFilterPricing] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [pageSize] = useState(5);
 
@@ -359,24 +263,19 @@ const Products = () => {
     queryFn: () => api.products.getCategories().catch(() => []),
   });
 
-  const { data: units = [] } = useQuery({
-    queryKey: ["product-units"],
-    queryFn: () => api.products.getUnits().catch(() => []),
+  const { data: brands = [] } = useQuery({
+    queryKey: ["product-brands"],
+    queryFn: () => api.products.getBrands().catch(() => []),
   });
 
-  const { data: allProducts = [], isLoading: isAllProductsLoading } = useQuery({
-    queryKey: ["products", "all"],
-    queryFn: () => api.products.getAll().catch(() => []),
-  });
-
-  const { data: paginatedData, isLoading: isPaginatedLoading } = useQuery({
+  const { data: paginatedData, isLoading } = useQuery({
     queryKey: ["products", "paginated", page, pageSize, search, filterCategoryId],
-    queryFn: () => api.products.getPaginated({
+    queryFn: () => api.products.findAllPaginated(
       page,
-      limit: pageSize,
+      pageSize,
       search,
-      categoryId: filterCategoryId === "all" ? undefined : parseInt(filterCategoryId)
-    }).catch(() => ({
+      filterCategoryId === "all" ? undefined : filterCategoryId
+    ).catch(() => ({
       data: [],
       total: 0,
       page: 1,
@@ -388,7 +287,6 @@ const Products = () => {
   const products = paginatedData?.data || [];
   const total = paginatedData?.total || 0;
   const totalPages = paginatedData?.totalPages || 1;
-  const isLoading = isAllProductsLoading || isPaginatedLoading;
 
   const createMutation = useMutation({
     mutationFn: api.products.create,
@@ -402,7 +300,7 @@ const Products = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) =>
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
       api.products.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -424,63 +322,73 @@ const Products = () => {
     },
     onError: (err: Error) => toast.error(err.message),
   });
+
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
   const [formData, setFormData] = useState({
     name: "",
-    sku: "",
+    code: "",
     description: "",
+    type: "PHYSICAL" as ProductType,
     categoryId: "",
-    pricingModelId: "",
-    unitPrice: "",
-    cost: "",
-    stock: "",
-    reorderLevel: "",
-    unitId: "",
-    taxRate: "0",
-    tags: "",
+    brandId: "",
+    isActive: true,
+    isSellable: true,
+    isPurchasable: true,
   });
 
-  const { data: pricingModels = [] } = useQuery({
-    queryKey: ["product-pricing-models"],
-    queryFn: () => api.products.getPricingModels().catch(() => []),
-  });
-
-  const stats = {
-    total: allProducts.length,
-    active: allProducts.length, // Status removed as per request
-    totalRevenue: allProducts.reduce(
-      (sum: number, p: Product) => sum + p.totalRevenue,
-      0,
-    ),
-    avgMargin:
-      allProducts.filter((p: Product) => p.margin > 0).length > 0
-        ? Math.round(
-          allProducts.reduce((sum: number, p: Product) => sum + p.margin, 0) /
-          allProducts.filter((p: Product) => p.margin > 0).length,
-        )
-        : 0,
-    totalSold: allProducts.reduce(
-      (sum: number, p: Product) => sum + p.totalSold,
-      0,
-    ),
-    lowStock: allProducts.filter(
-      (p: Product) => p.stock > 0 && p.stock <= p.reorderLevel,
-    ).length,
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      code: "",
+      description: "",
+      type: "PHYSICAL",
+      categoryId: "",
+      brandId: "",
+      isActive: true,
+      isSellable: true,
+      isPurchasable: true,
+    });
   };
 
-  const { currency: currencyInfo } = useProfileCurrency();
-  const formatCurrency = (value: number) => {
-    const code = currencyInfo?.currency ?? "USD";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: code,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
+  const handleEditClick = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      code: product.code,
+      description: product.description || "",
+      type: product.type,
+      categoryId: product.categoryId || "",
+      brandId: product.brandId || "",
+      isActive: product.isActive,
+      isSellable: product.isSellable,
+      isPurchasable: product.isPurchasable,
+    });
+    setShowEdit(true);
+  };
+
+  const handleAdd = () => {
+    if (!formData.name || !formData.code) {
+      toast.error("Please fill in required fields");
+      return;
+    }
+    createMutation.mutate(formData);
+  };
+
+  const handleEdit = () => {
+    if (!editingProduct || !formData.name) return;
+    updateMutation.mutate({
+      id: editingProduct.id,
+      data: formData,
+    });
+  };
+
+  const handleDelete = (product: Product) => {
+    deleteMutation.mutate(product.id);
   };
 
   const formatDate = (dateStr: string) => {
@@ -491,112 +399,6 @@ const Products = () => {
       year: "numeric",
     });
   };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      sku: "",
-      description: "",
-      categoryId: "",
-      pricingModelId: "",
-      unitPrice: "",
-      cost: "",
-      stock: "",
-      reorderLevel: "",
-      unitId: "",
-      taxRate: "0",
-      tags: "",
-    });
-  };
-
-  const handleEditClick = (product: Product) => {
-    setEditingProduct(product);
-    setFormData({
-      name: product.name,
-      sku: product.sku,
-      description: product.description || "",
-      categoryId: product.categoryId?.toString() || "",
-      pricingModelId: product.pricingModelId?.toString() || "",
-      unitPrice: product.unitPrice.toString(),
-      cost: product.cost.toString(),
-      stock: product.stock.toString(),
-      reorderLevel: product.reorderLevel.toString(),
-      unitId: product.unitId?.toString() || "",
-      taxRate: product.taxRate.toString(),
-      tags: Array.isArray(product.tags)
-        ? product.tags.join(", ")
-        : String(product.tags || ""),
-    });
-    setShowEdit(true);
-  };
-
-  const handleAdd = () => {
-    if (!formData.name || !formData.sku) {
-      toast.error("Please fill in required fields");
-      return;
-    }
-    const unitPrice = parseFloat(formData.unitPrice) || 0;
-    const cost = parseFloat(formData.cost) || 0;
-    createMutation.mutate({
-      name: formData.name,
-      sku: formData.sku,
-      description: formData.description,
-      categoryId: parseInt(formData.categoryId),
-      categoryName: categories.find(c => c.id.toString() === formData.categoryId)?.name || "Software",
-      pricingModelId: parseInt(formData.pricingModelId),
-      pricingModelName: pricingModels.find(p => p.id.toString() === formData.pricingModelId)?.name || "One-Time",
-      unitPrice,
-      cost,
-      margin:
-        unitPrice > 0 ? Math.round(((unitPrice - cost) / unitPrice) * 100) : 0,
-      currency: "USD",
-      stock: parseInt(formData.stock) || 0,
-      reorderLevel: parseInt(formData.reorderLevel) || 0,
-      unitId: parseInt(formData.unitId),
-      unitName: units.find(u => u.id.toString() === formData.unitId)?.name || "unit",
-      taxRate: parseFloat(formData.taxRate) || 0,
-      tags: formData.tags,
-      totalSold: 0,
-      totalRevenue: 0,
-    });
-  };
-
-  const handleEdit = () => {
-    if (!editingProduct || !formData.name) return;
-    const unitPrice = parseFloat(formData.unitPrice) || 0;
-    const cost = parseFloat(formData.cost) || 0;
-    updateMutation.mutate({
-      id: editingProduct.id,
-      data: {
-        name: formData.name,
-        sku: formData.sku,
-        description: formData.description,
-        categoryId: parseInt(formData.categoryId),
-        categoryName: categories.find(c => c.id.toString() === formData.categoryId)?.name || "Software",
-        pricingModelId: parseInt(formData.pricingModelId),
-        pricingModelName: pricingModels.find(p => p.id.toString() === formData.pricingModelId)?.name || "One-Time",
-        unitPrice,
-        cost,
-        margin:
-          unitPrice > 0
-            ? Math.round(((unitPrice - cost) / unitPrice) * 100)
-            : 0,
-        stock: parseInt(formData.stock) || 0,
-        reorderLevel: parseInt(formData.reorderLevel) || 0,
-        unitId: parseInt(formData.unitId),
-        unitName: units.find(u => u.id.toString() === formData.unitId)?.name || "unit",
-        taxRate: parseFloat(formData.taxRate) || 0,
-        tags: formData.tags,
-      },
-    });
-  };
-
-  const handleDelete = (product: Product) => {
-    deleteMutation.mutate(product.id);
-  };
-
-  const formatNumber = (value: number) =>
-    new Intl.NumberFormat("en-US").format(value);
 
   if (isLoading) {
     return (
@@ -611,110 +413,13 @@ const Products = () => {
   return (
     <CRMLayout title="Products">
       <div className="space-y-4">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Products
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                <Package className="h-3 w-3 inline mr-1" />
-                In catalog
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Active
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-500">
-                {stats.active}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Available for sale
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Revenue
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatCurrency(stats.totalRevenue)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                <DollarSign className="h-3 w-3 inline mr-1" />
-                All time
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Avg Margin
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-500">
-                {stats.avgMargin}%
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                <TrendingUp className="h-3 w-3 inline mr-1" />
-                Gross margin
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Units Sold
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatNumber(stats.totalSold)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                <ShoppingCart className="h-3 w-3 inline mr-1" />
-                Total sales
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Low Stock
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-amber-500">
-                {stats.lowStock}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                <AlertTriangle className="h-3 w-3 inline mr-1" />
-                Need reorder
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Toolbar */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search products..."
+                placeholder="Search by name or code..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9 w-72 pl-9"
@@ -726,34 +431,15 @@ const Products = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id.toString()}>
+                {categories.map((cat: any) => (
+                  <SelectItem key={cat.id} value={cat.id}>
                     {cat.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Select value={filterPricing} onValueChange={setFilterPricing}>
-              <SelectTrigger className="h-9 w-40">
-                <SelectValue placeholder="Pricing" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Pricing</SelectItem>
-                {pricingModels.map((model: any) => (
-                  <SelectItem key={model.id} value={model.id.toString()}>
-                    {model.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="sm">
-              <Filter className="h-3.5 w-3.5 mr-1" /> Filter
-            </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-3.5 w-3.5 mr-1" /> Export
-            </Button>
             <Button
               size="sm"
               onClick={() => {
@@ -766,21 +452,17 @@ const Products = () => {
           </div>
         </div>
 
-        {/* Table */}
         <Card>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Product</TableHead>
-                <TableHead>SKU</TableHead>
+                <TableHead>Code</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Category</TableHead>
-                <TableHead>Pricing</TableHead>
+                <TableHead>Brand</TableHead>
+                <TableHead>Default Price</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Margin</TableHead>
-                <TableHead className="text-right">Stock</TableHead>
-                <TableHead className="text-right">Sold</TableHead>
-                <TableHead className="text-right">Revenue</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -788,166 +470,91 @@ const Products = () => {
               {products.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={11}
+                    colSpan={8}
                     className="h-24 text-center text-muted-foreground"
                   >
                     No products found
                   </TableCell>
                 </TableRow>
               ) : (
-                products.map((product: Product) => (
-                  <TableRow
-                    key={product.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => {
-                      setSelectedProduct(product);
-                      setShowDetail(true);
-                    }}
-                  >
-                    <TableCell>
-                      <div>
+                products.map((product: Product) => {
+                  const defaultPrice = product.variants?.[0]?.prices?.[0];
+                  return (
+                    <TableRow
+                      key={product.id}
+                      className="cursor-pointer hover:bg-muted/30"
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setShowDetail(true);
+                      }}
+                    >
+                      <TableCell>
                         <div className="font-medium">{product.name}</div>
-                        <div className="text-xs text-muted-foreground max-w-[200px] truncate">
+                        <div className="text-xs text-muted-foreground truncate max-w-[200px]">
                           {product.description}
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="font-mono text-xs">
-                        <Hash className="h-3 w-3 mr-1" />
-                        {product.sku}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className="bg-blue-500/10 text-blue-500 border-blue-500/20"
-                      >
-                        {product.categoryName}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className="bg-purple-500/10 text-purple-500 border-purple-500/20"
-                      >
-                        {product.pricingModelName}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {product.pricingModelName?.toLowerCase().includes("usage")
-                        ? `$${toFixedSafe(toNumber(product?.unitPrice), 2)} / req`
-                        : formatCurrencyValue(
-                          toNumber(product?.unitPrice),
-                          currencyInfo?.currency ?? "USD",
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {product.code}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="text-[10px] h-5">
+                          {product.type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                         <span className="text-sm">{product.category?.name || "—"}</span>
+                      </TableCell>
+                      <TableCell>
+                         <span className="text-sm">{product.brand?.name || "—"}</span>
+                      </TableCell>
+                      <TableCell>
+                        {defaultPrice ? (
+                          <div className="font-medium text-sm">
+                            {new Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: defaultPrice.priceBook?.currency || "USD",
+                            }).format(defaultPrice.price)}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">No price set</span>
                         )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span
-                        className={`font-medium ${product.margin >= 70
-                            ? "text-green-500"
-                            : product.margin >= 50
-                              ? "text-amber-500"
-                              : "text-red-500"
-                          }`}
-                      >
-                        {product.margin}%
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {product.stock > 0 &&
-                        product.stock <= product.reorderLevel ? (
-                        <div className="flex items-center justify-end gap-1 text-amber-500">
-                          <AlertTriangle className="h-3.5 w-3.5" />
-                          <span className="font-medium">{product.stock}</span>
+                      </TableCell>
+                      <TableCell>
+                         <div className="flex items-center gap-1.5">
+                          {product.isActive ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                          ) : (
+                            <XCircle className="h-3.5 w-3.5 text-red-500" />
+                          )}
+                          <span className="text-xs">{product.isActive ? 'Active' : 'Inactive'}</span>
                         </div>
-                      ) : (
-                        <span className="font-medium">{product.stock}</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right text-muted-foreground whitespace-nowrap">
-                      {product.totalSold} {product.unitName}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrencyValue(
-                        toNumber(product.totalRevenue),
-                        currencyInfo?.currency ?? "USD",
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toast.info(`Creating quote for ${product.name}`);
-                          }}
-                        >
-                          <Receipt className="h-3.5 w-3.5" />
-                        </Button>
+                      </TableCell>
+                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={(e) => e.stopPropagation()}
-                            >
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
                               <MoreHorizontal className="h-3.5 w-3.5" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditClick(product);
-                              }}
-                            >
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toast.info(`Copied ${product.name}`);
-                              }}
-                            >
-                              <Copy className="h-4 w-4 mr-2" />
-                              Duplicate
+                            <DropdownMenuItem onClick={() => handleEditClick(product)}>
+                              <Edit className="h-4 w-4 mr-2" /> Edit
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toast.info(`Viewing ${product.name} details`);
-                              }}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-red-500"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(product);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
+                            <DropdownMenuItem className="text-red-500" onClick={() => handleDelete(product)}>
+                              <Trash2 className="h-4 w-4 mr-2" /> Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
-          {/* Pagination */}
+          
           <div className="flex items-center justify-between px-4 py-3 border-t">
             <div className="text-sm text-muted-foreground">
               Showing {products.length} of {total} products
@@ -961,19 +568,6 @@ const Products = () => {
               >
                 Previous
               </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <Button
-                    key={p}
-                    variant={page === p ? "default" : "outline"}
-                    size="sm"
-                    className="w-8 h-8 p-0"
-                    onClick={() => setPage(p)}
-                  >
-                    {p}
-                  </Button>
-                ))}
-              </div>
               <Button
                 variant="outline"
                 size="sm"
@@ -988,230 +582,146 @@ const Products = () => {
 
         {/* Detail Drawer */}
         <Drawer open={showDetail} onOpenChange={setShowDetail}>
-          <DrawerContent className="h-screen w-full md:w-[720px] md:max-w-[720px] lg:w-[860px] lg:max-w-[860px] xl:w-[1000px] xl:max-w-[1000px] p-6 overflow-y-auto">
+          <DrawerContent className="w-full md:w-[720px] md:max-w-[720px] p-6 overflow-y-auto">
             {selectedProduct && (
-              <>
-                <DrawerHeader>
+              <div className="space-y-6">
+                <DrawerHeader className="px-0">
                   <div className="flex items-start justify-between">
                     <div>
-                      <DrawerTitle className="text-xl">
-                        {selectedProduct.name}
-                      </DrawerTitle>
-                      <DrawerDescription className="flex items-center gap-2 mt-1">
-                        <Hash className="h-3 w-3" />
-                        {selectedProduct.sku}
-                        <span className="mx-1">·</span>
-                        <span className="text-muted-foreground">{selectedProduct.unitName}</span>
+                      <DrawerTitle className="text-2xl">{selectedProduct.name}</DrawerTitle>
+                      <DrawerDescription className="text-sm font-mono mt-1">
+                        {selectedProduct.code}
                       </DrawerDescription>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className="bg-blue-500/10 text-blue-500 border-blue-500/20"
-                      >
-                        {selectedProduct.categoryName}
-                      </Badge>
-                    </div>
+                    <Badge variant={selectedProduct.isActive ? "default" : "destructive"}>
+                      {selectedProduct.isActive ? "Active" : "Inactive"}
+                    </Badge>
                   </div>
                 </DrawerHeader>
 
-                <div className="grid grid-cols-2 gap-6 py-4">
+                <div className="grid grid-cols-2 gap-8">
                   <div className="space-y-4">
-                    <h4 className="text-sm font-semibold flex items-center gap-2">
-                      <DollarSign className="h-4 w-4" /> Pricing
-                    </h4>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Unit Price
-                        </span>
-                        <CurrencyBadge
-                          amount={toNumber(selectedProduct.unitPrice)}
-                          currencyCode={currencyInfo?.currency}
-                        />
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Cost</span>
-                        <span>{formatCurrency(selectedProduct.cost)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Margin</span>
-                        <span
-                          className={`font-semibold ${selectedProduct.margin >= 70
-                              ? "text-green-500"
-                              : selectedProduct.margin >= 50
-                                ? "text-amber-500"
-                                : "text-red-500"
-                            }`}
-                        >
-                          {selectedProduct.margin}%
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Pricing Model
-                        </span>
-                        <Badge
-                          variant="outline"
-                          className="bg-purple-500/10 text-purple-500 border-purple-500/20"
-                        >
-                          {selectedProduct.pricingModelName}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Tax Rate</span>
-                        <span>{selectedProduct.taxRate}%</span>
+                    <div>
+                      <Label className="text-xs text-muted-foreground uppercase">General Information</Label>
+                      <div className="mt-2 space-y-2 text-sm">
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-muted-foreground">Type</span>
+                          <span className="font-medium">{selectedProduct.type}</span>
+                        </div>
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-muted-foreground">Category</span>
+                          <span className="font-medium">{selectedProduct.category?.name || "Uncategorized"}</span>
+                        </div>
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-muted-foreground">Brand</span>
+                          <span className="font-medium">{selectedProduct.brand?.name || "Generic"}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="text-sm font-semibold flex items-center gap-2">
-                      <BarChart3 className="h-4 w-4" /> Performance
-                    </h4>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Total Revenue
-                        </span>
-                        <CurrencyBadge
-                          amount={selectedProduct.totalRevenue}
-                          currencyCode={currencyInfo?.currency}
-                        />
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Units Sold
-                        </span>
-                        <span>{selectedProduct.totalSold}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Stock</span>
-                        <span
-                          className={
-                            selectedProduct.stock <=
-                              selectedProduct.reorderLevel &&
-                              selectedProduct.stock > 0
-                              ? "text-amber-500 font-medium"
-                              : ""
-                          }
-                        >
-                          {selectedProduct.stock} {selectedProduct.unitName}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Reorder Level
-                        </span>
-                        <span>{selectedProduct.reorderLevel}</span>
+                    <div>
+                      <Label className="text-xs text-muted-foreground uppercase">Sales Status</Label>
+                      <div className="mt-2 space-y-2 text-sm">
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-muted-foreground">Sellable</span>
+                          <span className={selectedProduct.isSellable ? "text-green-500" : "text-red-500"}>
+                            {selectedProduct.isSellable ? "Yes" : "No"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-muted-foreground">Purchasable</span>
+                          <span className={selectedProduct.isPurchasable ? "text-green-500" : "text-red-500"}>
+                            {selectedProduct.isPurchasable ? "Yes" : "No"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {selectedProduct.tags &&
-                  (() => {
-                    const tagList = Array.isArray(selectedProduct.tags)
-                      ? selectedProduct.tags
-                      : String(selectedProduct.tags ?? "")
-                        .split(",")
-                        .map((t) => t.trim())
-                        .filter(Boolean);
-                    if (tagList.length === 0) return null;
-                    return (
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2">
-                          <Tag className="h-4 w-4" /> Tags
-                        </h4>
-                        <div className="flex flex-wrap gap-1.5">
-                          {tagList.map((tag: string) => (
-                            <Badge
-                              key={tag}
-                              variant="secondary"
-                              className="text-xs"
-                            >
-                              {tag}
-                            </Badge>
+                <div className="space-y-3">
+                  <Label className="text-xs text-muted-foreground uppercase">Description</Label>
+                  <p className="text-sm text-muted-foreground leading-relaxed bg-muted/20 p-4 rounded-lg border">
+                    {selectedProduct.description || "No description provided."}
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <Label className="text-xs text-muted-foreground uppercase">Variants & Pricing</Label>
+                  <div className="rounded-lg border">
+                    {selectedProduct.variants?.map((variant) => (
+                      <div key={variant.id} className="p-4 border-b last:border-0">
+                        <div className="flex items-center justify-between font-medium text-sm">
+                          <span>{variant.name} ({variant.sku})</span>
+                          {variant.isDefault && <Badge variant="outline" className="text-[10px]">Default</Badge>}
+                        </div>
+                        <div className="mt-2 space-y-1">
+                          {variant.prices?.map((price) => (
+                            <div key={price.id} className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">{price.priceBook?.name}</span>
+                              <span className="font-semibold">
+                                {new Intl.NumberFormat("en-US", {
+                                  style: "currency",
+                                  currency: price.priceBook?.currency || "USD",
+                                }).format(price.price)}
+                                {price.billingType === "RECURRING" && ` / ${price.billingPeriod}`}
+                              </span>
+                            </div>
                           ))}
                         </div>
                       </div>
-                    );
-                  })()}
-
-                {selectedProduct.description && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-semibold">Description</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedProduct.description}
-                    </p>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Created</span>
-                    <p>{formatDate(selectedProduct.created)}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Last Updated</span>
-                    <p>{formatDate(selectedProduct.lastUpdated)}</p>
+                    ))}
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </DrawerContent>
         </Drawer>
 
         {/* Add Product Drawer */}
         <Drawer open={showAdd} onOpenChange={setShowAdd}>
-          <DrawerContent className="w-full md:w-[720px] md:max-w-[720px] lg:w-[860px] lg:max-w-[860px] xl:w-[1000px] xl:max-w-[1000px] p-6 flex flex-col">
-            <DrawerHeader>
-              <DrawerTitle>Add New Product</DrawerTitle>
+          <DrawerContent className="w-full md:w-[720px] p-6 focus:outline-none">
+            <DrawerHeader className="px-0">
+              <DrawerTitle>Define New Product</DrawerTitle>
               <DrawerDescription>
-                Fill in the details to create a new product.
+                Create the core product concept. Pricing and variants can be refined later.
               </DrawerDescription>
             </DrawerHeader>
-            <div className="flex-1 overflow-y-auto overflow-x-visible">
-              <ProductForm 
-                formData={formData} 
-                setFormData={setFormData} 
-                categories={categories}
-                units={units}
-                pricingModels={pricingModels}
-              />
-            </div>
-            <DrawerFooter>
-              <Button variant="outline" onClick={() => setShowAdd(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAdd}>
-                <Plus className="h-4 w-4 mr-2" /> Create Product
-              </Button>
+            <ProductForm 
+              formData={formData} 
+              setFormData={setFormData} 
+              categories={categories}
+              brands={brands}
+            />
+            <DrawerFooter className="px-0 pt-6">
+               <div className="flex justify-end gap-3 w-full">
+                <Button variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+                <Button onClick={handleAdd}>Initialize Product</Button>
+              </div>
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
 
         {/* Edit Product Drawer */}
         <Drawer open={showEdit} onOpenChange={setShowEdit}>
-          <DrawerContent className="h-screen w-full md:w-[720px] md:max-w-[720px] lg:w-[860px] lg:max-w-[860px] xl:w-[1000px] xl:max-w-[1000px] p-6 overflow-y-auto">
-            <DrawerHeader>
-              <DrawerTitle>Edit Product</DrawerTitle>
-              <DrawerDescription>Update product information.</DrawerDescription>
+          <DrawerContent className="w-full md:w-[720px] p-6 focus:outline-none">
+            <DrawerHeader className="px-0">
+              <DrawerTitle>Modify Product</DrawerTitle>
+              <DrawerDescription>Update core product definitions.</DrawerDescription>
             </DrawerHeader>
             <ProductForm 
               formData={formData} 
               setFormData={setFormData} 
               categories={categories}
-              units={units}
-              pricingModels={pricingModels}
+              brands={brands}
             />
-            <DrawerFooter>
-              <Button variant="outline" onClick={() => setShowEdit(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleEdit}>
-                <Edit className="h-4 w-4 mr-2" /> Save Changes
-              </Button>
+            <DrawerFooter className="px-0 pt-6">
+              <div className="flex justify-end gap-3 w-full">
+                <Button variant="outline" onClick={() => setShowEdit(false)}>Cancel</Button>
+                <Button onClick={handleEdit}>Update Definitions</Button>
+              </div>
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
