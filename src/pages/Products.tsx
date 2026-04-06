@@ -77,7 +77,6 @@ type ProductCategory =
   | "Training"
   | "Other";
 type ProductStatus = "active" | "draft" | "discontinued";
-type PricingModel = "one-time" | "subscription" | "usage-based" | "tiered";
 
 interface Product {
   id: number;
@@ -87,7 +86,8 @@ interface Product {
   categoryId: number;
   categoryName: string;
   status: string;
-  pricingModel: PricingModel;
+  pricingModelId: number;
+  pricingModelName: string;
   unitPrice: number;
   cost: number;
   margin: number;
@@ -138,25 +138,6 @@ const categoryConfig: Record<
   },
 };
 
-const pricingConfig: Record<PricingModel, { label: string; color: string }> = {
-  "one-time": {
-    label: "One-Time",
-    color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  },
-  subscription: {
-    label: "Subscription",
-    color: "bg-green-500/10 text-green-500 border-green-500/20",
-  },
-  "usage-based": {
-    label: "Usage-Based",
-    color: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-  },
-  tiered: {
-    label: "Tiered",
-    color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-  },
-};
-
 // ProductForm component moved OUTSIDE Products component to prevent remounting
 interface ProductFormProps {
   formData: {
@@ -164,7 +145,7 @@ interface ProductFormProps {
     sku: string;
     description: string;
     categoryId: string;
-    pricingModel: PricingModel;
+    pricingModelId: string;
     unitPrice: string;
     cost: string;
     stock: string;
@@ -176,9 +157,10 @@ interface ProductFormProps {
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   categories: any[];
   units: any[];
+  pricingModels: any[];
 }
 
-const ProductForm = ({ formData, setFormData, categories, units }: ProductFormProps) => {
+const ProductForm = ({ formData, setFormData, categories, units, pricingModels }: ProductFormProps) => {
   const unitPrice = parseFloat(formData.unitPrice) || 0;
   const cost = parseFloat(formData.cost) || 0;
   const margin =
@@ -230,19 +212,20 @@ const ProductForm = ({ formData, setFormData, categories, units }: ProductFormPr
         <div className="space-y-2">
           <Label>Pricing Model</Label>
           <Select
-            value={formData.pricingModel}
+            value={formData.pricingModelId}
             onValueChange={(v) =>
-              setFormData({ ...formData, pricingModel: v as PricingModel })
+              setFormData({ ...formData, pricingModelId: v })
             }
           >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="one-time">One-Time</SelectItem>
-              <SelectItem value="subscription">Subscription</SelectItem>
-              <SelectItem value="usage-based">Usage-Based</SelectItem>
-              <SelectItem value="tiered">Tiered</SelectItem>
+              {pricingModels.map((model: any) => (
+                <SelectItem key={model.id} value={model.id.toString()}>
+                  {model.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -451,7 +434,7 @@ const Products = () => {
     sku: "",
     description: "",
     categoryId: "",
-    pricingModel: "one-time" as PricingModel,
+    pricingModelId: "",
     unitPrice: "",
     cost: "",
     stock: "",
@@ -459,6 +442,11 @@ const Products = () => {
     unitId: "",
     taxRate: "0",
     tags: "",
+  });
+
+  const { data: pricingModels = [] } = useQuery({
+    queryKey: ["product-pricing-models"],
+    queryFn: () => api.products.getPricingModels().catch(() => []),
   });
 
   const stats = {
@@ -509,33 +497,35 @@ const Products = () => {
       name: "",
       sku: "",
       description: "",
-      categoryId: categories[0]?.id?.toString() || "",
-      pricingModel: "one-time",
+      categoryId: "",
+      pricingModelId: "",
       unitPrice: "",
       cost: "",
       stock: "",
       reorderLevel: "",
-      unitId: units[0]?.id?.toString() || "",
+      unitId: "",
       taxRate: "0",
       tags: "",
     });
   };
 
-  const openEdit = (product: Product) => {
+  const handleEditClick = (product: Product) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
       sku: product.sku,
-      description: product.description,
+      description: product.description || "",
       categoryId: product.categoryId?.toString() || "",
-      pricingModel: product.pricingModel,
+      pricingModelId: product.pricingModelId?.toString() || "",
       unitPrice: product.unitPrice.toString(),
       cost: product.cost.toString(),
       stock: product.stock.toString(),
       reorderLevel: product.reorderLevel.toString(),
       unitId: product.unitId?.toString() || "",
       taxRate: product.taxRate.toString(),
-      tags: product.tags || "",
+      tags: Array.isArray(product.tags)
+        ? product.tags.join(", ")
+        : String(product.tags || ""),
     });
     setShowEdit(true);
   };
@@ -553,7 +543,8 @@ const Products = () => {
       description: formData.description,
       categoryId: parseInt(formData.categoryId),
       categoryName: categories.find(c => c.id.toString() === formData.categoryId)?.name || "Software",
-      pricingModel: formData.pricingModel,
+      pricingModelId: parseInt(formData.pricingModelId),
+      pricingModelName: pricingModels.find(p => p.id.toString() === formData.pricingModelId)?.name || "One-Time",
       unitPrice,
       cost,
       margin:
@@ -582,7 +573,8 @@ const Products = () => {
         description: formData.description,
         categoryId: parseInt(formData.categoryId),
         categoryName: categories.find(c => c.id.toString() === formData.categoryId)?.name || "Software",
-        pricingModel: formData.pricingModel,
+        pricingModelId: parseInt(formData.pricingModelId),
+        pricingModelName: pricingModels.find(p => p.id.toString() === formData.pricingModelId)?.name || "One-Time",
         unitPrice,
         cost,
         margin:
@@ -747,10 +739,11 @@ const Products = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Pricing</SelectItem>
-                <SelectItem value="one-time">One-Time</SelectItem>
-                <SelectItem value="subscription">Subscription</SelectItem>
-                <SelectItem value="usage-based">Usage-Based</SelectItem>
-                <SelectItem value="tiered">Tiered</SelectItem>
+                {pricingModels.map((model: any) => (
+                  <SelectItem key={model.id} value={model.id.toString()}>
+                    {model.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm">
@@ -836,13 +829,13 @@ const Products = () => {
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className={pricingConfig[product.pricingModel].color}
+                        className="bg-purple-500/10 text-purple-500 border-purple-500/20"
                       >
-                        {pricingConfig[product.pricingModel].label}
+                        {product.pricingModelName}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {product.pricingModel === "usage-based"
+                      {product.pricingModelName?.toLowerCase().includes("usage")
                         ? `$${toFixedSafe(toNumber(product?.unitPrice), 2)} / req`
                         : formatCurrencyValue(
                           toNumber(product?.unitPrice),
@@ -909,7 +902,7 @@ const Products = () => {
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openEdit(product);
+                                handleEditClick(product);
                               }}
                             >
                               <Edit className="h-4 w-4 mr-2" />
@@ -1060,11 +1053,9 @@ const Products = () => {
                         </span>
                         <Badge
                           variant="outline"
-                          className={
-                            pricingConfig[selectedProduct.pricingModel].color
-                          }
+                          className="bg-purple-500/10 text-purple-500 border-purple-500/20"
                         >
-                          {pricingConfig[selectedProduct.pricingModel].label}
+                          {selectedProduct.pricingModelName}
                         </Badge>
                       </div>
                       <div className="flex justify-between">
@@ -1186,6 +1177,7 @@ const Products = () => {
                 setFormData={setFormData} 
                 categories={categories}
                 units={units}
+                pricingModels={pricingModels}
               />
             </div>
             <DrawerFooter>
@@ -1211,6 +1203,7 @@ const Products = () => {
               setFormData={setFormData} 
               categories={categories}
               units={units}
+              pricingModels={pricingModels}
             />
             <DrawerFooter>
               <Button variant="outline" onClick={() => setShowEdit(false)}>

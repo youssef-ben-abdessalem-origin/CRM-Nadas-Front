@@ -24,6 +24,7 @@ import ProfilePage from "./pages/ProfilePage.tsx";
 import EmailsPage from "./pages/EmailsPage.tsx";
 import CalendarPage from "./pages/CalendarPage.tsx";
 import Products from "./pages/Products.tsx";
+import ProductSettings from "./pages/ProductSettings.tsx";
 import QuotesPage from "./pages/QuotesPage.tsx";
 import InvoicesPage from "./pages/InvoicesPage.tsx";
 import OrdersPage from "./pages/OrdersPage.tsx";
@@ -31,13 +32,10 @@ import PaymentsPage from "./pages/PaymentsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
 import { ProtectedRoute } from "@/components/ProtectedRoute.tsx";
-import Cookies from "js-cookie";
-import { LogoutButton } from "./components/ui/logout-button";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const isAuth = !!Cookies.get("token");
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -219,6 +217,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Products />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/products/settings"
+              element={
+                <ProtectedRoute>
+                  <ProductSettings />
                 </ProtectedRoute>
               }
             />

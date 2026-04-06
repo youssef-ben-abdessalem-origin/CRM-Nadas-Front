@@ -433,6 +433,22 @@ export const api = {
       const res = await axiosInstance.delete(`/api/v1/products/units/${id}`);
       return res.data;
     },
+    getPricingModels: async () => {
+      const res = await axiosInstance.get("/api/v1/products/pricing-models");
+      return normalizeResponse(res.data);
+    },
+    createPricingModel: async (name: string) => {
+      const res = await axiosInstance.post("/api/v1/products/pricing-models", { name });
+      return res.data;
+    },
+    updatePricingModel: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/pricing-models/${id}`, data);
+      return res.data;
+    },
+    deletePricingModel: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/products/pricing-models/${id}`);
+      return res.data;
+    },
     getOne: async (id: number) => {
       const res = await axiosInstance.get(`/api/v1/products/${id}`);
       return normalizeResponse(res.data);
