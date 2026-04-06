@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 
-const API_BASE = "http://localhost:3001";
+const API_BASE = "http://192.168.0.110:3001";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE,

@@ -22,7 +22,6 @@ import {
   Calendar,
   FileSearch,
   Bell,
-  List,
   Table2,
 } from "lucide-react";
 import { useState } from "react";
@@ -125,7 +124,12 @@ const navSections: NavSection[] = [
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<string[]>(["Leads", "Contacts", "Accounts", "Deals"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>([
+    "Leads",
+    "Contacts",
+    "Accounts",
+    "Deals",
+  ]);
   const location = useLocation();
 
   const toggleExpand = (label: string) => {
@@ -149,18 +153,26 @@ export function AppSidebar() {
   return (
     <aside
       className={`flex flex-col h-screen bg-[hsl(var(--sidebar-bg))] border-r border-[hsl(var(--sidebar-border))] transition-all duration-200 ${
-        collapsed ? "w-16" : "w-60"
+        collapsed ? "w-15" : "w-60"
       }`}
     >
       <div className="flex items-center gap-2 px-4 h-14 border-b border-[hsl(var(--sidebar-border))]">
         <img
           src={collapsed ? logoSmall : logoBig}
           alt="CRM Suite"
-          className={`shrink-0 brightness-0 invert transition-all duration-200 ${collapsed ? "h-8 w-10" : "h-12"}`}
+          className={`shrink-0 brightness-0 invert transition-all duration-200 ${
+            collapsed ? "h-8 w-10" : "h-12"
+          }`}
         />
       </div>
 
-      <nav className="flex-1 p-2 space-y-3 overflow-y-auto">
+      <nav
+        className="flex-1 p-2 space-y-3 overflow-y-auto"
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: "hsl(var(--primary)) transparent",
+        }}
+      >
         {navSections.map((section, sIdx) => (
           <div key={sIdx}>
             {!collapsed && section.label && (
@@ -179,7 +191,9 @@ export function AppSidebar() {
                     <NavLink
                       key={item.label}
                       to={item.children?.[0]?.path || "/"}
-                      className={`sidebar-item ${active ? "sidebar-item-active" : "sidebar-item-inactive"}`}
+                      className={`sidebar-item ${
+                        active ? "sidebar-item-active" : "sidebar-item-inactive"
+                      }`}
                     >
                       <item.icon className="h-4 w-4 shrink-0" />
                     </NavLink>
@@ -191,24 +205,31 @@ export function AppSidebar() {
                     <div key={item.label}>
                       <button
                         onClick={() => toggleExpand(item.label)}
-                        className={`sidebar-item w-full ${active ? "sidebar-item-active" : "sidebar-item-inactive"}`}
+                        className={`sidebar-item w-full ${
+                          active ? "sidebar-item-active" : "sidebar-item-inactive"
+                        }`}
                       >
                         <item.icon className="h-4 w-4 shrink-0" />
                         <span className="flex-1 text-left">{item.label}</span>
                         <ChevronDown
-                          className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                          className={`h-3 w-3 transition-transform ${
+                            isExpanded ? "rotate-180" : ""
+                          }`}
                         />
                       </button>
                       {isExpanded && (
                         <div className="ml-4 mt-1 space-y-0.5 border-l border-muted pl-2">
                           {item.children?.map((child) => {
-                            const childActive = location.pathname === child.path;
+                            const childActive =
+                              location.pathname === child.path;
                             return (
                               <NavLink
                                 key={child.path}
                                 to={child.path || "/"}
                                 className={`sidebar-item text-sm ${
-                                  childActive ? "sidebar-item-active" : "sidebar-item-inactive"
+                                  childActive
+                                    ? "sidebar-item-active"
+                                    : "sidebar-item-inactive"
                                 }`}
                               >
                                 <child.icon className="h-3.5 w-3.5 shrink-0" />
@@ -226,7 +247,9 @@ export function AppSidebar() {
                   <NavLink
                     key={item.label}
                     to={item.path || "/"}
-                    className={`sidebar-item ${active ? "sidebar-item-active" : "sidebar-item-inactive"}`}
+                    className={`sidebar-item ${
+                      active ? "sidebar-item-active" : "sidebar-item-inactive"
+                    }`}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
                     <span>{item.label}</span>
