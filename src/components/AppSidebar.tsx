@@ -124,12 +124,7 @@ const navSections: NavSection[] = [
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<string[]>([
-    "Leads",
-    "Contacts",
-    "Accounts",
-    "Deals",
-  ]);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const location = useLocation();
 
   const toggleExpand = (label: string) => {
