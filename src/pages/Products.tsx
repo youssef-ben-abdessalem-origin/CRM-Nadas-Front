@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import CurrencyBadge from "@/components/ui/currency-badge";
+import { toNumber, toFixedSafe, formatCurrencyValue } from "@/utils/number";
 import { useProfileCurrency } from "@/hooks/useProfileCurrency";
 import {
   Search,
@@ -850,11 +851,11 @@ const Products = () => {
                       {statusConfig[product.status].label}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right font-medium">
+                    <TableCell className="text-right font-medium">
                     {product.pricingModel === "usage-based"
-                      ? `$${product.unitPrice.toFixed(2)} / req`
-                      : formatCurrency(product.unitPrice)}
-                  </TableCell>
+                      ? `$${toFixedSafe(toNumber(product?.unitPrice), 2)} / req`
+                      : formatCurrencyValue(toNumber(product?.unitPrice), currencyInfo?.currency ?? 'USD')}
+                    </TableCell>
                   <TableCell className="text-right">
                     <span
                       className={`font-medium ${
@@ -884,9 +885,9 @@ const Products = () => {
                   <TableCell className="text-right text-muted-foreground">
                     {product.totalSold}
                   </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(product.totalRevenue)}
-                  </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrencyValue(toNumber(product.totalRevenue), currencyInfo?.currency ?? 'USD')}
+                    </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button
@@ -1008,7 +1009,10 @@ const Products = () => {
                         <span className="text-muted-foreground">
                           Unit Price
                         </span>
-                        <CurrencyBadge amount={selectedProduct.unitPrice} currencyCode={currencyInfo?.currency} />
+                        <CurrencyBadge
+                          amount={toNumber(selectedProduct.unitPrice)}
+                          currencyCode={currencyInfo?.currency}
+                        />
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Cost</span>
@@ -1057,7 +1061,10 @@ const Products = () => {
                         <span className="text-muted-foreground">
                           Total Revenue
                         </span>
-                        <CurrencyBadge amount={selectedProduct.totalRevenue} currencyCode={currencyInfo?.currency} />
+                        <CurrencyBadge
+                          amount={selectedProduct.totalRevenue}
+                          currencyCode={currencyInfo?.currency}
+                        />
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">
@@ -1091,26 +1098,34 @@ const Products = () => {
                   </div>
                 </div>
 
-                {selectedProduct.tags && (() => {
-                  const tagList = Array.isArray(selectedProduct.tags)
-                    ? selectedProduct.tags
-                    : String(selectedProduct.tags ?? "").split(",").map((t) => t.trim()).filter(Boolean);
-                  if (tagList.length === 0) return null;
-                  return (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold flex items-center gap-2">
-                        <Tag className="h-4 w-4" /> Tags
-                      </h4>
-                      <div className="flex flex-wrap gap-1.5">
-                        {tagList.map((tag: string) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
+                {selectedProduct.tags &&
+                  (() => {
+                    const tagList = Array.isArray(selectedProduct.tags)
+                      ? selectedProduct.tags
+                      : String(selectedProduct.tags ?? "")
+                          .split(",")
+                          .map((t) => t.trim())
+                          .filter(Boolean);
+                    if (tagList.length === 0) return null;
+                    return (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <Tag className="h-4 w-4" /> Tags
+                        </h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {tagList.map((tag: string) => (
+                            <Badge
+                              key={tag}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })()}
+                    );
+                  })()}
 
                 {selectedProduct.description && (
                   <div className="space-y-2">
@@ -1138,7 +1153,7 @@ const Products = () => {
 
         {/* Add Product Drawer */}
         <Drawer open={showAdd} onOpenChange={setShowAdd}>
-          <DrawerContent className="w-full md:w-[720px] md:max-w-[720px] lg:w-[860px] lg:max-w-[860px] xl:w-[1000px] xl:max-w-[1000px] p-6 flex flex-col overflow-y-auto">
+          <DrawerContent className="w-full md:w-[720px] md:max-w-[720px] lg:w-[860px] lg:max-w-[860px] xl:w-[1000px] xl:max-w-[1000px] p-6 flex flex-col">
             <DrawerHeader>
               <DrawerTitle>Add New Product</DrawerTitle>
               <DrawerDescription>
