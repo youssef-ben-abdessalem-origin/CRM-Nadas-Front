@@ -389,17 +389,48 @@ export const api = {
       const res = await axiosInstance.get("/api/v1/products");
       return normalizeResponse(res.data);
     },
-    getPaginated: async (params: { page?: number; limit?: number; search?: string; category?: string; status?: string } = {}) => {
-      const { page = 1, limit = 5, search, category, status } = params;
+    getPaginated: async (params: { page?: number; limit?: number; search?: string; categoryId?: number } = {}) => {
+      const { page = 1, limit = 5, search, categoryId } = params;
       const queryParams = new URLSearchParams();
       queryParams.append("page", String(page));
       queryParams.append("limit", String(limit));
       if (search) queryParams.append("search", search);
-      if (category) queryParams.append("category", category);
-      if (status) queryParams.append("status", status);
+      if (categoryId) queryParams.append("categoryId", String(categoryId));
       const res = await axiosInstance.get(
         `/api/v1/products/paginated?${queryParams.toString()}`,
       );
+      return res.data;
+    },
+    getCategories: async () => {
+      const res = await axiosInstance.get("/api/v1/products/categories");
+      return normalizeResponse(res.data);
+    },
+    createCategory: async (name: string) => {
+      const res = await axiosInstance.post("/api/v1/products/categories", { name });
+      return res.data;
+    },
+    updateCategory: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/categories/${id}`, data);
+      return res.data;
+    },
+    deleteCategory: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/products/categories/${id}`);
+      return res.data;
+    },
+    getUnits: async () => {
+      const res = await axiosInstance.get("/api/v1/products/units");
+      return normalizeResponse(res.data);
+    },
+    createUnit: async (name: string) => {
+      const res = await axiosInstance.post("/api/v1/products/units", { name });
+      return res.data;
+    },
+    updateUnit: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/units/${id}`, data);
+      return res.data;
+    },
+    deleteUnit: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/products/units/${id}`);
       return res.data;
     },
     getOne: async (id: number) => {
