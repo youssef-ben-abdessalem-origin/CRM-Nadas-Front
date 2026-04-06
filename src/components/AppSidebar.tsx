@@ -91,7 +91,16 @@ const navSections: NavSection[] = [
   },
   {
     label: "Catalog",
-    items: [{ label: "Products", icon: Package, path: "/products" }],
+    items: [
+      {
+        label: "Products",
+        icon: Package,
+        children: [
+          { label: "Table", icon: Table2, path: "/products" },
+          { label: "Settings", icon: Settings, path: "/products/settings" },
+        ],
+      },
+    ],
   },
   {
     label: "Communication",

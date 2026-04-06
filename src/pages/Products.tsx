@@ -77,23 +77,25 @@ type ProductCategory =
   | "Training"
   | "Other";
 type ProductStatus = "active" | "draft" | "discontinued";
-type PricingModel = "one-time" | "subscription" | "usage-based" | "tiered";
 
 interface Product {
   id: number;
   name: string;
   sku: string;
   description: string;
-  category: ProductCategory;
-  status: ProductStatus;
-  pricingModel: PricingModel;
+  categoryId: number;
+  categoryName: string;
+  status: string;
+  pricingModelId: number;
+  pricingModelName: string;
   unitPrice: number;
   cost: number;
   margin: number;
   currency: string;
   stock: number;
   reorderLevel: number;
-  unit: string;
+  unitId: number;
+  unitName: string;
   taxRate: number;
   tags: string;
   created: string;
@@ -136,67 +138,29 @@ const categoryConfig: Record<
   },
 };
 
-const statusConfig: Record<
-  ProductStatus,
-  { label: string; color: string; icon: typeof CheckCircle2 }
-> = {
-  active: {
-    label: "Active",
-    color: "bg-green-500/10 text-green-500 border-green-500/20",
-    icon: CheckCircle2,
-  },
-  draft: {
-    label: "Draft",
-    color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-    icon: AlertTriangle,
-  },
-  discontinued: {
-    label: "Discontinued",
-    color: "bg-red-500/10 text-red-500 border-red-500/20",
-    icon: XCircle,
-  },
-};
-
-const pricingConfig: Record<PricingModel, { label: string; color: string }> = {
-  "one-time": {
-    label: "One-Time",
-    color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  },
-  subscription: {
-    label: "Subscription",
-    color: "bg-green-500/10 text-green-500 border-green-500/20",
-  },
-  "usage-based": {
-    label: "Usage-Based",
-    color: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-  },
-  tiered: {
-    label: "Tiered",
-    color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-  },
-};
-
 // ProductForm component moved OUTSIDE Products component to prevent remounting
 interface ProductFormProps {
   formData: {
     name: string;
     sku: string;
     description: string;
-    category: ProductCategory;
-    status: ProductStatus;
-    pricingModel: PricingModel;
+    categoryId: string;
+    pricingModelId: string;
     unitPrice: string;
     cost: string;
     stock: string;
     reorderLevel: string;
-    unit: string;
+    unitId: string;
     taxRate: string;
     tags: string;
   };
   setFormData: React.Dispatch<React.SetStateAction<any>>;
+  categories: any[];
+  units: any[];
+  pricingModels: any[];
 }
 
-const ProductForm = ({ formData, setFormData }: ProductFormProps) => {
+const ProductForm = ({ formData, setFormData, categories, units, pricingModels }: ProductFormProps) => {
   const unitPrice = parseFloat(formData.unitPrice) || 0;
   const cost = parseFloat(formData.cost) || 0;
   const margin =
@@ -228,69 +192,62 @@ const ProductForm = ({ formData, setFormData }: ProductFormProps) => {
         <div className="space-y-2">
           <Label>Category</Label>
           <Select
-            value={formData.category}
+            value={formData.categoryId}
             onValueChange={(v) =>
-              setFormData({ ...formData, category: v as ProductCategory })
+              setFormData({ ...formData, categoryId: v })
             }
           >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Software">Software</SelectItem>
-              <SelectItem value="Hardware">Hardware</SelectItem>
-              <SelectItem value="Service">Service</SelectItem>
-              <SelectItem value="Subscription">Subscription</SelectItem>
-              <SelectItem value="Support">Support</SelectItem>
-              <SelectItem value="Training">Training</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>Status</Label>
-          <Select
-            value={formData.status}
-            onValueChange={(v) =>
-              setFormData({ ...formData, status: v as ProductStatus })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="discontinued">Discontinued</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id.toString()}>
+                  {cat.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
           <Label>Pricing Model</Label>
           <Select
-            value={formData.pricingModel}
+            value={formData.pricingModelId}
             onValueChange={(v) =>
-              setFormData({ ...formData, pricingModel: v as PricingModel })
+              setFormData({ ...formData, pricingModelId: v })
             }
           >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="one-time">One-Time</SelectItem>
-              <SelectItem value="subscription">Subscription</SelectItem>
-              <SelectItem value="usage-based">Usage-Based</SelectItem>
-              <SelectItem value="tiered">Tiered</SelectItem>
+              {pricingModels.map((model: any) => (
+                <SelectItem key={model.id} value={model.id.toString()}>
+                  {model.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
           <Label>Unit</Label>
-          <Input
-            placeholder="license/month"
-            value={formData.unit}
-            onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-          />
+          <Select
+            value={formData.unitId}
+            onValueChange={(v) =>
+              setFormData({ ...formData, unitId: v })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select unit" />
+            </SelectTrigger>
+            <SelectContent>
+              {units.map((unit) => (
+                <SelectItem key={unit.id} value={unit.id.toString()}>
+                  {unit.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label>Unit Price</Label>
@@ -360,13 +317,12 @@ const ProductForm = ({ formData, setFormData }: ProductFormProps) => {
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Calculated Margin</span>
             <span
-              className={`font-semibold ${
-                margin >= 70
+              className={`font-semibold ${margin >= 70
                   ? "text-green-500"
                   : margin >= 50
                     ? "text-amber-500"
                     : "text-red-500"
-              }`}
+                }`}
             >
               {margin}%
             </span>
@@ -393,11 +349,20 @@ const ProductForm = ({ formData, setFormData }: ProductFormProps) => {
 const Products = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
   const [filterPricing, setFilterPricing] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [pageSize] = useState(5);
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["product-categories"],
+    queryFn: () => api.products.getCategories().catch(() => []),
+  });
+
+  const { data: units = [] } = useQuery({
+    queryKey: ["product-units"],
+    queryFn: () => api.products.getUnits().catch(() => []),
+  });
 
   const { data: allProducts = [], isLoading: isAllProductsLoading } = useQuery({
     queryKey: ["products", "all"],
@@ -405,13 +370,12 @@ const Products = () => {
   });
 
   const { data: paginatedData, isLoading: isPaginatedLoading } = useQuery({
-    queryKey: ["products", "paginated", page, pageSize, search, filterCategory, filterStatus],
+    queryKey: ["products", "paginated", page, pageSize, search, filterCategoryId],
     queryFn: () => api.products.getPaginated({
       page,
       limit: pageSize,
       search,
-      category: filterCategory,
-      status: filterStatus
+      categoryId: filterCategoryId === "all" ? undefined : parseInt(filterCategoryId)
     }).catch(() => ({
       data: [],
       total: 0,
@@ -469,21 +433,25 @@ const Products = () => {
     name: "",
     sku: "",
     description: "",
-    category: "Software" as ProductCategory,
-    status: "active" as ProductStatus,
-    pricingModel: "one-time" as PricingModel,
+    categoryId: "",
+    pricingModelId: "",
     unitPrice: "",
     cost: "",
     stock: "",
     reorderLevel: "",
-    unit: "license/month",
+    unitId: "",
     taxRate: "0",
     tags: "",
   });
 
+  const { data: pricingModels = [] } = useQuery({
+    queryKey: ["product-pricing-models"],
+    queryFn: () => api.products.getPricingModels().catch(() => []),
+  });
+
   const stats = {
     total: allProducts.length,
-    active: allProducts.filter((p: Product) => p.status === "active").length,
+    active: allProducts.length, // Status removed as per request
     totalRevenue: allProducts.reduce(
       (sum: number, p: Product) => sum + p.totalRevenue,
       0,
@@ -491,9 +459,9 @@ const Products = () => {
     avgMargin:
       allProducts.filter((p: Product) => p.margin > 0).length > 0
         ? Math.round(
-            allProducts.reduce((sum: number, p: Product) => sum + p.margin, 0) /
-              allProducts.filter((p: Product) => p.margin > 0).length,
-          )
+          allProducts.reduce((sum: number, p: Product) => sum + p.margin, 0) /
+          allProducts.filter((p: Product) => p.margin > 0).length,
+        )
         : 0,
     totalSold: allProducts.reduce(
       (sum: number, p: Product) => sum + p.totalSold,
@@ -529,35 +497,35 @@ const Products = () => {
       name: "",
       sku: "",
       description: "",
-      category: "Software",
-      status: "active",
-      pricingModel: "one-time",
+      categoryId: "",
+      pricingModelId: "",
       unitPrice: "",
       cost: "",
       stock: "",
       reorderLevel: "",
-      unit: "license/month",
+      unitId: "",
       taxRate: "0",
       tags: "",
     });
   };
 
-  const openEdit = (product: Product) => {
+  const handleEditClick = (product: Product) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
       sku: product.sku,
-      description: product.description,
-      category: product.category,
-      status: product.status,
-      pricingModel: product.pricingModel,
+      description: product.description || "",
+      categoryId: product.categoryId?.toString() || "",
+      pricingModelId: product.pricingModelId?.toString() || "",
       unitPrice: product.unitPrice.toString(),
       cost: product.cost.toString(),
       stock: product.stock.toString(),
       reorderLevel: product.reorderLevel.toString(),
-      unit: product.unit,
+      unitId: product.unitId?.toString() || "",
       taxRate: product.taxRate.toString(),
-      tags: product.tags || "",
+      tags: Array.isArray(product.tags)
+        ? product.tags.join(", ")
+        : String(product.tags || ""),
     });
     setShowEdit(true);
   };
@@ -573,9 +541,10 @@ const Products = () => {
       name: formData.name,
       sku: formData.sku,
       description: formData.description,
-      category: formData.category,
-      status: formData.status,
-      pricingModel: formData.pricingModel,
+      categoryId: parseInt(formData.categoryId),
+      categoryName: categories.find(c => c.id.toString() === formData.categoryId)?.name || "Software",
+      pricingModelId: parseInt(formData.pricingModelId),
+      pricingModelName: pricingModels.find(p => p.id.toString() === formData.pricingModelId)?.name || "One-Time",
       unitPrice,
       cost,
       margin:
@@ -583,7 +552,8 @@ const Products = () => {
       currency: "USD",
       stock: parseInt(formData.stock) || 0,
       reorderLevel: parseInt(formData.reorderLevel) || 0,
-      unit: formData.unit,
+      unitId: parseInt(formData.unitId),
+      unitName: units.find(u => u.id.toString() === formData.unitId)?.name || "unit",
       taxRate: parseFloat(formData.taxRate) || 0,
       tags: formData.tags,
       totalSold: 0,
@@ -601,9 +571,10 @@ const Products = () => {
         name: formData.name,
         sku: formData.sku,
         description: formData.description,
-        category: formData.category,
-        status: formData.status,
-        pricingModel: formData.pricingModel,
+        categoryId: parseInt(formData.categoryId),
+        categoryName: categories.find(c => c.id.toString() === formData.categoryId)?.name || "Software",
+        pricingModelId: parseInt(formData.pricingModelId),
+        pricingModelName: pricingModels.find(p => p.id.toString() === formData.pricingModelId)?.name || "One-Time",
         unitPrice,
         cost,
         margin:
@@ -612,7 +583,8 @@ const Products = () => {
             : 0,
         stock: parseInt(formData.stock) || 0,
         reorderLevel: parseInt(formData.reorderLevel) || 0,
-        unit: formData.unit,
+        unitId: parseInt(formData.unitId),
+        unitName: units.find(u => u.id.toString() === formData.unitId)?.name || "unit",
         taxRate: parseFloat(formData.taxRate) || 0,
         tags: formData.tags,
       },
@@ -748,30 +720,17 @@ const Products = () => {
                 className="h-9 w-72 pl-9"
               />
             </div>
-            <Select value={filterCategory} onValueChange={setFilterCategory}>
-              <SelectTrigger className="h-9 w-36">
+            <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
+              <SelectTrigger className="h-9 w-44">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="Software">Software</SelectItem>
-                <SelectItem value="Hardware">Hardware</SelectItem>
-                <SelectItem value="Service">Service</SelectItem>
-                <SelectItem value="Subscription">Subscription</SelectItem>
-                <SelectItem value="Support">Support</SelectItem>
-                <SelectItem value="Training">Training</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="h-9 w-32">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="discontinued">Discontinued</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id.toString()}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select value={filterPricing} onValueChange={setFilterPricing}>
@@ -780,10 +739,11 @@ const Products = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Pricing</SelectItem>
-                <SelectItem value="one-time">One-Time</SelectItem>
-                <SelectItem value="subscription">Subscription</SelectItem>
-                <SelectItem value="usage-based">Usage-Based</SelectItem>
-                <SelectItem value="tiered">Tiered</SelectItem>
+                {pricingModels.map((model: any) => (
+                  <SelectItem key={model.id} value={model.id.toString()}>
+                    {model.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm">
@@ -861,63 +821,52 @@ const Products = () => {
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className={categoryConfig[product.category].color}
+                        className="bg-blue-500/10 text-blue-500 border-blue-500/20"
                       >
-                        {categoryConfig[product.category].label}
+                        {product.categoryName}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className={pricingConfig[product.pricingModel].color}
+                        className="bg-purple-500/10 text-purple-500 border-purple-500/20"
                       >
-                        {pricingConfig[product.pricingModel].label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={statusConfig[product.status].color}
-                      >
-                        {statusConfig[product.status].label}
+                        {product.pricingModelName}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {product.pricingModel === "usage-based"
+                      {product.pricingModelName?.toLowerCase().includes("usage")
                         ? `$${toFixedSafe(toNumber(product?.unitPrice), 2)} / req`
                         : formatCurrencyValue(
-                            toNumber(product?.unitPrice),
-                            currencyInfo?.currency ?? "USD",
-                          )}
+                          toNumber(product?.unitPrice),
+                          currencyInfo?.currency ?? "USD",
+                        )}
                     </TableCell>
                     <TableCell className="text-right">
                       <span
-                        className={`font-medium ${
-                          product.margin >= 70
+                        className={`font-medium ${product.margin >= 70
                             ? "text-green-500"
                             : product.margin >= 50
                               ? "text-amber-500"
                               : "text-red-500"
-                        }`}
+                          }`}
                       >
                         {product.margin}%
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
                       {product.stock > 0 &&
-                      product.stock <= product.reorderLevel ? (
+                        product.stock <= product.reorderLevel ? (
                         <div className="flex items-center justify-end gap-1 text-amber-500">
                           <AlertTriangle className="h-3.5 w-3.5" />
                           <span className="font-medium">{product.stock}</span>
                         </div>
-                      ) : product.status === "discontinued" ? (
-                        <span className="text-muted-foreground">—</span>
                       ) : (
                         <span className="font-medium">{product.stock}</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {product.totalSold}
+                    <TableCell className="text-right text-muted-foreground whitespace-nowrap">
+                      {product.totalSold} {product.unitName}
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {formatCurrencyValue(
@@ -953,7 +902,7 @@ const Products = () => {
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
-                                openEdit(product);
+                                handleEditClick(product);
                               }}
                             >
                               <Edit className="h-4 w-4 mr-2" />
@@ -1052,23 +1001,15 @@ const Products = () => {
                         <Hash className="h-3 w-3" />
                         {selectedProduct.sku}
                         <span className="mx-1">·</span>
-                        {selectedProduct.unit}
+                        <span className="text-muted-foreground">{selectedProduct.unitName}</span>
                       </DrawerDescription>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge
                         variant="outline"
-                        className={statusConfig[selectedProduct.status].color}
+                        className="bg-blue-500/10 text-blue-500 border-blue-500/20"
                       >
-                        {statusConfig[selectedProduct.status].label}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className={
-                          categoryConfig[selectedProduct.category].color
-                        }
-                      >
-                        {categoryConfig[selectedProduct.category].label}
+                        {selectedProduct.categoryName}
                       </Badge>
                     </div>
                   </div>
@@ -1096,13 +1037,12 @@ const Products = () => {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Margin</span>
                         <span
-                          className={`font-semibold ${
-                            selectedProduct.margin >= 70
+                          className={`font-semibold ${selectedProduct.margin >= 70
                               ? "text-green-500"
                               : selectedProduct.margin >= 50
                                 ? "text-amber-500"
                                 : "text-red-500"
-                          }`}
+                            }`}
                         >
                           {selectedProduct.margin}%
                         </span>
@@ -1113,11 +1053,9 @@ const Products = () => {
                         </span>
                         <Badge
                           variant="outline"
-                          className={
-                            pricingConfig[selectedProduct.pricingModel].color
-                          }
+                          className="bg-purple-500/10 text-purple-500 border-purple-500/20"
                         >
-                          {pricingConfig[selectedProduct.pricingModel].label}
+                          {selectedProduct.pricingModelName}
                         </Badge>
                       </div>
                       <div className="flex justify-between">
@@ -1148,19 +1086,17 @@ const Products = () => {
                         <span>{selectedProduct.totalSold}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">
-                          Stock Level
-                        </span>
+                        <span className="text-muted-foreground">Stock</span>
                         <span
                           className={
                             selectedProduct.stock <=
                               selectedProduct.reorderLevel &&
-                            selectedProduct.stock > 0
+                              selectedProduct.stock > 0
                               ? "text-amber-500 font-medium"
                               : ""
                           }
                         >
-                          {selectedProduct.stock} {selectedProduct.unit}
+                          {selectedProduct.stock} {selectedProduct.unitName}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -1178,9 +1114,9 @@ const Products = () => {
                     const tagList = Array.isArray(selectedProduct.tags)
                       ? selectedProduct.tags
                       : String(selectedProduct.tags ?? "")
-                          .split(",")
-                          .map((t) => t.trim())
-                          .filter(Boolean);
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean);
                     if (tagList.length === 0) return null;
                     return (
                       <div className="space-y-2">
@@ -1235,8 +1171,14 @@ const Products = () => {
                 Fill in the details to create a new product.
               </DrawerDescription>
             </DrawerHeader>
-            <div className="flex-1 overflow-y-auto">
-              <ProductForm formData={formData} setFormData={setFormData} />
+            <div className="flex-1 overflow-y-auto overflow-x-visible">
+              <ProductForm 
+                formData={formData} 
+                setFormData={setFormData} 
+                categories={categories}
+                units={units}
+                pricingModels={pricingModels}
+              />
             </div>
             <DrawerFooter>
               <Button variant="outline" onClick={() => setShowAdd(false)}>
@@ -1256,7 +1198,13 @@ const Products = () => {
               <DrawerTitle>Edit Product</DrawerTitle>
               <DrawerDescription>Update product information.</DrawerDescription>
             </DrawerHeader>
-            <ProductForm formData={formData} setFormData={setFormData} />
+            <ProductForm 
+              formData={formData} 
+              setFormData={setFormData} 
+              categories={categories}
+              units={units}
+              pricingModels={pricingModels}
+            />
             <DrawerFooter>
               <Button variant="outline" onClick={() => setShowEdit(false)}>
                 Cancel
