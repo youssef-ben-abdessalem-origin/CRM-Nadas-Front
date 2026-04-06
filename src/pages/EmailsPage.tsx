@@ -4,7 +4,17 @@ import { CRMLayout } from "@/components/CRMLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, MailOpen, RefreshCw, Link2, Unlink, Inbox } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Mail, MailOpen, RefreshCw, Link2, Unlink, Inbox, Send, Plus } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 
@@ -24,6 +34,10 @@ interface EmailMessage {
 const EmailsPage = () => {
   const queryClient = useQueryClient();
   const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
+  const [showCompose, setShowCompose] = useState(false);
+  const [composeTo, setComposeTo] = useState("");
+  const [composeSubject, setComposeSubject] = useState("");
+  const [composeBody, setComposeBody] = useState("");
 
   const { data: status } = useQuery({
     queryKey: ["gmail-status"],
@@ -50,6 +64,20 @@ const EmailsPage = () => {
       queryClient.invalidateQueries({ queryKey: ["gmail-status"] });
       queryClient.invalidateQueries({ queryKey: ["gmail-messages"] });
       toast.success("Gmail disconnected");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const sendMutation = useMutation({
+    mutationFn: ({ to, subject, body, threadId }: { to: string; subject: string; body: string; threadId?: string }) =>
+      api.gmail.send(to, subject, body, threadId),
+    onSuccess: () => {
+      toast.success("Email sent successfully!");
+      setShowCompose(false);
+      setComposeTo("");
+      setComposeSubject("");
+      setComposeBody("");
+      queryClient.invalidateQueries({ queryKey: ["gmail-messages"] });
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -134,6 +162,14 @@ const EmailsPage = () => {
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isLoading}>
                   <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => setShowCompose(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Compose
                 </Button>
                 <Button
                   variant="outline"
@@ -239,6 +275,63 @@ const EmailsPage = () => {
           </div>
         </div>
       </div>
+
+      <Dialog open={showCompose} onOpenChange={setShowCompose}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Compose Email</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>To</Label>
+              <Input
+                placeholder="recipient@example.com"
+                value={composeTo}
+                onChange={(e) => setComposeTo(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Subject</Label>
+              <Input
+                placeholder="Email subject"
+                value={composeSubject}
+                onChange={(e) => setComposeSubject(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Body</Label>
+              <Textarea
+                placeholder="Write your message..."
+                value={composeBody}
+                onChange={(e) => setComposeBody(e.target.value)}
+                rows={6}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCompose(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (!composeTo || !composeSubject) {
+                  toast.error("Please fill in recipient and subject");
+                  return;
+                }
+                sendMutation.mutate({
+                  to: composeTo,
+                  subject: composeSubject,
+                  body: composeBody,
+                });
+              }}
+              disabled={sendMutation.isPending}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              {sendMutation.isPending ? "Sending..." : "Send"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </CRMLayout>
   );
 };

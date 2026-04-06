@@ -67,6 +67,9 @@ import {
   Briefcase,
   FileText,
   Eye,
+  Circle,
+  CheckCircle,
+  CheckSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -142,47 +145,11 @@ const Contacts = () => {
     queryFn: () => api.contacts.getTiers().catch(() => []),
   });
 
-  const createMutation = useMutation({
-    mutationFn: api.contacts.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["contacts"] });
-      toast.success("Contact created successfully");
-      setShowAdd(false);
-      setAddStep(0);
-      resetForm();
-    },
-    onError: (err: Error) => toast.error(err.message),
+  const { data: activityTypes = [] } = useQuery({
+    queryKey: ["activity-types"],
+    queryFn: () => api.activities.getTypes().catch(() => []),
   });
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) => api.contacts.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["contacts"] });
-      toast.success("Contact updated successfully");
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: api.contacts.delete,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["contacts"] });
-      toast.success("Contact deleted successfully");
-      setShowDetail(false);
-      setSelectedContact(null);
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
-
-  const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterTier, setFilterTier] = useState<string>("all");
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [showDetail, setShowDetail] = useState(false);
-  const [showAdd, setShowAdd] = useState(false);
-  const [addStep, setAddStep] = useState(0);
-  const [showEdit, setShowEdit] = useState(false);
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
@@ -196,6 +163,86 @@ const Contacts = () => {
     industry: "",
     website: "",
     notes: "",
+  });
+
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterTier, setFilterTier] = useState<string>("all");
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [showDetail, setShowDetail] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [addStep, setAddStep] = useState(0);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [showActivity, setShowActivity] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [newActivity, setNewActivity] = useState({
+    typeId: 0,
+    subject: "",
+    description: "",
+    dueDate: "",
+  });
+
+  const { data: contactActivities = [] } = useQuery({
+    queryKey: ["contact-activities", selectedContact?.id],
+    queryFn: () => selectedContact ? api.activities.getByEntity("contact", selectedContact.id).catch(() => []) : [],
+    enabled: !!selectedContact,
+  });
+
+  const { data: contactDeals = [] } = useQuery({
+    queryKey: ["contact-deals", selectedContact?.id],
+    queryFn: () => selectedContact ? api.deals.getByContact(selectedContact.id).catch(() => []) : [],
+    enabled: !!selectedContact,
+  });
+
+  const createActivityMutation = useMutation({
+    mutationFn: (data: any) => api.activities.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contact-activities"] });
+      toast.success("Activity added");
+      setShowActivity(false);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const completeActivityMutation = useMutation({
+    mutationFn: (id: number) => api.activities.complete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contact-activities"] });
+      toast.success("Activity completed");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: api.contacts.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      toast.success("Contact created");
+      setShowAdd(false);
+      setAddStep(0);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => api.contacts.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      toast.success("Contact updated");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: api.contacts.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      toast.success("Contact deleted");
+      setShowDetail(false);
+    },
+    onError: (err: Error) => toast.error(err.message),
   });
 
   const steps = [
@@ -676,6 +723,11 @@ const Contacts = () => {
             <Button variant="outline" size="sm">
               <Download className="h-3.5 w-3.5 mr-1" /> Export
             </Button>
+            {selectedContacts.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => setShowBulkActions(true)}>
+                <CheckSquare className="h-3.5 w-3.5 mr-1" /> Bulk ({selectedContacts.length})
+              </Button>
+            )}
             <Button size="sm" onClick={() => { resetForm(); setShowAdd(true); }}>
               <Plus className="h-3.5 w-3.5 mr-1" /> Add Contact
             </Button>
@@ -685,9 +737,23 @@ const Contacts = () => {
         {/* Table */}
         <Card>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Contact</TableHead>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>
+                    <input
+                      type="checkbox"
+                      checked={selectedContacts.length > 0 && selectedContacts.length === filtered.length}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedContacts(filtered.map((c: Contact) => c.id));
+                        } else {
+                          setSelectedContacts([]);
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                  </TableHead>
+                  <TableHead>Contact</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Tier</TableHead>
                 <TableHead>Status</TableHead>
@@ -715,6 +781,22 @@ const Contacts = () => {
                     setShowDetail(true);
                   }}
                 >
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedContacts.includes(contact.id)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        if (e.target.checked) {
+                          setSelectedContacts([...selectedContacts, contact.id]);
+                        } else {
+                          setSelectedContacts(selectedContacts.filter(id => id !== contact.id));
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-gray-300"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </TableCell>
                   <TableCell>
                     <div>
                       <div className="font-medium">{contact.name}</div>
@@ -990,6 +1072,72 @@ const Contacts = () => {
                   </div>
                 )}
 
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold">Activities</h4>
+                    <Button variant="ghost" size="sm" onClick={() => setShowActivity(true)}>
+                      <Plus className="h-4 w-4" />
+                      <span className="ml-1">Add</span>
+                    </Button>
+                  </div>
+                  {contactActivities && contactActivities.length > 0 ? (
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {contactActivities.map((activity: any) => (
+                        <div key={activity.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => !activity.completed && completeActivityMutation.mutate(activity.id)}>
+                              {activity.completed ? (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <Circle className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </button>
+                            <div>
+                              <p className={`text-sm ${activity.completed ? "line-through text-muted-foreground" : ""}`}>
+                                {activity.subject || "Activity"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : "No due date"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No activities</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold">Deals</h4>
+                    <Button variant="ghost" size="sm" onClick={() => toast.info("Create new deal")}>
+                      <Plus className="h-4 w-4" />
+                      <span className="ml-1">Add</span>
+                    </Button>
+                  </div>
+                  {contactDeals && contactDeals.length > 0 ? (
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {contactDeals.map((deal: any) => (
+                        <div key={deal.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Handshake className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                              <p className="text-sm font-medium">{deal.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatCurrency(deal.value)} • {deal.stage?.name || "Unknown"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No deals</p>
+                  )}
+                </div>
+
                 <DialogFooter className="gap-2">
                   <Button
                     variant="outline"
@@ -1203,6 +1351,91 @@ const Contacts = () => {
                 <Edit className="h-4 w-4 mr-2" /> Save Changes
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showActivity} onOpenChange={setShowActivity}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Activity</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Activity Type *</Label>
+                <Select value={String(newActivity.typeId)} onValueChange={(val) => setNewActivity({ ...newActivity, typeId: parseInt(val) })}>
+                  <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                  <SelectContent>
+                    {activityTypes.map((type: any) => (
+                      <SelectItem key={type.id} value={String(type.id)}>{type.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Subject</Label>
+                <Input value={newActivity.subject} onChange={(e) => setNewActivity({ ...newActivity, subject: e.target.value })} placeholder="Call follow-up" />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea value={newActivity.description} onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })} placeholder="Details..." />
+              </div>
+              <div className="space-y-2">
+                <Label>Due Date</Label>
+                <Input type="date" value={newActivity.dueDate} onChange={(e) => setNewActivity({ ...newActivity, dueDate: e.target.value })} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowActivity(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (!selectedContact || !newActivity.typeId) { toast.error("Please select activity type"); return; }
+                createActivityMutation.mutate({ entityType: "contact", entityId: selectedContact.id, typeId: newActivity.typeId, subject: newActivity.subject, description: newActivity.description, dueDate: newActivity.dueDate || undefined });
+              }} disabled={createActivityMutation.isPending}>
+                {createActivityMutation.isPending ? "Adding..." : "Add Activity"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showBulkActions} onOpenChange={setShowBulkActions}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Bulk Actions</DialogTitle>
+              <DialogDescription>
+                Apply actions to {selectedContacts.length} selected contacts
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {
+                  api.contacts.bulkUpdate(selectedContacts, { contactStatusId: 1 }).then(() => {
+                    toast.success("Contacts updated");
+                    setSelectedContacts([]);
+                    setShowBulkActions(false);
+                    queryClient.invalidateQueries({ queryKey: ["contacts"] });
+                  }).catch((err: Error) => toast.error(err.message));
+                }}
+              >
+                <Star className="h-4 w-4 mr-2" /> Update Status
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-red-500"
+                onClick={() => {
+                  if (confirm(`Delete ${selectedContacts.length} contacts?`)) {
+                    api.contacts.bulkDelete(selectedContacts).then(() => {
+                      toast.success("Contacts deleted");
+                      setSelectedContacts([]);
+                      setShowBulkActions(false);
+                      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+                    }).catch((err: Error) => toast.error(err.message));
+                  }
+                }}
+              >
+                <Trash2 className="h-4 w-4 mr-2" /> Delete Selected
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>

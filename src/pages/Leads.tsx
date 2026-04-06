@@ -85,6 +85,11 @@ import {
   List,
   Plus,
   Paperclip,
+  Calendar,
+  CheckCircle,
+  Circle,
+  CheckSquare,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
@@ -154,12 +159,22 @@ const Leads = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [showConvert, setShowConvert] = useState(false);
+  const [convertType, setConvertType] = useState<"contact" | "deal">("contact");
   const [showAddLead, setShowAddLead] = useState(false);
   const [useExistingAccount, setUseExistingAccount] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(8);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showActivity, setShowActivity] = useState(false);
+  const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [newActivity, setNewActivity] = useState({
+    typeId: 0,
+    subject: "",
+    description: "",
+    dueDate: "",
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -250,6 +265,17 @@ const Leads = () => {
     queryFn: () => api.leads.getQualifications().catch(() => []),
   });
 
+  const { data: activityTypes = [] } = useQuery({
+    queryKey: ["activity-types"],
+    queryFn: () => api.activities.getTypes().catch(() => []),
+  });
+
+  const { data: leadActivities = [], refetch: refetchActivities } = useQuery({
+    queryKey: ["lead-activities", selectedLead?.id],
+    queryFn: () => selectedLead ? api.activities.getByEntity("lead", selectedLead.id).catch(() => []) : [],
+    enabled: !!selectedLead,
+  });
+
   const defaultStage =
     stages.find((s: DynamicOption) => s.order === 1) || stages[0];
   const defaultScore =
@@ -327,6 +353,19 @@ const Leads = () => {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  const convertToDealMutation = useMutation({
+    mutationFn: api.leads.convertToDeal,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
+      toast.success(`Lead converted to Deal #${data.dealId}`);
+      setShowConvert(false);
+      setShowDetail(false);
+      setSelectedLead(null);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   const uploadMutation = useMutation({
     mutationFn: ({ file, leadId }: { file: File; leadId: number }) =>
       api.uploads.uploadDocument(file, "lead", leadId),
@@ -351,6 +390,41 @@ const Leads = () => {
       setIsUploading(true);
       uploadMutation.mutate({ file, leadId: selectedLead.id });
     }
+  };
+
+  const createActivityMutation = useMutation({
+    mutationFn: (data: any) => api.activities.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lead-activities"] });
+      toast.success("Activity added");
+      setShowActivity(false);
+      setNewActivity({ typeId: 0, subject: "", description: "", dueDate: "" });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const completeActivityMutation = useMutation({
+    mutationFn: (id: number) => api.activities.complete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lead-activities"] });
+      toast.success("Activity completed");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const handleCreateActivity = () => {
+    if (!selectedLead || !newActivity.typeId) {
+      toast.error("Please select activity type");
+      return;
+    }
+    createActivityMutation.mutate({
+      entityType: "lead",
+      entityId: selectedLead.id,
+      typeId: newActivity.typeId,
+      subject: newActivity.subject,
+      description: newActivity.description,
+      dueDate: newActivity.dueDate || undefined,
+    });
   };
 
   const filtered = leads.filter((lead: Lead) => {
@@ -604,7 +678,11 @@ const Leads = () => {
 
   const handleConvert = () => {
     if (!selectedLead) return;
-    convertMutation.mutate(selectedLead.id);
+    if (convertType === "deal") {
+      convertToDealMutation.mutate(selectedLead.id);
+    } else {
+      convertMutation.mutate(selectedLead.id);
+    }
   };
 
   const handleDisqualify = () => {
@@ -848,6 +926,11 @@ const Leads = () => {
             <Button variant="outline" size="sm">
               <Download className="h-3.5 w-3.5 mr-1" /> Export
             </Button>
+            {selectedLeads.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => setShowBulkActions(true)}>
+                <CheckSquare className="h-3.5 w-3.5 mr-1" /> Bulk ({selectedLeads.length})
+              </Button>
+            )}
             <Button size="sm" onClick={() => setShowAddLead(true)}>
               <Plus className="h-3.5 w-3.5 mr-1" /> Add Lead
             </Button>
@@ -860,6 +943,20 @@ const Leads = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>
+                    <input
+                      type="checkbox"
+                      checked={selectedLeads.length > 0 && selectedLeads.length === filtered.length}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedLeads(filtered.map((l: Lead) => l.id));
+                        } else {
+                          setSelectedLeads([]);
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                  </TableHead>
                   <TableHead>Lead</TableHead>
                   <TableHead>Company</TableHead>
                   <TableHead>Score</TableHead>
@@ -890,6 +987,22 @@ const Leads = () => {
                         setShowDetail(true);
                       }}
                     >
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedLeads.includes(lead.id)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            if (e.target.checked) {
+                              setSelectedLeads([...selectedLeads, lead.id]);
+                            } else {
+                              setSelectedLeads(selectedLeads.filter(id => id !== lead.id));
+                            }
+                          }}
+                          className="h-4 w-4 rounded border-gray-300"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </TableCell>
                       <TableCell>
                         <div>
                           <div className="font-medium">{lead.name}</div>
@@ -1321,6 +1434,48 @@ const Leads = () => {
                     <p className="text-sm text-muted-foreground">No attachments</p>
                   )}
                 </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold">Activities</h4>
+                    <Button variant="ghost" size="sm" onClick={() => setShowActivity(true)}>
+                      <Plus className="h-4 w-4" />
+                      <span className="ml-1">Add</span>
+                    </Button>
+                  </div>
+                  {leadActivities && leadActivities.length > 0 ? (
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {leadActivities.map((activity: any) => (
+                        <div
+                          key={activity.id}
+                          className="flex items-center justify-between p-2 bg-muted/50 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => !activity.completed && completeActivityMutation.mutate(activity.id)}
+                              className="flex-shrink-0"
+                            >
+                              {activity.completed ? (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <Circle className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </button>
+                            <div>
+                              <p className={`text-sm ${activity.completed ? "line-through text-muted-foreground" : ""}`}>
+                                {activity.subject || "Activity"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : "No due date"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No activities</p>
+                  )}
+                </div>
                 <DialogFooter className="gap-2">
                   <Button
                     variant="outline"
@@ -1393,17 +1548,17 @@ const Leads = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Create Deal?</Label>
-                  <Select defaultValue="yes">
+                  <Label>Conversion Type</Label>
+                  <Select value={convertType} onValueChange={(v) => setConvertType(v as "contact" | "deal")}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="yes">
-                        Yes, create a new deal
+                      <SelectItem value="contact">
+                        Convert to Contact + Account
                       </SelectItem>
-                      <SelectItem value="no">
-                        No, just add as contact
+                      <SelectItem value="deal">
+                        Convert to Deal Only
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -1763,6 +1918,107 @@ const Leads = () => {
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
+
+        <Dialog open={showActivity} onOpenChange={setShowActivity}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Activity</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Activity Type *</Label>
+                <Select
+                  value={String(newActivity.typeId)}
+                  onValueChange={(val) => setNewActivity({ ...newActivity, typeId: parseInt(val) })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activityTypes.map((type: any) => (
+                      <SelectItem key={type.id} value={String(type.id)}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Subject</Label>
+                <Input
+                  value={newActivity.subject}
+                  onChange={(e) => setNewActivity({ ...newActivity, subject: e.target.value })}
+                  placeholder="Call follow-up"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={newActivity.description}
+                  onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
+                  placeholder="Details..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Due Date</Label>
+                <Input
+                  type="date"
+                  value={newActivity.dueDate}
+                  onChange={(e) => setNewActivity({ ...newActivity, dueDate: e.target.value })}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowActivity(false)}>Cancel</Button>
+              <Button onClick={handleCreateActivity} disabled={createActivityMutation.isPending}>
+                {createActivityMutation.isPending ? "Adding..." : "Add Activity"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showBulkActions} onOpenChange={setShowBulkActions}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Bulk Actions</DialogTitle>
+              <DialogDescription>
+                Apply actions to {selectedLeads.length} selected leads
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {
+                  api.leads.bulkUpdate(selectedLeads, { statusId: 1 }).then(() => {
+                    toast.success("Leads updated");
+                    setSelectedLeads([]);
+                    setShowBulkActions(false);
+                    queryClient.invalidateQueries({ queryKey: ["leads"] });
+                  }).catch((err: Error) => toast.error(err.message));
+                }}
+              >
+                <Star className="h-4 w-4 mr-2" /> Update Status
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-red-500"
+                onClick={() => {
+                  if (confirm(`Delete ${selectedLeads.length} leads?`)) {
+                    api.leads.bulkDelete(selectedLeads).then(() => {
+                      toast.success("Leads deleted");
+                      setSelectedLeads([]);
+                      setShowBulkActions(false);
+                      queryClient.invalidateQueries({ queryKey: ["leads"] });
+                    }).catch((err: Error) => toast.error(err.message));
+                  }
+                }}
+              >
+                <Trash2 className="h-4 w-4 mr-2" /> Delete Selected
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </CRMLayout>
   );

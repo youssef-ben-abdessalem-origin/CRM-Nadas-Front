@@ -76,6 +76,9 @@ import {
   Tag,
   Phone as PhoneIcon,
   Mail as MailIcon,
+  Circle,
+  CheckCircle,
+  CheckSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -199,6 +202,31 @@ const Accounts = () => {
     queryFn: () => api.accounts.getTiers().catch(() => []),
   });
 
+  const [selectedAccounts, setSelectedAccounts] = useState<number[]>([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterIndustry, setFilterIndustry] = useState<string>("all");
+  const [filterTier, setFilterTier] = useState<string>("all");
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [showDetail, setShowDetail] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+
+  const { data: accountActivities = [] } = useQuery({
+    queryKey: ["account-activities", selectedAccount?.id],
+    queryFn: () => selectedAccount ? api.activities.getByEntity("account", selectedAccount.id).catch(() => []) : [],
+    enabled: !!selectedAccount,
+  });
+
+  const { data: accountDeals = [] } = useQuery({
+    queryKey: ["account-deals", selectedAccount?.id],
+    queryFn: () => selectedAccount ? api.deals.getByAccount(selectedAccount.id).catch(() => []) : [],
+    enabled: !!selectedAccount,
+  });
+
   const createMutation = useMutation({
     mutationFn: api.accounts.create,
     onSuccess: () => {
@@ -212,8 +240,7 @@ const Accounts = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) =>
-      api.accounts.update(id, data),
+    mutationFn: ({ id, data }: { id: number; data: any }) => api.accounts.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       toast.success("Account updated successfully");
@@ -231,16 +258,15 @@ const Accounts = () => {
     },
     onError: (err: Error) => toast.error(err.message),
   });
-  const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterIndustry, setFilterIndustry] = useState<string>("all");
-  const [filterTier, setFilterTier] = useState<string>("all");
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const [showDetail, setShowDetail] = useState(false);
-  const [showAdd, setShowAdd] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+
+  const completeActivityMutation = useMutation({
+    mutationFn: (id: number) => api.activities.complete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["account-activities"] });
+      toast.success("Activity completed");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
   const [formData, setFormData] = useState<AccountFormData>({
     name: "",
     website: "",
@@ -636,6 +662,11 @@ const Accounts = () => {
             <Button variant="outline" size="sm">
               <Download className="h-3.5 w-3.5 mr-1" /> Export
             </Button>
+            {selectedAccounts.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => setShowBulkActions(true)}>
+                <CheckSquare className="h-3.5 w-3.5 mr-1" /> Bulk ({selectedAccounts.length})
+              </Button>
+            )}
             <Button
               size="sm"
               onClick={() => {
@@ -653,6 +684,20 @@ const Accounts = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>
+                  <input
+                    type="checkbox"
+                    checked={selectedAccounts.length > 0 && selectedAccounts.length === filtered.length}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedAccounts(filtered.map((a: Account) => a.id));
+                      } else {
+                        setSelectedAccounts([]);
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                </TableHead>
                 <TableHead>Account</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Tier</TableHead>
@@ -689,6 +734,22 @@ const Accounts = () => {
                       setShowDetail(true);
                     }}
                   >
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selectedAccounts.includes(account.id)}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          if (e.target.checked) {
+                            setSelectedAccounts([...selectedAccounts, account.id]);
+                          } else {
+                            setSelectedAccounts(selectedAccounts.filter(id => id !== account.id));
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div>
@@ -1042,6 +1103,72 @@ const Accounts = () => {
                     </p>
                   </div>
                 )}
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold">Activities</h4>
+                    <Button variant="ghost" size="sm" onClick={() => toast.info("Add activity")}>
+                      <Plus className="h-4 w-4" />
+                      <span className="ml-1">Add</span>
+                    </Button>
+                  </div>
+                  {accountActivities && accountActivities.length > 0 ? (
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {accountActivities.map((activity: any) => (
+                        <div key={activity.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => !activity.completed && completeActivityMutation.mutate(activity.id)}>
+                              {activity.completed ? (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <Circle className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </button>
+                            <div>
+                              <p className={`text-sm ${activity.completed ? "line-through text-muted-foreground" : ""}`}>
+                                {activity.subject || "Activity"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : "No due date"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No activities</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold">Deals</h4>
+                    <Button variant="ghost" size="sm" onClick={() => toast.info("Create new deal")}>
+                      <Plus className="h-4 w-4" />
+                      <span className="ml-1">Add</span>
+                    </Button>
+                  </div>
+                  {accountDeals && accountDeals.length > 0 ? (
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {accountDeals.map((deal: any) => (
+                        <div key={deal.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Handshake className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                              <p className="text-sm font-medium">{deal.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatCurrency(deal.value)} • {deal.stage?.name || "Unknown"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No deals</p>
+                  )}
+                </div>
 
                 <DialogFooter className="gap-2">
                   <Button
@@ -1741,6 +1868,49 @@ const Accounts = () => {
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
+
+        <Dialog open={showBulkActions} onOpenChange={setShowBulkActions}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Bulk Actions</DialogTitle>
+              <DialogDescription>
+                Apply actions to {selectedAccounts.length} selected accounts
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => {
+                  api.accounts.bulkUpdate(selectedAccounts, { accountTypeId: 1 }).then(() => {
+                    toast.success("Accounts updated");
+                    setSelectedAccounts([]);
+                    setShowBulkActions(false);
+                    queryClient.invalidateQueries({ queryKey: ["accounts"] });
+                  }).catch((err: Error) => toast.error(err.message));
+                }}
+              >
+                <Briefcase className="h-4 w-4 mr-2" /> Update Type
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-red-500"
+                onClick={() => {
+                  if (confirm(`Delete ${selectedAccounts.length} accounts?`)) {
+                    api.accounts.bulkDelete(selectedAccounts).then(() => {
+                      toast.success("Accounts deleted");
+                      setSelectedAccounts([]);
+                      setShowBulkActions(false);
+                      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+                    }).catch((err: Error) => toast.error(err.message));
+                  }
+                }}
+              >
+                <Trash2 className="h-4 w-4 mr-2" /> Delete Selected
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </CRMLayout>
   );
