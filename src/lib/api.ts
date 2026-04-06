@@ -389,71 +389,20 @@ export const api = {
       const res = await axiosInstance.get("/api/v1/products");
       return normalizeResponse(res.data);
     },
-    findAllPaginated: async (page: number = 1, limit: number = 5, search?: string, categoryId?: string) => {
+    findAllPaginated: async (
+      page: number = 1,
+      limit: number = 5,
+      search?: string,
+      categoryId?: string
+    ) => {
       const queryParams = new URLSearchParams();
       queryParams.append("page", String(page));
       queryParams.append("limit", String(limit));
       if (search) queryParams.append("search", search);
       if (categoryId) queryParams.append("categoryId", categoryId);
       const res = await axiosInstance.get(
-        `/api/v1/products/paginated?${queryParams.toString()}`,
+        `/api/v1/products/paginated?${queryParams.toString()}`
       );
-      return res.data;
-    },
-    getBrands: async () => {
-      const res = await axiosInstance.get("/api/v1/products/brands");
-      return normalizeResponse(res.data);
-    },
-    getPriceBooks: async () => {
-      const res = await axiosInstance.get("/api/v1/products/price-books");
-      return normalizeResponse(res.data);
-    },
-    getCategories: async () => {
-      const res = await axiosInstance.get("/api/v1/products/categories");
-      return normalizeResponse(res.data);
-    },
-    createCategory: async (name: string, parentId?: string) => {
-      const res = await axiosInstance.post("/api/v1/products/categories", { name, parentId });
-      return res.data;
-    },
-    updateCategory: async (id: string, data: any) => {
-      const res = await axiosInstance.put(`/api/v1/products/categories/${id}`, data);
-      return res.data;
-    },
-    deleteCategory: async (id: string) => {
-      const res = await axiosInstance.delete(`/api/v1/products/categories/${id}`);
-      return res.data;
-    },
-    getUnits: async () => {
-      const res = await axiosInstance.get("/api/v1/products/units");
-      return normalizeResponse(res.data);
-    },
-    createUnit: async (name: string) => {
-      const res = await axiosInstance.post("/api/v1/products/units", { name });
-      return res.data;
-    },
-    updateUnit: async (id: number, data: any) => {
-      const res = await axiosInstance.put(`/api/v1/products/units/${id}`, data);
-      return res.data;
-    },
-    deleteUnit: async (id: number) => {
-      const res = await axiosInstance.delete(`/api/v1/products/units/${id}`);
-      return res.data;
-    },
-    getPricingModels: async () => {
-      const res = await axiosInstance.get("/api/v1/products/pricing-models");
-      return normalizeResponse(res.data);
-    },
-    createPricingModel: async (name: string) => {
-      const res = await axiosInstance.post("/api/v1/products/pricing-models", { name });
-      return res.data;
-    },
-    updatePricingModel: async (id: number, data: any) => {
-      const res = await axiosInstance.put(`/api/v1/products/pricing-models/${id}`, data);
-      return res.data;
-    },
-    deletePricingModel: async (id: number) => {
-      const res = await axiosInstance.delete(`/api/v1/products/pricing-models/${id}`);
       return res.data;
     },
     getOne: async (id: string) => {
@@ -472,6 +421,95 @@ export const api = {
       const res = await axiosInstance.delete(`/api/v1/products/${id}`);
       return res.data;
     },
+    getBrands: async () => {
+      const res = await axiosInstance.get("/api/v1/products/brands");
+      return normalizeResponse(res.data);
+    },
+    getPriceBooks: async () => {
+      const res = await axiosInstance.get("/api/v1/products/price-books");
+      return normalizeResponse(res.data);
+    },
+    createPriceBook: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/products/price-books", data);
+      return res.data;
+    },
+    updatePriceBook: async (id: string, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/price-books/${id}`, data);
+      return res.data;
+    },
+    deletePriceBook: async (id: string) => {
+      const res = await axiosInstance.delete(`/api/v1/products/price-books/${id}`);
+      return res.data;
+    },
+    getCategories: async () => {
+      const res = await axiosInstance.get("/api/v1/products/categories");
+      return normalizeResponse(res.data);
+    },
+    createCategory: async (data: { name: string; parentId?: string }) => {
+      const res = await axiosInstance.post("/api/v1/products/categories", data);
+      return res.data;
+    },
+    updateCategory: async (id: string, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/categories/${id}`, data);
+      return res.data;
+    },
+    deleteCategory: async (id: string) => {
+      const res = await axiosInstance.delete(`/api/v1/products/categories/${id}`);
+      return res.data;
+    },
+    getUnits: async () => {
+      const res = await axiosInstance.get("/api/v1/products/units");
+      return normalizeResponse(res.data);
+    },
+    createUnit: async (name: string) => {
+      const res = await axiosInstance.post("/api/v1/products/units", { name });
+      return res.data;
+    },
+    updateUnit: async (id: string, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/units/${id}`, data);
+      return res.data;
+    },
+    deleteUnit: async (id: string) => {
+      const res = await axiosInstance.delete(`/api/v1/products/units/${id}`);
+      return res.data;
+    },
+    getPricingModels: async () => {
+      const res = await axiosInstance.get("/api/v1/products/pricing-models");
+      return normalizeResponse(res.data);
+    },
+    createPricingModel: async (name: string) => {
+      const res = await axiosInstance.post("/api/v1/products/pricing-models", { name });
+      return res.data;
+    },
+    updatePricingModel: async (id: string, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/pricing-models/${id}`, data);
+      return res.data;
+    },
+    deletePricingModel: async (id: string) => {
+      const res = await axiosInstance.delete(`/api/v1/products/pricing-models/${id}`);
+      return res.data;
+    },
+    // Variant & Pricing Specifics
+    createVariant: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/products/variants", data);
+      return res.data;
+    },
+    updateVariant: async (id: string, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/variants/${id}`, data);
+      return res.data;
+    },
+    deleteVariant: async (id: string) => {
+       const res = await axiosInstance.delete(`/api/v1/products/variants/${id}`);
+       return res.data;
+    },
+    upsertPricing: async (variantId: string, priceBookId: string, price: number) => {
+       const res = await axiosInstance.post(`/api/v1/products/variants/${variantId}/pricing`, { priceBookId, price });
+       return res.data;
+    },
+    setPrimaryPrice: async (variantId: string, priceId: string) => {
+       const res = await axiosInstance.post(`/api/v1/products/variants/${variantId}/primary/${priceId}`);
+       return res.data;
+    }
   },
 
   billing: {
