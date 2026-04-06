@@ -13,6 +13,7 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   UserPlus,
   Package,
   FileText,
@@ -21,13 +22,16 @@ import {
   Calendar,
   FileSearch,
   Bell,
+  List,
+  Table2,
 } from "lucide-react";
 import { useState } from "react";
 
 type NavItem = {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  path: string;
+  path?: string;
+  children?: NavItem[];
 };
 
 type NavSection = {
@@ -43,10 +47,38 @@ const navSections: NavSection[] = [
   {
     label: "Sales",
     items: [
-      { label: "Leads", icon: UserPlus, path: "/leads" },
-      { label: "Contacts", icon: Users, path: "/contacts" },
-      { label: "Accounts", icon: Building2, path: "/accounts" },
-      { label: "Deals", icon: Handshake, path: "/deals" },
+      {
+        label: "Leads",
+        icon: UserPlus,
+        children: [
+          { label: "Table", icon: Table2, path: "/leads" },
+          { label: "Settings", icon: Settings, path: "/leads/settings" },
+        ],
+      },
+      {
+        label: "Contacts",
+        icon: Users,
+        children: [
+          { label: "Table", icon: Table2, path: "/contacts" },
+          { label: "Settings", icon: Settings, path: "/contacts/settings" },
+        ],
+      },
+      {
+        label: "Accounts",
+        icon: Building2,
+        children: [
+          { label: "Table", icon: Table2, path: "/accounts" },
+          { label: "Settings", icon: Settings, path: "/accounts/settings" },
+        ],
+      },
+      {
+        label: "Deals",
+        icon: Handshake,
+        children: [
+          { label: "Table", icon: Table2, path: "/deals" },
+          { label: "Settings", icon: Settings, path: "/deals/settings" },
+        ],
+      },
     ],
   },
   {
@@ -84,8 +116,8 @@ const navSections: NavSection[] = [
     label: "Admin",
     items: [
       { label: "Team", icon: Users, path: "/team" },
-      { label: "Audit Logs", icon: FileSearch, path: "/audit-logs" },
-      { label: "Notifications", icon: Bell, path: "/notifications" },
+      { label: "Audit Logs", icon: FileSearch, path: "/settings/audit-logs" },
+      { label: "Notifications", icon: Bell, path: "/settings/notifications" },
       { label: "Settings", icon: Settings, path: "/settings" },
     ],
   },
@@ -93,7 +125,26 @@ const navSections: NavSection[] = [
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["Leads", "Contacts", "Accounts", "Deals"]);
   const location = useLocation();
+
+  const toggleExpand = (label: string) => {
+    setExpandedItems((prev) =>
+      prev.includes(label)
+        ? prev.filter((item) => item !== label)
+        : [...prev, label]
+    );
+  };
+
+  const isActive = (item: NavItem) => {
+    if (item.path) {
+      return location.pathname === item.path;
+    }
+    if (item.children) {
+      return item.children.some((child) => location.pathname === child.path);
+    }
+    return false;
+  };
 
   return (
     <aside
@@ -119,15 +170,66 @@ export function AppSidebar() {
             )}
             <div className="space-y-0.5">
               {section.items.map((item) => {
-                const isActive = location.pathname === item.path;
+                const hasChildren = item.children && item.children.length > 0;
+                const isExpanded = expandedItems.includes(item.label);
+                const active = isActive(item);
+
+                if (collapsed) {
+                  return (
+                    <NavLink
+                      key={item.label}
+                      to={item.children?.[0]?.path || "/"}
+                      className={`sidebar-item ${active ? "sidebar-item-active" : "sidebar-item-inactive"}`}
+                    >
+                      <item.icon className="h-4 w-4 shrink-0" />
+                    </NavLink>
+                  );
+                }
+
+                if (hasChildren) {
+                  return (
+                    <div key={item.label}>
+                      <button
+                        onClick={() => toggleExpand(item.label)}
+                        className={`sidebar-item w-full ${active ? "sidebar-item-active" : "sidebar-item-inactive"}`}
+                      >
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        <span className="flex-1 text-left">{item.label}</span>
+                        <ChevronDown
+                          className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      {isExpanded && (
+                        <div className="ml-4 mt-1 space-y-0.5 border-l border-muted pl-2">
+                          {item.children?.map((child) => {
+                            const childActive = location.pathname === child.path;
+                            return (
+                              <NavLink
+                                key={child.path}
+                                to={child.path || "/"}
+                                className={`sidebar-item text-sm ${
+                                  childActive ? "sidebar-item-active" : "sidebar-item-inactive"
+                                }`}
+                              >
+                                <child.icon className="h-3.5 w-3.5 shrink-0" />
+                                <span>{child.label}</span>
+                              </NavLink>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
                 return (
                   <NavLink
-                    key={item.path}
-                    to={item.path}
-                    className={`sidebar-item ${isActive ? "sidebar-item-active" : "sidebar-item-inactive"}`}
+                    key={item.label}
+                    to={item.path || "/"}
+                    className={`sidebar-item ${active ? "sidebar-item-active" : "sidebar-item-inactive"}`}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
-                    {!collapsed && <span>{item.label}</span>}
+                    <span>{item.label}</span>
                   </NavLink>
                 );
               })}

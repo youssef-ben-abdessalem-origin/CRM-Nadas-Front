@@ -105,6 +105,16 @@ export const api = {
       const res = await axiosInstance.get("/api/v1/leads");
       return normalizeResponse(res.data);
     },
+    getPaginated: async (params: { page?: number; limit?: number; search?: string; stageId?: number } = {}) => {
+      const { page = 1, limit = 10, search, stageId } = params;
+      const queryParams = new URLSearchParams();
+      queryParams.append("page", String(page));
+      queryParams.append("limit", String(limit));
+      if (search) queryParams.append("search", search);
+      if (stageId) queryParams.append("stageId", String(stageId));
+      const res = await axiosInstance.get(`/api/v1/leads/paginated?${queryParams.toString()}`);
+      return res.data;
+    },
     getOne: async (id: number) => {
       const res = await axiosInstance.get(`/api/v1/leads/${id}`);
       return normalizeResponse(res.data);
@@ -119,6 +129,90 @@ export const api = {
     },
     delete: async (id: number) => {
       const res = await axiosInstance.delete(`/api/v1/leads/${id}`);
+      return normalizeResponse(res.data);
+    },
+    convert: async (id: number) => {
+      const res = await axiosInstance.post(`/api/v1/leads/${id}/convert`);
+      return normalizeResponse(res.data);
+    },
+    getSources: async () => {
+      const res = await axiosInstance.get("/api/v1/leads/sources");
+      return normalizeResponse(res.data);
+    },
+    getStages: async () => {
+      const res = await axiosInstance.get("/api/v1/leads/stages");
+      return normalizeResponse(res.data);
+    },
+    getScores: async () => {
+      const res = await axiosInstance.get("/api/v1/leads/scores");
+      return normalizeResponse(res.data);
+    },
+    getPriorities: async () => {
+      const res = await axiosInstance.get("/api/v1/leads/priorities");
+      return normalizeResponse(res.data);
+    },
+    getQualifications: async () => {
+      const res = await axiosInstance.get("/api/v1/leads/qualifications");
+      return normalizeResponse(res.data);
+    },
+    createSource: async (data: { name: string }) => {
+      const res = await axiosInstance.post("/api/v1/leads/sources", data);
+      return normalizeResponse(res.data);
+    },
+    updateSource: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/leads/sources/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteSource: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/leads/sources/${id}`);
+      return normalizeResponse(res.data);
+    },
+    createStage: async (data: { name: string; order?: number; color?: string }) => {
+      const res = await axiosInstance.post("/api/v1/leads/stages", data);
+      return normalizeResponse(res.data);
+    },
+    updateStage: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/leads/stages/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteStage: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/leads/stages/${id}`);
+      return normalizeResponse(res.data);
+    },
+    createScore: async (data: { name: string; color?: string }) => {
+      const res = await axiosInstance.post("/api/v1/leads/scores", data);
+      return normalizeResponse(res.data);
+    },
+    updateScore: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/leads/scores/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteScore: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/leads/scores/${id}`);
+      return normalizeResponse(res.data);
+    },
+    createPriority: async (data: { name: string; color?: string }) => {
+      const res = await axiosInstance.post("/api/v1/leads/priorities", data);
+      return normalizeResponse(res.data);
+    },
+    updatePriority: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/leads/priorities/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deletePriority: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/leads/priorities/${id}`);
+      return normalizeResponse(res.data);
+    },
+    createQualification: async (data: { name: string }) => {
+      const res = await axiosInstance.post("/api/v1/leads/qualifications", data);
+      return normalizeResponse(res.data);
+    },
+    updateQualification: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/leads/qualifications/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteQualification: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/leads/qualifications/${id}`);
       return normalizeResponse(res.data);
     },
   },
@@ -144,6 +238,39 @@ export const api = {
       const res = await axiosInstance.delete(`/api/v1/deals/${id}`);
       return normalizeResponse(res.data);
     },
+    getStages: async () => {
+      const res = await axiosInstance.get("/api/v1/deals/stages");
+      return normalizeResponse(res.data);
+    },
+    createStage: async (data: { name: string; color?: string }) => {
+      const res = await axiosInstance.post("/api/v1/deals/stages", data);
+      return normalizeResponse(res.data);
+    },
+    updateStage: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/deals/stages/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteStage: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/deals/stages/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getReasons: async (type?: string) => {
+      const params = type ? `?type=${type}` : "";
+      const res = await axiosInstance.get(`/api/v1/deals/reasons${params}`);
+      return normalizeResponse(res.data);
+    },
+    createReason: async (data: { name: string; color?: string; type?: string }) => {
+      const res = await axiosInstance.post("/api/v1/deals/reasons", data);
+      return normalizeResponse(res.data);
+    },
+    updateReason: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/deals/reasons/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteReason: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/deals/reasons/${id}`);
+      return normalizeResponse(res.data);
+    },
   },
 
   accounts: {
@@ -165,6 +292,54 @@ export const api = {
     },
     delete: async (id: number) => {
       const res = await axiosInstance.delete(`/api/v1/accounts/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getTypes: async () => {
+      const res = await axiosInstance.get("/api/v1/accounts/types");
+      return normalizeResponse(res.data);
+    },
+    createType: async (data: { name: string; color?: string }) => {
+      const res = await axiosInstance.post("/api/v1/accounts/types", data);
+      return normalizeResponse(res.data);
+    },
+    updateType: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/accounts/types/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteType: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/accounts/types/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getStatuses: async () => {
+      const res = await axiosInstance.get("/api/v1/accounts/statuses");
+      return normalizeResponse(res.data);
+    },
+    createStatus: async (data: { name: string; color?: string }) => {
+      const res = await axiosInstance.post("/api/v1/accounts/statuses", data);
+      return normalizeResponse(res.data);
+    },
+    updateStatus: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/accounts/statuses/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteStatus: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/accounts/statuses/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getTiers: async () => {
+      const res = await axiosInstance.get("/api/v1/accounts/tiers");
+      return normalizeResponse(res.data);
+    },
+    createTier: async (data: { name: string; color?: string }) => {
+      const res = await axiosInstance.post("/api/v1/accounts/tiers", data);
+      return normalizeResponse(res.data);
+    },
+    updateTier: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/accounts/tiers/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteTier: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/accounts/tiers/${id}`);
       return normalizeResponse(res.data);
     },
   },
@@ -189,6 +364,245 @@ export const api = {
     delete: async (id: number) => {
       const res = await axiosInstance.delete(`/api/v1/contacts/${id}`);
       return normalizeResponse(res.data);
+    },
+    getStatuses: async () => {
+      const res = await axiosInstance.get("/api/v1/contacts/statuses");
+      return normalizeResponse(res.data);
+    },
+    createStatus: async (data: { name: string; color?: string }) => {
+      const res = await axiosInstance.post("/api/v1/contacts/statuses", data);
+      return normalizeResponse(res.data);
+    },
+    updateStatus: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/contacts/statuses/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteStatus: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/contacts/statuses/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getTiers: async () => {
+      const res = await axiosInstance.get("/api/v1/contacts/tiers");
+      return normalizeResponse(res.data);
+    },
+    createTier: async (data: { name: string; color?: string }) => {
+      const res = await axiosInstance.post("/api/v1/contacts/tiers", data);
+      return normalizeResponse(res.data);
+    },
+    updateTier: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/contacts/tiers/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteTier: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/contacts/tiers/${id}`);
+      return normalizeResponse(res.data);
+    },
+  },
+
+  users: {
+    getAll: async () => {
+      const res = await axiosInstance.get("/api/v1/users");
+      return normalizeResponse(res.data);
+    },
+    getProfile: async () => {
+      const res = await axiosInstance.get("/api/v1/users/profile");
+      return normalizeResponse(res.data);
+    },
+    updateProfile: async (data: any) => {
+      const res = await axiosInstance.put("/api/v1/users/profile", data);
+      return normalizeResponse(res.data);
+    },
+    getById: async (id: number) => {
+      const res = await axiosInstance.get(`/api/v1/users/${id}`);
+      return normalizeResponse(res.data);
+    },
+    update: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/users/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    delete: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/users/${id}`);
+      return normalizeResponse(res.data);
+    },
+  },
+
+  settings: {
+    getCurrencies: async () => {
+      const res = await axiosInstance.get("/api/v1/settings/currencies");
+      return normalizeResponse(res.data);
+    },
+    createCurrency: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/settings/currencies", data);
+      return normalizeResponse(res.data);
+    },
+    updateCurrency: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/settings/currencies/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteCurrency: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/settings/currencies/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getCountries: async () => {
+      const res = await axiosInstance.get("/api/v1/settings/countries");
+      return normalizeResponse(res.data);
+    },
+    createCountry: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/settings/countries", data);
+      return normalizeResponse(res.data);
+    },
+    updateCountry: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/settings/countries/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteCountry: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/settings/countries/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getIndustries: async () => {
+      const res = await axiosInstance.get("/api/v1/settings/industries");
+      return normalizeResponse(res.data);
+    },
+    createIndustry: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/settings/industries", data);
+      return normalizeResponse(res.data);
+    },
+    updateIndustry: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/settings/industries/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteIndustry: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/settings/industries/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getTags: async () => {
+      const res = await axiosInstance.get("/api/v1/settings/tags");
+      return normalizeResponse(res.data);
+    },
+    createTag: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/settings/tags", data);
+      return normalizeResponse(res.data);
+    },
+    updateTag: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/settings/tags/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteTag: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/settings/tags/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getActivityTypes: async () => {
+      const res = await axiosInstance.get("/api/v1/settings/activity-types");
+      return normalizeResponse(res.data);
+    },
+    createActivityType: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/settings/activity-types", data);
+      return normalizeResponse(res.data);
+    },
+    updateActivityType: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/settings/activity-types/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteActivityType: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/settings/activity-types/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getEmailTemplates: async () => {
+      const res = await axiosInstance.get("/api/v1/settings/email-templates");
+      return normalizeResponse(res.data);
+    },
+    createEmailTemplate: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/settings/email-templates", data);
+      return normalizeResponse(res.data);
+    },
+    updateEmailTemplate: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/settings/email-templates/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteEmailTemplate: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/settings/email-templates/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getNotifications: async (userId?: number) => {
+      const res = await axiosInstance.get("/api/v1/settings/notifications", { params: { userId } });
+      return normalizeResponse(res.data);
+    },
+    getUnreadNotificationCount: async (userId: number) => {
+      const res = await axiosInstance.get("/api/v1/settings/notifications/unread-count", { params: { userId } });
+      return normalizeResponse(res.data);
+    },
+    createNotification: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/settings/notifications", data);
+      return normalizeResponse(res.data);
+    },
+    markNotificationAsRead: async (id: number) => {
+      const res = await axiosInstance.put(`/api/v1/settings/notifications/${id}/read`);
+      return normalizeResponse(res.data);
+    },
+    markAllNotificationsAsRead: async (userId: number) => {
+      const res = await axiosInstance.put("/api/v1/settings/notifications/read-all", {}, { params: { userId } });
+      return normalizeResponse(res.data);
+    },
+    deleteNotification: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/settings/notifications/${id}`);
+      return normalizeResponse(res.data);
+    },
+    getAuditLogs: async (entityType?: string, entityId?: number) => {
+      const res = await axiosInstance.get("/api/v1/settings/audit-logs", { params: { entityType, entityId } });
+      return normalizeResponse(res.data);
+    },
+    createAuditLog: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/settings/audit-logs", data);
+      return normalizeResponse(res.data);
+    },
+  },
+  uploads: {
+    uploadAvatar: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await axiosInstance.post('/api/v1/uploads/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    },
+    uploadDocument: async (file: File, entityType: 'lead' | 'contact' | 'account', entityId: number) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('entityType', entityType);
+      formData.append('entityId', String(entityId));
+      const res = await axiosInstance.post('/api/v1/uploads/document', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    },
+  },
+  gmail: {
+    getStatus: async () => {
+      const res = await axiosInstance.get('/api/v1/gmail/status');
+      return res.data;
+    },
+    getAuthUrl: async () => {
+      const res = await axiosInstance.get('/api/v1/gmail/auth-url');
+      return res.data;
+    },
+    connect: async (code: string) => {
+      const res = await axiosInstance.post(`/api/v1/gmail/connect?code=${code}`);
+      return res.data;
+    },
+    disconnect: async () => {
+      const res = await axiosInstance.post('/api/v1/gmail/disconnect');
+      return res.data;
+    },
+    getMessages: async (maxResults?: number, pageToken?: string) => {
+      const params = new URLSearchParams();
+      if (maxResults) params.append('maxResults', String(maxResults));
+      if (pageToken) params.append('pageToken', pageToken);
+      const res = await axiosInstance.get(`/api/v1/gmail/messages?${params.toString()}`);
+      return res.data;
+    },
+    getMessage: async (id: string) => {
+      const res = await axiosInstance.get(`/api/v1/gmail/messages/${id}`);
+      return res.data;
     },
   },
 };

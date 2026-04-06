@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerDescription } from "@/components/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,8 +73,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
 
-type ContactStatus = "active" | "inactive" | "churned";
-type ContactTier = "enterprise" | "professional" | "starter";
+interface ContactStatus {
+  id: number;
+  name: string;
+  color: string;
+}
+
+interface ContactTier {
+  id: number;
+  name: string;
+  color: string;
+}
 
 interface Contact {
   id: number;
@@ -82,8 +92,10 @@ interface Contact {
   phone: string;
   company: string;
   title: string;
-  status: ContactStatus;
-  tier: ContactTier;
+  status: ContactStatus | string;
+  statusId?: number;
+  tier: ContactTier | string;
+  tierId?: number;
   dealValue: number;
   lastContact: string;
   created: string;
@@ -96,232 +108,38 @@ interface Contact {
   revenueTotal: number;
 }
 
-const statusConfig: Record<ContactStatus, { label: string; color: string }> = {
-  active: { label: "Active", color: "bg-green-500/10 text-green-500 border-green-500/20" },
-  inactive: { label: "Inactive", color: "bg-gray-500/10 text-gray-500 border-gray-500/20" },
-  churned: { label: "Churned", color: "bg-red-500/10 text-red-500 border-red-500/20" },
-};
+interface ContactFormData {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  title: string;
+  statusId: number | null;
+  tierId: number | null;
+  dealValue: string;
+  location: string;
+  industry: string;
+  website: string;
+  notes: string;
+}
 
-const tierConfig: Record<ContactTier, { label: string; icon: typeof Star }> = {
-  enterprise: { label: "Enterprise", icon: Star },
-  professional: { label: "Professional", icon: Star },
-  starter: { label: "Starter", icon: Star },
-};
-
-const tierColors: Record<ContactTier, string> = {
-  enterprise: "bg-purple-500/10 text-purple-500 border-purple-500/20",
-  professional: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-  starter: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-};
-
-const initialContacts: Contact[] = [
-  {
-    id: 1,
-    name: "Sarah Chen",
-    email: "sarah.chen@acmecorp.com",
-    phone: "+1 (555) 101-2020",
-    company: "Acme Corp",
-    title: "VP Engineering",
-    status: "active",
-    tier: "enterprise",
-    dealValue: 124000,
-    lastContact: "2h ago",
-    created: "2023-06-15",
-    location: "San Francisco, CA",
-    industry: "Technology",
-    website: "acmecorp.com",
-    notes: "Key decision maker. Interested in enterprise migration plan. Quarterly review scheduled for March.",
-    dealsWon: 3,
-    dealsTotal: 4,
-    revenueTotal: 342000,
-  },
-  {
-    id: 2,
-    name: "Marcus Johnson",
-    email: "m.johnson@techflow.io",
-    phone: "+1 (555) 202-3030",
-    company: "TechFlow",
-    title: "CTO",
-    status: "active",
-    tier: "enterprise",
-    dealValue: 89000,
-    lastContact: "1d ago",
-    created: "2023-08-22",
-    location: "Austin, TX",
-    industry: "SaaS",
-    website: "techflow.io",
-    notes: "Technical buyer. Needs API integration support. Currently evaluating competitors.",
-    dealsWon: 2,
-    dealsTotal: 3,
-    revenueTotal: 198000,
-  },
-  {
-    id: 3,
-    name: "Emily Rodriguez",
-    email: "emily.r@nexgen.com",
-    phone: "+1 (555) 303-4040",
-    company: "NexGen Solutions",
-    title: "Head of Product",
-    status: "active",
-    tier: "professional",
-    dealValue: 56000,
-    lastContact: "3d ago",
-    created: "2023-09-10",
-    location: "New York, NY",
-    industry: "Product Development",
-    website: "nexgen.com",
-    notes: "Product-focused buyer. Attended our webinar on product analytics. Follow up on demo request.",
-    dealsWon: 1,
-    dealsTotal: 2,
-    revenueTotal: 78000,
-  },
-  {
-    id: 4,
-    name: "David Kim",
-    email: "dkim@synergy.co",
-    phone: "+1 (555) 404-5050",
-    company: "Synergy Co",
-    title: "CEO",
-    status: "active",
-    tier: "enterprise",
-    dealValue: 210000,
-    lastContact: "5h ago",
-    created: "2023-04-01",
-    location: "Seattle, WA",
-    industry: "Consulting",
-    website: "synergy.co",
-    notes: "C-level relationship. Multi-year contract potential. Referred 2 new leads this quarter.",
-    dealsWon: 5,
-    dealsTotal: 6,
-    revenueTotal: 890000,
-  },
-  {
-    id: 5,
-    name: "Lisa Park",
-    email: "lisa.park@cloudbase.io",
-    phone: "+1 (555) 505-6060",
-    company: "CloudBase",
-    title: "Director of Ops",
-    status: "inactive",
-    tier: "professional",
-    dealValue: 45000,
-    lastContact: "2w ago",
-    created: "2023-11-05",
-    location: "Denver, CO",
-    industry: "Cloud Services",
-    website: "cloudbase.io",
-    notes: "Went dark after initial demo. Budget freeze mentioned. Re-engage in Q2.",
-    dealsWon: 1,
-    dealsTotal: 2,
-    revenueTotal: 45000,
-  },
-  {
-    id: 6,
-    name: "James Wright",
-    email: "j.wright@innovate.com",
-    phone: "+1 (555) 606-7070",
-    company: "Innovate Inc",
-    title: "VP Sales",
-    status: "active",
-    tier: "professional",
-    dealValue: 78000,
-    lastContact: "6h ago",
-    created: "2023-07-18",
-    location: "Chicago, IL",
-    industry: "Sales Tech",
-    website: "innovate.com",
-    notes: "Sales ops integration. Interested in CRM analytics module. Champion for upsell.",
-    dealsWon: 2,
-    dealsTotal: 3,
-    revenueTotal: 156000,
-  },
-  {
-    id: 7,
-    name: "Anna Martinez",
-    email: "anna.m@dataprime.io",
-    phone: "+1 (555) 707-8080",
-    company: "DataPrime",
-    title: "CFO",
-    status: "active",
-    tier: "enterprise",
-    dealValue: 167000,
-    lastContact: "1d ago",
-    created: "2023-03-20",
-    location: "Boston, MA",
-    industry: "Data Analytics",
-    website: "dataprime.io",
-    notes: "Financial decision maker. Contract renewal in June. Prepare ROI analysis.",
-    dealsWon: 4,
-    dealsTotal: 4,
-    revenueTotal: 520000,
-  },
-  {
-    id: 8,
-    name: "Robert Taylor",
-    email: "r.taylor@scaleup.com",
-    phone: "+1 (555) 808-9090",
-    company: "ScaleUp",
-    title: "Founder",
-    status: "active",
-    tier: "enterprise",
-    dealValue: 340000,
-    lastContact: "4h ago",
-    created: "2023-01-10",
-    location: "Los Angeles, CA",
-    industry: "E-commerce",
-    website: "scaleup.com",
-    notes: "Largest account. Growing fast. Needs dedicated account manager. Expansion opportunity.",
-    dealsWon: 6,
-    dealsTotal: 7,
-    revenueTotal: 1240000,
-  },
-  {
-    id: 9,
-    name: "Michelle Lee",
-    email: "m.lee@healthbridge.org",
-    phone: "+1 (555) 909-0101",
-    company: "HealthBridge",
-    title: "IT Director",
-    status: "churned",
-    tier: "starter",
-    dealValue: 0,
-    lastContact: "1mo ago",
-    created: "2023-05-14",
-    location: "Portland, OR",
-    industry: "Healthcare",
-    website: "healthbridge.org",
-    notes: "Churned due to compliance concerns. May revisit with HIPAA module.",
-    dealsWon: 1,
-    dealsTotal: 2,
-    revenueTotal: 28000,
-  },
-  {
-    id: 10,
-    name: "Chris Anderson",
-    email: "chris.a@logixpro.com",
-    phone: "+1 (555) 010-1212",
-    company: "LogixPro",
-    title: "COO",
-    status: "active",
-    tier: "professional",
-    dealValue: 92000,
-    lastContact: "12h ago",
-    created: "2023-10-01",
-    location: "Atlanta, GA",
-    industry: "Logistics",
-    website: "logixpro.com",
-    notes: "Supply chain optimization project. Needs integration with existing ERP system.",
-    dealsWon: 2,
-    dealsTotal: 3,
-    revenueTotal: 184000,
-  },
-];
+const initialContacts: Contact[] = [];
 
 const Contacts = () => {
   const queryClient = useQueryClient();
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: ["contacts"],
     queryFn: () => api.contacts.getAll().catch(() => []),
+  });
+
+  const { data: statuses = [] } = useQuery({
+    queryKey: ["contact-statuses"],
+    queryFn: () => api.contacts.getStatuses().catch(() => []),
+  });
+
+  const { data: tiers = [] } = useQuery({
+    queryKey: ["contact-tiers"],
+    queryFn: () => api.contacts.getTiers().catch(() => []),
   });
 
   const createMutation = useMutation({
@@ -365,14 +183,14 @@ const Contacts = () => {
   const [addStep, setAddStep] = useState(0);
   const [showEdit, setShowEdit] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
     phone: "",
     company: "",
     title: "",
-    status: "active" as ContactStatus,
-    tier: "starter" as ContactTier,
+    statusId: null,
+    tierId: null,
     dealValue: "",
     location: "",
     industry: "",
@@ -387,19 +205,70 @@ const Contacts = () => {
     { label: "Review", icon: Eye, description: "Confirm & create" },
   ];
 
+  const getStatusId = (contact: Contact) => {
+    if (typeof contact.status === 'object' && contact.status !== null) {
+      return (contact.status as ContactStatus).id;
+    }
+    return contact.statusId;
+  };
+
+  const getTierId = (contact: Contact) => {
+    if (typeof contact.tier === 'object' && contact.tier !== null) {
+      return (contact.tier as ContactTier).id;
+    }
+    return contact.tierId;
+  };
+
   const filtered = contacts.filter((c) => {
     const matchesSearch =
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.company.toLowerCase().includes(search.toLowerCase()) ||
       c.email.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = filterStatus === "all" || c.status === filterStatus;
-    const matchesTier = filterTier === "all" || c.tier === filterTier;
+    const contactStatusId = getStatusId(c);
+    const contactTierId = getTierId(c);
+    const matchesStatus = filterStatus === "all" || contactStatusId?.toString() === filterStatus;
+    const matchesTier = filterTier === "all" || contactTierId?.toString() === filterTier;
     return matchesSearch && matchesStatus && matchesTier;
   });
 
+  const getStatusName = (contact: Contact) => {
+    if (contact.status && typeof contact.status === 'object') {
+      return (contact.status as ContactStatus).name;
+    }
+    const found = statuses.find(s => s.id === contact.contactStatusId);
+    return found?.name || 'Unknown';
+  };
+
+  const getTierName = (contact: Contact) => {
+    if (contact.tier && typeof contact.tier === 'object') {
+      return (contact.tier as ContactTier).name;
+    }
+    const found = tiers.find(t => t.id === contact.contactTierId);
+    return found?.name || 'Unknown';
+  };
+
+  const getStatusColor = (contact: Contact) => {
+    if (contact.status && typeof contact.status === 'object') {
+      return (contact.status as ContactStatus).color;
+    }
+    const found = statuses.find(s => s.id === contact.contactStatusId);
+    return found?.color || 'bg-gray-500/10 text-gray-500 border-gray-500/20';
+  };
+
+  const getTierColor = (contact: Contact) => {
+    if (contact.tier && typeof contact.tier === 'object') {
+      return (contact.tier as ContactTier).color;
+    }
+    const found = tiers.find(t => t.id === contact.contactTierId);
+    return found?.color || 'bg-gray-500/10 text-gray-500 border-gray-500/20';
+  };
+
   const stats = {
     total: contacts.length,
-    active: contacts.filter((c) => c.status === "active").length,
+    active: contacts.filter((c) => {
+      const name = getStatusName(c).toLowerCase();
+      return name === 'active';
+    }).length,
     totalRevenue: contacts.reduce((sum, c) => sum + c.revenueTotal, 0),
     avgDealSize:
       contacts.filter((c) => c.dealsWon > 0).length > 0
@@ -412,8 +281,10 @@ const Contacts = () => {
           )
         : 0,
     churnRate: Math.round(
-      (contacts.filter((c) => c.status === "churned").length / contacts.length) *
-        100
+      (contacts.filter((c) => {
+        const name = getStatusName(c).toLowerCase();
+        return name === 'churned';
+      }).length / Math.max(contacts.length, 1)) * 100
     ),
   };
 
@@ -441,8 +312,8 @@ const Contacts = () => {
       phone: "",
       company: "",
       title: "",
-      status: "active",
-      tier: "starter",
+      statusId: statuses[0]?.id || null,
+      tierId: tiers[0]?.id || null,
       dealValue: "",
       location: "",
       industry: "",
@@ -462,8 +333,8 @@ const Contacts = () => {
       phone: formData.phone,
       company: formData.company,
       title: formData.title,
-      status: formData.status,
-      tier: formData.tier,
+      statusId: formData.statusId,
+      tierId: formData.tierId,
       dealValue: parseInt(formData.dealValue) || 0,
       location: formData.location,
       industry: formData.industry,
@@ -482,8 +353,8 @@ const Contacts = () => {
         phone: formData.phone,
         company: formData.company,
         title: formData.title,
-        status: formData.status,
-        tier: formData.tier,
+        statusId: formData.statusId,
+        tierId: formData.tierId,
         dealValue: parseInt(formData.dealValue) || 0,
         location: formData.location,
         industry: formData.industry,
@@ -500,9 +371,10 @@ const Contacts = () => {
     deleteMutation.mutate(contact.id);
   };
 
-  const handleStatusChange = (contactId: number, newStatus: ContactStatus) => {
-    updateMutation.mutate({ id: contactId, data: { status: newStatus } });
-    toast.success(`Status updated to ${statusConfig[newStatus].label}`);
+  const handleStatusChange = (contactId: number, newStatusId: number) => {
+    updateMutation.mutate({ id: contactId, data: { statusId: newStatusId } });
+    const found = statuses.find(s => s.id === newStatusId);
+    toast.success(`Status updated to ${found?.name || 'Unknown'}`);
   };
 
   const openEdit = (contact: Contact) => {
@@ -513,8 +385,8 @@ const Contacts = () => {
       phone: contact.phone,
       company: contact.company,
       title: contact.title,
-      status: contact.status,
-      tier: contact.tier,
+      statusId: getStatusId(contact),
+      tierId: getTierId(contact),
       dealValue: contact.dealValue.toString(),
       location: contact.location,
       industry: contact.industry,
@@ -584,36 +456,40 @@ const Contacts = () => {
       <div className="space-y-2">
         <Label>Status</Label>
         <Select
-          value={formData.status}
+          value={formData.statusId?.toString() || ""}
           onValueChange={(v) =>
-            setFormData({ ...formData, status: v as ContactStatus })
+            setFormData({ ...formData, statusId: parseInt(v) })
           }
         >
           <SelectTrigger>
-            <SelectValue />
+            <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="churned">Churned</SelectItem>
+            {statuses.map((status) => (
+              <SelectItem key={status.id} value={status.id.toString()}>
+                {status.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
       <div className="space-y-2">
         <Label>Tier</Label>
         <Select
-          value={formData.tier}
+          value={formData.tierId?.toString() || ""}
           onValueChange={(v) =>
-            setFormData({ ...formData, tier: v as ContactTier })
+            setFormData({ ...formData, tierId: parseInt(v) })
           }
         >
           <SelectTrigger>
-            <SelectValue />
+            <SelectValue placeholder="Select tier" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="enterprise">Enterprise</SelectItem>
-            <SelectItem value="professional">Professional</SelectItem>
-            <SelectItem value="starter">Starter</SelectItem>
+            {tiers.map((tier) => (
+              <SelectItem key={tier.id} value={tier.id.toString()}>
+                {tier.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -767,14 +643,16 @@ const Contacts = () => {
               />
             </div>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="h-9 w-32">
+              <SelectTrigger className="h-9 w-36">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="churned">Churned</SelectItem>
+                {statuses.map((status) => (
+                  <SelectItem key={status.id} value={status.id.toString()}>
+                    {status.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select value={filterTier} onValueChange={setFilterTier}>
@@ -783,9 +661,11 @@ const Contacts = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Tiers</SelectItem>
-                <SelectItem value="enterprise">Enterprise</SelectItem>
-                <SelectItem value="professional">Professional</SelectItem>
-                <SelectItem value="starter">Starter</SelectItem>
+                {tiers.map((tier) => (
+                  <SelectItem key={tier.id} value={tier.id.toString()}>
+                    {tier.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm">
@@ -818,7 +698,15 @@ const Contacts = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((contact) => (
+              {filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                    <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p className="text-lg font-medium">No contacts found</p>
+                    <p className="text-sm">Get started by adding your first contact</p>
+                  </TableCell>
+                </TableRow>
+              ) : filtered.map((contact) => (
                 <TableRow
                   key={contact.id}
                   className="cursor-pointer hover:bg-muted/50"
@@ -844,18 +732,18 @@ const Contacts = () => {
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className={tierColors[contact.tier]}
+                      className={getTierColor(contact)}
                     >
                       <Star className="h-3 w-3 mr-1" />
-                      {tierConfig[contact.tier].label}
+                      {getTierName(contact)}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className={statusConfig[contact.status].color}
+                      className={getStatusColor(contact)}
                     >
-                      {statusConfig[contact.status].label}
+                      {getStatusName(contact)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right font-medium">
@@ -937,33 +825,18 @@ const Contacts = () => {
                             Duplicate
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStatusChange(contact.id, "active");
-                            }}
-                          >
-                            <ArrowUpRight className="h-4 w-4 mr-2 text-green-500" />
-                            Mark Active
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStatusChange(contact.id, "inactive");
-                            }}
-                          >
-                            <Minus className="h-4 w-4 mr-2 text-gray-500" />
-                            Mark Inactive
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStatusChange(contact.id, "churned");
-                            }}
-                          >
-                            <ArrowDownRight className="h-4 w-4 mr-2 text-red-500" />
-                            Mark Churned
-                          </DropdownMenuItem>
+                          {statuses.map((status) => (
+                            <DropdownMenuItem
+                              key={status.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStatusChange(contact.id, status.id);
+                              }}
+                            >
+                              <Check className="h-4 w-4 mr-2" />
+                              Mark as {status.name}
+                            </DropdownMenuItem>
+                          ))}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-red-500"
@@ -1003,16 +876,16 @@ const Contacts = () => {
                     <div className="flex items-center gap-2">
                       <Badge
                         variant="outline"
-                        className={tierColors[selectedContact.tier]}
+                        className={getTierColor(selectedContact)}
                       >
                         <Star className="h-3 w-3 mr-1" />
-                        {tierConfig[selectedContact.tier].label}
+                        {getTierName(selectedContact)}
                       </Badge>
                       <Badge
                         variant="outline"
-                        className={statusConfig[selectedContact.status].color}
+                        className={getStatusColor(selectedContact)}
                       >
-                        {statusConfig[selectedContact.status].label}
+                        {getStatusName(selectedContact)}
                       </Badge>
                     </div>
                   </div>
@@ -1160,383 +1033,157 @@ const Contacts = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Add Contact Dialog - Stepper */}
-        <Dialog
-          open={showAdd}
-          onOpenChange={(open) => {
-            setShowAdd(open);
-            if (!open) {
-              setAddStep(0);
-              resetForm();
-            }
-          }}
-        >
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>New Contact</DialogTitle>
-              <DialogDescription>
-                Create a new contact in {steps.length} steps.
-              </DialogDescription>
-            </DialogHeader>
+        {/* Add Contact Drawer */}
+        <Drawer open={showAdd} onOpenChange={(open) => {
+          setShowAdd(open);
+          if (!open) {
+            setAddStep(0);
+            resetForm();
+          }
+        }}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Add New Contact</DrawerTitle>
+              <DrawerDescription>Fill in the details to create a new contact.</DrawerDescription>
+            </DrawerHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4 px-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+              {/* Personal Info */}
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1">Personal Info</div>
+              
+              <div className="space-y-2">
+                <Label>Name <span className="text-red-500">*</span></Label>
+                <Input
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Email <span className="text-red-500">*</span></Label>
+                <Input
+                  type="email"
+                  placeholder="john@company.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Phone</Label>
+                <Input
+                  placeholder="+1 (555) 000-0000"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                />
+              </div>
 
-            {/* Stepper */}
-            <div className="flex items-center justify-between px-4 py-2">
-              {steps.map((step, idx) => {
-                const isCompleted = idx < addStep;
-                const isCurrent = idx === addStep;
-                return (
-                  <div key={step.label} className="flex items-center flex-1 last:flex-none">
-                    <div className="flex flex-col items-center gap-1">
-                      <div
-                        className={`flex items-center justify-center h-9 w-9 rounded-full border-2 transition-all ${
-                          isCompleted
-                            ? "bg-primary border-primary text-primary-foreground"
-                            : isCurrent
-                              ? "border-primary text-primary"
-                              : "border-muted text-muted-foreground"
-                        }`}
-                      >
-                        {isCompleted ? (
-                          <Check className="h-4 w-4" />
-                        ) : (
-                          <step.icon className="h-4 w-4" />
-                        )}
-                      </div>
-                      <div className="text-center">
-                        <div
-                          className={`text-xs font-medium ${
-                            isCurrent ? "text-foreground" : "text-muted-foreground"
-                          }`}
-                        >
-                          {step.label}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground hidden sm:block">
-                          {step.description}
-                        </div>
-                      </div>
-                    </div>
-                    {idx < steps.length - 1 && (
-                      <div
-                        className={`flex-1 h-0.5 mx-2 mb-6 ${
-                          idx < addStep ? "bg-primary" : "bg-muted"
-                        }`}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+              {/* Company Info */}
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1 mt-2">Company Info</div>
+              
+              <div className="space-y-2">
+                <Label>Company <span className="text-red-500">*</span></Label>
+                <Input
+                  placeholder="Acme Corp"
+                  value={formData.company}
+                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  placeholder="VP of Engineering"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Industry</Label>
+                <Input
+                  placeholder="Technology"
+                  value={formData.industry}
+                  onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Location</Label>
+                <Input
+                  placeholder="San Francisco, CA"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Website</Label>
+                <Input
+                  placeholder="company.com"
+                  value={formData.website}
+                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Deal Value</Label>
+                <Input
+                  type="number"
+                  placeholder="50000"
+                  value={formData.dealValue}
+                  onChange={(e) => setFormData({ ...formData, dealValue: e.target.value })}
+                />
+              </div>
 
-            {/* Step Content */}
-            <div className="min-h-[280px]">
-              {/* Step 0: Personal */}
-              {addStep === 0 && (
-                <div className="space-y-4 py-2">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>
-                        First Name <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        placeholder="John"
-                        value={formData.name.split(" ").slice(0, -1).join(" ") || formData.name}
-                        onChange={(e) => {
-                          const parts = formData.name.split(" ");
-                          parts[0] = e.target.value;
-                          setFormData({ ...formData, name: parts.join(" ").trim() });
-                        }}
-                        autoFocus
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Last Name</Label>
-                      <Input
-                        placeholder="Doe"
-                        value={formData.name.split(" ").slice(1).join(" ") || ""}
-                        onChange={(e) => {
-                          const first = formData.name.split(" ")[0] || "";
-                          setFormData({ ...formData, name: `${first} ${e.target.value}`.trim() });
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>
-                      Email <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      type="email"
-                      placeholder="john@company.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Phone</Label>
-                    <Input
-                      placeholder="+1 (555) 000-0000"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Website</Label>
-                    <Input
-                      placeholder="company.com"
-                      value={formData.website}
-                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Step 1: Company */}
-              {addStep === 1 && (
-                <div className="space-y-4 py-2">
-                  <div className="space-y-2">
-                    <Label>
-                      Company <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      placeholder="Acme Corp"
-                      value={formData.company}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                      autoFocus
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Title</Label>
-                    <Input
-                      placeholder="VP of Engineering"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Industry</Label>
-                    <Input
-                      placeholder="Technology"
-                      value={formData.industry}
-                      onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Location</Label>
-                    <Input
-                      placeholder="San Francisco, CA"
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Deal Value</Label>
-                    <Input
-                      type="number"
-                      placeholder="50000"
-                      value={formData.dealValue}
-                      onChange={(e) => setFormData({ ...formData, dealValue: e.target.value })}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Step 2: Details */}
-              {addStep === 2 && (
-                <div className="space-y-4 py-2">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Status</Label>
-                      <Select
-                        value={formData.status}
-                        onValueChange={(v) =>
-                          setFormData({ ...formData, status: v as ContactStatus })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                          <SelectItem value="churned">Churned</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Tier</Label>
-                      <Select
-                        value={formData.tier}
-                        onValueChange={(v) =>
-                          setFormData({ ...formData, tier: v as ContactTier })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="enterprise">Enterprise</SelectItem>
-                          <SelectItem value="professional">Professional</SelectItem>
-                          <SelectItem value="starter">Starter</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Notes</Label>
-                    <Textarea
-                      placeholder="Any additional context about this contact..."
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      className="resize-none"
-                      rows={4}
-                      autoFocus
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Step 3: Review */}
-              {addStep === 3 && (
-                <div className="space-y-4 py-2">
-                  <div className="bg-muted/50 rounded-lg divide-y">
-                    <div className="p-4">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Personal Info
-                      </h4>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Name</span>
-                          <p className="font-medium">{formData.name || "—"}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Email</span>
-                          <p className="font-medium">{formData.email || "—"}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Phone</span>
-                          <p>{formData.phone || "—"}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Website</span>
-                          <p>{formData.website || "—"}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Company
-                      </h4>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Company</span>
-                          <p className="font-medium">{formData.company || "—"}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Title</span>
-                          <p>{formData.title || "—"}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Industry</span>
-                          <p>{formData.industry || "—"}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Location</span>
-                          <p>{formData.location || "—"}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Deal Value</span>
-                          <p className="font-semibold">
-                            {formData.dealValue
-                              ? formatCurrency(parseInt(formData.dealValue))
-                              : "—"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                        Details
-                      </h4>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Status</span>
-                          <p>
-                            <Badge
-                              variant="outline"
-                              className={statusConfig[formData.status].color}
-                            >
-                              {statusConfig[formData.status].label}
-                            </Badge>
-                          </p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Tier</span>
-                          <p>
-                            <Badge
-                              variant="outline"
-                              className={tierColors[formData.tier]}
-                            >
-                              <Star className="h-3 w-3 mr-1" />
-                              {tierConfig[formData.tier].label}
-                            </Badge>
-                          </p>
-                        </div>
-                      </div>
-                      {formData.notes && (
-                        <div className="mt-3">
-                          <span className="text-muted-foreground text-sm">Notes</span>
-                          <p className="text-sm text-muted-foreground mt-1 bg-background p-2 rounded">
-                            {formData.notes}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Navigation */}
-            <div className="flex items-center justify-between pt-2 border-t">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  if (addStep === 0) {
-                    setShowAdd(false);
-                    resetForm();
-                  } else {
-                    setAddStep(addStep - 1);
-                  }
-                }}
-              >
-                {addStep === 0 ? "Cancel" : "Back"}
-              </Button>
-              <div className="flex items-center gap-2">
-                {addStep < steps.length - 1 ? (
-                  <Button
-                    onClick={() => {
-                      if (addStep === 0 && (!formData.name || !formData.email)) {
-                        toast.error("Please fill in name and email");
-                        return;
-                      }
-                      if (addStep === 1 && !formData.company) {
-                        toast.error("Please fill in company");
-                        return;
-                      }
-                      setAddStep(addStep + 1);
-                    }}
-                  >
-                    Next
-                  </Button>
-                ) : (
-                  <Button onClick={handleAdd}>
-                    <Check className="h-4 w-4 mr-2" /> Create Contact
-                  </Button>
-                )}
+              {/* Details */}
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1 mt-2">Details</div>
+              
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select
+                  value={formData.statusId?.toString() || ""}
+                  onValueChange={(v) => setFormData({ ...formData, statusId: parseInt(v) })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                  <SelectContent>
+                    {statuses.map((status) => (
+                      <SelectItem key={status.id} value={status.id.toString()}>
+                        {status.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Tier</Label>
+                <Select
+                  value={formData.tierId?.toString() || ""}
+                  onValueChange={(v) => setFormData({ ...formData, tierId: parseInt(v) })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select tier" /></SelectTrigger>
+                  <SelectContent>
+                    {tiers.map((tier) => (
+                      <SelectItem key={tier.id} value={tier.id.toString()}>
+                        {tier.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-3">
+                <Label>Notes</Label>
+                <Textarea
+                  placeholder="Any additional context..."
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  className="resize-none"
+                  rows={3}
+                />
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
+            <DrawerFooter>
+              <Button variant="outline" onClick={() => { setShowAdd(false); resetForm(); }}>Cancel</Button>
+              <Button onClick={handleAdd} disabled={createMutation.isPending}>
+                <Check className="h-4 w-4 mr-2" />
+                {createMutation.isPending ? "Creating..." : "Create Contact"}
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
 
         {/* Edit Contact Dialog */}
         <Dialog open={showEdit} onOpenChange={setShowEdit}>
