@@ -392,10 +392,39 @@ const ProductForm = ({ formData, setFormData }: ProductFormProps) => {
 
 const Products = () => {
   const queryClient = useQueryClient();
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ["products"],
+  const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterPricing, setFilterPricing] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(5);
+
+  const { data: allProducts = [], isLoading: isAllProductsLoading } = useQuery({
+    queryKey: ["products", "all"],
     queryFn: () => api.products.getAll().catch(() => []),
   });
+
+  const { data: paginatedData, isLoading: isPaginatedLoading } = useQuery({
+    queryKey: ["products", "paginated", page, pageSize, search, filterCategory, filterStatus],
+    queryFn: () => api.products.getPaginated({
+      page,
+      limit: pageSize,
+      search,
+      category: filterCategory,
+      status: filterStatus
+    }).catch(() => ({
+      data: [],
+      total: 0,
+      page: 1,
+      limit: pageSize,
+      totalPages: 0,
+    })),
+  });
+
+  const products = paginatedData?.data || [];
+  const total = paginatedData?.total || 0;
+  const totalPages = paginatedData?.totalPages || 1;
+  const isLoading = isAllProductsLoading || isPaginatedLoading;
 
   const createMutation = useMutation({
     mutationFn: api.products.create,
@@ -431,11 +460,6 @@ const Products = () => {
     },
     onError: (err: Error) => toast.error(err.message),
   });
-
-  const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterPricing, setFilterPricing] = useState<string>("all");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
@@ -457,38 +481,25 @@ const Products = () => {
     tags: "",
   });
 
-  const filtered = products.filter((p: Product) => {
-    const matchesSearch =
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase()) ||
-      p.description.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory =
-      filterCategory === "all" || p.category === filterCategory;
-    const matchesStatus = filterStatus === "all" || p.status === filterStatus;
-    const matchesPricing =
-      filterPricing === "all" || p.pricingModel === filterPricing;
-    return matchesSearch && matchesCategory && matchesStatus && matchesPricing;
-  });
-
   const stats = {
-    total: products.length,
-    active: products.filter((p: Product) => p.status === "active").length,
-    totalRevenue: products.reduce(
+    total: allProducts.length,
+    active: allProducts.filter((p: Product) => p.status === "active").length,
+    totalRevenue: allProducts.reduce(
       (sum: number, p: Product) => sum + p.totalRevenue,
       0,
     ),
     avgMargin:
-      products.filter((p: Product) => p.margin > 0).length > 0
+      allProducts.filter((p: Product) => p.margin > 0).length > 0
         ? Math.round(
-            products.reduce((sum: number, p: Product) => sum + p.margin, 0) /
-              products.filter((p: Product) => p.margin > 0).length,
+            allProducts.reduce((sum: number, p: Product) => sum + p.margin, 0) /
+              allProducts.filter((p: Product) => p.margin > 0).length,
           )
         : 0,
-    totalSold: products.reduce(
+    totalSold: allProducts.reduce(
       (sum: number, p: Product) => sum + p.totalSold,
       0,
     ),
-    lowStock: products.filter(
+    lowStock: allProducts.filter(
       (p: Product) => p.stock > 0 && p.stock <= p.reorderLevel,
     ).length,
   };
@@ -614,6 +625,16 @@ const Products = () => {
 
   const formatNumber = (value: number) =>
     new Intl.NumberFormat("en-US").format(value);
+
+  if (isLoading) {
+    return (
+      <CRMLayout title="Products">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-muted-foreground animate-pulse font-medium">Loading products...</div>
+        </div>
+      </CRMLayout>
+    );
+  }
 
   return (
     <CRMLayout title="Products">
@@ -804,162 +825,216 @@ const Products = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((product: Product) => (
-                <TableRow
-                  key={product.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => {
-                    setSelectedProduct(product);
-                    setShowDetail(true);
-                  }}
-                >
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{product.name}</div>
-                      <div className="text-xs text-muted-foreground max-w-[200px] truncate">
-                        {product.description}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-mono text-xs">
-                      <Hash className="h-3 w-3 mr-1" />
-                      {product.sku}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={categoryConfig[product.category].color}
-                    >
-                      {categoryConfig[product.category].label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={pricingConfig[product.pricingModel].color}
-                    >
-                      {pricingConfig[product.pricingModel].label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={statusConfig[product.status].color}
-                    >
-                      {statusConfig[product.status].label}
-                    </Badge>
-                  </TableCell>
-                    <TableCell className="text-right font-medium">
-                    {product.pricingModel === "usage-based"
-                      ? `$${toFixedSafe(toNumber(product?.unitPrice), 2)} / req`
-                      : formatCurrencyValue(toNumber(product?.unitPrice), currencyInfo?.currency ?? 'USD')}
-                    </TableCell>
-                  <TableCell className="text-right">
-                    <span
-                      className={`font-medium ${
-                        product.margin >= 70
-                          ? "text-green-500"
-                          : product.margin >= 50
-                            ? "text-amber-500"
-                            : "text-red-500"
-                      }`}
-                    >
-                      {product.margin}%
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {product.stock > 0 &&
-                    product.stock <= product.reorderLevel ? (
-                      <div className="flex items-center justify-end gap-1 text-amber-500">
-                        <AlertTriangle className="h-3.5 w-3.5" />
-                        <span className="font-medium">{product.stock}</span>
-                      </div>
-                    ) : product.status === "discontinued" ? (
-                      <span className="text-muted-foreground">—</span>
-                    ) : (
-                      <span className="font-medium">{product.stock}</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right text-muted-foreground">
-                    {product.totalSold}
-                  </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrencyValue(toNumber(product.totalRevenue), currencyInfo?.currency ?? 'USD')}
-                    </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toast.info(`Creating quote for ${product.name}`);
-                        }}
-                      >
-                        <Receipt className="h-3.5 w-3.5" />
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MoreHorizontal className="h-3.5 w-3.5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openEdit(product);
-                            }}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toast.info(`Copied ${product.name}`);
-                            }}
-                          >
-                            <Copy className="h-4 w-4 mr-2" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toast.info(`Viewing ${product.name} details`);
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-500"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(product);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+              {products.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={11}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    No products found
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                products.map((product: Product) => (
+                  <TableRow
+                    key={product.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setShowDetail(true);
+                    }}
+                  >
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{product.name}</div>
+                        <div className="text-xs text-muted-foreground max-w-[200px] truncate">
+                          {product.description}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-mono text-xs">
+                        <Hash className="h-3 w-3 mr-1" />
+                        {product.sku}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={categoryConfig[product.category].color}
+                      >
+                        {categoryConfig[product.category].label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={pricingConfig[product.pricingModel].color}
+                      >
+                        {pricingConfig[product.pricingModel].label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={statusConfig[product.status].color}
+                      >
+                        {statusConfig[product.status].label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {product.pricingModel === "usage-based"
+                        ? `$${toFixedSafe(toNumber(product?.unitPrice), 2)} / req`
+                        : formatCurrencyValue(
+                            toNumber(product?.unitPrice),
+                            currencyInfo?.currency ?? "USD",
+                          )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span
+                        className={`font-medium ${
+                          product.margin >= 70
+                            ? "text-green-500"
+                            : product.margin >= 50
+                              ? "text-amber-500"
+                              : "text-red-500"
+                        }`}
+                      >
+                        {product.margin}%
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {product.stock > 0 &&
+                      product.stock <= product.reorderLevel ? (
+                        <div className="flex items-center justify-end gap-1 text-amber-500">
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                          <span className="font-medium">{product.stock}</span>
+                        </div>
+                      ) : product.status === "discontinued" ? (
+                        <span className="text-muted-foreground">—</span>
+                      ) : (
+                        <span className="font-medium">{product.stock}</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {product.totalSold}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrencyValue(
+                        toNumber(product.totalRevenue),
+                        currencyInfo?.currency ?? "USD",
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toast.info(`Creating quote for ${product.name}`);
+                          }}
+                        >
+                          <Receipt className="h-3.5 w-3.5" />
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreHorizontal className="h-3.5 w-3.5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openEdit(product);
+                              }}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast.info(`Copied ${product.name}`);
+                              }}
+                            >
+                              <Copy className="h-4 w-4 mr-2" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast.info(`Viewing ${product.name} details`);
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-red-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(product);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
+          {/* Pagination */}
+          <div className="flex items-center justify-between px-4 py-3 border-t">
+            <div className="text-sm text-muted-foreground">
+              Showing {products.length} of {total} products
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <Button
+                    key={p}
+                    variant={page === p ? "default" : "outline"}
+                    size="sm"
+                    className="w-8 h-8 p-0"
+                    onClick={() => setPage(p)}
+                  >
+                    {p}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages || totalPages === 0}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </Card>
 
         {/* Detail Drawer */}
