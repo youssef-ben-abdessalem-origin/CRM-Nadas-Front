@@ -389,31 +389,38 @@ export const api = {
       const res = await axiosInstance.get("/api/v1/products");
       return normalizeResponse(res.data);
     },
-    getPaginated: async (params: { page?: number; limit?: number; search?: string; categoryId?: number } = {}) => {
-      const { page = 1, limit = 5, search, categoryId } = params;
+    findAllPaginated: async (page: number = 1, limit: number = 5, search?: string, categoryId?: string) => {
       const queryParams = new URLSearchParams();
       queryParams.append("page", String(page));
       queryParams.append("limit", String(limit));
       if (search) queryParams.append("search", search);
-      if (categoryId) queryParams.append("categoryId", String(categoryId));
+      if (categoryId) queryParams.append("categoryId", categoryId);
       const res = await axiosInstance.get(
         `/api/v1/products/paginated?${queryParams.toString()}`,
       );
       return res.data;
     },
+    getBrands: async () => {
+      const res = await axiosInstance.get("/api/v1/products/brands");
+      return normalizeResponse(res.data);
+    },
+    getPriceBooks: async () => {
+      const res = await axiosInstance.get("/api/v1/products/price-books");
+      return normalizeResponse(res.data);
+    },
     getCategories: async () => {
       const res = await axiosInstance.get("/api/v1/products/categories");
       return normalizeResponse(res.data);
     },
-    createCategory: async (name: string) => {
-      const res = await axiosInstance.post("/api/v1/products/categories", { name });
+    createCategory: async (name: string, parentId?: string) => {
+      const res = await axiosInstance.post("/api/v1/products/categories", { name, parentId });
       return res.data;
     },
-    updateCategory: async (id: number, data: any) => {
+    updateCategory: async (id: string, data: any) => {
       const res = await axiosInstance.put(`/api/v1/products/categories/${id}`, data);
       return res.data;
     },
-    deleteCategory: async (id: number) => {
+    deleteCategory: async (id: string) => {
       const res = await axiosInstance.delete(`/api/v1/products/categories/${id}`);
       return res.data;
     },
@@ -449,7 +456,7 @@ export const api = {
       const res = await axiosInstance.delete(`/api/v1/products/pricing-models/${id}`);
       return res.data;
     },
-    getOne: async (id: number) => {
+    getOne: async (id: string) => {
       const res = await axiosInstance.get(`/api/v1/products/${id}`);
       return normalizeResponse(res.data);
     },
@@ -457,13 +464,13 @@ export const api = {
       const res = await axiosInstance.post("/api/v1/products", data);
       return normalizeResponse(res.data);
     },
-    update: async (id: number, data: any) => {
+    update: async (id: string, data: any) => {
       const res = await axiosInstance.put(`/api/v1/products/${id}`, data);
       return normalizeResponse(res.data);
     },
-    delete: async (id: number) => {
+    delete: async (id: string) => {
       const res = await axiosInstance.delete(`/api/v1/products/${id}`);
-      return normalizeResponse(res.data);
+      return res.data;
     },
   },
 
