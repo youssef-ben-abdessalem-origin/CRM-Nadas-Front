@@ -46,8 +46,8 @@ export function DynamicAutoSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between h-12 border-2 rounded-2xl bg-background font-bold px-4 hover:bg-muted/10 transition-all text-left",
-            !selectedOption && "text-muted-foreground font-medium",
+            "w-full justify-between h-10 border-input bg-background font-normal px-3 hover:bg-accent hover:text-accent-foreground transition-colors text-left font-sans",
+            !selectedOption && "text-muted-foreground",
             className
           )}
         >
@@ -57,22 +57,19 @@ export function DynamicAutoSelect({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-2xl border-2 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <Command className="bg-background">
-          <div className="flex items-center border-b-2 px-3">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in zoom-in-95 duration-200">
+        <Command className="bg-transparent">
+          <div className="flex items-center border-b px-3">
             <CommandInput
               placeholder={`Search ${placeholder.toLowerCase()}...`}
-              className="h-11 border-none focus:ring-0 font-bold placeholder:font-medium placeholder:text-muted-foreground/50"
+              className="h-10 border-none focus:ring-0 placeholder:text-muted-foreground"
             />
           </div>
-          <CommandList className="max-h-[300px] overflow-y-auto scrollbar-hide">
-            <CommandEmpty className="p-8 text-center">
-              <div className="flex flex-col items-center gap-2">
-                <Package className="h-8 w-8 text-muted-foreground opacity-20" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">{emptyMessage}</p>
-              </div>
+          <CommandList className="max-h-[300px] overflow-y-auto">
+            <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
+              {emptyMessage}
             </CommandEmpty>
-            <CommandGroup className="p-2">
+            <CommandGroup className="p-1">
               {options.map((option) => (
                 <CommandItem
                   key={option.value}
@@ -81,29 +78,24 @@ export function DynamicAutoSelect({
                     onSelect(option.value)
                     setOpen(false)
                   }}
-                  className="flex items-center justify-between px-4 py-3 cursor-pointer rounded-xl data-[selected=true]:bg-primary data-[selected=true]:text-white transition-all mb-1 last:mb-0 group"
+                  className="flex flex-col items-start px-2 py-1.5 cursor-pointer rounded-sm aria-selected:bg-accent aria-selected:text-accent-foreground"
                 >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-black text-xs uppercase tracking-tight transition-colors">
+                  <div className="flex items-center w-full justify-between">
+                    <span className="text-sm">
                       {option.label}
                     </span>
-                    {option.description && (
-                      <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-tighter opacity-60 group-data-[selected=true]:text-white/80">
-                        {option.description}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {value === option.value && (
-                      <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse group-data-[selected=true]:bg-white" />
-                    )}
                     <Check
                       className={cn(
-                        "h-4 w-4 text-primary transition-all scale-75 opacity-0 group-data-[selected=true]:text-white",
-                        value === option.value && "opacity-100 scale-100"
+                        "h-4 w-4 opacity-0 transition-opacity",
+                        value === option.value && "opacity-100"
                       )}
                     />
                   </div>
+                  {option.description && (
+                    <span className="text-xs text-muted-foreground line-clamp-1">
+                      {option.description}
+                    </span>
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>

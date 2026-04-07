@@ -80,7 +80,65 @@ function normalizeResponse(val: any) {
   return val || [];
 }
 
+export interface Permission {
+  id: number;
+  name: string;
+  code: string;
+  module: string;
+}
+
+export interface Role {
+  id: number;
+  name: string;
+  description?: string;
+  color: string;
+  isSystem: boolean;
+  permissions: Permission[];
+}
+
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  role: Role;
+  roleId: number;
+  enabled: boolean;
+  phone?: string;
+  avatar?: string;
+  createdAt: string;
+}
+
 export const api = {
+  roles: {
+    getAll: async () => {
+      const res = await axiosInstance.get("/api/v1/roles");
+      return normalizeResponse(res.data);
+    },
+    getOne: async (id: number) => {
+      const res = await axiosInstance.get(`/api/v1/roles/${id}`);
+      return res.data;
+    },
+    create: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/roles", data);
+      return res.data;
+    },
+    update: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/roles/${id}`, data);
+      return res.data;
+    },
+    delete: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/roles/${id}`);
+      return res.data;
+    },
+  },
+
+  permissions: {
+    getAll: async () => {
+      const res = await axiosInstance.get("/api/v1/permissions");
+      return normalizeResponse(res.data);
+    },
+  },
+
   auth: {
     login: async (email: string, password: string) => {
       const res = await axiosInstance.post("/api/v1/auth/login", {
@@ -786,6 +844,10 @@ export const api = {
     },
     getById: async (id: number) => {
       const res = await axiosInstance.get(`/api/v1/users/${id}`);
+      return normalizeResponse(res.data);
+    },
+    create: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/users", data);
       return normalizeResponse(res.data);
     },
     update: async (id: number, data: any) => {

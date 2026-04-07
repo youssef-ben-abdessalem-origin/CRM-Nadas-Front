@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
@@ -31,14 +32,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerFooter,
-  DrawerDescription,
-} from "@/components/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -98,8 +91,8 @@ import { Textarea } from "@/components/ui/textarea";
 interface Lead {
   id: number;
   name: string;
-  email: string;
-  phone: string;
+  emails: string[];
+  phones: string[];
   company: string;
   title: string;
   sourceId: number;
@@ -112,17 +105,19 @@ interface Lead {
   priority: { id: number; name: string; color: string };
   qualificationStageId: number;
   qualificationStage: { id: number; name: string };
+  status: string;
+  ownerId: number;
+  owner?: { id: number; name: string; email: string };
   value: number;
-  created: string;
+  createdAt: string;
+  updatedAt: string;
   lastActivity: string;
   notes: string;
   location: string;
   industry: string;
   website: string;
-  tags: string;
+  tags: string[];
   nextFollowUp: string;
-  assignedToId: number;
-  assignedTo: { id: number; name: string; email: string };
   isConverted: boolean;
   convertedAt: string;
   convertedAccountId: number;
@@ -151,6 +146,7 @@ const Droppable = ({ id, children }: { id: string | number; children: (props: { 
 };
 
 const Leads = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"table" | "kanban">("table");
@@ -160,8 +156,6 @@ const Leads = () => {
   const [showDetail, setShowDetail] = useState(false);
   const [showConvert, setShowConvert] = useState(false);
   const [convertType, setConvertType] = useState<"contact" | "deal">("contact");
-  const [showAddLead, setShowAddLead] = useState(false);
-  const [useExistingAccount, setUseExistingAccount] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(8);
   const [isUploading, setIsUploading] = useState(false);
@@ -186,27 +180,6 @@ const Leads = () => {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-  const [newLead, setNewLead] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    company: "",
-    title: "",
-    sourceId: 0,
-    value: "",
-    stageId: 0,
-    scoreCategoryId: 0,
-    priorityId: 0,
-    qualificationStageId: 0,
-    location: "",
-    industry: "",
-    website: "",
-    notes: "",
-    tags: "",
-    assignedToId: undefined as number | undefined,
-    nextFollowUp: "",
-    accountId: null as number | null,
-  });
   const [activeDragId, setActiveDragId] = useState<number | null>(null);
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -270,54 +243,13 @@ const Leads = () => {
     queryFn: () => api.activities.getTypes().catch(() => []),
   });
 
-  const { data: leadActivities = [], refetch: refetchActivities } = useQuery({
+  const { data: leadActivities = [] } = useQuery({
     queryKey: ["lead-activities", selectedLead?.id],
     queryFn: () => selectedLead ? api.activities.getByEntity("lead", selectedLead.id).catch(() => []) : [],
     enabled: !!selectedLead,
   });
 
-  const defaultStage =
-    stages.find((s: DynamicOption) => s.order === 1) || stages[0];
-  const defaultScore =
-    scores.find((s: DynamicOption) => s.order === 1) || scores[0];
-  const defaultPriority =
-    priorities.find((p: DynamicOption) => p.order === 2) || priorities[0];
-  const defaultQualification =
-    qualifications.find((q: DynamicOption) => q.order === 1) ||
-    qualifications[0];
 
-  const createMutation = useMutation({
-    mutationFn: api.leads.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      toast.success("Lead created successfully");
-      setShowAddLead(false);
-      setUseExistingAccount(false);
-      setNewLead({
-        name: "",
-        email: "",
-        phone: "",
-        company: "",
-        title: "",
-        sourceId: 0,
-        value: "",
-        stageId: 0,
-        scoreCategoryId: 0,
-        priorityId: 0,
-        qualificationStageId: 0,
-        location: "",
-        industry: "",
-        website: "",
-        notes: "",
-        tags: "",
-        assignedToId: undefined,
-        nextFollowUp: "",
-        accountId: null,
-      });
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) =>
@@ -432,7 +364,7 @@ const Leads = () => {
     const matchesSearch =
       lead.name.toLowerCase().includes(search.toLowerCase()) ||
       (lead.company?.toLowerCase() || "").includes(search.toLowerCase()) ||
-      (lead.email?.toLowerCase() || "").includes(search.toLowerCase());
+      (lead.emails?.some(e => e.toLowerCase().includes(search.toLowerCase())) || false);
     const matchesScore =
       filterScore === "all" || String(lead.scoreCategoryId) === filterScore;
     const matchesSource =
@@ -697,44 +629,6 @@ const Leads = () => {
     setSelectedLead(null);
   };
 
-  const handleAddLead = () => {
-    if (!newLead.name || !newLead.email) {
-      toast.error("Please fill in required fields");
-      return;
-    }
-    if (!useExistingAccount && !newLead.company) {
-      toast.error("Please enter a company name or select an existing account");
-      return;
-    }
-    createMutation.mutate({
-      name: newLead.name,
-      email: newLead.email,
-      phone: newLead.phone,
-      company: useExistingAccount
-        ? accounts.find((a) => a.id === newLead.accountId)?.name || ""
-        : newLead.company,
-      title: newLead.title,
-      sourceId: newLead.sourceId || sources[0]?.id,
-      value: parseInt(newLead.value) || 0,
-      stageId: newLead.stageId || defaultStage?.id,
-      scoreCategoryId: newLead.scoreCategoryId || defaultScore?.id,
-      priorityId: newLead.priorityId || defaultPriority?.id,
-      qualificationStageId:
-        newLead.qualificationStageId || defaultQualification?.id,
-      location: newLead.location,
-      industry: newLead.industry,
-      website: useExistingAccount
-        ? accounts.find((a) => a.id === newLead.accountId)?.website
-        : newLead.website,
-      notes: newLead.notes,
-      tags: newLead.tags,
-      assignedToId: newLead.assignedToId,
-      nextFollowUp: newLead.nextFollowUp
-        ? new Date(newLead.nextFollowUp)
-        : undefined,
-      accountId: useExistingAccount ? newLead.accountId : undefined,
-    });
-  };
 
   const formatCurrency = (value: number | string) =>
     new Intl.NumberFormat("en-US", {
@@ -931,7 +825,7 @@ const Leads = () => {
                 <CheckSquare className="h-3.5 w-3.5 mr-1" /> Bulk ({selectedLeads.length})
               </Button>
             )}
-            <Button size="sm" onClick={() => setShowAddLead(true)}>
+            <Button size="sm" onClick={() => navigate("/leads/new")}>
               <Plus className="h-3.5 w-3.5 mr-1" /> Add Lead
             </Button>
           </div>
@@ -1007,7 +901,7 @@ const Leads = () => {
                         <div>
                           <div className="font-medium">{lead.name}</div>
                           <div className="text-xs text-muted-foreground">
-                            {lead.email}
+                            {lead.emails?.[0]}
                           </div>
                         </div>
                       </TableCell>
@@ -1058,7 +952,7 @@ const Leads = () => {
                       <TableCell>
                         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                           <Clock className="h-3 w-3" />
-                          {formatRelativeTime(lead.created)}
+                          {formatRelativeTime(lead.createdAt)}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -1311,11 +1205,11 @@ const Leads = () => {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedLead.email || "—"}</span>
+                        <span>{selectedLead.emails?.[0] || "—"}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedLead.phone || "—"}</span>
+                        <span>{selectedLead.phones?.[0] || "—"}</span>
                       </div>
                       {selectedLead.website && (
                         <div className="flex items-center gap-2">
@@ -1365,13 +1259,13 @@ const Leads = () => {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Created</span>
-                        <span>{formatDate(selectedLead.created)}</span>
+                        <span>{formatDate(selectedLead.createdAt)}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">
                           Last Activity
                         </span>
-                        <span>{formatRelativeTime(selectedLead.created)}</span>
+                        <span>{formatRelativeTime(selectedLead.createdAt)}</span>
                       </div>
                     </div>
                   </div>
@@ -1538,7 +1432,7 @@ const Leads = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Email</span>
-                    <span>{selectedLead.email}</span>
+                    <span>{selectedLead.emails?.[0]}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Value</span>
@@ -1576,348 +1470,6 @@ const Leads = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Add Lead Drawer */}
-        <Drawer open={showAddLead} onOpenChange={setShowAddLead}>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Add New Lead</DrawerTitle>
-              <DrawerDescription>
-                Fill in the details to create a new lead.
-              </DrawerDescription>
-            </DrawerHeader>
-            <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4 px-6 overflow-y-auto"
-              style={{ maxHeight: "calc(100vh - 180px)" }}
-            >
-              {/* Basic Info */}
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1">
-                Basic Info
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Name <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  placeholder="John Doe"
-                  value={newLead.name}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, name: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>
-                  Email <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  type="email"
-                  placeholder="john@company.com"
-                  value={newLead.email}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, email: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Phone</Label>
-                <Input
-                  placeholder="+1 (555) 000-0000"
-                  value={newLead.phone}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, phone: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>
-                    Company <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="flex items-center border rounded-md overflow-hidden">
-                    <Button
-                      type="button"
-                      variant={useExistingAccount ? "ghost" : "secondary"}
-                      size="sm"
-                      onClick={() => setUseExistingAccount(false)}
-                      className="rounded-none h-8 px-3"
-                      title="New Company"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={useExistingAccount ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setUseExistingAccount(true)}
-                      className="rounded-none h-8 px-3 border-l"
-                      title="Existing Account"
-                    >
-                      <Building2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                {useExistingAccount ? (
-                  <Select
-                    value={newLead.accountId?.toString() || ""}
-                    onValueChange={(v) =>
-                      setNewLead({ ...newLead, accountId: parseInt(v) })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an account" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {accounts.map((account: any) => (
-                        <SelectItem key={account.id} value={String(account.id)}>
-                          {account.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Input
-                    placeholder="Acme Corp"
-                    value={newLead.company}
-                    onChange={(e) =>
-                      setNewLead({ ...newLead, company: e.target.value })
-                    }
-                  />
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input
-                  placeholder="VP of Engineering"
-                  value={newLead.title}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, title: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Stage</Label>
-                <Select
-                  value={String(newLead.stageId) || "0"}
-                  onValueChange={(v) =>
-                    setNewLead({ ...newLead, stageId: parseInt(v) })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select stage" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stages.map((stage: DynamicOption) => (
-                      <SelectItem key={stage.id} value={String(stage.id)}>
-                        {stage.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Sales Data */}
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1 mt-2">
-                Sales Data
-              </div>
-
-              <div className="space-y-2">
-                <Label>Source</Label>
-                <Select
-                  value={String(newLead.sourceId) || "0"}
-                  onValueChange={(v) =>
-                    setNewLead({ ...newLead, sourceId: parseInt(v) })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select source" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sources.map((source: DynamicOption) => (
-                      <SelectItem key={source.id} value={String(source.id)}>
-                        {source.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Est. Value</Label>
-                <Input
-                  type="number"
-                  placeholder="50000"
-                  value={newLead.value}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, value: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Lead Score</Label>
-                <Select
-                  value={String(newLead.scoreCategoryId) || "0"}
-                  onValueChange={(v) =>
-                    setNewLead({ ...newLead, scoreCategoryId: parseInt(v) })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select score" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {scores.map((score: DynamicOption) => (
-                      <SelectItem key={score.id} value={String(score.id)}>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="h-2 w-2 rounded-full"
-                            style={{
-                              backgroundColor: score.color || "#6b7280",
-                            }}
-                          />
-                          {score.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Priority</Label>
-                <Select
-                  value={String(newLead.priorityId) || "0"}
-                  onValueChange={(v) =>
-                    setNewLead({ ...newLead, priorityId: parseInt(v) })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {priorities.map((priority: DynamicOption) => (
-                      <SelectItem key={priority.id} value={String(priority.id)}>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="h-2 w-2 rounded-full"
-                            style={{
-                              backgroundColor: priority.color || "#6b7280",
-                            }}
-                          />
-                          {priority.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Qualification</Label>
-                <Select
-                  value={String(newLead.qualificationStageId) || "0"}
-                  onValueChange={(v) =>
-                    setNewLead({
-                      ...newLead,
-                      qualificationStageId: parseInt(v),
-                    })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select qualification" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {qualifications.map((qual: DynamicOption) => (
-                      <SelectItem key={qual.id} value={String(qual.id)}>
-                        {qual.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Organization */}
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1 mt-2">
-                Organization
-              </div>
-
-              <div className="space-y-2">
-                <Label>Location</Label>
-                <Input
-                  placeholder="San Francisco, CA"
-                  value={newLead.location}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, location: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Industry</Label>
-                <Input
-                  placeholder="Technology"
-                  value={newLead.industry}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, industry: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Website</Label>
-                <Input
-                  placeholder="https://company.com"
-                  value={newLead.website}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, website: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Tags</Label>
-                <Input
-                  placeholder="enterprise, hot-lead"
-                  value={newLead.tags}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, tags: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* Follow-up */}
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1 mt-2">
-                Follow-up
-              </div>
-
-              <div className="space-y-2">
-                <Label>Next Follow-up Date</Label>
-                <Input
-                  type="date"
-                  value={newLead.nextFollowUp}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, nextFollowUp: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-3">
-                <Label>Notes</Label>
-                <Textarea
-                  placeholder="Any additional context..."
-                  value={newLead.notes}
-                  onChange={(e) =>
-                    setNewLead({ ...newLead, notes: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <DrawerFooter>
-              <Button variant="outline" onClick={() => setShowAddLead(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleAddLead}
-                disabled={createMutation.isPending}
-              >
-                <UserPlus className="h-4 w-4 mr-2" />
-                {createMutation.isPending ? "Creating..." : "Create Lead"}
-              </Button>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
 
         <Dialog open={showActivity} onOpenChange={setShowActivity}>
           <DialogContent>

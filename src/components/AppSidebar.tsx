@@ -23,6 +23,8 @@ import {
   FileSearch,
   Bell,
   Table2,
+  Shield,
+  Lock,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -123,7 +125,15 @@ const navSections: NavSection[] = [
   {
     label: "Admin",
     items: [
-      { label: "Team", icon: Users, path: "/team" },
+      { 
+        label: "Team", 
+        icon: Users,
+        children: [
+          { label: "Users", icon: Users, path: "/team/users" },
+          { label: "Roles", icon: Shield, path: "/team/roles" },
+          { label: "Privileges", icon: Lock, path: "/team/privileges" },
+        ]
+      },
       { label: "Audit Logs", icon: FileSearch, path: "/settings/audit-logs" },
       { label: "Notifications", icon: Bell, path: "/settings/notifications" },
       { label: "Settings", icon: Settings, path: "/settings" },

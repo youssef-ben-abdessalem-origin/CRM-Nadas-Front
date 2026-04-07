@@ -1,11 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Contacts from "./pages/Contacts.tsx";
 import Deals from "./pages/Deals.tsx";
 import Leads from "./pages/Leads.tsx";
+import NewLead from "./pages/NewLead.tsx";
 import Accounts from "./pages/Accounts.tsx";
 import LeadsSettings from "./pages/Settings.tsx";
 import ContactsSettings from "./pages/ContactsSettings.tsx";
@@ -32,7 +33,12 @@ import OrdersPage from "./pages/OrdersPage.tsx";
 import PaymentsPage from "./pages/PaymentsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
+import ActivitiesPage from "./pages/ActivitiesPage.tsx";
 import { ProtectedRoute } from "@/components/ProtectedRoute.tsx";
+import Users from "./pages/team/Users.tsx";
+import Roles from "./pages/team/Roles.tsx";
+import RoleConfig from "./pages/team/RoleConfig.tsx";
+import Privileges from "./pages/team/Privileges.tsx";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +64,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Leads />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/leads/new"
+              element={
+                <ProtectedRoute>
+                  <NewLead />
                 </ProtectedRoute>
               }
             />
@@ -213,6 +227,55 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/activities"
+              element={
+                <ProtectedRoute>
+                  <ActivitiesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/team/users"
+              element={
+                <ProtectedRoute>
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/team/roles"
+              element={
+                <ProtectedRoute>
+                  <Roles />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/team/privileges"
+              element={
+                <ProtectedRoute>
+                  <Privileges />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/team/roles/new"
+              element={
+                <ProtectedRoute>
+                  <RoleConfig />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/team/roles/:id"
+              element={
+                <ProtectedRoute>
+                  <RoleConfig />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/team" element={<Navigate to="/team/users" replace />} />
              <Route
               path="/products"
               element={

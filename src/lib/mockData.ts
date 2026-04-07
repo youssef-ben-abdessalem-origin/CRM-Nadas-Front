@@ -11,20 +11,38 @@ export type LeadSource =
 export interface Lead {
   id: number;
   name: string;
-  email: string;
-  phone: string;
+  emails: string[];
+  phones: string[];
   company: string;
   title: string;
-  source: LeadSource;
-  score: LeadScore;
-  status: "new" | "contacted" | "qualified" | "unqualified";
+  sourceId?: number;
+  source?: { id: number; name: string };
+  scoreCategoryId?: number;
+  scoreCategory?: { id: number; name: string; color: string };
+  stageId?: number;
+  stage?: { id: number; name: string; color: string };
+  priorityId?: number;
+  priority?: { id: number; name: string; color: string };
+  qualificationStageId?: number;
+  qualificationStage?: { id: number; name: string };
+  status: string;
+  ownerId: number;
+  owner?: { id: number; name: string; email: string };
   value: number;
-  created: string;
+  createdAt: string;
+  updatedAt: string;
   lastActivity: string;
   notes: string;
   location: string;
   industry: string;
   website: string;
+  tags: string[];
+  nextFollowUp?: string;
+  isConverted?: boolean;
+  convertedAt?: string;
+  convertedAccountId?: number;
+  convertedContactId?: number;
+  attachments?: { url: string; name: string; type: string; uploadedAt: string }[];
 }
 
 export type DealStage = "qualification" | "discovery" | "proposal" | "negotiation" | "closed_won" | "closed_lost";
@@ -100,92 +118,77 @@ export const mockLeads: Lead[] = [
   {
     id: 1,
     name: "Sarah Chen",
-    email: "sarah.chen@techcorp.io",
-    phone: "+1 (555) 123-4567",
+    emails: ["sarah.chen@techcorp.io"],
+    phones: ["+1 (555) 123-4567"],
     company: "TechCorp",
     title: "VP of Engineering",
-    source: "Website",
-    score: "hot",
-    status: "qualified",
+    sourceId: 1,
+    source: { id: 1, name: "Website" },
+    scoreCategoryId: 1,
+    scoreCategory: { id: 1, name: "hot", color: "#ef4444" },
+    stageId: 3,
+    stage: { id: 3, name: "qualified", color: "#22c55e" },
+    status: "active",
+    ownerId: 1,
     value: 75000,
-    created: "2026-02-15",
+    createdAt: "2026-02-15",
+    updatedAt: "2026-02-15",
     lastActivity: "2 hours ago",
     notes: "Interested in enterprise plan. Requested demo.",
     location: "San Francisco, CA",
     industry: "Technology",
     website: "https://techcorp.io",
+    tags: ["enterprise", "hot-lead"],
   },
   {
     id: 2,
     name: "Michael Torres",
-    email: "m.torres@innovate.co",
-    phone: "+1 (555) 234-5678",
+    emails: ["m.torres@innovate.co"],
+    phones: ["+1 (555) 234-5678"],
     company: "Innovate Co",
     title: "CTO",
-    source: "LinkedIn",
-    score: "warm",
-    status: "contacted",
+    sourceId: 2,
+    source: { id: 2, name: "LinkedIn" },
+    scoreCategoryId: 2,
+    scoreCategory: { id: 2, name: "warm", color: "#f59e0b" },
+    stageId: 2,
+    stage: { id: 2, name: "contacted", color: "#3b82f6" },
+    status: "active",
+    ownerId: 1,
     value: 45000,
-    created: "2026-02-20",
+    createdAt: "2026-02-20",
+    updatedAt: "2026-02-20",
     lastActivity: "1 day ago",
     notes: "Looking for scaling solutions",
     location: "Austin, TX",
     industry: "SaaS",
     website: "https://innovate.co",
+    tags: ["saas", "scaling"],
   },
   {
     id: 3,
     name: "Emily Johnson",
-    email: "emily.j@globalinc.com",
-    phone: "+1 (555) 345-6789",
+    emails: ["emily.j@globalinc.com"],
+    phones: ["+1 (555) 345-6789"],
     company: "Global Inc",
     title: "Director of Operations",
-    source: "Referral",
-    score: "hot",
-    status: "new",
+    sourceId: 3,
+    source: { id: 3, name: "Referral" },
+    scoreCategoryId: 1,
+    scoreCategory: { id: 1, name: "hot", color: "#ef4444" },
+    stageId: 1,
+    stage: { id: 1, name: "new", color: "#6b7280" },
+    status: "active",
+    ownerId: 1,
     value: 120000,
-    created: "2026-03-01",
+    createdAt: "2026-03-01",
+    updatedAt: "2026-03-01",
     lastActivity: "3 hours ago",
     notes: "Referred by John Smith",
     location: "New York, NY",
     industry: "Consulting",
     website: "https://globalinc.com",
-  },
-  {
-    id: 4,
-    name: "David Kim",
-    email: "dkim@startupx.io",
-    phone: "+1 (555) 456-7890",
-    company: "StartupX",
-    title: "Founder",
-    source: "Cold Call",
-    score: "cold",
-    status: "new",
-    value: 15000,
-    created: "2026-03-10",
-    lastActivity: "5 days ago",
-    notes: "Early stage startup",
-    location: "Seattle, WA",
-    industry: "Fintech",
-    website: "https://startupx.io",
-  },
-  {
-    id: 5,
-    name: "Lisa Anderson",
-    email: "lisa@enterprise.com",
-    phone: "+1 (555) 567-8901",
-    company: "Enterprise Solutions",
-    title: "Head of IT",
-    source: "Trade Show",
-    score: "warm",
-    status: "contacted",
-    value: 85000,
-    created: "2026-02-28",
-    lastActivity: "2 days ago",
-    notes: "Met at SaaS Conference 2026",
-    location: "Chicago, IL",
-    industry: "Manufacturing",
-    website: "https://enterprise.com",
+    tags: ["referral", "enterprise"],
   },
 ];
 
@@ -416,20 +419,23 @@ export const api = {
       const newLead: Lead = {
         id: leadIdCounter++,
         name: data.name || "",
-        email: data.email || "",
-        phone: data.phone || "",
+        emails: data.emails || [],
+        phones: data.phones || [],
         company: data.company || "",
         title: data.title || "",
-        source: data.source || "Website",
-        score: data.score || "cold",
-        status: "new",
+        sourceId: data.sourceId,
+        scoreCategoryId: data.scoreCategoryId,
+        status: "active",
+        ownerId: data.ownerId || 1,
         value: data.value || 0,
-        created: new Date().toISOString().split("T")[0],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         lastActivity: "Just now",
         notes: data.notes || "",
-        location: "",
-        industry: "",
-        website: "",
+        location: data.location || "",
+        industry: data.industry || "",
+        website: data.website || "",
+        tags: data.tags || [],
       };
       mockLeads.push(newLead);
       return newLead;
