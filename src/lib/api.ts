@@ -19,7 +19,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => { throw error; },
 );
 
 axiosInstance.interceptors.response.use(
@@ -56,8 +56,8 @@ axiosInstance.interceptors.response.use(
       Cookies.remove("refreshToken");
       localStorage.removeItem("user");
       toast.info("Please log in again");
-      window.location.href = "/login";
-      return Promise.reject(error);
+      globalThis.location.href = "/login";
+      throw error;
     }
 
     if (
@@ -70,7 +70,7 @@ axiosInstance.interceptors.response.use(
       toast.error(responseData);
     }
 
-    return Promise.reject(error);
+    throw error;
   },
 );
 
@@ -393,16 +393,28 @@ export const api = {
       page: number = 1,
       limit: number = 5,
       search?: string,
-      categoryId?: string
+      categoryId?: string,
+      status?: string,
+      type?: string
     ) => {
       const queryParams = new URLSearchParams();
       queryParams.append("page", String(page));
       queryParams.append("limit", String(limit));
       if (search) queryParams.append("search", search);
       if (categoryId) queryParams.append("categoryId", categoryId);
+      if (status) queryParams.append("status", status);
+      if (type) queryParams.append("type", type);
       const res = await axiosInstance.get(
         `/api/v1/products/paginated?${queryParams.toString()}`
       );
+      return res.data;
+    },
+    archive: async (id: string) => {
+      const res = await axiosInstance.post(`/api/v1/products/${id}/archive`);
+      return res.data;
+    },
+    duplicate: async (id: string) => {
+      const res = await axiosInstance.post(`/api/v1/products/${id}/duplicate`);
       return res.data;
     },
     getOne: async (id: string) => {
@@ -424,6 +436,34 @@ export const api = {
     getBrands: async () => {
       const res = await axiosInstance.get("/api/v1/products/brands");
       return normalizeResponse(res.data);
+    },
+    createBrand: async (data: { name: string; logo?: string }) => {
+      const res = await axiosInstance.post("/api/v1/products/brands", data);
+      return res.data;
+    },
+    updateBrand: async (id: string, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/brands/${id}`, data);
+      return res.data;
+    },
+    deleteBrand: async (id: string) => {
+      const res = await axiosInstance.delete(`/api/v1/products/brands/${id}`);
+      return res.data;
+    },
+    getTaxClasses: async () => {
+      const res = await axiosInstance.get("/api/v1/products/tax-classes");
+      return normalizeResponse(res.data);
+    },
+    createTaxClass: async (data: { name: string; rate: number }) => {
+      const res = await axiosInstance.post("/api/v1/products/tax-classes", data);
+      return res.data;
+    },
+    updateTaxClass: async (id: string, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/tax-classes/${id}`, data);
+      return res.data;
+    },
+    deleteTaxClass: async (id: string) => {
+      const res = await axiosInstance.delete(`/api/v1/products/tax-classes/${id}`);
+      return res.data;
     },
     getPriceBooks: async () => {
       const res = await axiosInstance.get("/api/v1/products/price-books");
@@ -509,6 +549,22 @@ export const api = {
     setPrimaryPrice: async (variantId: string, priceId: string) => {
        const res = await axiosInstance.post(`/api/v1/products/variants/${variantId}/primary/${priceId}`);
        return res.data;
+    },
+    getTypes: async () => {
+      const res = await axiosInstance.get("/api/v1/products/types");
+      return normalizeResponse(res.data);
+    },
+    createType: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/products/types", data);
+      return normalizeResponse(res.data);
+    },
+    updateType: async (id: string, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/products/types/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteType: async (id: string) => {
+      const res = await axiosInstance.delete(`/api/v1/products/types/${id}`);
+      return normalizeResponse(res.data);
     }
   },
 

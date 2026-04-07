@@ -24,6 +24,7 @@ import ProfilePage from "./pages/ProfilePage.tsx";
 import EmailsPage from "./pages/EmailsPage.tsx";
 import CalendarPage from "./pages/CalendarPage.tsx";
 import Products from "./pages/Products.tsx";
+import CreateProduct from "./pages/CreateProduct.tsx";
 import ProductSettings from "./pages/ProductSettings.tsx";
 import QuotesPage from "./pages/QuotesPage.tsx";
 import InvoicesPage from "./pages/InvoicesPage.tsx";
@@ -212,11 +213,19 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route
+             <Route
               path="/products"
               element={
                 <ProtectedRoute>
                   <Products />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/products/new"
+              element={
+                <ProtectedRoute>
+                  <CreateProduct />
                 </ProtectedRoute>
               }
             />
