@@ -76,16 +76,38 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
 
-export type ProductType = "SERVICE" | "PHYSICAL" | "SUBSCRIPTION";
+export type ProductType = "service" | "physical" | "digital";
+export type ProductStatus = "draft" | "active" | "archived";
 
 export interface PriceBookItem {
   id: string;
   priceBookId: string;
   priceBook: { name: string; currency: string };
   price: number;
-  billingType: "ONE_TIME" | "RECURRING";
-  billingPeriod: "NONE" | "MONTHLY" | "YEARLY" | "WEEKLY";
-  discountAllowed: boolean;
+  discount: number;
+  minQty: number;
+}
+
+export interface Inventory {
+  id: string;
+  quantityAvailable: number;
+  quantityReserved: number;
+  reorderLevel: number;
+  warehouseId?: string;
+  stockStatus?: string;
+}
+
+export interface ProductMedia {
+  id: string;
+  url: string;
+  type: string;
+  isPrimary: boolean;
+}
+
+export interface ProductAttribute {
+  id: string;
+  name: string;
+  value: string;
 }
 
 export interface ProductVariant {
@@ -93,48 +115,44 @@ export interface ProductVariant {
   productId: string;
   name: string;
   sku: string;
+  price?: number;
+  cost?: number;
   attributes: any;
   isDefault: boolean;
-  isActive: boolean;
+  status: string;
   prices: PriceBookItem[];
+  inventory: Inventory[];
 }
 
 export interface Product {
   id: string;
   name: string;
-  code: string;
+  slug: string;
   description: string;
-  type: ProductType;
+  type: string;
   categoryId: string | null;
   category: { id: string; name: string } | null;
   brandId: string | null;
   brand: { id: string; name: string } | null;
+  status: string;
   isActive: boolean;
   isSellable: boolean;
   isPurchasable: boolean;
+  billingType?: string;
+  billingCycle?: string;
+  trialPeriodDays: number;
+  setupFee?: number;
+  unitOfMeasure?: string;
   variants: ProductVariant[];
+  media: ProductMedia[];
+  attributes: ProductAttribute[];
   createdAt: string;
   updatedAt: string;
-  // Legacy fields for UI compatibility if needed
-  totalSold?: number;
-  totalRevenue?: number;
 }
-
-
 
 // ProductForm component moved OUTSIDE Products component to prevent remounting
 interface ProductFormProps {
-  formData: {
-    name: string;
-    code: string;
-    description: string;
-    type: ProductType;
-    categoryId: string;
-    brandId: string;
-    isActive: boolean;
-    isSellable: boolean;
-    isPurchasable: boolean;
-  };
+  formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   categories: any[];
   brands: any[];
@@ -153,26 +171,42 @@ const ProductForm = ({ formData, setFormData, categories, brands }: ProductFormP
           />
         </div>
         <div className="space-y-2">
-          <Label>Product Code (Unique) <span className="text-red-500">*</span></Label>
+          <Label>Slug / Strategic URL <span className="text-red-500">*</span></Label>
           <Input
-            placeholder="PRD-001"
-            value={formData.code}
-            onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+            placeholder="enterprise-pro-plan"
+            value={formData.slug}
+            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
           />
         </div>
         <div className="space-y-2">
           <Label>Product Type</Label>
           <Select
             value={formData.type}
-            onValueChange={(v: ProductType) => setFormData({ ...formData, type: v })}
+            onValueChange={(v) => setFormData({ ...formData, type: v })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="PHYSICAL">Physical Goods</SelectItem>
-              <SelectItem value="SERVICE">Professional Service</SelectItem>
-              <SelectItem value="SUBSCRIPTION">SaaS / Subscription</SelectItem>
+              <SelectItem value="physical">Physical Goods</SelectItem>
+              <SelectItem value="service">Professional Service</SelectItem>
+              <SelectItem value="digital">Digital Product</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Lifecycle Status</Label>
+          <Select
+            value={formData.status}
+            onValueChange={(v) => setFormData({ ...formData, status: v })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="draft">Draft (Private)</SelectItem>
+              <SelectItem value="active">Active (Public)</SelectItem>
+              <SelectItem value="archived">Archived (Legacy)</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -211,6 +245,63 @@ const ProductForm = ({ formData, setFormData, categories, brands }: ProductFormP
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Unit of Measure</Label>
+          <Input
+            placeholder="e.g. unit, kg, license"
+            value={formData.unitOfMeasure}
+            onChange={(e) => setFormData({ ...formData, unitOfMeasure: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 p-4 border rounded-xl bg-muted/20">
+        <div className="space-y-2">
+          <Label>Billing Type</Label>
+          <Select
+            value={formData.billingType}
+            onValueChange={(v) => setFormData({ ...formData, billingType: v })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select billing" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="one_time">One-Time Payment</SelectItem>
+              <SelectItem value="recurring">Recurring Subscription</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Billing Cycle</Label>
+          <Select
+            value={formData.billingCycle}
+            onValueChange={(v) => setFormData({ ...formData, billingCycle: v })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select cycle" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="monthly">Monthly</SelectItem>
+              <SelectItem value="yearly">Yearly</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Trial Days</Label>
+          <Input
+            type="number"
+            value={formData.trialPeriodDays}
+            onChange={(e) => setFormData({ ...formData, trialPeriodDays: parseInt(e.target.value) || 0 })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Setup Fee</Label>
+          <Input
+            type="number"
+            value={formData.setupFee}
+            onChange={(e) => setFormData({ ...formData, setupFee: parseFloat(e.target.value) || 0 })}
+          />
         </div>
       </div>
 
@@ -399,27 +490,39 @@ const Products = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    code: "",
+    slug: "",
     description: "",
-    type: "PHYSICAL" as ProductType,
+    type: "physical",
+    status: "draft",
     categoryId: "",
     brandId: "",
     isActive: true,
     isSellable: true,
     isPurchasable: true,
+    billingType: "one_time",
+    billingCycle: "monthly",
+    trialPeriodDays: 0,
+    setupFee: 0,
+    unitOfMeasure: "unit",
   });
 
   const resetForm = () => {
     setFormData({
       name: "",
-      code: "",
+      slug: "",
       description: "",
-      type: "PHYSICAL",
+      type: "physical",
+      status: "draft",
       categoryId: "",
       brandId: "",
       isActive: true,
       isSellable: true,
       isPurchasable: true,
+      billingType: "one_time",
+      billingCycle: "monthly",
+      trialPeriodDays: 0,
+      setupFee: 0,
+      unitOfMeasure: "unit",
     });
   };
 
@@ -427,20 +530,26 @@ const Products = () => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
-      code: product.code,
+      slug: product.slug,
       description: product.description || "",
       type: product.type,
+      status: product.status,
       categoryId: product.categoryId || "",
       brandId: product.brandId || "",
       isActive: product.isActive,
       isSellable: product.isSellable,
       isPurchasable: product.isPurchasable,
+      billingType: product.billingType || "one_time",
+      billingCycle: product.billingCycle || "monthly",
+      trialPeriodDays: product.trialPeriodDays || 0,
+      setupFee: product.setupFee || 0,
+      unitOfMeasure: product.unitOfMeasure || "unit",
     });
     setShowEdit(true);
   };
 
   const handleAdd = () => {
-    if (!formData.name || !formData.code) {
+    if (!formData.name || !formData.slug) {
       toast.error("Please fill in required fields");
       return;
     }
@@ -487,7 +596,7 @@ const Products = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name or code..."
+                placeholder="Search by name or slug..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9 w-72 pl-9"
@@ -525,7 +634,7 @@ const Products = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Product</TableHead>
-                <TableHead>Code</TableHead>
+                <TableHead>Slug</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Brand</TableHead>
@@ -547,7 +656,7 @@ const Products = () => {
               ) : (
                 products.map((product: Product) => {
                   const masterVariant = product.variants?.find((v: any) => v.isDefault) || product.variants?.[0];
-                  const defaultPrice = masterVariant?.defaultPrice || masterVariant?.prices?.find((p: any) => p.priceBook?.isDefault) || masterVariant?.prices?.[0];
+                  const defaultPrice = masterVariant?.prices?.find((p: any) => p.priceBook?.isDefault) || masterVariant?.prices?.[0];
                   return (
                     <TableRow 
                       key={product.id}
@@ -558,45 +667,42 @@ const Products = () => {
                       }}
                     >
                       <TableCell>
-                        <div className="font-medium">{product.name}</div>
-                        <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                        <div className="font-medium text-sm">{product.name}</div>
+                        <div className="text-[10px] text-muted-foreground truncate max-w-[200px]">
                           {product.description}
                         </div>
                       </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {product.code}
+                      <TableCell className="font-mono text-[10px]">
+                        {product.slug}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className="text-[10px] h-5">
+                        <Badge variant="secondary" className="text-[9px] h-4 uppercase font-bold tracking-tighter">
                           {product.type}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                         <span className="text-sm">{product.category?.name || "—"}</span>
+                         <span className="text-xs">{product.category?.name || "—"}</span>
                       </TableCell>
                       <TableCell>
-                         <span className="text-sm">{product.brand?.name || "—"}</span>
+                         <span className="text-xs">{product.brand?.name || "—"}</span>
                       </TableCell>
                       <TableCell>
                         {defaultPrice ? (
-                          <div className="font-medium text-sm">
+                          <div className="font-bold text-xs">
                             {new Intl.NumberFormat("en-US", {
                               style: "currency",
                               currency: defaultPrice.priceBook?.currency || "USD",
                             }).format(defaultPrice.price)}
                           </div>
                         ) : (
-                          <span className="text-muted-foreground text-xs">No price set</span>
+                          <span className="text-muted-foreground text-[10px]">No price set</span>
                         )}
                       </TableCell>
                       <TableCell>
                          <div className="flex items-center gap-1.5">
-                          {product.isActive ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                          ) : (
-                            <XCircle className="h-3.5 w-3.5 text-red-500" />
-                          )}
-                          <span className="text-xs">{product.isActive ? 'Active' : 'Inactive'}</span>
+                          <Badge variant={product.status === 'active' ? 'default' : 'secondary'} className="text-[9px] h-4 px-1.5 uppercase tracking-tighter">
+                            {product.status}
+                          </Badge>
                         </div>
                       </TableCell>
                       <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
@@ -625,13 +731,14 @@ const Products = () => {
           </Table>
           
           <div className="flex items-center justify-between px-4 py-3 border-t">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-xs text-muted-foreground font-medium">
               Showing {products.length} of {total} products
             </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
+                className="h-8 text-[11px] font-bold uppercase tracking-tighter"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
@@ -640,6 +747,7 @@ const Products = () => {
               <Button
                 variant="outline"
                 size="sm"
+                className="h-8 text-[11px] font-bold uppercase tracking-tighter"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages || totalPages === 0}
               >
@@ -657,30 +765,30 @@ const Products = () => {
                 <div className="px-6 pt-6 border-b">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <DrawerTitle className="text-2xl font-bold">{selectedProduct.name}</DrawerTitle>
-                      <DrawerDescription className="text-sm font-mono mt-1 opacity-70">
-                        {selectedProduct.code}
+                      <DrawerTitle className="text-2xl font-black tracking-tight uppercase">{selectedProduct.name}</DrawerTitle>
+                      <DrawerDescription className="text-[10px] font-mono mt-1 opacity-70 bg-muted inline-block px-1.5 rounded">
+                        SLUG: {selectedProduct.slug}
                       </DrawerDescription>
                     </div>
                     <div className="flex gap-2">
-                       <Badge variant={selectedProduct.type === 'PHYSICAL' ? 'default' : 'secondary'}>
+                       <Badge className="text-[10px] uppercase font-black" variant={selectedProduct.type === 'physical' ? 'default' : 'secondary'}>
                         {selectedProduct.type}
                       </Badge>
-                      <Badge variant={selectedProduct.isActive ? "default" : "destructive"}>
-                        {selectedProduct.isActive ? "Active" : "Inactive"}
+                      <Badge variant={selectedProduct.status === 'active' ? "default" : "secondary"} className="text-[10px] uppercase font-black">
+                        {selectedProduct.status}
                       </Badge>
                     </div>
                   </div>
                   
                   <TabsList className="bg-transparent border-b-0 w-full justify-start h-10 p-0 gap-6">
-                    <TabsTrigger value="overview" className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-0 pb-2 h-full text-sm">
+                    <TabsTrigger value="overview" className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-0 pb-2 h-full text-[11px] font-black uppercase tracking-widest">
                       Overview
                     </TabsTrigger>
-                    <TabsTrigger value="variants" className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-0 pb-2 h-full text-sm">
+                    <TabsTrigger value="variants" className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-0 pb-2 h-full text-[11px] font-black uppercase tracking-widest">
                       Variants
                     </TabsTrigger>
-                    <TabsTrigger value="pricing" className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-0 pb-2 h-full text-sm">
-                      Pricing Matrix
+                    <TabsTrigger value="pricing" className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-0 pb-2 h-full text-[11px] font-black uppercase tracking-widest">
+                      Strategic Matrix
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -700,14 +808,14 @@ const Products = () => {
                             <span className="text-sm font-medium">{selectedProduct.brand?.name || "None"}</span>
                           </div>
                           <div className="flex justify-between border-b pb-2">
-                            <span className="text-sm text-muted-foreground">Product Type</span>
-                            <span className="text-sm font-medium">{selectedProduct.type}</span>
+                            <span className="text-sm text-muted-foreground">Unit of Measure</span>
+                            <span className="text-sm font-medium">{selectedProduct.unitOfMeasure || "unit"}</span>
                           </div>
                         </div>
                       </div>
 
                       <div className="space-y-4">
-                        <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Permissions</Label>
+                        <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Permissions & Logic</Label>
                         <div className="space-y-3">
                           <div className="flex items-center justify-between border-b pb-2">
                             <span className="text-sm text-muted-foreground">Sellable</span>
@@ -717,13 +825,17 @@ const Products = () => {
                             <span className="text-sm text-muted-foreground">Purchasable</span>
                             {selectedProduct.isPurchasable ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-500" />}
                           </div>
+                          <div className="flex items-center justify-between border-b pb-2">
+                            <span className="text-sm text-muted-foreground">Billing</span>
+                            <span className="text-xs font-bold uppercase">{selectedProduct.billingType?.replace('_', ' ')} / {selectedProduct.billingCycle}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     <div className="space-y-3">
-                      <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Product Description</Label>
-                      <div className="text-sm leading-relaxed text-muted-foreground bg-muted/30 p-4 rounded-xl border italic">
+                      <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Product Value Proposition</Label>
+                      <div className="text-sm leading-relaxed text-muted-foreground bg-muted/20 p-6 rounded-2xl border-2 border-dashed font-medium italic">
                         {selectedProduct.description || "No public description available for this catalog item."}
                       </div>
                     </div>
@@ -731,32 +843,36 @@ const Products = () => {
 
                   <TabsContent value="variants" className="mt-0 space-y-4">
                     <div className="flex justify-between items-center mb-4">
-                       <h3 className="text-sm font-semibold italic text-muted-foreground">Strategic Variant Control ({selectedProduct.variants?.length})</h3>
-                       <Button size="sm" variant="outline" className="h-8 text-xs border-dashed" onClick={() => { setVariantName(""); setVariantSku(selectedProduct.code + "-"); setShowVariantDialog(true); }}>
+                       <h3 className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Strategic Variant Control ({selectedProduct.variants?.length})</h3>
+                       <Button size="sm" variant="outline" className="h-8 text-[10px] font-black uppercase tracking-tight border-2" onClick={() => { setVariantName(""); setVariantSku(selectedProduct.slug + "-"); setShowVariantDialog(true); }}>
                           <Plus className="h-3 w-3 mr-1" /> Add Variant
                        </Button>
                     </div>
                     
-                    <div className="rounded-xl border divide-y bg-muted/10 overflow-hidden shadow-inner">
+                    <div className="grid grid-cols-1 gap-4">
                       {selectedProduct.variants?.map((v) => (
-                        <div key={v.id} className="p-4 hover:bg-background transition-all duration-200 group">
-                           <div className="flex justify-between items-start">
-                             <div className="flex gap-4">
-                               <div className="h-10 w-10 rounded-lg bg-primary/5 border flex items-center justify-center text-primary">
-                                  <Layers className="h-5 w-5" />
+                        <div key={v.id} className="p-4 rounded-2xl border-2 hover:border-primary transition-all duration-300 bg-muted/5 group">
+                           <div className="flex justify-between items-center">
+                             <div className="flex gap-4 items-center">
+                               <div className="h-12 w-12 rounded-xl bg-primary/5 border-2 flex items-center justify-center text-primary">
+                                  <Layers className="h-6 w-6" />
                                </div>
                                <div>
                                   <div className="flex items-center gap-2">
-                                    <span className="font-bold text-sm tracking-tight">{v.name}</span>
-                                    {v.isDefault && <Badge className="text-[8px] h-3.5 px-1 bg-primary/10 text-primary border-primary/20">MASTER</Badge>}
+                                    <span className="font-black text-sm uppercase tracking-tight">{v.name}</span>
+                                    {v.isDefault && <Badge className="text-[8px] h-3.5 px-1 bg-primary text-white border-0 font-black">MASTER</Badge>}
                                   </div>
-                                  <div className="text-xs font-mono text-muted-foreground mt-1 bg-background/50 inline-block px-1 rounded">SKU: {v.sku} | ID: {v.id}</div>
+                                  <div className="text-[10px] font-mono text-muted-foreground mt-0.5">SKU: {v.sku}</div>
                                </div>
                              </div>
-                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEditClick(selectedProduct)}>
-                                   <Pencil className="h-3 w-3" />
-                                </Button>
+                             <div className="flex items-center gap-4">
+                               <div className="text-right">
+                                  <div className="text-xs font-black uppercase text-muted-foreground">Stock</div>
+                                  <div className="text-sm font-bold">{v.inventory?.[0]?.quantityAvailable || 0} units</div>
+                               </div>
+                               <Button size="icon" variant="ghost" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleEditClick(selectedProduct)}>
+                                   <Pencil className="h-4 w-4" />
+                               </Button>
                              </div>
                            </div>
                         </div>
