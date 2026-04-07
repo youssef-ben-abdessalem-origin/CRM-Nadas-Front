@@ -260,14 +260,6 @@ const App = () => {
               }
             />
             <Route
-              path="/team/roles/new"
-              element={
-                <ProtectedRoute>
-                  <RoleConfig />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/team/roles/:id"
               element={
                 <ProtectedRoute>

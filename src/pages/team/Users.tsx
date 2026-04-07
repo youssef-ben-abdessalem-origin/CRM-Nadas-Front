@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { 
-  Search, 
-  MoreVertical, 
-  Mail, 
-  Phone, 
-  Trash2, 
-  UserPlus, 
-  CheckCircle2, 
+import {
+  Search,
+  MoreVertical,
+  Mail,
+  Phone,
+  Trash2,
+  UserPlus,
+  CheckCircle2,
   XCircle,
   Filter,
   User as UserIcon,
@@ -102,16 +102,16 @@ const Users = () => {
     },
   });
 
-  const filteredUsers = users.filter((u: User) => 
-    u.name.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredUsers = users.filter((u: User) =>
+    u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   );
 
   const getRoleBadge = (role?: Role) => {
     if (!role) return <Badge variant="outline">No Role</Badge>;
     return (
-      <Badge 
-        variant="outline" 
+      <Badge
+        variant="outline"
         className="font-semibold"
         style={{ borderColor: role.color, color: role.color, backgroundColor: `${role.color}10` }}
       >
@@ -152,7 +152,7 @@ const Users = () => {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => queryClient.invalidateQueries({ queryKey: ["users"] })}>
-               Refresh List
+              Refresh List
             </Button>
             <Button onClick={() => setShowAddUser(true)} className="w-full md:w-auto">
               <UserPlus className="h-4 w-4 mr-2" /> Add Member
@@ -287,14 +287,14 @@ const Users = () => {
                               </div>
                             )}
                           </DropdownMenuItem>
-                          
+
                           <DropdownMenuSeparator />
                           <DropdownMenuLabel className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">
                             Assign New Role
                           </DropdownMenuLabel>
                           {roles.map((role: Role) => (
-                            <DropdownMenuItem 
-                              key={role.id} 
+                            <DropdownMenuItem
+                              key={role.id}
                               onClick={() => changeRole(user, role.id)}
                               className="flex items-center justify-between"
                             >
@@ -305,9 +305,9 @@ const Users = () => {
                               {user.roleId === role.id && <CheckCircle2 className="h-3 w-3 text-primary" />}
                             </DropdownMenuItem>
                           ))}
-                          
+
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="text-red-600 focus:text-red-600"
                             onClick={() => {
                               if (confirm(`Are you sure you want to remove ${user.name} from the team?`)) {
@@ -331,9 +331,7 @@ const Users = () => {
           <DialogContent className="sm:max-w-md">
             <form onSubmit={handleAddUser}>
               <DialogHeader>
-                <div className="p-3 bg-primary/10 rounded-full w-fit mb-2">
-                  <UserPlus className="h-6 w-6 text-primary" />
-                </div>
+
                 <DialogTitle>Invite New Member</DialogTitle>
                 <DialogDescription>
                   Provision a new account and assign their initial system role.
@@ -342,19 +340,19 @@ const Users = () => {
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
-                  <Input 
-                    id="name" 
-                    placeholder="Jane Cooper" 
+                  <Input
+                    id="name"
+                    placeholder="Jane Cooper"
                     value={newUser.name}
                     onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="jane@nexus-crm.com" 
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="jane@nexus-crm.com"
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                   />
@@ -362,19 +360,19 @@ const Users = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="password">Initial Password</Label>
-                    <Input 
-                      id="password" 
-                      type="password" 
-                      placeholder="••••••••" 
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
                       value={newUser.password}
                       onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone (Optional)</Label>
-                    <Input 
-                      id="phone" 
-                      placeholder="+1 (555) 000-0000" 
+                    <Input
+                      id="phone"
+                      placeholder="+1 (555) 000-0000"
                       value={newUser.phone}
                       onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
                     />
@@ -382,8 +380,8 @@ const Users = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="role">Initial Role</Label>
-                  <Select 
-                    value={newUser.roleId} 
+                  <Select
+                    value={newUser.roleId}
                     onValueChange={(v) => setNewUser({ ...newUser, roleId: v })}
                   >
                     <SelectTrigger>
@@ -393,8 +391,8 @@ const Users = () => {
                       {roles.map((role: Role) => (
                         <SelectItem key={role.id} value={String(role.id)}>
                           <div className="flex items-center gap-2">
-                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: role.color }} />
-                             {role.name}
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: role.color }} />
+                            {role.name}
                           </div>
                         </SelectItem>
                       ))}
