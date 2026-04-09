@@ -62,7 +62,6 @@ import {
   Edit,
   Trash2,
   Copy,
-  ArrowUpRight,
   Minus,
   ArrowDownRight,
   Phone,

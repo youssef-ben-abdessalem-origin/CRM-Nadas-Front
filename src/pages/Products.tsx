@@ -78,6 +78,7 @@ import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
 import { DynamicAutoSelect } from "@/components/ui/DynamicAutoSelect";
+import { cn } from "@/lib/utils";
 
 import { ProductForm } from "@/components/products/ProductForm";
 
@@ -132,6 +133,19 @@ export interface ProductVariant {
 export interface Product {
   id: string;
   name: string;
+  slug: string;
+  type: string;
+  status: string;
+  categoryId?: string;
+  brandId?: string;
+  isActive: boolean;
+  isSellable: boolean;
+  isPurchasable: boolean;
+  billingType?: string;
+  billingCycle?: string;
+  trialPeriodDays?: number;
+  setupFee?: number;
+  unitOfMeasure?: string;
   image?: string;
   productCode?: string;
   productActive: boolean;
@@ -154,6 +168,8 @@ export interface Product {
   reorderLevel: number;
   quantityInDemand: number;
   description?: string;
+  variants?: ProductVariant[];
+  media?: ProductMedia[];
   createdAt: string;
   updatedAt: string;
 }
@@ -428,224 +444,243 @@ const Products = () => {
   }
 
   return (
-    <CRMLayout title="Product Registry">
-      <div className="flex flex-col h-full bg-[#0D0F14] -m-6 -mt-3">
-        {/* Intelligence Header */}
-        <header className="h-24 shrink-0 flex items-center justify-between px-8 bg-card/20 backdrop-blur-3xl border-b border-white/5 sticky top-0 z-30">
-          <div className="flex items-center gap-6">
-            <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-2xl shadow-primary/10">
-               <Package className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black tracking-tighter text-white uppercase italic">Strategic Assets</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge className="bg-primary/20 text-primary border-none text-[9px] font-black tracking-widest px-2 py-0">GLOBAL INVENTORY</Badge>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Procurement Command Center</p>
+    <CRMLayout title="Products">
+      <div className="space-y-4">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Total Assets
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{total}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                <Package className="h-3 w-3 inline mr-1" />
+                Active catalog
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Inventory
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-500">
+                {products.reduce((acc, p) => acc + (p.quantityInStock || 0), 0)}
               </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-             <Button variant="ghost" className="h-11 rounded-xl px-6 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/5 border border-white/5 gap-2 transition-all">
-                <Download className="h-4 w-4 opacity-40" /> Export Catalog
-             </Button>
-             <Button className="h-11 rounded-xl px-8 text-[10px] font-black uppercase tracking-[0.2em] bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 gap-2 active:scale-95 transition-all"
-               onClick={() => navigate("/products/new")}
-             >
-                <Plus className="h-4 w-4" /> Deploy Asset
-             </Button>
-          </div>
-        </header>
-
-        <div className="flex-1 overflow-auto p-12">
-          <div className="max-w-[1700px] mx-auto space-y-12">
-            
-            {/* Tactical Filtration Matrix */}
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-[2.5rem] backdrop-blur-sm">
-               <div className="flex flex-wrap gap-4 items-center flex-1">
-                  <div className="relative group w-80">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:scale-110 transition-transform" />
-                    <Input 
-                      placeholder="Search asset identity or code..." 
-                      className="h-14 pl-14 bg-background/50 border-0 rounded-2xl text-xs font-bold tracking-tight text-white placeholder:text-muted-foreground/40 focus-visible:ring-1 ring-primary/20"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                    />
-                  </div>
-                  <DynamicAutoSelect 
-                    placeholder="All Product Realms"
-                    value={filterCategoryId}
-                    onSelect={setFilterCategoryId}
-                    className="h-14 border-0 bg-background/50 rounded-2xl shadow-none w-64"
-                    options={[
-                      { value: "all", label: "Every Asset Category" },
-                      ...categories.map((c: any) => ({ value: c.id, label: c.name }))
-                    ]}
-                  />
-                  <DynamicAutoSelect 
-                    placeholder="Operation Status"
-                    value={filterStatus}
-                    onSelect={setFilterStatus}
-                    className="h-14 border-0 bg-background/50 rounded-2xl shadow-none w-48"
-                    options={[
-                      { value: "all", label: "All Statuses" },
-                      { value: "active", label: "Operational" },
-                      { value: "draft", label: "In-Planning" },
-                      { value: "archived", label: "Decommissioned" },
-                    ]}
-                  />
-               </div>
-
-               <div className="flex items-center gap-2">
-                  <Button variant="ghost" className="h-14 px-8 rounded-2xl bg-background/30 hover:bg-background/50 border border-white/5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                    <Filter className="h-4 w-4 mr-2 opacity-40" /> Advanced Logic
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-14 w-14 rounded-2xl bg-primary/5 hover:bg-primary/20 border border-primary/10 text-primary">
-                    <TrendingUp className="h-5 w-5" />
-                  </Button>
-               </div>
-            </div>
-
-            {/* Strategic Data Matrix */}
-            <div className="rounded-[3rem] border border-white/5 bg-white/[0.02] overflow-hidden shadow-3xl overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-white/5 hover:bg-white/5 border-b border-white/5">
-                    <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 h-16 pl-10">Asset Identity</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 h-16 text-center">Procurement Domain</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 h-16 text-center">Logistics Point</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 h-16 text-center">Unit Price</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 h-16 text-center">Ops Status</TableHead>
-                    <TableHead className="text-right text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 h-16 pr-10">Directives</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {products.length === 0 ? (
-                    <TableRow className="hover:bg-transparent">
-                      <TableCell colSpan={6} className="h-[400px] text-center border-b-0">
-                        <div className="flex flex-col items-center gap-6 opacity-10">
-                          <div className="h-24 w-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center border border-white/10">
-                             <Package className="h-12 w-12" />
-                          </div>
-                          <p className="text-xs font-black uppercase tracking-[0.4em]">Asset Matrix Clear</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    products.map((product: Product) => (
-                      <TableRow 
-                        key={product.id} 
-                        className="group border-b border-white/[0.02] hover:bg-primary/[0.03] transition-all cursor-pointer"
-                        onClick={() => navigate(`/products/${product.id}`)}
-                      >
-                        <TableCell className="pl-10 py-8">
-                          <div className="flex items-center gap-5">
-                            <div className="h-16 w-16 rounded-[1.8rem] bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-primary/40 transition-all overflow-hidden relative shadow-2xl" 
-                              style={product.image ? { backgroundImage: `url(${product.image})`, backgroundSize: 'cover' } : {}}
-                            >
-                              {!product.image && <Package className="h-7 w-7 text-white/10 group-hover:text-primary transition-colors" />}
-                              <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="font-black text-sm uppercase tracking-tight text-white group-hover:text-primary transition-colors">{product.name}</p>
-                              <div className="flex items-center gap-2">
-                                 <code className="text-[10px] font-black text-white/30 uppercase tracking-tighter bg-white/5 px-2 py-0.5 rounded-md">
-                                   {product.productCode || "NO_SKU_NODE"}
-                                 </code>
-                                 <span className="h-1 w-1 rounded-full bg-white/10" />
-                                 <p className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{product.manufacturer || "GLOBAL MFG"}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge className="bg-white/5 text-white/60 border-white/10 text-[9px] font-black uppercase tracking-widest px-3 h-6 rounded-lg group-hover:bg-primary group-hover:text-white transition-all">
-                            {product.productCategory || "General"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="inline-flex flex-col items-center">
-                             <p className="text-sm font-black text-white">{product.quantityInStock || 0}</p>
-                             <p className="text-[9px] font-bold text-white/20 uppercase tracking-tighter">{product.usageUnit || "Units"}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="inline-flex flex-col items-center bg-black/40 px-4 py-2 rounded-2xl border border-white/5">
-                             <p className="text-xs font-black text-primary">
-                               {new Intl.NumberFormat("en-US", { style: "currency", currency: "TND" }).format(product.unitPrice || 0)}
-                             </p>
-                             <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mt-0.5">Base Rate</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center">
-                            <div className={cn(
-                              "h-1.5 w-1.5 rounded-full mr-2 shadow-[0_0_8px]",
-                              product.productActive ? "bg-green-500 shadow-green-500/50" : "bg-red-500 shadow-red-500/50"
-                            )} />
-                            <Badge variant="outline" className={cn(
-                              "text-[9px] h-5 px-2 uppercase font-black tracking-widest border-none bg-white/5",
-                              product.productActive ? "text-green-500" : "text-red-500"
-                            )}>
-                              {product.productActive ? "Operational" : "Offline"}
-                            </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right pr-10" onClick={(e) => e.stopPropagation()}>
-                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-10 w-10 rounded-2xl bg-white/5 hover:bg-primary hover:text-white transition-all"
-                                onClick={() => handleEditClick(product)}
-                              >
-                                 <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-10 w-10 rounded-2xl bg-white/5 hover:bg-red-500 hover:text-white transition-all"
-                                onClick={() => handleDelete(product)}
-                              >
-                                 <Trash2 className="h-4 w-4" />
-                              </Button>
-                           </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-
-              <div className="flex items-center justify-between px-10 py-8 bg-white/5 border-t border-white/5">
-                <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">
-                  Registry Load: {products.length} / Global Assets
-                </div>
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-10 px-6 text-[10px] font-black uppercase tracking-widest bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl disabled:opacity-20"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    Previous Sequence
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-10 px-6 text-[10px] font-black uppercase tracking-widest bg-primary text-white shadow-xl shadow-primary/20 hover:bg-primary/90 rounded-xl disabled:opacity-20"
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages || totalPages === 0}
-                  >
-                    Next Sequence
-                  </Button>
-                </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Units in stock
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Operational
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-500">
+                {products.filter(p => p.productActive).length}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Active products
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Avg. Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-amber-500">
+                {new Intl.NumberFormat("en-US", { style: "currency", currency: "TND" }).format(
+                  products.length > 0 ? products.reduce((acc, p) => acc + (p.unitPrice || 0), 0) / products.length : 0
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Market average
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Categories
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {categories.length}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                <Filter className="h-3 w-3 inline mr-1" />
+                Product realms
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Toolbar */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search products..." 
+                className="h-9 pl-9 text-sm"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
+            <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
+              <SelectTrigger className="h-9 w-40">
+                <SelectValue placeholder="Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((c: any) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm">
+              <Filter className="h-3.5 w-3.5 mr-1" /> Filter
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm">
+              <Download className="h-3.5 w-3.5 mr-1" /> Export
+            </Button>
+            <Button size="sm" onClick={() => navigate("/products/new")}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Deploy Asset
+            </Button>
           </div>
         </div>
 
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12 pl-4">
+                  <input type="checkbox" className="h-4 w-4 rounded" />
+                </TableHead>
+                <TableHead>Asset Identity</TableHead>
+                <TableHead>Domain</TableHead>
+                <TableHead className="text-center">Stock</TableHead>
+                <TableHead className="text-right">Unit Price</TableHead>
+                <TableHead className="text-center">Ops Status</TableHead>
+                <TableHead className="text-right pr-4">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-32 text-center text-sm text-muted-foreground">
+                    No products found for this view.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                products.map((product: Product) => (
+                  <TableRow
+                    key={product.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/products/${product.id}`)}
+                  >
+                    <TableCell onClick={(e) => e.stopPropagation()} className="pl-4">
+                      <input type="checkbox" className="h-4 w-4 rounded" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                         <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/5">
+                            {product.image ? (
+                              <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                            ) : (
+                              <Package className="h-5 w-5 text-primary" />
+                            )}
+                         </div>
+                         <div>
+                            <p className="font-semibold text-sm">{product.name}</p>
+                            <p className="text-[10px] text-muted-foreground font-mono">{product.productCode || "NO_SKU"}</p>
+                         </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-tight">
+                        {product.productCategory || "General"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="inline-flex flex-col items-center">
+                         <p className="text-sm font-bold">{product.quantityInStock || 0}</p>
+                         <p className="text-[9px] text-muted-foreground uppercase">{product.usageUnit || "units"}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="inline-flex flex-col items-end">
+                         <p className="text-sm font-bold text-primary">
+                           {new Intl.NumberFormat("en-US", { style: "currency", currency: "TND" }).format(product.unitPrice || 0)}
+                         </p>
+                         <p className="text-[8px] text-muted-foreground uppercase tracking-widest">Base Rate</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className={cn(
+                          "h-2 w-2 rounded-full",
+                          product.productActive ? "bg-green-500" : "bg-red-500"
+                        )} />
+                        <span className="text-xs font-medium">{product.productActive ? "Operational" : "Offline"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right pr-4" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(product)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(product)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+
+          <div className="flex items-center justify-between px-4 py-3 border-t">
+            <p className="text-xs text-muted-foreground">
+              Showing {products.length} assets
+            </p>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-8" 
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-8" 
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages || totalPages === 0}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </Card>
 
         {/* Pricing Matrix Dialog */}
         <Dialog open={showPricingDialog} onOpenChange={setShowPricingDialog}>

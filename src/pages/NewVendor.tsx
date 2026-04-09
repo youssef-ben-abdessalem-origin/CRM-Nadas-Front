@@ -60,7 +60,7 @@ const NewVendor = () => {
 
   return (
     <CRMLayout title={isEdit ? `Synchronize Partner: ${vendorData?.name}` : "Strategic Procurement"}>
-      <div className="min-h-full flex flex-col justify-start py-8 px-6 animate-fade-in max-w-7xl mx-auto w-full">
+      <div className="min-h-full flex flex-col justify-start py-8 px-6 animate-fade-in w-full">
         <div className="mb-10 text-center lg:text-left">
           <h2 className="text-3xl font-black text-white mb-2 tracking-tight">{isEdit ? "Edit Strategic Partner" : "New Vendor Acquisition"}</h2>
           <p className="text-slate-500 text-sm max-w-2xl">Capture and analyze strategic vendor data across global procurement networks.</p>

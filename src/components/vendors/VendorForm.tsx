@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -96,6 +97,7 @@ export function VendorForm({ onSubmit, onCancel, initialData, isPending }: Vendo
       form.setValue("image", res.url);
       toast.success("Identity visual captured");
     } catch (error) {
+      console.error("Vendor image sync failed:", error);
       toast.error("Vision system failure: Could not process image");
     } finally {
       setIsUploading(false);
@@ -177,7 +179,7 @@ export function VendorForm({ onSubmit, onCancel, initialData, isPending }: Vendo
                         <p className="text-xs font-bold uppercase tracking-widest">{isUploading ? 'Syncing...' : 'Vendor Image'}</p>
                       </div>
                     )}
-                    <label className="absolute inset-0 cursor-pointer opacity-0">
+                    <label className="absolute inset-0 cursor-pointer opacity-0" aria-label="Upload vendor image">
                       <input type="file" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
                     </label>
                   </div>
