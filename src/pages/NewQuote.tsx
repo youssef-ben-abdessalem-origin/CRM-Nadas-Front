@@ -3,17 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { motion } from "framer-motion";
 import {
   Form,
-  FormControl,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -33,23 +29,17 @@ import {
 } from "@/components/ui/table";
 import { 
   Trash2,
-  Truck,
-  Coins,
-  Package,
-  Info,
-  Briefcase,
   Plus,
-  X,
-  ChevronLeft,
-  FileSignature,
-  Save,
-  Calendar
+  Calendar,
+  Users,
+  Building,
+  Target,
+  Copy
 } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CRMLayout } from "@/components/CRMLayout";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useProfileCurrency } from "@/hooks/useProfileCurrency";
 
 const quoteSchema = z.object({
@@ -66,6 +56,23 @@ const quoteSchema = z.object({
   shippingAddress: z.string().optional(),
   termsAndConditions: z.string().optional(),
   description: z.string().optional(),
+  // Address sub-fields (temporary for concatenation)
+  billCountry: z.string().optional(),
+  billBuilding: z.string().optional(),
+  billStreet: z.string().optional(),
+  billCity: z.string().optional(),
+  billState: z.string().optional(),
+  billZip: z.string().optional(),
+  billLat: z.string().optional(),
+  billLong: z.string().optional(),
+  shipCountry: z.string().optional(),
+  shipBuilding: z.string().optional(),
+  shipStreet: z.string().optional(),
+  shipCity: z.string().optional(),
+  shipState: z.string().optional(),
+  shipZip: z.string().optional(),
+  shipLat: z.string().optional(),
+  shipLong: z.string().optional(),
 });
 
 type QuoteFormValues = z.infer<typeof quoteSchema>;
@@ -81,11 +88,25 @@ interface QuoteItem {
   total: number;
 }
 
+const HorizontalField = ({ label, children, required }: { label: string, children: React.ReactNode, required?: boolean }) => (
+  <div className="grid grid-cols-4 items-center gap-4">
+    <div className="col-span-1 flex justify-end">
+      <Label className="text-xs font-medium text-slate-400 text-right whitespace-nowrap">
+        {label}
+      </Label>
+    </div>
+    <div className="col-span-3 relative">
+      {required && <div className="absolute left-[-8px] top-0 bottom-0 w-[2px] bg-rose-500 rounded-full" />}
+      {children}
+    </div>
+  </div>
+);
+
 const NewQuote = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { currency } = useProfileCurrency();
-  const currencyCode = currency?.currency ?? "USD";
+  const { currency: currencyInfo } = useProfileCurrency();
+  const currencyCode = currencyInfo?.currency ?? "TND";
   const [items, setItems] = useState<QuoteItem[]>([
     {
       id: `item-${Date.now()}`,
@@ -112,8 +133,8 @@ const NewQuote = () => {
       shippingAddress: "",
       termsAndConditions: "",
       description: "",
-      ownerId: undefined,
-      dealId: undefined
+      billCountry: "United States",
+      shipCountry: "-None-",
     },
   });
 
@@ -132,22 +153,37 @@ const NewQuote = () => {
     queryFn: () => api.products.getAll().catch(() => []),
   });
 
+  const { data: contacts = [] } = useQuery({
+    queryKey: ["contacts"],
+    queryFn: () => api.contacts.getAll().catch(() => []),
+  });
+
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: () => api.accounts.getAll().catch(() => []),
+  });
+
   const dealId = form.watch("dealId");
-  const [selectedDeal, setSelectedDeal] = useState<any>(null);
+  const accountId = form.watch("accountId");
 
   useEffect(() => {
     if (dealId) {
       const deal = deals.find((d: any) => d.id === dealId);
       if (deal) {
-        setSelectedDeal(deal);
         form.setValue("contactId", deal.contactId);
         form.setValue("accountId", deal.accountId);
-        if (deal.account?.billingAddress) {
-           form.setValue("billingAddress", deal.account.billingAddress);
-        }
       }
     }
   }, [dealId, deals, form]);
+
+  useEffect(() => {
+    if (accountId) {
+      const account = accounts.find((a: any) => a.id === accountId);
+      if (account && account.billingAddress) {
+         form.setValue("billStreet", account.billingAddress);
+      }
+    }
+  }, [accountId, accounts, form]);
 
   const addItem = () => {
     setItems((prev) => [
@@ -225,23 +261,29 @@ const NewQuote = () => {
     mutationFn: (data: any) => api.billing.quotes.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quotes"] });
-      toast.success("Blueprint finalized successfully");
+      toast.success("Quote finalized successfully");
       navigate("/quotes");
     },
     onError: (err: any) => {
-      toast.error(err.message || "Failed to finalize blueprint");
+      toast.error(err.message || "Failed to finalize quote");
     }
   });
 
   const onSubmit = (values: QuoteFormValues) => {
     const validItems = items.filter(i => i.productId);
     if (validItems.length === 0) {
-      toast.error("Please add at least one asset to the blueprint");
+      toast.error("Please add at least one item");
       return;
     }
 
+    // Concatenate address
+    const bill = `${values.billStreet || ""}, ${values.billCity || ""}, ${values.billState || ""} ${values.billZip || ""}, ${values.billCountry || ""}`.trim();
+    const ship = `${values.shipStreet || ""}, ${values.shipCity || ""}, ${values.shipState || ""} ${values.shipZip || ""}, ${values.shipCountry || ""}`.trim();
+
     const payload = {
       ...values,
+      billingAddress: bill,
+      shippingAddress: ship,
       title: values.subject,
       items: validItems.map(it => ({
          productId: typeof it.productId === 'string' && it.productId.includes('-') ? it.productId : Number(it.productId),
@@ -267,295 +309,446 @@ const NewQuote = () => {
     createMutation.mutate(payload);
   };
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 }
-    }
-  };
-
-  const itemAnim = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0 }
+  const copyAddress = () => {
+    const vals = form.getValues();
+    form.setValue("shipCountry", vals.billCountry);
+    form.setValue("shipBuilding", vals.billBuilding);
+    form.setValue("shipStreet", vals.billStreet);
+    form.setValue("shipCity", vals.billCity);
+    form.setValue("shipState", vals.billState);
+    form.setValue("shipZip", vals.billZip);
+    form.setValue("shipLat", vals.billLat);
+    form.setValue("shipLong", vals.billLong);
+    toast.info("Billing address copied to shipping");
   };
 
   return (
     <CRMLayout title="Forge Strategy Blueprint">
-      <div className="max-w-[1600px] mx-auto space-y-6 px-8">
-        {/* Top Header Match ProductForm exactly */}
-        <div className="flex items-center justify-between">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/quotes")} className="text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-widest">
-                <ChevronLeft className="h-4 w-4 mr-2" /> Back to List
-            </Button>
-            <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" onClick={() => navigate("/quotes")} className="h-9 px-4 text-[10px] font-bold uppercase tracking-widest border-2">
-                    <X className="h-3.5 w-3.5 mr-2" /> Cancel
-                </Button>
-                <Button size="sm" onClick={form.handleSubmit(onSubmit)} className="h-9 px-5 text-[10px] font-bold uppercase tracking-widest shadow-xl bg-indigo-600 hover:bg-indigo-500" disabled={createMutation.isPending}>
-                    <Save className="h-3.5 w-3.5 mr-2" /> {createMutation.isPending ? "Finalizing..." : "Save Quote"}
-                </Button>
+      <div className="max-w-[1400px] mx-auto space-y-6 pb-20">
+        <Form {...form}>
+          <div className="bg-white/[0.02] border-b border-white/5 sticky top-0 z-50 backdrop-blur-xl px-8 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl font-bold tracking-tight text-slate-100">Create Quote</h1>
+              <Button variant="link" className="text-indigo-400 text-xs p-0 h-auto">Edit Page Layout</Button>
             </div>
-        </div>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" size="sm" onClick={() => navigate("/quotes")} className="h-8 px-4 text-xs font-bold uppercase tracking-widest bg-slate-800 hover:bg-slate-700">
+                Cancel
+              </Button>
+              <Button variant="secondary" size="sm" className="h-8 px-4 text-xs font-bold uppercase tracking-widest bg-slate-800 hover:bg-slate-700">
+                Save and New
+              </Button>
+              <Button size="sm" onClick={form.handleSubmit(onSubmit)} className="h-8 px-6 text-xs font-bold uppercase tracking-widest bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-500/20" disabled={createMutation.isPending}>
+                {createMutation.isPending ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div>
 
-        {/* Master Card Wrapper like EditProduct */}
-        <Card className="border-2 shadow-2xl rounded-[32px] overflow-hidden bg-slate-900/40 backdrop-blur-xl">
-           <CardHeader className="bg-muted/30 border-b-2 border-dashed p-8">
-              <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-                 Quote Details
-              </CardTitle>
-           </CardHeader>
-           <CardContent className="p-8">
-              <Form {...form}>
-                <div className="space-y-10">
-                  <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
-                    {/* Left Column: Image Identity & Basic Info */}
-                    <div className="lg:col-span-1 space-y-8">
-                      <motion.div variants={itemAnim}>
-                        <Card className="overflow-hidden border-none shadow-2xl bg-slate-800/40 group rounded-3xl">
-                          <CardContent className="p-0">
-                            <div className="aspect-square flex flex-col items-center justify-center relative group">
-                              <div className="h-24 w-24 rounded-3xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 border-2 border-dashed border-white/10 group-hover:border-indigo-500/50 transition-all shadow-inner">
-                                  <FileSignature className="h-10 w-10" />
+          <div className="px-8 space-y-12 mt-8">
+            {/* Section 1: Quote Information */}
+            <section className="space-y-6">
+              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-indigo-500 border-l-4 border-indigo-500 pl-4">Quote Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-4">
+                <HorizontalField label="Quote Owner">
+                  <FormField control={form.control} name="ownerId" render={({ field }) => (
+                    <Select onValueChange={(v) => field.onChange(Number(v))} value={field.value?.toString()}>
+                      <SelectTrigger className="h-9 bg-slate-900/50 border-white/5 focus:ring-indigo-500/50">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-3.5 w-3.5 text-slate-500" />
+                          <SelectValue placeholder="Select Owner" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {users.map((u: any) => (
+                          <SelectItem key={u.id} value={u.id.toString()}>{u.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )} />
+                </HorizontalField>
+
+                <HorizontalField label="Deal Name">
+                  <FormField control={form.control} name="dealId" render={({ field }) => (
+                    <Select onValueChange={(v) => field.onChange(Number(v))} value={field.value?.toString()}>
+                      <SelectTrigger className="h-9 bg-slate-900/50 border-white/5">
+                        <div className="flex items-center gap-2">
+                          <Target className="h-3.5 w-3.5 text-slate-500" />
+                          <SelectValue placeholder="Select Deal" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {deals.map((d: any) => (
+                          <SelectItem key={d.id} value={d.id.toString()}>{d.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )} />
+                </HorizontalField>
+
+                <HorizontalField label="Subject" required>
+                  <FormField control={form.control} name="subject" render={({ field }) => (
+                    <Input className="h-9 bg-slate-900/50 border-white/5" {...field} />
+                  )} />
+                </HorizontalField>
+
+                <HorizontalField label="Valid Until">
+                  <FormField control={form.control} name="validUntil" render={({ field }) => (
+                    <div className="relative">
+                      <Input type="date" className="h-9 bg-slate-900/50 border-white/5 pl-10" {...field} />
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                    </div>
+                  )} />
+                </HorizontalField>
+
+                <HorizontalField label="Quote Stage">
+                  <FormField control={form.control} name="status" render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="h-9 bg-slate-900/50 border-white/5">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["draft", "negotiation", "delivered", "confirmed", "closed_won"].map(s => (
+                          <SelectItem key={s} value={s} className="capitalize">{s.replace('_', ' ')}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )} />
+                </HorizontalField>
+
+                <HorizontalField label="Contact Name">
+                  <FormField control={form.control} name="contactId" render={({ field }) => (
+                    <Select onValueChange={(v) => field.onChange(Number(v))} value={field.value?.toString()}>
+                      <SelectTrigger className="h-9 bg-slate-900/50 border-white/5">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-3.5 w-3.5 text-slate-500" />
+                          <SelectValue placeholder="Select Contact" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {contacts.map((c: any) => (
+                          <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )} />
+                </HorizontalField>
+
+                <HorizontalField label="Team">
+                  <FormField control={form.control} name="team" render={({ field }) => (
+                    <Input className="h-9 bg-slate-900/50 border-white/5" {...field} />
+                  )} />
+                </HorizontalField>
+
+                <HorizontalField label="Account Name">
+                  <FormField control={form.control} name="accountId" render={({ field }) => (
+                    <Select onValueChange={(v) => field.onChange(Number(v))} value={field.value?.toString()}>
+                      <SelectTrigger className="h-9 bg-slate-900/50 border-white/5">
+                        <div className="flex items-center gap-2">
+                          <Building className="h-3.5 w-3.5 text-slate-500" />
+                          <SelectValue placeholder="Select Account" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {accounts.map((a: any) => (
+                          <SelectItem key={a.id} value={a.id.toString()}>{a.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )} />
+                </HorizontalField>
+
+                <HorizontalField label="Carrier">
+                  <FormField control={form.control} name="carrier" render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="h-9 bg-slate-900/50 border-white/5">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["FedEX", "DHL", "UPS", "Local Delivery"].map(c => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )} />
+                </HorizontalField>
+              </div>
+            </section>
+
+            {/* Section 2: Address Information */}
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black uppercase tracking-[0.2em] text-indigo-500 border-l-4 border-indigo-500 pl-4">Address Information</h2>
+                <Button variant="secondary" size="sm" onClick={copyAddress} className="h-8 px-4 text-[10px] font-bold uppercase tracking-widest bg-slate-800 hover:bg-slate-700">
+                  <Copy className="h-3 w-3 mr-2" /> Copy Address
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                {/* Billing Address */}
+                <Card className="bg-slate-900/20 border-white/5">
+                  <CardHeader className="py-3 px-4 bg-white/5">
+                    <CardTitle className="text-[11px] font-black uppercase tracking-widest text-slate-400">Billing Address</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    <HorizontalField label="Country / Region">
+                      <FormField control={form.control} name="billCountry" render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger className="h-8 bg-black/20 border-white/5 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["United States", "Tunisia", "France", "Germany"].map(c => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="Flat / House No./ Building">
+                      <FormField control={form.control} name="billBuilding" render={({ field }) => (
+                        <Input className="h-8 bg-black/20 border-white/5 text-xs" {...field} />
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="Street Address">
+                      <FormField control={form.control} name="billStreet" render={({ field }) => (
+                        <Input className="h-8 bg-black/20 border-white/5 text-xs" {...field} />
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="City">
+                      <FormField control={form.control} name="billCity" render={({ field }) => (
+                        <Input className="h-8 bg-black/20 border-white/5 text-xs" {...field} />
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="State / Province">
+                      <FormField control={form.control} name="billState" render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger className="h-8 bg-black/20 border-white/5 text-xs">
+                            <SelectValue placeholder="-None-" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="MD">Maryland</SelectItem>
+                            <SelectItem value="NY">New York</SelectItem>
+                            <SelectItem value="CA">California</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="Zip / Postal Code">
+                      <FormField control={form.control} name="billZip" render={({ field }) => (
+                        <Input className="h-8 bg-black/20 border-white/5 text-xs" {...field} />
+                      )} />
+                    </HorizontalField>
+                    <div className="flex justify-end">
+                      <Button variant="link" size="sm" className="h-auto p-0 text-[10px] text-indigo-400" onClick={() => {
+                        ["billCountry", "billBuilding", "billStreet", "billCity", "billState", "billZip"].forEach(f => form.setValue(f as any, ""));
+                      }}>Clear All</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Shipping Address */}
+                <Card className="bg-slate-900/20 border-white/5">
+                  <CardHeader className="py-3 px-4 bg-white/5">
+                    <CardTitle className="text-[11px] font-black uppercase tracking-widest text-slate-400">Shipping Address</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    <HorizontalField label="Country / Region">
+                      <FormField control={form.control} name="shipCountry" render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger className="h-8 bg-black/20 border-white/5 text-xs">
+                            <SelectValue placeholder="-None-" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["United States", "Tunisia", "France", "Germany"].map(c => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="Flat / House No./ Building">
+                      <FormField control={form.control} name="shipBuilding" render={({ field }) => (
+                        <Input className="h-8 bg-black/20 border-white/5 text-xs" {...field} />
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="Street Address">
+                      <FormField control={form.control} name="shipStreet" render={({ field }) => (
+                        <Input className="h-8 bg-black/20 border-white/5 text-xs" {...field} />
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="City">
+                      <FormField control={form.control} name="shipCity" render={({ field }) => (
+                        <Input className="h-8 bg-black/20 border-white/5 text-xs" {...field} />
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="State / Province">
+                      <FormField control={form.control} name="shipState" render={({ field }) => (
+                         <Select onValueChange={field.onChange} value={field.value}>
+                          <SelectTrigger className="h-8 bg-black/20 border-white/5 text-xs">
+                            <SelectValue placeholder="-None-" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="MD">Maryland</SelectItem>
+                            <SelectItem value="NY">New York</SelectItem>
+                            <SelectItem value="CA">California</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )} />
+                    </HorizontalField>
+                    <HorizontalField label="Zip / Postal Code">
+                      <FormField control={form.control} name="shipZip" render={({ field }) => (
+                        <Input className="h-8 bg-black/20 border-white/5 text-xs" {...field} />
+                      )} />
+                    </HorizontalField>
+                    <div className="flex justify-end">
+                      <Button variant="link" size="sm" className="h-auto p-0 text-[10px] text-indigo-400" onClick={() => {
+                        ["shipCountry", "shipBuilding", "shipStreet", "shipCity", "shipState", "shipZip"].forEach(f => form.setValue(f as any, ""));
+                      }}>Clear All</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* Section 3: Quoted Items */}
+            <section className="space-y-6">
+              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-indigo-500 border-l-4 border-indigo-500 pl-4">Quoted Items</h2>
+              <div className="rounded-xl border border-white/5 overflow-hidden bg-slate-900/30 shadow-2xl overflow-x-auto">
+                <Table className="min-w-[1000px]">
+                  <TableHeader className="bg-white/5">
+                    <TableRow className="hover:bg-transparent border-none">
+                      <TableHead className="w-16 text-center text-[10px] font-black uppercase">S.NO</TableHead>
+                      <TableHead className="pl-6 text-[10px] font-black uppercase border-l border-white/5 min-w-[300px]">Product Name</TableHead>
+                      <TableHead className="w-24 text-center text-[10px] font-black uppercase border-l border-white/5">Quantity</TableHead>
+                      <TableHead className="w-32 text-center text-[10px] font-black uppercase border-l border-white/5">List Price({currencyCode})</TableHead>
+                      <TableHead className="w-32 text-center text-[10px] font-black uppercase border-l border-white/5">Amount({currencyCode})</TableHead>
+                      <TableHead className="w-24 text-center text-[10px] font-black uppercase border-l border-white/5">Discount({currencyCode})</TableHead>
+                      <TableHead className="w-24 text-center text-[10px] font-black uppercase border-l border-white/5">Tax({currencyCode})</TableHead>
+                      <TableHead className="w-12"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {items.map((it, idx) => (
+                      <TableRow key={it.id} className="border-t border-white/5 hover:bg-white/[0.01]">
+                        <TableCell className="text-center font-bold text-xs text-slate-500">{idx + 1}</TableCell>
+                        <TableCell className="pl-4 py-3 border-l border-white/5">
+                           <div className="space-y-2">
+                             <Select value={it.productId} onValueChange={(v) => updateItem(idx, "productId", v)}>
+                                <SelectTrigger className="h-10 bg-black/40 border-white/10 text-xs font-bold shadow-inner">
+                                   <SelectValue placeholder="Select Asset..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                   {products.map((p: any) => (
+                                      <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
+                                   ))}
+                                </SelectContent>
+                             </Select>
+                             <Textarea className="min-h-[60px] max-h-[80px] bg-black/20 border-white/5 text-[11px] leading-relaxed resize-none" placeholder="Product description..." readOnly value={it.productName} />
+                           </div>
+                        </TableCell>
+                        <TableCell className="border-l border-white/5">
+                           <Input type="number" className="h-8 bg-black/20 border-white/5 text-center text-xs font-bold" value={it.quantity} onChange={(e) => updateItem(idx, "quantity", Number(e.target.value))} />
+                        </TableCell>
+                        <TableCell className="border-l border-white/5">
+                           <Input type="number" className="h-8 bg-black/20 border-white/5 text-center text-xs font-bold" value={it.unitPrice} onChange={(e) => updateItem(idx, "unitPrice", Number(e.target.value))} />
+                        </TableCell>
+                        <TableCell className="border-l border-white/5 text-center text-xs font-bold text-slate-300">
+                           {fmt(it.quantity * it.unitPrice)}
+                        </TableCell>
+                        <TableCell className="border-l border-white/5">
+                           <Input type="number" className="h-8 bg-black/20 border-white/5 text-center text-xs" value={it.discount} onChange={(e) => updateItem(idx, "discount", Number(e.target.value))} />
+                        </TableCell>
+                        <TableCell className="border-l border-white/5">
+                           <Input type="number" className="h-8 bg-black/20 border-white/5 text-center text-xs" value={it.taxRate} onChange={(e) => updateItem(idx, "taxRate", Number(e.target.value))} />
+                        </TableCell>
+                        <TableCell className="text-center">
+                           <Button variant="ghost" size="icon" onClick={() => removeItem(idx)} className="h-7 w-7 text-rose-500 hover:bg-rose-500/10">
+                              <Trash2 className="h-3.5 w-3.5" />
+                           </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <Button type="button" variant="outline" size="sm" onClick={addItem} className="h-8 text-[10px] font-black uppercase tracking-widest bg-white/5 border-white/10">
+                 <Plus className="h-3 w-3 mr-2 text-indigo-400" /> Add row
+              </Button>
+            </section>
+
+            {/* Totals & Bottom Sections */}
+            <div className="flex flex-col md:flex-row gap-12">
+               <div className="flex-1 space-y-12">
+                  <section className="space-y-4">
+                     <h2 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Terms and Conditions</h2>
+                     <FormField control={form.control} name="termsAndConditions" render={({ field }) => (
+                        <Textarea className="min-h-[120px] bg-slate-900/30 border-white/5 p-4 text-sm leading-relaxed" {...field} />
+                     )} />
+                  </section>
+                  <section className="space-y-4">
+                     <h2 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Description Information</h2>
+                     <FormField control={form.control} name="description" render={({ field }) => (
+                        <Textarea className="min-h-[120px] bg-slate-900/30 border-white/5 p-4 text-sm leading-relaxed" {...field} />
+                     )} />
+                  </section>
+               </div>
+
+               <div className="w-full md:w-[400px]">
+                  <Card className="bg-slate-900/40 border-indigo-500/20 shadow-2xl sticky top-24">
+                     <CardContent className="p-0">
+                        <div className="divide-y divide-white/5">
+                           <div className="flex items-center justify-between p-4">
+                              <span className="text-[10px] font-bold uppercase text-slate-500">Sub Total ({currencyCode})</span>
+                              <div className="h-8 w-32 bg-black/20 rounded flex items-center justify-end px-3 text-xs font-bold text-slate-300">
+                                 {fmt(totals.subtotal)}
                               </div>
-                              <p className="mt-4 text-[11px] font-bold uppercase tracking-widest text-slate-500">Document Blueprint</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-
-                      <motion.div variants={itemAnim} className="space-y-6 pt-2">
-                         <div className="flex items-center gap-3 px-2 mb-4">
-                            <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><Info className="h-4 w-4 text-blue-500" /></div>
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Basic Information</h3>
-                         </div>
-
-                         <FormField control={form.control} name="subject" render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Strategy Subject</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Subject Name" className="bg-slate-900/50 border-white/10 h-12 rounded-xl focus:border-blue-500/50 font-bold text-slate-200" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                         )} />
-
-                         <div className="grid grid-cols-2 gap-4">
-                            <FormField control={form.control} name="status" render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Stage</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="bg-slate-900/50 border-white/10 h-10 rounded-xl text-xs font-bold uppercase">
-                                      <SelectValue placeholder="Stage" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
-                                    {["draft", "negotiation", "delivered", "confirmed", "closed_won"].map(s => (
-                                      <SelectItem key={s} value={s} className="rounded-xl uppercase text-[10px] font-bold py-3">{s.replace('_', ' ')}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormItem>
-                            )} />
-
-                            <FormField control={form.control} name="ownerId" render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                                <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Owner</FormLabel>
-                                <Select onValueChange={(v) => field.onChange(Number.parseInt(v))} value={field.value?.toString()}>
-                                  <FormControl>
-                                    <SelectTrigger className="bg-slate-900/50 border-white/10 h-10 rounded-xl text-xs font-bold">
-                                      <SelectValue placeholder="Owner" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
-                                    {users.map((u: any) => (
-                                      <SelectItem key={u.id} value={u.id.toString()} className="rounded-xl py-3 text-xs font-bold">{u.name}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormItem>
-                            )} />
-                         </div>
-                      </motion.div>
-                    </div>
-
-                    {/* Right Column: Details & Matrices */}
-                    <div className="lg:col-span-2 space-y-10">
-                      <motion.div variants={itemAnim} className="space-y-6">
-                         <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center"><Briefcase className="h-4 w-4 text-emerald-500" /></div>
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Additional Information</h3>
-                         </div>
-
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <FormField control={form.control} name="dealId" render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Associated Won Deal</FormLabel>
-                                <Select onValueChange={(v) => field.onChange(Number.parseInt(v))} value={field.value?.toString()}>
-                                  <FormControl>
-                                    <SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl">
-                                      <SelectValue placeholder="Select Deal" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
-                                    {deals.map((d: any) => (
-                                      <SelectItem key={d.id} value={d.id.toString()} className="rounded-xl py-3 text-sm font-bold">{d.name}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormItem>
-                            )} />
-
-                            <div className="flex items-center gap-4 bg-slate-950/30 p-4 rounded-2xl border border-white/5 mt-auto h-12">
-                               <Avatar className="h-8 w-8 border border-white/10">
-                                  <AvatarFallback className="bg-slate-800 text-[10px] font-bold">{selectedDeal ? selectedDeal.contact?.name?.[0] : "?"}</AvatarFallback>
-                               </Avatar>
-                               <div className="flex-1">
-                                  <p className="text-[9px] font-bold uppercase text-slate-600 mb-1 leading-none">Target Account</p>
-                                  <p className="text-xs font-bold text-slate-300 leading-none">{selectedDeal?.account?.name || "Unselected"}</p>
-                               </div>
-                            </div>
-                         </div>
-
-                         <div className="flex items-center gap-3 mt-4">
-                            <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"><Calendar className="h-4 w-4 text-indigo-500" /></div>
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Important Dates</h3>
-                         </div>
-
-                         <div className="p-5 rounded-2xl bg-slate-950/30 border border-white/5 shadow-inner">
-                            <FormField control={form.control} name="validUntil" render={({ field }) => (
-                              <FormItem className="max-w-xs">
-                                <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">Valid Until</FormLabel>
-                                <FormControl>
-                                  <Input type="date" className="bg-transparent border-none h-8 p-0 text-[11px] font-bold text-slate-300 uppercase cursor-pointer focus:ring-0" {...field} />
-                                </FormControl>
-                              </FormItem>
-                            )} />
-                         </div>
-                      </motion.div>
-
-                      <motion.div variants={itemAnim} className="space-y-6 pt-6 border-t border-white/5">
-                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                               <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center"><Package className="h-4 w-4 text-amber-500" /></div>
-                               <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Quoted Items</h3>
-                            </div>
-                            <Button type="button" variant="outline" size="sm" onClick={addItem} className="h-9 rounded-xl border-white/5 bg-white/5 hover:bg-white/10 text-[10px] font-bold uppercase tracking-widest">
-                               <Plus className="h-3 w-3 mr-2" /> Add Selection
-                            </Button>
-                         </div>
-
-                         <div className="rounded-2xl border border-white/5 overflow-hidden shadow-2xl">
-                            <Table>
-                              <TableHeader className="bg-slate-950/40 border-b border-white/5">
-                                 <TableRow className="hover:bg-transparent h-12">
-                                    <TableHead className="w-16 text-center text-[10px] font-bold uppercase tracking-widest text-slate-500">#</TableHead>
-                                    <TableHead className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Asset Selection</TableHead>
-                                    <TableHead className="w-20 text-center text-[10px] font-bold uppercase tracking-widest text-slate-500">Vol</TableHead>
-                                    <TableHead className="text-right text-[10px] font-bold uppercase tracking-widest text-slate-500 pr-8">Valuation ({currency?.currency || '...'})</TableHead>
-                                 </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                 {items.map((it, idx) => (
-                                   <TableRow key={it.id} className="border-b border-white/5 hover:bg-white/[0.02] group/row h-14">
-                                     <TableCell className="text-center font-bold text-[11px] text-slate-600">{idx + 1}</TableCell>
-                                     <TableCell>
-                                        <Select value={it.productId} onValueChange={(v) => updateItem(idx, "productId", v)}>
-                                           <SelectTrigger className="bg-transparent border-none p-0 h-8 focus:ring-0 text-[12px] font-bold text-slate-300">
-                                              <SelectValue placeholder="Select Asset..." />
-                                           </SelectTrigger>
-                                           <SelectContent className="bg-slate-950 border-white/10 rounded-2xl p-2 shadow-2xl">
-                                              {products.map((p: any) => (
-                                                <SelectItem key={p.id} value={p.id.toString()} className="rounded-xl py-2.5 text-xs font-bold">{p.name}</SelectItem>
-                                              ))}
-                                           </SelectContent>
-                                        </Select>
-                                     </TableCell>
-                                     <TableCell>
-                                        <Input type="number" className="h-8 bg-slate-950/20 border-white/5 rounded-lg text-center text-[11px] font-bold" value={it.quantity} onChange={(e) => updateItem(idx, "quantity", Number(e.target.value))} />
-                                     </TableCell>
-                                     <TableCell className="text-right pr-6">
-                                        <div className="flex items-center justify-end gap-3">
-                                           <span className="text-sm font-bold text-indigo-400">{fmt(it.total)}</span>
-                                           <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(idx)} className="h-7 w-7 rounded-lg opacity-0 group-hover/row:opacity-100 text-rose-500 hover:bg-rose-500/10">
-                                              <Trash2 className="h-3.5 w-3.5" />
-                                           </Button>
-                                        </div>
-                                     </TableCell>
-                                   </TableRow>
-                                 ))}
-                              </TableBody>
-                            </Table>
-                         </div>
-                      </motion.div>
-
-                      <motion.div variants={itemAnim} className="space-y-6 pt-6 border-t border-white/5">
-                         <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"><Coins className="h-4 w-4 text-indigo-500" /></div>
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Price Information</h3>
-                         </div>
-
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="p-6 rounded-2xl bg-slate-950/40 border border-white/5 shadow-inner space-y-4">
-                               <div className="flex justify-between items-center h-8">
-                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Subtotal ({currency?.currency || '...'})</span>
-                                  <span className="font-bold text-slate-300 text-sm">{fmt(totals.subtotal)}</span>
-                               </div>
-                               <div className="flex justify-between items-center h-8 border-t border-white/5 pt-4 mt-2">
-                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Adjustment ({currency?.currency || '...'})</span>
-                                  <Input type="number" className="h-7 w-20 bg-slate-900/50 border-white/5 text-right font-bold text-amber-500 p-1 rounded-md text-[11px]" value={adjustment} onChange={(e) => setAdjustment(Number(e.target.value))} />
-                               </div>
-                               <div className="pt-6 border-t border-white/10 text-center">
-                                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-500 mb-2">Grand Total ({currency?.currency || '...'})</p>
-                                  <h2 className="text-4xl font-bold tracking-tighter text-white leading-none">{fmt(totals.grandTotal)}</h2>
-                               </div>
-                            </div>
-
-                            <div className="space-y-6">
-                               <FormField control={form.control} name="carrier" render={({ field }) => (
-                                 <FormItem>
-                                   <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Carrier</FormLabel>
-                                   <Select onValueChange={field.onChange} value={field.value}>
-                                     <FormControl>
-                                       <SelectTrigger className="bg-slate-900/50 border-white/10 h-10 rounded-xl text-xs font-bold">
-                                          <div className="flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-slate-500" /><SelectValue placeholder="Carrier" /></div>
-                                       </SelectTrigger>
-                                     </FormControl>
-                                     <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
-                                       {["FedEX", "DHL", "UPS", "Local Delivery"].map(c => (
-                                         <SelectItem key={c} value={c} className="rounded-xl py-3 text-xs font-bold">{c}</SelectItem>
-                                       ))}
-                                     </SelectContent>
-                                   </Select>
-                                 </FormItem>
-                               )} />
-                               
-                               <FormField control={form.control} name="billingAddress" render={({ field }) => (
-                                 <FormItem>
-                                   <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Address Information</FormLabel>
-                                   <FormControl><Textarea className="bg-slate-900/50 border-white/10 rounded-xl p-4 text-[11px] font-bold leading-relaxed min-h-[100px] resize-none focus:border-blue-500/50" placeholder="Billing details..." {...field} /></FormControl>
-                                 </FormItem>
-                               )} />
-                            </div>
-                         </div>
-                      </motion.div>
-
-                      <motion.div variants={itemAnim} className="pt-6 border-t border-white/5">
-                        <FormField control={form.control} name="description" render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Description Information</FormLabel>
-                            <FormControl><Textarea placeholder="Quote internal mission notes..." className="bg-slate-900/50 border-white/10 min-h-[140px] resize-none rounded-2xl p-5 text-slate-300 text-sm focus:border-blue-500/50 leading-relaxed shadow-inner" {...field} /></FormControl>
-                          </FormItem>
-                        )} />
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                </div>
-              </Form>
-           </CardContent>
-        </Card>
+                           </div>
+                           <div className="flex items-center justify-between p-4">
+                              <span className="text-[10px] font-bold uppercase text-slate-500">Discount ({currencyCode})</span>
+                              <div className="h-8 w-32 bg-black/20 rounded flex items-center justify-end px-3 text-xs font-bold text-slate-400">
+                                 {fmt(totals.totalDiscount)}
+                              </div>
+                           </div>
+                           <div className="flex items-center justify-between p-4">
+                              <span className="text-[10px] font-bold uppercase text-slate-500">Tax ({currencyCode})</span>
+                              <div className="h-8 w-32 bg-black/20 rounded flex items-center justify-end px-3 text-xs font-bold text-slate-400">
+                                 {fmt(totals.totalTax)}
+                              </div>
+                           </div>
+                           <div className="flex items-center justify-between p-4">
+                              <span className="text-[10px] font-bold uppercase text-slate-500">Adjustment ({currencyCode})</span>
+                              <Input type="number" className="h-8 w-32 bg-black/40 border-white/10 text-right text-xs font-bold text-amber-500" value={adjustment} onChange={(e) => setAdjustment(Number(e.target.value))} />
+                           </div>
+                           <div className="flex items-center justify-between p-6 bg-indigo-500/5">
+                              <span className="text-xs font-black uppercase tracking-widest text-indigo-400">Grand Total ({currencyCode})</span>
+                              <div className="text-xl font-black text-white px-3">
+                                 {fmt(totals.grandTotal)}
+                              </div>
+                           </div>
+                        </div>
+                     </CardContent>
+                  </Card>
+               </div>
+            </div>
+            
+            <div className="pt-12 border-t border-white/5 flex items-center justify-center gap-4">
+               <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase text-slate-500">Create Form Views</span>
+                  <Select defaultValue="standard">
+                     <SelectTrigger className="h-8 bg-slate-800 border-white/10 text-[10px] font-bold uppercase">
+                        <SelectValue />
+                      </SelectTrigger>
+                     <SelectContent>
+                        <SelectItem value="standard">Standard View</SelectItem>
+                        <SelectItem value="detailed">Detailed View</SelectItem>
+                     </SelectContent>
+                  </Select>
+               </div>
+               <Button variant="outline" size="sm" className="h-8 px-4 text-[10px] font-bold uppercase tracking-widest bg-slate-800 border-white/10">
+                  Create a custom form page
+               </Button>
+            </div>
+          </div>
+        </Form>
       </div>
     </CRMLayout>
   );

@@ -131,7 +131,7 @@ const ProfilePage = () => {
               />
             </div>
             <CardTitle className="text-2xl">{profile?.name}</CardTitle>
-            <CardDescription>{profile?.role}</CardDescription>
+            <CardDescription>{profile?.role?.name || profile?.role}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4 mb-6">
