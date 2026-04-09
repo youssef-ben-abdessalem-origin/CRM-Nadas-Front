@@ -52,7 +52,7 @@ const Login = ({ onLogin }: LoginProps) => {
           <h1 className="text-4xl font-bold text-white tracking-tight">Nexus CRM</h1>
           <p className="text-slate-400 mt-2">Sign in to your account</p>
         </div>
-        
+
         <Card className="border-slate-700/50 bg-slate-800/50 backdrop-blur">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-white">Welcome back</CardTitle>
@@ -92,22 +92,22 @@ const Login = ({ onLogin }: LoginProps) => {
                   />
                 </div>
               </div>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={isLoading}
               >
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
-            
+
             <div className="mt-4 text-center text-sm text-slate-400">
               <p>Demo credentials:</p>
               <p className="text-slate-500">admin@nexus.com / admin123</p>
             </div>
           </CardContent>
         </Card>
-        
+
         <p className="text-center text-slate-500 text-sm mt-6">
           © 2024 Nexus CRM. All rights reserved.
         </p>

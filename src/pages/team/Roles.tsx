@@ -71,7 +71,7 @@ const Roles = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number, data: any }) => api.roles.update(id, data),
+    mutationFn: ({ id, data }: { id: string, data: any }) => api.roles.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["roles"] });
       toast.success("System signature updated");

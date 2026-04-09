@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
 import { CRMLayout } from "@/components/CRMLayout";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +32,6 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
   Search, 
-  Calendar as CalendarIcon, 
   Clock, 
   CheckCircle2, 
   Circle,
@@ -80,6 +80,7 @@ interface Activity {
 }
 
 const ActivitiesPage = () => {
+  const { symbol: currencySymbol } = useDefaultCurrency();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [showDialog, setShowDialog] = useState(false);
@@ -92,6 +93,7 @@ const ActivitiesPage = () => {
     entityId: "",
     dueDate: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
     assignedToId: "",
+    status: "todo",
   });
 
   const { data: activities = [], isLoading } = useQuery({
@@ -137,14 +139,20 @@ const ActivitiesPage = () => {
   const getEntityOptions = () => {
     switch (formData.entityType) {
       case "lead":
-        return leads.map((l: any) => ({ value: String(l.id), label: `${l.firstName} ${l.lastName}`, description: l.email }));
+        return leads
+          .filter((l: any) => 
+            l.stage?.name?.toLowerCase() !== "unqualified" && 
+            l.stage?.name?.toLowerCase() !== "lost" && 
+            !l.isConverted
+          )
+          .map((l: any) => ({ value: String(l.id), label: l.name, description: l.email }));
       case "contact":
-        return contacts.map((c: any) => ({ value: String(c.id), label: `${c.firstName} ${c.lastName}`, description: c.jobTitle }));
+        return contacts.map((c: any) => ({ value: String(c.id), label: c.name, description: c.title || c.company }));
       case "account":
         return accounts.map((a: any) => ({ value: String(a.id), label: a.name, description: a.website }));
-      case "deal":
-        return deals.map((d: any) => ({ value: String(d.id), label: d.name, description: d.amount ? `$${d.amount.toLocaleString()}` : "" }));
-      default:
+       case "deal":
+         return deals.map((d: any) => ({ value: String(d.id), label: d.name, description: d.amount ? `${currencySymbol}${d.amount.toLocaleString()}` : "" }));
+       default:
         return [];
     }
   };
@@ -199,6 +207,7 @@ const ActivitiesPage = () => {
       entityId: "",
       dueDate: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
       assignedToId: "",
+      status: "todo",
     });
   };
 
@@ -212,6 +221,7 @@ const ActivitiesPage = () => {
       entityId: String(activity.entityId),
       dueDate: format(new Date(activity.dueDate), "yyyy-MM-dd'T'HH:mm"),
       assignedToId: String(activity.assignedToId),
+      status: activity.status || "todo",
     });
     setShowDialog(true);
   };
@@ -224,9 +234,9 @@ const ActivitiesPage = () => {
 
     const payload = {
       ...formData,
-      typeId: parseInt(formData.typeId),
-      entityId: parseInt(formData.entityId) || 0,
-      assignedToId: parseInt(formData.assignedToId) || 0,
+      typeId: Number.parseInt(formData.typeId),
+      entityId: Number.parseInt(formData.entityId) || 0,
+      assignedToId: Number.parseInt(formData.assignedToId) || 0,
     };
 
     if (editingActivity) {
@@ -236,16 +246,23 @@ const ActivitiesPage = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
+  const getStatusBadge = (status?: string) => {
+    const s = status?.toLowerCase() || "todo";
+    switch (s) {
+      case "done":
       case "completed":
-        return <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">Completed</Badge>;
+        return <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">Done</Badge>;
+      case "in_progress":
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-blue-200">In Progress</Badge>;
+      case "todo":
       case "pending":
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">Pending</Badge>;
+        return <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200">To Do</Badge>;
+      case "cancelled":
+        return <Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100 border-red-200">Cancelled</Badge>;
       case "overdue":
         return <Badge variant="destructive">Overdue</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline">{status || "To Do"}</Badge>;
     }
   };
 
@@ -261,7 +278,7 @@ const ActivitiesPage = () => {
 
   const filteredActivities = activities.filter((a: Activity) => 
     a.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.type?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (a.type?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -320,16 +337,18 @@ const ActivitiesPage = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredActivities.map((activity: Activity) => (
-                  <TableRow key={activity.id} className={activity.status === 'completed' ? 'opacity-60' : ''}>
-                    <TableCell>
-                      <button 
-                        onClick={() => activity.status !== 'completed' && completeMutation.mutate(activity.id)}
-                        className={`transition-colors ${activity.status === 'completed' ? 'text-green-500 cursor-default' : 'text-muted-foreground hover:text-green-500'}`}
-                      >
-                        {activity.status === 'completed' ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
-                      </button>
-                    </TableCell>
+                filteredActivities.map((activity: Activity) => {
+                  const isCompleted = activity.status === 'completed';
+                  return (
+                    <TableRow key={activity.id} className={isCompleted ? 'opacity-60' : ''}>
+                      <TableCell>
+                        <button 
+                          onClick={() => !isCompleted && completeMutation.mutate(activity.id)}
+                          className={`transition-colors ${isCompleted ? 'text-green-500 cursor-default' : 'text-muted-foreground hover:text-green-500'}`}
+                        >
+                          {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
+                        </button>
+                      </TableCell>
                     <TableCell className="font-medium whitespace-nowrap">
                       <div>
                         {activity.subject}
@@ -391,8 +410,9 @@ const ActivitiesPage = () => {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
-                  </TableRow>
-                ))
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>

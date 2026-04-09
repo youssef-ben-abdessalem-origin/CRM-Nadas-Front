@@ -36,8 +36,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -83,55 +88,21 @@ import {
   Circle,
   CheckSquare,
   Trash2,
+  Pencil,
+  History,
+  Ban,
+  UserCheck as UserCheckIcon,
+  Copy,
+  Tag,
+  MessageSquare,
+  StickyNote,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import api from "@/lib/api";
+import api, { Lead, DynamicOption, Note } from "@/lib/api";
+import { LeadNotes } from "@/components/leads/LeadNotes";
+import { LeadTaskDialog } from "@/components/leads/LeadTaskDialog";
 import { Textarea } from "@/components/ui/textarea";
-
-interface Lead {
-  id: number;
-  name: string;
-  emails: string[];
-  phones: string[];
-  company: string;
-  title: string;
-  sourceId: number;
-  source: { id: number; name: string };
-  scoreCategoryId: number;
-  scoreCategory: { id: number; name: string; color: string };
-  stageId: number;
-  stage: { id: number; name: string; color: string };
-  priorityId: number;
-  priority: { id: number; name: string; color: string };
-  qualificationStageId: number;
-  qualificationStage: { id: number; name: string };
-  status: string;
-  ownerId: number;
-  owner?: { id: number; name: string; email: string };
-  value: number;
-  createdAt: string;
-  updatedAt: string;
-  lastActivity: string;
-  notes: string;
-  location: string;
-  industry: string;
-  website: string;
-  tags: string[];
-  nextFollowUp: string;
-  isConverted: boolean;
-  convertedAt: string;
-  convertedAccountId: number;
-  convertedContactId: number;
-  attachments: { url: string; name: string; type: string; uploadedAt: string }[];
-}
-
-interface DynamicOption {
-  id: number;
-  name: string;
-  color?: string;
-  order?: number;
-  isDefault?: boolean;
-}
 
 interface SortableLeadCardProps {
   lead: Lead;
@@ -163,12 +134,37 @@ const Leads = () => {
   const [showActivity, setShowActivity] = useState(false);
   const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+  const [showTaskDialog, setShowTaskDialog] = useState(false);
   const [newActivity, setNewActivity] = useState({
     typeId: 0,
     subject: "",
     description: "",
     dueDate: "",
   });
+  const [showAssign, setShowAssign] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    id: 0,
+    name: "",
+    company: "",
+    value: 0
+  });
+  const [showLostDialog, setShowLostDialog] = useState(false);
+  const [lostFormData, setLostFormData] = useState({
+    lossReason: "",
+    lossNotes: "",
+    reengagementDate: "",
+  });
+
+  const lossReasons = [
+    { value: "PRICE", label: "Price too high", icon: "💸" },
+    { value: "COMPETITOR", label: "Chose competitor", icon: "🏢" },
+    { value: "NO_BUDGET", label: "No budget", icon: "🚫" },
+    { value: "NOT_FIT", label: "Not a fit", icon: "🎯" },
+    { value: "NO_RESPONSE", label: "No response / Ghosted", icon: "👻" },
+    { value: "TIMING", label: "Timing not right", icon: "⏳" },
+  ];
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -247,6 +243,11 @@ const Leads = () => {
     queryKey: ["lead-activities", selectedLead?.id],
     queryFn: () => selectedLead ? api.activities.getByEntity("lead", selectedLead.id).catch(() => []) : [],
     enabled: !!selectedLead,
+  });
+
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => api.users.getAll().catch(() => []),
   });
 
 
@@ -382,12 +383,12 @@ const Leads = () => {
     conversionRate:
       leads.length > 0
         ? Math.round(
-            (leads.filter(
-              (l: Lead) => l.stage?.name?.toLowerCase() === "qualified",
-            ).length /
-              leads.length) *
-              100,
-          )
+          (leads.filter(
+            (l: Lead) => l.stage?.name?.toLowerCase() === "qualified",
+          ).length /
+            leads.length) *
+          100,
+        )
         : 0,
     totalValue: leads.reduce((sum: number, l: Lead) => sum + (Number(l.value) || 0), 0),
   };
@@ -555,51 +556,213 @@ const Leads = () => {
           <div className="flex items-center gap-1 pt-1 border-t">
             <Button
               variant="ghost"
-              size="sm"
-              className="h-6 px-2 text-xs"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-primary"
               onClick={(e) => {
                 e.stopPropagation();
-                toast.info(`Email sent to ${lead.name}`);
+                if (lead.emails?.[0]) {
+                  navigate(`/emails?to=${encodeURIComponent(lead.emails[0])}&subject=${encodeURIComponent(`Re: ${lead.company || lead.name}`)}`);
+                } else {
+                  toast.error("No email address available for this lead");
+                }
               }}
             >
-              <Mail className="h-3 w-3 mr-1" /> Email
+              <Mail className="h-3.5 w-3.5" />
             </Button>
+
             <Button
               variant="ghost"
-              size="sm"
-              className="h-6 px-2 text-xs"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-primary"
               onClick={(e) => {
                 e.stopPropagation();
-                toast.info(`Calling ${lead.name}...`);
+                handleOpenEdit(lead);
               }}
             >
-              <Phone className="h-3 w-3 mr-1" /> Call
+              <Pencil className="h-3.5 w-3.5" />
             </Button>
+
+            {!isLeadLost(lead) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-primary"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-52">
+                  <DropdownMenuItem 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedLead(lead);
+                      setShowActivity(true);
+                      setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('task'))?.id || 0 }));
+                    }}
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2 text-blue-500" />
+                    <span>Create Task</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedLead(lead);
+                      setShowActivity(true);
+                      setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('meeting'))?.id || 0 }));
+                    }}
+                  >
+                    <Calendar className="h-4 w-4 mr-2 text-purple-500" />
+                    <span>Create Meeting</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Phone className="h-4 w-4 mr-2 text-green-500" />
+                      <span>Create Call</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedLead(lead);
+                          setShowActivity(true);
+                          setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('call'))?.id || 0, subject: "Scheduled Call" }));
+                        }}>
+                          Schedule Call
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedLead(lead);
+                          setShowActivity(true);
+                          setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('call'))?.id || 0, subject: "Call Log" }));
+                        }}>
+                          Log Call
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedLead(lead);
+                setShowNotes(true);
+              }}
+            >
+              <StickyNote className="h-3.5 w-3.5" />
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs ml-auto text-green-600"
+                  size="icon"
+                  className="h-7 w-7 ml-auto text-muted-foreground hover:text-primary"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <ArrowRight className="h-3 w-3 mr-1" /> Move
+                  <MoreHorizontal className="h-3.5 w-3.5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {stages
-                  .filter((s: DynamicOption) => s.id !== stage.id)
-                  .map((nextStage: DynamicOption) => (
-                    <DropdownMenuItem
-                      key={nextStage.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMove(nextStage.id);
-                      }}
-                    >
-                      Move to {nextStage.name}
-                    </DropdownMenuItem>
-                  ))}
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenEdit(lead);
+                  }}
+                >
+                  <Pencil className="h-4 w-4 mr-2 text-muted-foreground" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (lead.emails?.[0]) {
+                      navigate(`/emails?to=${encodeURIComponent(lead.emails[0])}&subject=${encodeURIComponent(`Re: ${lead.company || lead.name}`)}`);
+                    }
+                  }}
+                >
+                  <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
+                  Send Email
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedLead(lead);
+                    setShowTaskDialog(true);
+                  }}
+                >
+                  <CheckSquare className="h-4 w-4 mr-2 text-muted-foreground" />
+                  Create Task
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                  <Tag className="h-4 w-4 mr-2 text-muted-foreground" />
+                  Add Tags
+                </DropdownMenuItem>
+                {!isLeadLost(lead) && (
+                  <DropdownMenuItem
+                    className="text-blue-600 font-medium"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedLead(lead);
+                      setShowConvert(true);
+                    }}
+                  >
+                    <UserCheckIcon className="h-4 w-4 mr-2" />
+                    Convert
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  className="text-red-500"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteMutation.mutate(lead.id);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const url = `${window.location.origin}/leads?id=${lead.id}`;
+                    navigator.clipboard.writeText(url);
+                    toast.success("Lead URL copied");
+                  }}
+                >
+                  <Copy className="h-4 w-4 mr-2 text-muted-foreground" />
+                  Copy URL
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>More</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                          <Phone className="h-4 w-4 mr-2" /> Create Call
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                          <DropdownMenuSubContent>
+                            <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Schedule Call</DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Log Call</DropdownMenuItem>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                      </DropdownMenuSub>
+                      <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                        <Calendar className="h-4 w-4 mr-2" /> Create Meeting
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -616,6 +779,70 @@ const Leads = () => {
       convertMutation.mutate(selectedLead.id);
     }
   };
+
+  const handleOpenEdit = (lead: Lead) => {
+    navigate(`/leads/edit/${lead.id}`);
+  };
+
+  const handleSaveEdit = () => {
+    updateMutation.mutate({
+      id: editFormData.id,
+      data: {
+        name: editFormData.name,
+        company: editFormData.company,
+        value: editFormData.value,
+      },
+    });
+    setShowEditDialog(false);
+  };
+
+  const handleMarkLost = (lead: Lead) => {
+    setSelectedLead(lead);
+    setLostFormData({ lossReason: "", lossNotes: "", reengagementDate: "" });
+    setShowLostDialog(true);
+  };
+
+  const handleConfirmLost = () => {
+    if (!selectedLead) return;
+    if (!lostFormData.lossReason) {
+      toast.error("Please select a loss reason");
+      return;
+    }
+    const lostStage = stages.find(
+      (s: DynamicOption) => s.name.toLowerCase() === "unqualified" || s.name.toLowerCase() === "lost"
+    );
+    if (lostStage) {
+      updateMutation.mutate({
+        id: selectedLead.id,
+        data: {
+          stageId: lostStage.id,
+          lossReason: lostFormData.lossReason,
+          lossNotes: lostFormData.lossNotes,
+          reengagementDate: lostFormData.reengagementDate || undefined,
+        },
+      });
+      toast.success(`${selectedLead.name} marked as lost`);
+      setShowLostDialog(false);
+    } else {
+      toast.error("Lost/Unqualified stage not found");
+    }
+  };
+
+  const handleAssign = (userId: number) => {
+    if (!selectedLead) return;
+    updateMutation.mutate({
+      id: selectedLead.id,
+      data: { ownerId: userId },
+    });
+    setShowAssign(false);
+    const user = teamMembers.find((u: any) => u.id === userId);
+    toast.success(`Lead assigned to ${user?.name || "team member"}`);
+  };
+
+  const isLeadLost = (lead: Lead | null) =>
+    lead?.stage?.name?.toLowerCase() === "unqualified" ||
+    lead?.stage?.name?.toLowerCase() === "lost" ||
+    lead?.isConverted;
 
   const handleDisqualify = () => {
     if (!selectedLead) return;
@@ -960,10 +1187,14 @@ const Leads = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7"
+                            className="h-7 w-7 text-muted-foreground"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toast.info(`Email sent to ${lead.name}`);
+                              if (lead.emails?.[0]) {
+                                navigate(`/emails?to=${encodeURIComponent(lead.emails[0])}&subject=${encodeURIComponent(`Re: ${lead.company || lead.name}`)}`);
+                              } else {
+                                toast.error("No email address available for this lead");
+                              }
                             }}
                           >
                             <Mail className="h-3.5 w-3.5" />
@@ -971,49 +1202,151 @@ const Leads = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7"
+                            className="h-7 w-7 text-muted-foreground hover:text-white"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toast.info(`Calling ${lead.name}...`);
+                              handleOpenEdit(lead);
                             }}
                           >
-                            <Phone className="h-3.5 w-3.5" />
+                            <Pencil className="h-3.5 w-3.5" />
                           </Button>
+
+                          {!isLeadLost(lead) && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-muted-foreground hover:text-white"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="start" className="w-52">
+                                <DropdownMenuItem 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedLead(lead);
+                                    setShowTaskDialog(true);
+                                  }}
+                                >
+                                  <CheckSquare className="h-4 w-4 mr-2 text-blue-500" />
+                                  <span>Create Task</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedLead(lead);
+                                    setShowActivity(true);
+                                    setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('meeting'))?.id || 0 }));
+                                  }}
+                                >
+                                  <Calendar className="h-4 w-4 mr-2 text-purple-500" />
+                                  <span>Create Meeting</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSub>
+                                  <DropdownMenuSubTrigger>
+                                    <Phone className="h-4 w-4 mr-2 text-green-500" />
+                                    <span>Create Call</span>
+                                  </DropdownMenuSubTrigger>
+                                  <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                      <DropdownMenuItem onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedLead(lead);
+                                        setShowActivity(true);
+                                        setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('call'))?.id || 0, subject: "Scheduled Call" }));
+                                      }}>
+                                        Schedule Call
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedLead(lead);
+                                        setShowActivity(true);
+                                        setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('call'))?.id || 0, subject: "Call Log" }));
+                                      }}>
+                                        Log Call
+                                      </DropdownMenuItem>
+                                    </DropdownMenuSubContent>
+                                  </DropdownMenuPortal>
+                                </DropdownMenuSub>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-white"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedLead(lead);
+                              setShowNotes(true);
+                            }}
+                          >
+                            <StickyNote className="h-3.5 w-3.5" />
+                          </Button>
+
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7"
+                                className="h-7 w-7 text-muted-foreground hover:text-white"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <MoreHorizontal className="h-3.5 w-3.5" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
+                            <DropdownMenuContent align="end" className="w-56">
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenEdit(lead);
+                                }}
+                              >
+                                <Pencil className="h-4 w-4 mr-2 text-muted-foreground" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (lead.emails?.[0]) {
+                                    navigate(`/emails?to=${encodeURIComponent(lead.emails[0])}&subject=${encodeURIComponent(`Re: ${lead.company || lead.name}`)}`);
+                                  }
+                                }}
+                              >
+                                <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
+                                Send Email
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setSelectedLead(lead);
-                                  setShowConvert(true);
+                                  setShowTaskDialog(true);
                                 }}
                               >
-                                <UserCheck className="h-4 w-4 mr-2" />
-                                Convert to Contact
+                                <CheckSquare className="h-4 w-4 mr-2 text-muted-foreground" />
+                                Create Task
                               </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              {stages.map((stage: DynamicOption) => (
+                              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                                <Tag className="h-4 w-4 mr-2 text-muted-foreground" />
+                                Add Tags
+                              </DropdownMenuItem>
+                              {!isLeadLost(lead) && (
                                 <DropdownMenuItem
-                                  key={stage.id}
+                                  className="text-blue-600 font-medium"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleStageChange(lead.id, stage.id);
+                                    setSelectedLead(lead);
+                                    setShowConvert(true);
                                   }}
                                 >
-                                  Move to {stage.name}
+                                  <UserCheckIcon className="h-4 w-4 mr-2" />
+                                  Convert
                                 </DropdownMenuItem>
-                              ))}
-                              <DropdownMenuSeparator />
+                              )}
                               <DropdownMenuItem
                                 className="text-red-500"
                                 onClick={(e) => {
@@ -1021,9 +1354,42 @@ const Leads = () => {
                                   deleteMutation.mutate(lead.id);
                                 }}
                               >
-                                <X className="h-4 w-4 mr-2" />
+                                <Trash2 className="h-4 w-4 mr-2" />
                                 Delete
                               </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const url = `${window.location.origin}/leads?id=${lead.id}`;
+                                  navigator.clipboard.writeText(url);
+                                  toast.success("Lead URL copied");
+                                }}
+                              >
+                                <Copy className="h-4 w-4 mr-2 text-muted-foreground" />
+                                Copy URL
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuSub>
+                                <DropdownMenuSubTrigger>More</DropdownMenuSubTrigger>
+                                <DropdownMenuPortal>
+                                  <DropdownMenuSubContent>
+                                    <DropdownMenuSub>
+                                      <DropdownMenuSubTrigger>
+                                        <Phone className="h-4 w-4 mr-2" /> Create Call
+                                      </DropdownMenuSubTrigger>
+                                      <DropdownMenuPortal>
+                                        <DropdownMenuSubContent>
+                                          <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Schedule Call</DropdownMenuItem>
+                                          <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Log Call</DropdownMenuItem>
+                                        </DropdownMenuSubContent>
+                                      </DropdownMenuPortal>
+                                    </DropdownMenuSub>
+                                    <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                                      <Calendar className="h-4 w-4 mr-2" /> Create Meeting
+                                    </DropdownMenuItem>
+                                  </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                              </DropdownMenuSub>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -1071,66 +1437,66 @@ const Leads = () => {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
-              <div className="flex gap-4 pb-4">
-                {stages.map((stage: DynamicOption) => {
-                  const stageLeads = allLeadsData.filter(
-                    (l: Lead) => !l.isConverted && l.stageId === stage.id,
-                  );
-                  const stageValue = stageLeads.reduce(
-                    (sum: number, l: Lead) => sum + (Number(l.value) || 0),
-                    0,
-                  );
-                  
-                  return (
-                    <Droppable key={stage.id} id={stage.id}>
-                      {({ setNodeRef }) => (
-                        <div ref={setNodeRef} className="min-w-[300px] max-w-[300px]">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="h-3 w-1 rounded-full"
-                          style={{ backgroundColor: stage.color || "#3b82f6" }}
-                        />
-                        <span className="text-sm font-semibold">
-                          {stage.name}
-                        </span>
-                        <Badge variant="secondary" className="text-xs">
-                          {stageLeads.length}
-                        </Badge>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {formatCurrency(stageValue)}
-                      </span>
-                    </div>
-                    <SortableContext
-                      items={stageLeads.map((l: Lead) => l.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      <div className="space-y-3 min-h-[100px]">
-                        {stageLeads.length === 0 && (
-                          <div className="h-24 flex items-center justify-center text-muted-foreground text-sm border-2 border-dashed rounded-lg">
-                            Drop leads here
+            <div className="flex gap-4 pb-4">
+              {stages.map((stage: DynamicOption) => {
+                const stageLeads = allLeadsData.filter(
+                  (l: Lead) => !l.isConverted && l.stageId === stage.id,
+                );
+                const stageValue = stageLeads.reduce(
+                  (sum: number, l: Lead) => sum + (Number(l.value) || 0),
+                  0,
+                );
+
+                return (
+                  <Droppable key={stage.id} id={stage.id}>
+                    {({ setNodeRef }) => (
+                      <div ref={setNodeRef} className="min-w-[300px] max-w-[300px]">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="h-3 w-1 rounded-full"
+                              style={{ backgroundColor: stage.color || "#3b82f6" }}
+                            />
+                            <span className="text-sm font-semibold">
+                              {stage.name}
+                            </span>
+                            <Badge variant="secondary" className="text-xs">
+                              {stageLeads.length}
+                            </Badge>
                           </div>
-                        )}
-                        {stageLeads.map((lead: Lead) => (
-                          <SortableLeadCard
-                            key={lead.id}
-                            lead={lead}
-                            stage={stage}
-                            onClick={() => {
-                              setSelectedLead(lead);
-                              setShowDetail(true);
-                            }}
-                            onMove={(newStageId: number) =>
-                              handleStageChange(lead.id, newStageId)
-                            }
-                          />
-                        ))}
+                          <span className="text-xs text-muted-foreground">
+                            {formatCurrency(stageValue)}
+                          </span>
+                        </div>
+                        <SortableContext
+                          items={stageLeads.map((l: Lead) => l.id)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          <div className="space-y-3 min-h-[100px]">
+                            {stageLeads.length === 0 && (
+                              <div className="h-24 flex items-center justify-center text-muted-foreground text-sm border-2 border-dashed rounded-lg">
+                                Drop leads here
+                              </div>
+                            )}
+                            {stageLeads.map((lead: Lead) => (
+                              <SortableLeadCard
+                                key={lead.id}
+                                lead={lead}
+                                stage={stage}
+                                onClick={() => {
+                                  setSelectedLead(lead);
+                                  setShowDetail(true);
+                                }}
+                                onMove={(newStageId: number) =>
+                                  handleStageChange(lead.id, newStageId)
+                                }
+                              />
+                            ))}
+                          </div>
+                        </SortableContext>
                       </div>
-                    </SortableContext>
-                    </div>
-                      )}
-                    </Droppable>
+                    )}
+                  </Droppable>
                 );
               })}
             </div>
@@ -1170,32 +1536,178 @@ const Leads = () => {
                         {selectedLead.company || "No company"}
                       </DialogDescription>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className="border-0"
-                        style={{
-                          backgroundColor: selectedLead.scoreCategory?.color
-                            ? `${selectedLead.scoreCategory.color}20`
-                            : "#6b728020",
-                          color: selectedLead.scoreCategory?.color || "#6b7280",
-                        }}
-                      >
-                        <Star className="h-3 w-3 mr-1" />
-                        {selectedLead.scoreCategory?.name || "—"}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className="border-0"
-                        style={{
-                          backgroundColor: selectedLead.stage?.color
-                            ? `${selectedLead.stage.color}20`
-                            : "#3b82f620",
-                          color: selectedLead.stage?.color || "#3b82f6",
-                        }}
-                      >
-                        {selectedLead.stage?.name || "—"}
-                      </Badge>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-8 gap-1.5 bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 hover:text-primary transition-all duration-200 shadow-sm"
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                              <span className="font-semibold text-xs">Add Activity</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-52">
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                setSelectedLead(selectedLead);
+                                setShowTaskDialog(true);
+                              }}
+                            >
+                              <CheckSquare className="h-4 w-4 mr-2 text-blue-500" />
+                              <span>Create Task</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedLead(selectedLead);
+                                setShowActivity(true);
+                                setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('meeting'))?.id || 0 }));
+                              }}
+                            >
+                              <Calendar className="h-4 w-4 mr-2 text-purple-500" />
+                              <span>Create Meeting</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger>
+                                <Phone className="h-4 w-4 mr-2 text-green-500" />
+                                <span>Create Call</span>
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuPortal>
+                                <DropdownMenuSubContent>
+                                  <DropdownMenuItem onClick={() => {
+                                    setSelectedLead(selectedLead);
+                                    setShowActivity(true);
+                                    setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('call'))?.id || 0, subject: "Scheduled Call" }));
+                                  }}>
+                                    Schedule Call
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => {
+                                    setSelectedLead(selectedLead);
+                                    setShowActivity(true);
+                                    setNewActivity(prev => ({ ...prev, typeId: activityTypes.find((t: any) => t.name.toLowerCase().includes('call'))?.id || 0, subject: "Call Log" }));
+                                  }}>
+                                    Log Call
+                                  </DropdownMenuItem>
+                                </DropdownMenuSubContent>
+                              </DropdownMenuPortal>
+                            </DropdownMenuSub>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="h-8 gap-1.5 bg-card border-border hover:bg-muted font-semibold text-xs transition-all duration-200"
+                          onClick={() => setShowNotes(true)}
+                        >
+                          <StickyNote className="h-3.5 w-3.5 text-muted-foreground" />
+                          Add Note
+                        </Button>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuItem onClick={() => handleOpenEdit(selectedLead)}>
+                              <Pencil className="h-4 w-4 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                               if (selectedLead.emails?.[0]) {
+                                 navigate(`/emails?to=${encodeURIComponent(selectedLead.emails[0])}&subject=${encodeURIComponent(`Re: ${selectedLead.company || selectedLead.name}`)}`);
+                               }
+                            }}>
+                              <Mail className="h-4 w-4 mr-2" /> Send Email
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                                setSelectedLead(selectedLead);
+                                setShowTaskDialog(true);
+                            }}>
+                              <CheckSquare className="h-4 w-4 mr-2" /> Create Task
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Tag className="h-4 w-4 mr-2" /> Add Tags
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setShowConvert(true)} className="text-blue-600 font-medium">
+                              <UserCheckIcon className="h-4 w-4 mr-2" /> Convert
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-red-500" 
+                              onClick={() => {
+                                deleteMutation.mutate(selectedLead.id);
+                                setShowDetail(false);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Delete
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                              const url = `${window.location.origin}/leads?id=${selectedLead.id}`;
+                              navigator.clipboard.writeText(url);
+                              toast.success("Lead URL copied to clipboard");
+                            }}>
+                              <Copy className="h-4 w-4 mr-2" /> Copy URL
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger>More</DropdownMenuSubTrigger>
+                              <DropdownMenuPortal>
+                                <DropdownMenuSubContent>
+                                  <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger>
+                                      <Phone className="h-4 w-4 mr-2" /> Create Call
+                                    </DropdownMenuSubTrigger>
+                                    <DropdownMenuPortal>
+                                      <DropdownMenuSubContent>
+                                        <DropdownMenuItem>Schedule Call</DropdownMenuItem>
+                                        <DropdownMenuItem>Log Call</DropdownMenuItem>
+                                      </DropdownMenuSubContent>
+                                    </DropdownMenuPortal>
+                                  </DropdownMenuSub>
+                                  <DropdownMenuItem>
+                                    <Calendar className="h-4 w-4 mr-2" /> Create Meeting
+                                  </DropdownMenuItem>
+                                </DropdownMenuSubContent>
+                              </DropdownMenuPortal>
+                            </DropdownMenuSub>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
+                      <div className="h-4 w-[1px] bg-border mx-1" />
+
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className="border-0 shadow-sm"
+                          style={{
+                            backgroundColor: selectedLead.scoreCategory?.color
+                              ? `${selectedLead.scoreCategory.color}20`
+                              : "#6b728020",
+                            color: selectedLead.scoreCategory?.color || "#6b7280",
+                            fontWeight: 600,
+                          }}
+                        >
+                          <Star className="h-3 w-3 mr-1" />
+                          {selectedLead.scoreCategory?.name || "—"}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className="border-0 shadow-sm"
+                          style={{
+                            backgroundColor: selectedLead.stage?.color
+                              ? `${selectedLead.stage.color}20`
+                              : "#3b82f620",
+                            color: selectedLead.stage?.color || "#3b82f6",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {selectedLead.stage?.name || "—"}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 </DialogHeader>
@@ -1203,13 +1715,41 @@ const Leads = () => {
                   <div className="space-y-3">
                     <h4 className="text-sm font-semibold">Contact Info</h4>
                     <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedLead.emails?.[0] || "—"}</span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <span>{selectedLead.emails?.[0] || "—"}</span>
+                        </div>
+                        {selectedLead.emails?.[0] && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-[10px] uppercase font-bold"
+                            onClick={() => {
+                              if (selectedLead.emails?.[0]) {
+                                navigate(`/emails?to=${encodeURIComponent(selectedLead.emails[0])}&subject=${encodeURIComponent(`Re: ${selectedLead.company || selectedLead.name}`)}`);
+                              }
+                            }}
+                          >
+                            Send
+                          </Button>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedLead.phones?.[0] || "—"}</span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <span>{selectedLead.phones?.[0] || "—"}</span>
+                        </div>
+                        {selectedLead.phones?.[0] && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-[10px] uppercase font-bold"
+                            onClick={() => window.location.href = `tel:${selectedLead.phones[0]}`}
+                          >
+                            Call
+                          </Button>
+                        )}
                       </div>
                       {selectedLead.website && (
                         <div className="flex items-center gap-2">
@@ -1331,10 +1871,12 @@ const Leads = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-semibold">Activities</h4>
-                    <Button variant="ghost" size="sm" onClick={() => setShowActivity(true)}>
-                      <Plus className="h-4 w-4" />
-                      <span className="ml-1">Add</span>
-                    </Button>
+                    {!isLeadLost(selectedLead) && (
+                      <Button variant="ghost" size="sm" onClick={() => setShowActivity(true)}>
+                        <Plus className="h-4 w-4" />
+                        <span className="ml-1">Add</span>
+                      </Button>
+                    )}
                   </div>
                   {leadActivities && leadActivities.length > 0 ? (
                     <div className="space-y-2 max-h-40 overflow-y-auto">
@@ -1371,38 +1913,46 @@ const Leads = () => {
                   )}
                 </div>
                 <DialogFooter className="gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      handleDisqualify();
-                    }}
-                  >
-                    <UserX className="h-4 w-4 mr-2" /> Disqualify
-                  </Button>
-                  <Select
-                    onValueChange={(stageId) => {
-                      handleStageChange(selectedLead.id, parseInt(stageId));
-                      setShowDetail(false);
-                    }}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Change Stage" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {stages.map((stage: DynamicOption) => (
-                        <SelectItem key={stage.id} value={String(stage.id)}>
-                          Move to {stage.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    onClick={() => {
-                      setShowConvert(true);
-                    }}
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" /> Convert to Contact
-                  </Button>
+                  {!isLeadLost(selectedLead) && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        handleDisqualify();
+                      }}
+                    >
+                      <UserX className="h-4 w-4 mr-2" /> Disqualify
+                    </Button>
+                  )}
+                  {!isLeadLost(selectedLead) && (
+                    <Select
+                      onValueChange={(stageId) => {
+                        handleStageChange(selectedLead.id, parseInt(stageId));
+                        setShowDetail(false);
+                      }}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Change Stage" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {stages
+                          .filter((s: DynamicOption) => s.id !== selectedLead.stageId)
+                          .map((stage: DynamicOption) => (
+                            <SelectItem key={stage.id} value={String(stage.id)}>
+                              Move to {stage.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  {!isLeadLost(selectedLead) && (
+                    <Button
+                      onClick={() => {
+                        setShowConvert(true);
+                      }}
+                    >
+                      <UserPlus className="h-4 w-4 mr-2" /> Convert to Contact
+                    </Button>
+                  )}
                 </DialogFooter>
               </>
             )}
@@ -1571,6 +2121,131 @@ const Leads = () => {
             </div>
           </DialogContent>
         </Dialog>
+        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Lead Details</DialogTitle>
+              <DialogDescription>Quickly update the lead's basic info.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Lead Name</Label>
+                <Input
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Company</Label>
+                <Input
+                  value={editFormData.company}
+                  onChange={(e) => setEditFormData({ ...editFormData, company: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Pipeline Value</Label>
+                <Input
+                  type="number"
+                  value={editFormData.value}
+                  onChange={(e) => setEditFormData({ ...editFormData, value: parseInt(e.target.value) })}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
+              <Button onClick={handleSaveEdit}>Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showAssign} onOpenChange={setShowAssign}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Assign Lead</DialogTitle>
+              <DialogDescription>Select a team member to manage this lead.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Assignee</Label>
+                <Select onValueChange={(val) => handleAssign(parseInt(val))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select team member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teamMembers.map((user: any) => (
+                      <SelectItem key={user.id} value={String(user.id)}>{user.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showLostDialog} onOpenChange={setShowLostDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Mark Lead as Lost</DialogTitle>
+              <DialogDescription>
+                Please provide a reason for losing this lead. This helps with sales analytics.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Loss Reason *</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {lossReasons.map((reason) => (
+                    <button
+                      key={reason.value}
+                      type="button"
+                      onClick={() => setLostFormData({ ...lostFormData, lossReason: reason.value })}
+                      className={`p-3 rounded-lg border text-left text-sm transition-all ${
+                        lostFormData.lossReason === reason.value
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <span className="mr-2">{reason.icon}</span>
+                      {reason.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Notes</Label>
+                <Textarea
+                  placeholder="Add details about why this lead was lost..."
+                  value={lostFormData.lossNotes}
+                  onChange={(e) => setLostFormData({ ...lostFormData, lossNotes: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Re-engagement Date (Optional)</Label>
+                <Input
+                  type="date"
+                  value={lostFormData.reengagementDate}
+                  onChange={(e) => setLostFormData({ ...lostFormData, reengagementDate: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">Schedule a follow-up for future potential leads</p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowLostDialog(false)}>Cancel</Button>
+              <Button onClick={handleConfirmLost}>Confirm Lost</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <LeadNotes 
+          lead={selectedLead} 
+          open={showNotes} 
+          onOpenChange={setShowNotes} 
+        />
+        <LeadTaskDialog
+          lead={selectedLead}
+          open={showTaskDialog}
+          onOpenChange={setShowTaskDialog}
+        />
       </div>
     </CRMLayout>
   );

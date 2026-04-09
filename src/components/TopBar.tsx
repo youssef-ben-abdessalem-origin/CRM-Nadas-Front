@@ -42,9 +42,19 @@ const translations = {
   ar: { name: "Arabic", native: "العربية" },
 };
 
+import { useQuery } from "@tanstack/react-query";
+import api from "@/lib/api";
+
 export function TopBar({ title }: { title: string }) {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = user?.id;
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["unreadNotificationCount", userId],
+    queryFn: () => userId ? api.settings.getUnreadNotificationCount(userId).catch(() => 0) : 0,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
   const [language, setLanguage] = useState<Language>(
     (Cookies.get("language") as Language) || "en"
   );
@@ -81,8 +91,13 @@ export function TopBar({ title }: { title: string }) {
             className="h-9 w-64 rounded-lg border border-input bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
-        <Button variant="ghost" size="icon" className="relative" onClick={() => navigate("/settings/notifications")}>
-          <Bell className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="relative group" onClick={() => navigate("/settings/notifications")}>
+          <Bell className="h-4 w-4 group-hover:text-white transition-colors" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

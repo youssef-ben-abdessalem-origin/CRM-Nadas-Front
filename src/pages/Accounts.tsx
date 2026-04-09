@@ -111,9 +111,9 @@ interface Account {
   accountTypeId: number;
   type: AccountType;
   accountStatusId: number;
-  status: AccountStatusType;
+  status: AccountStatus;
   accountTierId: number;
-  tier: AccountTierType;
+  tier: AccountTier;
   annualRevenue: number;
   employeeCount: number;
   phone: string;
@@ -182,6 +182,7 @@ const initialAccounts: Account[] = [];
 
 const Accounts = () => {
   const queryClient = useQueryClient();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ["accounts"],
     queryFn: () => api.accounts.getAll().catch(() => []),
@@ -233,7 +234,6 @@ const Accounts = () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       toast.success("Account created successfully");
       setShowAdd(false);
-      setAddStep(0);
       resetForm();
     },
     onError: (err: Error) => toast.error(err.message),
@@ -286,7 +286,7 @@ const Accounts = () => {
     zipCode: "",
     description: "",
     notes: "",
-    owner: "",
+    owner: user?.name ? `${user.name} <${user.email || ""}>` : "",
     parentAccount: "",
     tags: "",
   });

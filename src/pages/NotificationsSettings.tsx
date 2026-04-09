@@ -1,13 +1,12 @@
-import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { CRMLayout } from "@/components/CRMLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Check, Trash2, AlertCircle, Info, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import Cookies from "js-cookie";
 
 interface Notification {
   id: number;
@@ -21,6 +20,7 @@ interface Notification {
 
 const NotificationsSettings = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user?.id;
 
@@ -135,19 +135,26 @@ const NotificationsSettings = () => {
                     <div className="mt-1">
                       {getIcon(notification.type)}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div 
+                      className="flex-1 min-w-0 cursor-pointer group"
+                      onClick={() => {
+                        if (!notification.isRead) handleMarkAsRead(notification.id);
+                        if (notification.link) navigate(notification.link);
+                      }}
+                    >
                       <div className="flex items-center gap-2">
-                        <p className="font-medium">{notification.title}</p>
+                        <p className="font-bold text-foreground group-hover:text-primary transition-colors">{notification.title}</p>
                         {!notification.isRead && (
-                          <Badge className="bg-blue-500">New</Badge>
+                          <Badge className="bg-primary text-white text-[10px] h-4 px-1.5 uppercase font-black">New</Badge>
                         )}
                       </div>
                       {notification.message && (
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
                           {notification.message}
                         </p>
                       )}
-                      <p className="text-xs text-muted-foreground mt-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 mt-3 flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-muted-foreground/20" />
                         {formatDate(notification.createdAt)}
                       </p>
                     </div>

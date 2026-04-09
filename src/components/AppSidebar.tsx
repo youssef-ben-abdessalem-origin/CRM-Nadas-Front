@@ -25,6 +25,7 @@ import {
   Table2,
   Shield,
   Lock,
+  CheckSquare,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -33,6 +34,7 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
   path?: string;
   children?: NavItem[];
+  locked?: boolean;
 };
 
 type NavSection = {
@@ -85,10 +87,10 @@ const navSections: NavSection[] = [
   {
     label: "Sales Documents",
     items: [
-      { label: "Quotes", icon: FileText, path: "/quotes" },
-      { label: "Orders", icon: ShoppingCart, path: "/orders" },
-      { label: "Invoices", icon: Receipt, path: "/invoices" },
-      { label: "Payments", icon: CreditCard, path: "/payments" },
+      { label: "Quotes", icon: FileText, path: "/quotes", locked: true },
+      { label: "Orders", icon: ShoppingCart, path: "/orders", locked: true },
+      { label: "Invoices", icon: Receipt, path: "/invoices", locked: true },
+      { label: "Payments", icon: CreditCard, path: "/payments", locked: true },
     ],
   },
   {
@@ -112,6 +114,7 @@ const navSections: NavSection[] = [
     label: "Productivity",
     items: [
       { label: "Calendar", icon: Calendar, path: "/calendar" },
+      { label: "Tasks", icon: CheckSquare, path: "/tasks" },
       { label: "Activities", icon: Zap, path: "/activities" },
     ],
   },
@@ -125,8 +128,8 @@ const navSections: NavSection[] = [
   {
     label: "Admin",
     items: [
-      { 
-        label: "Team", 
+      {
+        label: "Team",
         icon: Users,
         children: [
           { label: "Users", icon: Users, path: "/team/users" },
@@ -166,17 +169,15 @@ export function AppSidebar() {
 
   return (
     <aside
-      className={`flex flex-col h-screen bg-[hsl(var(--sidebar-bg))] border-r border-[hsl(var(--sidebar-border))] transition-all duration-200 ${
-        collapsed ? "w-15" : "w-60"
-      }`}
+      className={`flex flex-col h-screen bg-[hsl(var(--sidebar-bg))] border-r border-[hsl(var(--sidebar-border))] transition-all duration-200 ${collapsed ? "w-15" : "w-60"
+        }`}
     >
       <div className="flex items-center gap-2 px-4 h-14 border-b border-[hsl(var(--sidebar-border))]">
         <img
           src={collapsed ? logoSmall : logoBig}
           alt="CRM Suite"
-          className={`shrink-0 brightness-0 invert transition-all duration-200 ${
-            collapsed ? "h-8 w-10" : "h-12"
-          }`}
+          className={`shrink-0 brightness-0 invert transition-all duration-200 ${collapsed ? "h-8 w-10" : "h-12"
+            }`}
         />
       </div>
 
@@ -205,9 +206,8 @@ export function AppSidebar() {
                     <NavLink
                       key={item.label}
                       to={item.children?.[0]?.path || "/"}
-                      className={`sidebar-item ${
-                        active ? "sidebar-item-active" : "sidebar-item-inactive"
-                      }`}
+                      className={`sidebar-item ${active ? "sidebar-item-active" : "sidebar-item-inactive"
+                        }`}
                     >
                       <item.icon className="h-4 w-4 shrink-0" />
                     </NavLink>
@@ -219,16 +219,14 @@ export function AppSidebar() {
                     <div key={item.label}>
                       <button
                         onClick={() => toggleExpand(item.label)}
-                        className={`sidebar-item w-full ${
-                          active ? "sidebar-item-active" : "sidebar-item-inactive"
-                        }`}
+                        className={`sidebar-item w-full ${active ? "sidebar-item-active" : "sidebar-item-inactive"
+                          }`}
                       >
                         <item.icon className="h-4 w-4 shrink-0" />
                         <span className="flex-1 text-left">{item.label}</span>
                         <ChevronDown
-                          className={`h-3 w-3 transition-transform ${
-                            isExpanded ? "rotate-180" : ""
-                          }`}
+                          className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""
+                            }`}
                         />
                       </button>
                       {isExpanded && (
@@ -240,11 +238,10 @@ export function AppSidebar() {
                               <NavLink
                                 key={child.path}
                                 to={child.path || "/"}
-                                className={`sidebar-item text-sm ${
-                                  childActive
+                                className={`sidebar-item text-sm ${childActive
                                     ? "sidebar-item-active"
                                     : "sidebar-item-inactive"
-                                }`}
+                                  }`}
                               >
                                 <child.icon className="h-3.5 w-3.5 shrink-0" />
                                 <span>{child.label}</span>
@@ -260,13 +257,19 @@ export function AppSidebar() {
                 return (
                   <NavLink
                     key={item.label}
-                    to={item.path || "/"}
-                    className={`sidebar-item ${
-                      active ? "sidebar-item-active" : "sidebar-item-inactive"
-                    }`}
+                    to={item.locked ? "#" : (item.path || "/")}
+                    onClick={item.locked ? (e) => e.preventDefault() : undefined}
+                    className={`sidebar-item group relative ${active ? "sidebar-item-active" : "sidebar-item-inactive"
+                      } ${item.locked ? "opacity-60 cursor-not-allowed grayscale" : ""}`}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
-                    <span>{item.label}</span>
+                    <span className="flex-1">{item.label}</span>
+                    {item.locked && (
+                      <div className="flex items-center gap-1.5 ml-auto">
+                        <Lock className="h-3 w-3 text-muted-foreground/60" />
+                        <span className="text-[9px] font-bold uppercase tracking-tighter px-1 py-0.5 rounded bg-muted/40 text-muted-foreground leading-none hidden group-hover:inline-block">Soon</span>
+                      </div>
+                    )}
                   </NavLink>
                 );
               })}

@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 
-const API_BASE = "http://192.168.0.110:3001";
+const API_BASE = "http://localhost:3001";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE,
@@ -88,7 +88,7 @@ export interface Permission {
 }
 
 export interface Role {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   color: string;
@@ -101,11 +101,71 @@ export interface User {
   email: string;
   name: string;
   role: Role;
-  roleId: number;
+  roleId: string;
   enabled: boolean;
   phone?: string;
   avatar?: string;
   createdAt: string;
+}
+
+export interface Note {
+  id: number;
+  content: string;
+  title?: string;
+  entityType: string;
+  entityId: number;
+  createdBy?: User;
+  createdById: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Lead {
+  id: number;
+  name: string;
+  emails: string[];
+  phones: string[];
+  company: string;
+  title: string;
+  sourceId: number;
+  source: { id: number; name: string };
+  scoreCategoryId: number;
+  scoreCategory: { id: number; name: string; color: string };
+  stageId: number;
+  stage: { id: number; name: string; color: string };
+  priorityId: number;
+  priority: { id: number; name: string; color: string };
+  qualificationStageId: number;
+  qualificationStage: { id: number; name: string };
+  status: string;
+  ownerId: number;
+  owner?: { id: number; name: string; email: string };
+  value: number;
+  createdAt: string;
+  updatedAt: string;
+  lastActivity: string;
+  notes: string;
+  location: string;
+  industry: string;
+  website: string;
+  tags: string[];
+  nextFollowUp: string;
+  isConverted: boolean;
+  convertedAt: string;
+  convertedAccountId: number;
+  convertedContactId: number;
+  attachments: { url: string; name: string; type: string; uploadedAt: string }[];
+  lossReason?: string;
+  lossNotes?: string;
+  lostAt?: string;
+  reengagementDate?: string;
+}
+
+export interface DynamicOption {
+  id: number;
+  name: string;
+  color?: string;
+  order?: number;
 }
 
 export const api = {
@@ -114,19 +174,23 @@ export const api = {
       const res = await axiosInstance.get("/api/v1/roles");
       return normalizeResponse(res.data);
     },
-    getOne: async (id: number) => {
+    getOne: async (id: string) => {
       const res = await axiosInstance.get(`/api/v1/roles/${id}`);
+      return res.data;
+    },
+    getPermissionsByRole: async (id: string) => {
+      const res = await axiosInstance.get(`/api/v1/roles/${id}/permissions`);
       return res.data;
     },
     create: async (data: any) => {
       const res = await axiosInstance.post("/api/v1/roles", data);
       return res.data;
     },
-    update: async (id: number, data: any) => {
+    update: async (id: string, data: any) => {
       const res = await axiosInstance.put(`/api/v1/roles/${id}`, data);
       return res.data;
     },
-    delete: async (id: number) => {
+    delete: async (id: string) => {
       const res = await axiosInstance.delete(`/api/v1/roles/${id}`);
       return res.data;
     },
@@ -1086,10 +1150,11 @@ export const api = {
       const res = await axiosInstance.post("/api/v1/gmail/disconnect");
       return res.data;
     },
-    getMessages: async (maxResults?: number, pageToken?: string) => {
+    getMessages: async (maxResults?: number, pageToken?: string, label?: string) => {
       const params = new URLSearchParams();
       if (maxResults) params.append("maxResults", String(maxResults));
       if (pageToken) params.append("pageToken", pageToken);
+      if (label) params.append("label", label);
       const res = await axiosInstance.get(
         `/api/v1/gmail/messages?${params.toString()}`,
       );
@@ -1099,10 +1164,33 @@ export const api = {
       const res = await axiosInstance.get(`/api/v1/gmail/messages/${id}`);
       return res.data;
     },
+    getThread: async (id: string) => {
+      const res = await axiosInstance.get(`/api/v1/gmail/threads/${id}`);
+      return res.data;
+    },
     send: async (to: string, subject: string, body: string, threadId?: string) => {
       const params = new URLSearchParams({ to, subject, body });
       if (threadId) params.append('threadId', threadId);
       const res = await axiosInstance.post(`/api/v1/gmail/send?${params.toString()}`);
+      return res.data;
+    },
+  },
+
+  notes: {
+    getByEntity: async (entityType: string, entityId: number) => {
+      const res = await axiosInstance.get(`/api/v1/notes/entity/${entityType}/${entityId}`);
+      return normalizeResponse(res.data);
+    },
+    create: async (data: { entityType: string; entityId: number; content: string; title?: string }) => {
+      const res = await axiosInstance.post("/api/v1/notes", data);
+      return normalizeResponse(res.data);
+    },
+    update: async (id: number, data: { content?: string; title?: string }) => {
+      const res = await axiosInstance.put(`/api/v1/notes/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    delete: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/notes/${id}`);
       return res.data;
     },
   },

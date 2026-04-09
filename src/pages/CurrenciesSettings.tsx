@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
 import { CRMLayout } from "@/components/CRMLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ interface Currency {
 }
 
 const CurrenciesSettings = () => {
+  const { symbol: currencySymbol } = useDefaultCurrency();
   const queryClient = useQueryClient();
   const [showDialog, setShowDialog] = useState(false);
   const [editingCurrency, setEditingCurrency] = useState<Currency | null>(null);
@@ -214,11 +216,11 @@ const CurrenciesSettings = () => {
             </div>
             <div className="space-y-2">
               <Label>Symbol</Label>
-              <Input
-                placeholder="$"
-                value={formData.symbol}
-                onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
-              />
+               <Input
+                 placeholder={currencySymbol}
+                 value={formData.symbol}
+                 onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
+               />
             </div>
             <div className="flex items-center gap-2">
               <input

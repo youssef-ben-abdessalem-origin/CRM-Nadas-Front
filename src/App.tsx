@@ -34,6 +34,7 @@ import PaymentsPage from "./pages/PaymentsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
 import ActivitiesPage from "./pages/ActivitiesPage.tsx";
+import TasksPage from "./pages/TasksPage.tsx";
 import { ProtectedRoute } from "@/components/ProtectedRoute.tsx";
 import Users from "./pages/team/Users.tsx";
 import Roles from "./pages/team/Roles.tsx";
@@ -69,6 +70,14 @@ const App = () => {
             />
             <Route
               path="/leads/new"
+              element={
+                <ProtectedRoute>
+                  <NewLead />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/leads/edit/:id"
               element={
                 <ProtectedRoute>
                   <NewLead />
@@ -224,6 +233,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <CalendarPage />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/tasks"
+              element={
+                <ProtectedRoute>
+                  <TasksPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tasks"
+              element={
+                <ProtectedRoute>
+                  <TasksPage />
                 </ProtectedRoute>
               }
             />

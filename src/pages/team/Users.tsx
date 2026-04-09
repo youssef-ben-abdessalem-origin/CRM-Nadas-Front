@@ -128,7 +128,7 @@ const Users = () => {
     }
     createMutation.mutate({
       ...newUser,
-      roleId: Number(newUser.roleId)
+      roleId: newUser.roleId
     });
   };
 
@@ -136,7 +136,7 @@ const Users = () => {
     updateMutation.mutate({ id: user.id, data: { enabled: !user.enabled } });
   };
 
-  const changeRole = (user: User, roleId: number) => {
+  const changeRole = (user: User, roleId: string) => {
     updateMutation.mutate({ id: user.id, data: { roleId } });
   };
 

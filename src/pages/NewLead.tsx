@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CRMLayout } from "@/components/CRMLayout";
@@ -7,7 +7,16 @@ import api from "@/lib/api";
 
 const NewLead = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const queryClient = useQueryClient();
+
+  const isEdit = !!id;
+
+  const { data: leadData, isLoading: isLeadLoading } = useQuery({
+    queryKey: ["lead", id],
+    queryFn: () => api.leads.getOne(Number(id)).catch(() => null),
+    enabled: isEdit,
+  });
 
   const { data: accounts = [] } = useQuery({
     queryKey: ["accounts"],
@@ -55,6 +64,17 @@ const NewLead = () => {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: (data: any) => api.leads.update(Number(id), data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["lead", id] });
+      toast.success("Lead updated successfully");
+      navigate("/leads");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   const handleSubmit = (data: any) => {
     const { useExistingAccount, ...rest } = data;
 
@@ -67,7 +87,7 @@ const NewLead = () => {
       return;
     }
 
-    createMutation.mutate({
+    const payload = {
       ...rest,
       emails: rest.emails.filter((e: string) => e.trim() !== ""),
       phones: rest.phones.filter((p: string) => p.trim() !== ""),
@@ -85,21 +105,34 @@ const NewLead = () => {
         : rest.website,
       nextFollowUp: rest.nextFollowUp ? new Date(rest.nextFollowUp) : undefined,
       accountId: useExistingAccount ? rest.accountId : undefined,
-    });
+    };
+
+    if (isEdit) {
+      updateMutation.mutate(payload);
+    } else {
+      createMutation.mutate(payload);
+    }
   };
 
-  return (
-    <CRMLayout title="Add New Lead">
-      <div className=" py-2 px-1">
-
-
-        <div className="bg-card border rounded-xl p-8 shadow-sm">
-          <LeadForm
-            onCancel={() => navigate("/leads")}
-            onSubmit={handleSubmit}
-            isPending={createMutation.isPending}
-          />
+  if (isEdit && isLeadLoading) {
+    return (
+      <CRMLayout title="Loading Lead...">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-muted-foreground">Loading lead details...</div>
         </div>
+      </CRMLayout>
+    );
+  }
+
+  return (
+    <CRMLayout title={isEdit ? `Edit Lead: ${leadData?.name}` : "Lead Acquisition"}>
+      <div className="min-h-[calc(100vh-120px)] flex flex-col justify-center py-4 px-6 animate-fade-in max-w-6xl mx-auto">
+        <LeadForm
+          onCancel={() => navigate("/leads")}
+          onSubmit={handleSubmit}
+          initialData={leadData}
+          isPending={isEdit ? updateMutation.isPending : createMutation.isPending}
+        />
       </div>
     </CRMLayout>
   );

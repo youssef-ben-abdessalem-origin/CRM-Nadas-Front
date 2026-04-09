@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CRMLayout } from "@/components/CRMLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -9,10 +9,28 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from "@/components/ui/table";
-import { History, Filter } from "lucide-react";
+import {
+  Search,
+  Clock,
+  Filter,
+  Monitor,
+  Activity,
+  Shield,
+  Box
+} from "lucide-react";
 import api from "@/lib/api";
+import { Input } from "@/components/ui/input";
+import { formatDistanceToNow } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 interface AuditLog {
   id: number;
@@ -26,143 +44,199 @@ interface AuditLog {
 }
 
 const AuditLogsSettings = () => {
-  const [entityType, setEntityType] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [entityFilter, setEntityFilter] = useState<string>("all");
 
   const { data: auditLogs = [], isLoading } = useQuery({
-    queryKey: ["auditLogs", entityType],
-    queryFn: () => api.settings.getAuditLogs(entityType || undefined).catch(() => []),
+    queryKey: ["auditLogs"],
+    queryFn: () => api.settings.getAuditLogs().catch(() => []),
   });
 
-  const entityTypes = ["Lead", "Contact", "Account", "Deal", "User", "Setting"];
+  const getActionInfo = (action: string) => {
+    const method = action.split(' ')[0];
+    const path = action.split(' ')[1] || '';
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString();
+    if (method === 'POST') return { label: 'CREATE', color: '#10b981' };
+    if (method === 'PUT' || method === 'PATCH') return { label: 'UPDATE', color: '#f59e0b' };
+    if (method === 'DELETE') return { label: 'DELETE', color: '#ef4444' };
+    if (path.includes('restore')) return { label: 'RESTORE', color: '#6366f1' };
+
+    return { label: 'ACTION', color: '#6b7280' };
   };
 
-  const formatChanges = (changes: string) => {
-    if (!changes) return "—";
+  const getEntityName = (log: AuditLog) => {
     try {
-      const parsed = JSON.parse(changes);
-      return Object.entries(parsed)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(", ");
+      const parsed = JSON.parse(log.changes);
+      const payload = parsed.payload || {};
+      return payload.name || payload.subject || payload.title || payload.email || `ID: ${log.entityId}`;
     } catch {
-      return changes.substring(0, 50) + (changes.length > 50 ? "..." : "");
+      return `ID: ${log.entityId}`;
     }
   };
 
-  const getActionBadge = (action: string) => {
-    switch (action.toLowerCase()) {
-      case 'create':
-        return <Badge className="bg-green-500">Created</Badge>;
-      case 'update':
-        return <Badge className="bg-blue-500">Updated</Badge>;
-      case 'delete':
-        return <Badge className="bg-red-500">Deleted</Badge>;
-      default:
-        return <Badge variant="outline">{action}</Badge>;
-    }
-  };
+  const filteredLogs = useMemo(() => {
+    return auditLogs.filter((log: AuditLog) => {
+      const entityName = getEntityName(log);
+      const matchesSearch =
+        log.entityType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entityName.toLowerCase().includes(searchTerm.toLowerCase());
 
-  if (isLoading) {
-    return (
-      <CRMLayout title="Audit Logs">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
-        </div>
-      </CRMLayout>
-    );
-  }
+      const matchesEntity = entityFilter === 'all' || log.entityType.toLowerCase() === entityFilter.toLowerCase();
+
+      return matchesSearch && matchesEntity;
+    });
+  }, [auditLogs, searchTerm, entityFilter]);
+
+  const uniqueEntities = useMemo(() => {
+    const entities = new Set(auditLogs.map((l: AuditLog) => l.entityType));
+    return Array.from(entities).sort();
+  }, [auditLogs]);
 
   return (
     <CRMLayout title="Audit Logs">
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
+        {/* Header section matching Leads Page style */}
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Audit Logs</h1>
             <p className="text-muted-foreground">Track all changes in the system</p>
           </div>
         </div>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-4">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <select
-                className="h-9 rounded-md border border-input bg-background px-3 py-1"
-                value={entityType}
-                onChange={(e) => setEntityType(e.target.value)}
-              >
-                <option value="">All Entities</option>
-                {entityTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
+        {/* Toolbar matching Leads Page style */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search logs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-9 w-72 pl-9"
+              />
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Entity</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>IP Address</TableHead>
-                  <TableHead>Changes</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {auditLogs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      <div className="flex flex-col items-center">
-                        <History className="h-8 w-8 mb-2" />
-                        <p>No audit logs found</p>
-                      </div>
+            <Select value={entityFilter} onValueChange={setEntityFilter}>
+              <SelectTrigger className="h-9 w-40">
+                <SelectValue placeholder="All Entities" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Entities</SelectItem>
+                {uniqueEntities.map((entity: any) => (
+                  <SelectItem key={entity} value={entity} className="capitalize">
+                    {entity}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm">
+              <Filter className="h-3.5 w-3.5 mr-1" /> Filter
+            </Button>
+          </div>
+        </div>
+
+        {/* Table View matching Leads Page style */}
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[80px]">ID</TableHead>
+                <TableHead>Entity</TableHead>
+                <TableHead>Record Name</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead>Performed By</TableHead>
+                <TableHead>Performed At</TableHead>
+                <TableHead className="text-right">Time Ago</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: 8 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell colSpan={7} className="h-16">
+                      <div className="h-4 w-full bg-muted/50 animate-pulse rounded" />
                     </TableCell>
                   </TableRow>
-                ) : (
-                  auditLogs.map((log: AuditLog) => (
-                    <TableRow key={log.id}>
-                      <TableCell className="text-sm whitespace-nowrap">
-                        {formatDate(log.createdAt)}
-                      </TableCell>
-                      <TableCell>{getActionBadge(log.action)}</TableCell>
+                ))
+              ) : filteredLogs.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
+                    className="text-center py-8 text-muted-foreground"
+                  >
+                    No audit records found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredLogs.map((log: AuditLog) => {
+                  const action = getActionInfo(log.action);
+                  const entityName = getEntityName(log);
+                  return (
+                    <TableRow key={log.id} className="cursor-pointer hover:bg-muted/50">
                       <TableCell>
-                        {log.entityType && (
-                          <div>
-                            <span className="font-medium">{log.entityType}</span>
-                            {log.entityId && (
-                              <span className="text-muted-foreground"> #{log.entityId}</span>
-                            )}
-                          </div>
-                        )}
+                        <span className="text-xs text-muted-foreground font-mono">#{log.id}</span>
                       </TableCell>
+
                       <TableCell>
-                        {log.user ? (
-                          <div>
-                            <div className="font-medium">{log.user.name || "—"}</div>
-                            <div className="text-xs text-muted-foreground">{log.user.email}</div>
+                        <div className="flex items-center gap-1.5">
+                          {log.entityType.toLowerCase() === 'roles' ? (
+                            <Shield className="h-3 w-3 text-muted-foreground" />
+                          ) : (
+                            <Box className="h-3 w-3 text-muted-foreground" />
+                          )}
+                          <span className="font-medium text-sm capitalize">{log.entityType}</span>
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="max-w-[200px] truncate font-medium text-sm">
+                          {entityName}
+                        </div>
+                      </TableCell>
+
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className="border-0"
+                          style={{
+                            backgroundColor: `${action.color}20`,
+                            color: action.color,
+                          }}
+                        >
+                          <Activity className="h-3 w-3 mr-1" />
+                          {action.label}
+                        </Badge>
+                      </TableCell>
+
+                      <TableCell>
+                        <div>
+                          <div className="text-sm font-medium">{log.user?.name || "System"}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {log.user?.email || "internal@nexus.crm"}
                           </div>
-                        ) : (
-                          "—"
-                        )}
+                        </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {log.ipAddress || "—"}
+
+                      <TableCell>
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                          <Monitor className="h-3 w-3" />
+                          {new Date(log.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                        </div>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground max-w-xs">
-                        {formatChanges(log.changes)}
+
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1.5 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
+                        </div>
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
         </Card>
       </div>
     </CRMLayout>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
 import {
   DndContext,
   KeyboardSensor,
@@ -138,16 +139,17 @@ interface Contact {
   email: string;
 }
 
-function StageColumn({ stage, deals, totalValue, isWon, isLost, onDealClick }: {
+function StageColumn({ stage, deals, totalValue, isWon, isLost, onDealClick, currencyCode }: {
   stage: DealStage;
   deals: Deal[];
   totalValue: number;
   isWon: boolean;
   isLost: boolean;
   onDealClick: (deal: Deal) => void;
+  currencyCode: string;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
-  const fmt = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(v);
+  const fmt = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: currencyCode, minimumFractionDigits: 0 }).format(v);
 
   return (
     <div className={`min-w-[300px] w-[300px] flex-shrink-0 ${isOver ? 'bg-muted/50' : ''}`}>
@@ -179,6 +181,7 @@ function StageColumn({ stage, deals, totalValue, isWon, isLost, onDealClick }: {
 }
 
 const Deals = () => {
+  const { code: currencyCode } = useDefaultCurrency();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"kanban" | "list">("kanban");
@@ -325,7 +328,7 @@ const Deals = () => {
   const lostValue = lostDeals.reduce((sum: number, d: Deal) => sum + (d.value || 0), 0);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(value);
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: currencyCode, minimumFractionDigits: 0 }).format(value);
   };
 
   const handleStageChange = async (dealId: number, newStageId: number) => {
@@ -446,6 +449,7 @@ const Deals = () => {
                     totalValue={stageTotal}
                     isWon={isWon}
                     isLost={isLost}
+                    currencyCode={currencyCode}
                     onDealClick={(deal) => {
                       setSelectedDeal(deal);
                       setShowDetail(true);
