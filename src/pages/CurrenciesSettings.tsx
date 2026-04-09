@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface Currency {
   id: number;
@@ -37,6 +38,7 @@ interface Currency {
 const CurrenciesSettings = () => {
   const { symbol: currencySymbol } = useDefaultCurrency();
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [showDialog, setShowDialog] = useState(false);
   const [editingCurrency, setEditingCurrency] = useState<Currency | null>(null);
   const [formData, setFormData] = useState({
@@ -111,8 +113,13 @@ const CurrenciesSettings = () => {
     setShowDialog(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this currency?")) {
+  const handleDelete = async (id: number) => {
+    if (await confirm({ 
+      title: "Delete Currency", 
+      description: "Are you sure you want to delete this currency? This may affect pricing and financial records across the system.",
+      variant: "destructive",
+      confirmText: "Delete"
+    })) {
       deleteMutation.mutate(id);
     }
   };

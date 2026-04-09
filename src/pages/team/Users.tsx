@@ -53,9 +53,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { api, User, Role } from "@/lib/api";
 import { CRMLayout } from "@/components/CRMLayout";
+import { useConfirm } from "@/hooks/use-confirm";
 
 const Users = () => {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [search, setSearch] = useState("");
   const [showAddUser, setShowAddUser] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -309,8 +311,13 @@ const Users = () => {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-red-600 focus:text-red-600"
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to remove ${user.name} from the team?`)) {
+                            onClick={async () => {
+                              if (await confirm({ 
+                                title: "Remove Member", 
+                                description: `Are you sure you want to remove ${user.name} from the team? This will revoke all their system access.`,
+                                variant: "destructive",
+                                confirmText: "Remove Member"
+                              })) {
                                 deleteMutation.mutate(user.id);
                               }
                             }}

@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface Industry {
   id: number;
@@ -35,6 +36,7 @@ interface Industry {
 
 const IndustriesSettings = () => {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [showDialog, setShowDialog] = useState(false);
   const [editingIndustry, setEditingIndustry] = useState<Industry | null>(null);
   const [formData, setFormData] = useState({
@@ -107,8 +109,13 @@ const IndustriesSettings = () => {
     setShowDialog(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this industry?")) {
+  const handleDelete = async (id: number) => {
+    if (await confirm({ 
+      title: "Delete Industry", 
+      description: "Are you sure you want to delete this industry? Records associated with this industry may be affected.",
+      variant: "destructive",
+      confirmText: "Delete"
+    })) {
       deleteMutation.mutate(id);
     }
   };

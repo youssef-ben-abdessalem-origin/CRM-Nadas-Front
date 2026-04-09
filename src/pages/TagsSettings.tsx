@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CRMLayout } from "@/components/CRMLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,9 +20,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Tag as TagIcon } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface Tag {
   id: number;
@@ -33,6 +34,7 @@ interface Tag {
 
 const TagsSettings = () => {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [showDialog, setShowDialog] = useState(false);
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const [formData, setFormData] = useState({
@@ -103,8 +105,13 @@ const TagsSettings = () => {
     setShowDialog(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this tag?")) {
+  const handleDelete = async (id: number) => {
+    if (await confirm({ 
+      title: "Delete Tag", 
+      description: "Are you sure you want to delete this tag? This may affect records currently using this tag.",
+      variant: "destructive",
+      confirmText: "Delete"
+    })) {
       deleteMutation.mutate(id);
     }
   };
@@ -213,9 +220,10 @@ const TagsSettings = () => {
               <Label>Color</Label>
               <div className="flex gap-2 flex-wrap">
                 {colorOptions.map((color) => (
-                  <div
+                  <button
                     key={color}
-                    className={`w-8 h-8 rounded-full cursor-pointer border-2 ${
+                    type="button"
+                    className={`w-8 h-8 rounded-full border-2 ${
                       formData.color === color ? "border-primary" : "border-transparent"
                     }`}
                     style={{ backgroundColor: color }}

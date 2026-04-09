@@ -410,7 +410,7 @@ const TasksPage = () => {
           <DndContext sensors={sensors} onDragStart={(e) => setActiveDragId(e.active.id as number)} onDragEnd={handleDragEnd}>
             <div className="flex gap-6 min-h-[calc(100vh-320px)] overflow-x-auto pb-8 custom-scrollbar">
               {columns.map((column) => (
-                <div key={column.id} className="flex flex-col gap-4 bg-[#11141d]/40 rounded-2xl p-4 border border-white/5 min-w-[300px] max-w-[300px] group/col hover:bg-[#11141d]/60 transition-colors">
+                <div key={column.id} className="flex flex-col gap-4 bg-[#11141d]/40 rounded-2xl p-4 border border-white/5 w-[300px] shrink-0 group/col hover:bg-[#11141d]/60 transition-colors">
                   <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2.5">
                       <div className="h-7 w-7 rounded-lg bg-[#1a1f2e] border border-white/5 flex items-center justify-center text-slate-500 group-hover/col:text-primary group-hover/col:border-primary/20 transition-all duration-500">

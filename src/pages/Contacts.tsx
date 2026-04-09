@@ -70,11 +70,15 @@ import {
   Circle,
   CheckCircle,
   CheckSquare,
+  Tag,
+  Pencil,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface ContactStatus {
   id: number;
@@ -130,6 +134,9 @@ const initialContacts: Contact[] = [];
 
 const Contacts = () => {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: ["contacts"],
     queryFn: () => api.contacts.getAll().catch(() => []),
@@ -169,7 +176,6 @@ const Contacts = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterTier, setFilterTier] = useState<string>("all");
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [showDetail, setShowDetail] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [addStep, setAddStep] = useState(0);
   const [showEdit, setShowEdit] = useState(false);
@@ -240,7 +246,6 @@ const Contacts = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contacts"] });
       toast.success("Contact deleted");
-      setShowDetail(false);
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -777,8 +782,7 @@ const Contacts = () => {
                   key={contact.id}
                   className="cursor-pointer hover:bg-muted/50"
                   onClick={() => {
-                    setSelectedContact(contact);
-                    setShowDetail(true);
+                    navigate(`/contacts/${contact.id}`);
                   }}
                 >
                   <TableCell>
@@ -887,7 +891,7 @@ const Contacts = () => {
                             <MoreHorizontal className="h-3.5 w-3.5" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="w-56">
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
@@ -900,11 +904,31 @@ const Contacts = () => {
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
-                              toast.info(`Copied ${contact.name}`);
+                              toast.info(`Task created for ${contact.name}`);
+                            }}
+                          >
+                            <CheckSquare className="h-4 w-4 mr-2" />
+                            Create Task
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toast.info(`Add tags for ${contact.name}`);
+                            }}
+                          >
+                            <Tag className="h-4 w-4 mr-2" />
+                            Add Tags
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const url = `${globalThis.location.origin}/contacts/${contact.id}`;
+                              navigator.clipboard.writeText(url);
+                              toast.success(`Contact URL copied to clipboard`);
                             }}
                           >
                             <Copy className="h-4 w-4 mr-2" />
-                            Duplicate
+                            Copy URL
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {statuses.map((status) => (
@@ -940,246 +964,7 @@ const Contacts = () => {
           </Table>
         </Card>
 
-        {/* Detail Dialog */}
-        <Dialog open={showDetail} onOpenChange={setShowDetail}>
-          <DialogContent className="max-w-2xl">
-            {selectedContact && (
-              <>
-                <DialogHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <DialogTitle className="text-xl">
-                        {selectedContact.name}
-                      </DialogTitle>
-                      <DialogDescription>
-                        {selectedContact.title} at {selectedContact.company}
-                      </DialogDescription>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className={getTierColor(selectedContact)}
-                      >
-                        <Star className="h-3 w-3 mr-1" />
-                        {getTierName(selectedContact)}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className={getStatusColor(selectedContact)}
-                      >
-                        {getStatusName(selectedContact)}
-                      </Badge>
-                    </div>
-                  </div>
-                </DialogHeader>
-
-                <div className="grid grid-cols-2 gap-4 py-4">
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-semibold">Contact Info</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedContact.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedContact.phone}</span>
-                      </div>
-                      {selectedContact.website && (
-                        <div className="flex items-center gap-2">
-                          <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-primary hover:underline">
-                            {selectedContact.website}
-                          </span>
-                        </div>
-                      )}
-                      {selectedContact.location && (
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          <span>{selectedContact.location}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-semibold">Deal Info</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          Active Deal
-                        </span>
-                        <span className="font-semibold">
-                          {formatCurrency(selectedContact.dealValue)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          Total Revenue
-                        </span>
-                        <span className="font-semibold text-green-500">
-                          {formatCurrency(selectedContact.revenueTotal)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          Deals Won
-                        </span>
-                        <span>
-                          {selectedContact.dealsWon} /{" "}
-                          {selectedContact.dealsTotal}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          Win Rate
-                        </span>
-                        <span className="font-medium">
-                          {selectedContact.dealsTotal > 0
-                            ? Math.round(
-                                (selectedContact.dealsWon /
-                                  selectedContact.dealsTotal) *
-                                  100
-                              )
-                            : 0}
-                          %
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2 text-sm">
-                    <span className="text-muted-foreground">Industry</span>
-                    <p className="font-medium">{selectedContact.industry}</p>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    <span className="text-muted-foreground">
-                      Customer Since
-                    </span>
-                    <p className="font-medium">
-                      {formatDate(selectedContact.created)}
-                    </p>
-                  </div>
-                </div>
-
-                {selectedContact.notes && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-semibold">Notes</h4>
-                    <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-                      {selectedContact.notes}
-                    </p>
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold">Activities</h4>
-                    <Button variant="ghost" size="sm" onClick={() => setShowActivity(true)}>
-                      <Plus className="h-4 w-4" />
-                      <span className="ml-1">Add</span>
-                    </Button>
-                  </div>
-                  {contactActivities && contactActivities.length > 0 ? (
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
-                      {contactActivities.map((activity: any) => (
-                        <div key={activity.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <button onClick={() => !activity.completed && completeActivityMutation.mutate(activity.id)}>
-                              {activity.completed ? (
-                                <CheckCircle className="h-4 w-4 text-green-500" />
-                              ) : (
-                                <Circle className="h-4 w-4 text-muted-foreground" />
-                              )}
-                            </button>
-                            <div>
-                              <p className={`text-sm ${activity.completed ? "line-through text-muted-foreground" : ""}`}>
-                                {activity.subject || "Activity"}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : "No due date"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No activities</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold">Deals</h4>
-                    <Button variant="ghost" size="sm" onClick={() => toast.info("Create new deal")}>
-                      <Plus className="h-4 w-4" />
-                      <span className="ml-1">Add</span>
-                    </Button>
-                  </div>
-                  {contactDeals && contactDeals.length > 0 ? (
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
-                      {contactDeals.map((deal: any) => (
-                        <div key={deal.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <Handshake className="h-4 w-4 text-muted-foreground" />
-                            <div>
-                              <p className="text-sm font-medium">{deal.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {formatCurrency(deal.value)} • {deal.stage?.name || "Unknown"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No deals</p>
-                  )}
-                </div>
-
-                <DialogFooter className="gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => openEdit(selectedContact)}
-                  >
-                    <Edit className="h-4 w-4 mr-2" /> Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      toast.info(`Scheduling activity for ${selectedContact.name}`);
-                    }}
-                  >
-                    <Calendar className="h-4 w-4 mr-2" /> Schedule Activity
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      toast.info(`Creating deal for ${selectedContact.name}`);
-                    }}
-                  >
-                    <Handshake className="h-4 w-4 mr-2" /> New Deal
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      toast.info(`Creating invoice for ${selectedContact.name}`);
-                    }}
-                  >
-                    <Receipt className="h-4 w-4 mr-2" /> New Invoice
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleDelete(selectedContact)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" /> Delete
-                  </Button>
-                </DialogFooter>
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
+        {/* Detail logic moved to ContactDetail.tsx */}
 
         {/* Add Contact Drawer */}
         <Drawer open={showAdd} onOpenChange={(open) => {
@@ -1422,8 +1207,13 @@ const Contacts = () => {
               <Button
                 variant="outline"
                 className="w-full justify-start text-red-500"
-                onClick={() => {
-                  if (confirm(`Delete ${selectedContacts.length} contacts?`)) {
+                onClick={async () => {
+                  if (await confirm({ 
+                    title: "Bulk Delete Contacts", 
+                    description: `Are you sure you want to delete ${selectedContacts.length} contacts? This action is permanent and will affect all selected records.`,
+                    variant: "destructive",
+                    confirmText: "Delete All"
+                  })) {
                     api.contacts.bulkDelete(selectedContacts).then(() => {
                       toast.success("Contacts deleted");
                       setSelectedContacts([]);

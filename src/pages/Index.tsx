@@ -1,50 +1,81 @@
 import { CRMLayout } from "@/components/CRMLayout";
 import { MetricCard } from "@/components/MetricCard";
 import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
-import { DollarSign, Users, Handshake, TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { DollarSign, Users, Handshake, Folder, Megaphone } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
-
-const revenueData = [
-  { month: "Jan", revenue: 42000 },
-  { month: "Feb", revenue: 53000 },
-  { month: "Mar", revenue: 48000 },
-  { month: "Apr", revenue: 61000 },
-  { month: "May", revenue: 55000 },
-  { month: "Jun", revenue: 72000 },
-  { month: "Jul", revenue: 68000 },
-  { month: "Aug", revenue: 81000 },
-];
-
-const dealsData = [
-  { month: "Jan", won: 12, lost: 4 },
-  { month: "Feb", won: 18, lost: 6 },
-  { month: "Mar", won: 15, lost: 3 },
-  { month: "Apr", won: 22, lost: 5 },
-  { month: "May", won: 19, lost: 7 },
-  { month: "Jun", won: 28, lost: 4 },
-  { month: "Jul", won: 25, lost: 6 },
-  { month: "Aug", won: 31, lost: 3 },
-];
-
-const recentActivities = (currencySymbol: string) => [
-  { id: 1, type: "deal", text: "New deal \"Enterprise License\" created", time: "2m ago", icon: Handshake },
-  { id: 2, type: "contact", text: "Sarah Chen added to Acme Corp", time: "15m ago", icon: Users },
-  { id: 3, type: "revenue", text: `Invoice #1084 paid — ${currencySymbol}12,400`, time: "1h ago", icon: DollarSign },
-  { id: 4, type: "deal", text: "Deal \"Cloud Migration\" moved to Negotiation", time: "2h ago", icon: Handshake },
-  { id: 5, type: "contact", text: "New lead from website form: Mark Wilson", time: "3h ago", icon: Users },
-];
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Dashboard = () => {
   const { symbol: currencySymbol } = useDefaultCurrency();
+
+  const { data: dashboardData, isLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: api.dashboard.getStats,
+  });
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'deal': return Handshake;
+      case 'contact': return Users;
+      case 'revenue': return DollarSign;
+      default: return Folder;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <CRMLayout title="Dashboard">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-2xl" />)}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Skeleton className="h-80 rounded-2xl" />
+            <Skeleton className="h-80 rounded-2xl" />
+          </div>
+          <Skeleton className="h-64 rounded-2xl" />
+        </div>
+      </CRMLayout>
+    );
+  }
+
+  const { stats, charts, activities } = dashboardData;
+
   return (
     <CRMLayout title="Dashboard">
       <div className="space-y-6">
         {/* Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard label="Total Revenue" value={`${currencySymbol}482,600`} change="+12.5% from last month" changeType="positive" icon={DollarSign} />
-          <MetricCard label="Active Deals" value="47" change="+8 new this week" changeType="positive" icon={Handshake} />
-          <MetricCard label="Total Contacts" value="2,847" change="+124 this month" changeType="positive" icon={Users} />
-          <MetricCard label="Conversion Rate" value="24.8%" change="-1.2% from last month" changeType="negative" icon={TrendingUp} />
+          <MetricCard 
+            label="Total Revenue" 
+            value={`${currencySymbol}${Number(stats.totalRevenue).toLocaleString()}`} 
+            change={stats.revenueChange} 
+            changeType="positive" 
+            icon={DollarSign} 
+          />
+          <MetricCard 
+            label="Active Deals" 
+            value={stats.activeDealsCount.toString()} 
+            change={stats.activeDealsChange} 
+            changeType="positive" 
+            icon={Handshake} 
+          />
+          <MetricCard 
+            label="Total Contacts" 
+            value={stats.totalContactsCount.toString()} 
+            change={stats.contactsChange} 
+            changeType="positive" 
+            icon={Users} 
+          />
+          <MetricCard 
+            label="Total Campaigns" 
+            value={stats.totalCampaignsCount.toString()} 
+            change={stats.campaignsChange} 
+            changeType="positive" 
+            icon={Megaphone} 
+          />
         </div>
 
         {/* Charts Row */}
@@ -52,13 +83,13 @@ const Dashboard = () => {
           <div className="glass-card p-5">
             <h3 className="text-sm font-semibold text-foreground mb-4">Monthly Revenue</h3>
             <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={revenueData}>
+              <BarChart data={charts.revenueData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
-                    <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `${currencySymbol}${v / 1000}k`} />
+                <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `${currencySymbol}${v / 1000}k`} />
                 <Tooltip
                   contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
-                    formatter={(value: number) => [`${currencySymbol}${value.toLocaleString()}`, "Revenue"]}
+                  formatter={(value: number) => [`${currencySymbol}${value.toLocaleString()}`, "Revenue"]}
                 />
                 <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -68,7 +99,7 @@ const Dashboard = () => {
           <div className="glass-card p-5">
             <h3 className="text-sm font-semibold text-foreground mb-4">Deals Won vs Lost</h3>
             <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={dealsData}>
+              <LineChart data={charts.dealsData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
                 <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
@@ -84,15 +115,18 @@ const Dashboard = () => {
         <div className="glass-card p-5">
           <h3 className="text-sm font-semibold text-foreground mb-4">Recent Activity</h3>
           <div className="space-y-3">
-            {recentActivities(currencySymbol).map((activity) => (
-              <div key={activity.id} className="flex items-center gap-3 py-2">
-                <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center shrink-0">
-                  <activity.icon className="h-3.5 w-3.5 text-accent-foreground" />
+            {activities.map((activity: any) => {
+              const Icon = getActivityIcon(activity.type);
+              return (
+                <div key={activity.id} className="flex items-center gap-3 py-2">
+                  <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center shrink-0">
+                    <Icon className="h-3.5 w-3.5 text-accent-foreground" />
+                  </div>
+                  <span className="text-sm text-foreground flex-1">{activity.text}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">{activity.time}</span>
                 </div>
-                <span className="text-sm text-foreground flex-1">{activity.text}</span>
-                <span className="text-xs text-muted-foreground shrink-0">{activity.time}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

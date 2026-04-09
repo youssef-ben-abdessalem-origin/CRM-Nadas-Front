@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
 import {
   DndContext,
@@ -11,9 +12,9 @@ import {
   DragStartEvent,
   useDroppable,
   DragOverlay,
+  closestCenter,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
@@ -23,7 +24,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { CRMLayout } from "@/components/CRMLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -33,13 +34,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerDescription } from "@/components/ui/drawer";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -59,33 +54,14 @@ import {
 } from "@/components/ui/table";
 import {
   Search,
-  Filter,
-  Download,
-  MoreHorizontal,
-  Mail,
-  Phone,
   Plus,
-  ArrowRight,
-  X,
-  ExternalLink,
   Building2,
-  MapPin,
-  Star,
-  TrendingUp,
-  Calendar,
-  DollarSign,
-  User,
-  LayoutGrid,
-  List,
-  Trash2,
   GripVertical,
   Clock,
-  CheckCircle2,
-  XCircle,
-  Edit,
-  Copy,
+  DollarSign,
+  List,
+  LayoutGrid,
   Circle,
-  CheckSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
@@ -139,42 +115,127 @@ interface Contact {
   email: string;
 }
 
-function StageColumn({ stage, deals, totalValue, isWon, isLost, onDealClick, currencyCode }: {
-  stage: DealStage;
-  deals: Deal[];
-  totalValue: number;
-  isWon: boolean;
-  isLost: boolean;
-  onDealClick: (deal: Deal) => void;
-  currencyCode: string;
-}) {
-  const { setNodeRef, isOver } = useDroppable({ id: stage.id });
+function DraggableDeal({ deal, onClick, currencyCode }: { deal: Deal, onClick: () => void, currencyCode: string }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: deal.id,
+    data: {
+      type: "deal",
+      deal,
+    },
+  });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.3 : 1,
+  };
+
   const fmt = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: currencyCode, minimumFractionDigits: 0 }).format(v);
 
   return (
-    <div className={`min-w-[300px] w-[300px] flex-shrink-0 ${isOver ? 'bg-muted/50' : ''}`}>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full" style={{ backgroundColor: stage.color }} />
-          <span className="font-medium text-sm">{stage.name}</span>
-          <Badge variant="secondary" className="text-xs">{deals.length}</Badge>
+    <Card
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`cursor-grab active:cursor-grabbing hover:border-primary/50 transition-all p-3 shadow-sm border border-border/50 bg-card group relative ${isDragging ? "ring-2 ring-primary ring-offset-2 z-50" : ""}`}
+      onClick={(e) => {
+        // Prevent click when dragging
+        if (transform) return;
+        onClick();
+      }}
+    >
+      <div className="flex flex-col gap-1">
+        <div className="flex items-start justify-between">
+          <span className="font-bold text-xs group-hover:text-primary transition-colors line-clamp-1">{deal.name}</span>
+          <GripVertical className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
+        <div className="text-sm font-black tracking-tight">{fmt(deal.value || 0)}</div>
+        
+        <div className="mt-2 flex flex-col gap-1">
+          {deal.company && (
+            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
+              <Building2 className="h-2.5 w-2.5" />
+              <span className="truncate">{deal.company}</span>
+            </div>
+          )}
+          {deal.expectedCloseDate && (
+            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
+              <Clock className="h-2.5 w-2.5" />
+              <span>{new Date(deal.expectedCloseDate).toLocaleDateString()}</span>
+            </div>
+          )}
         </div>
       </div>
-      <div ref={setNodeRef} className="space-y-2 min-h-[200px] p-1">
-        {deals.map((deal) => (
-          <Card key={deal.id} className="cursor-pointer hover:bg-muted/80 transition-colors p-3" onClick={() => onDealClick(deal)}>
-            <div className="font-medium text-sm mb-1">{deal.name}</div>
-            <div className="text-lg font-semibold">{fmt(deal.value || 0)}</div>
-            {deal.contact && <div className="text-xs text-muted-foreground">{deal.contact}</div>}
-            {deal.expectedCloseDate && <div className="text-xs text-muted-foreground">Close: {new Date(deal.expectedCloseDate).toLocaleDateString()}</div>}
-          </Card>
-        ))}
-        {deals.length === 0 && (
-          <div className="text-center text-muted-foreground py-4 text-sm">No deals</div>
-        )}
+    </Card>
+  );
+}
+
+function StageColumn({ stage, deals, totalValue, onDealClick, currencyCode }: {
+  stage: DealStage;
+  deals: Deal[];
+  totalValue: number;
+  onDealClick: (deal: Deal) => void;
+  currencyCode: string;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ 
+    id: stage.id,
+    data: {
+      type: "stage",
+      stageId: stage.id,
+    }
+  });
+
+  const fmt = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: currencyCode, minimumFractionDigits: 0 }).format(v);
+
+  return (
+    <div className={`flex flex-col w-[280px] shrink-0 bg-muted/20 rounded-xl border border-border/40 overflow-hidden transition-colors ${isOver ? 'bg-muted/40 ring-1 ring-primary/20' : ''}`}>
+      <div className="p-3 border-b border-border/40 bg-background/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full" style={{ backgroundColor: stage.color }} />
+            <span className="font-black text-[10px] uppercase tracking-wider">{stage.name}</span>
+            <Badge variant="outline" className="h-4 px-1 text-[9px] font-black border-border/50 bg-background">
+              {deals.length}
+            </Badge>
+          </div>
+          <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100">
+            <Plus className="h-3 w-3" />
+          </Button>
+        </div>
+        <div className="text-xs font-black tracking-tight flex items-center gap-1">
+          <DollarSign className="h-3 w-3 text-muted-foreground" />
+          {fmt(totalValue)}
+        </div>
       </div>
-      <div className="mt-2 pt-2 border-t">
-        <span className="text-sm font-medium">{fmt(totalValue)}</span>
+
+      <div ref={setNodeRef} className="p-2 space-y-2 flex-1 scrollbar-none overflow-y-auto min-h-[500px]">
+        <SortableContext items={deals.map(d => d.id)} strategy={verticalListSortingStrategy}>
+          {deals.map((deal) => (
+            <DraggableDeal 
+              key={deal.id} 
+              deal={deal} 
+              onClick={() => onDealClick(deal)} 
+              currencyCode={currencyCode}
+            />
+          ))}
+        </SortableContext>
+        
+        {deals.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-border/20 rounded-lg m-1">
+            <div className="h-8 w-8 rounded-full bg-muted/40 flex items-center justify-center mb-2">
+               <Plus className="h-4 w-4 text-muted-foreground/50" />
+            </div>
+            <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Drop Here</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -183,10 +244,10 @@ function StageColumn({ stage, deals, totalValue, isWon, isLost, onDealClick, cur
 const Deals = () => {
   const { code: currencyCode } = useDefaultCurrency();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const [showDetail, setShowDetail] = useState(false);
   const [showAddDeal, setShowAddDeal] = useState(false);
   const [showReason, setShowReason] = useState(false);
   const [newDeal, setNewDeal] = useState({
@@ -200,12 +261,8 @@ const Deals = () => {
   });
   const [activeDragId, setActiveDragId] = useState<number | null>(null);
   const [showActivity, setShowActivity] = useState(false);
-  const [newActivity, setNewActivity] = useState({
-    typeId: 0,
-    subject: "",
-    description: "",
-    dueDate: "",
-  });
+  const [newActivity, setNewActivity] = useState({ typeId: 0, subject: "", description: "", dueDate: "" });
+  const [targetStageId, setTargetStageId] = useState<number | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -298,8 +355,7 @@ const Deals = () => {
     mutationFn: api.deals.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["deals"] });
-      toast.success("Deal deleted");
-      setShowDetail(false);
+      toast.success("Deal deleted successfully");
       setSelectedDeal(null);
     },
     onError: (err: Error) => toast.error(err.message),
@@ -338,6 +394,7 @@ const Deals = () => {
     
     if (isWon || isLost) {
       setSelectedDeal(deals.find((d: Deal) => d.id === dealId));
+      setTargetStageId(newStageId);
       setShowReason(true);
     } else {
       await updateMutation.mutateAsync({ id: dealId, data: { dealStageId: newStageId } });
@@ -345,26 +402,38 @@ const Deals = () => {
   };
 
   const handleReasonSelect = async (reasonId: number) => {
-    if (!selectedDeal) return;
+    if (!selectedDeal || !targetStageId) return;
     await updateMutation.mutateAsync({
       id: selectedDeal.id,
-      data: { dealStageId: selectedDeal.dealStageId, dealReasonId: reasonId },
+      data: { dealStageId: targetStageId, dealReasonId: reasonId },
     });
     setShowReason(false);
     setSelectedDeal(null);
-    setShowDetail(false);
+    setTargetStageId(null);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over) return;
+    if (!over) {
+      setActiveDragId(null);
+      return;
+    }
 
     const dealId = active.id;
-    const newStageId = over.id;
-
-    if (newStageId !== active.data.current?.stageId) {
-      await handleStageChange(dealId as number, newStageId as number);
+    const overId = over.id;
+    
+    // Check if dropped over a stage or another deal
+    let newStageId: number | null = null;
+    if (over.data.current?.type === "stage") {
+      newStageId = overId as number;
+    } else if (over.data.current?.type === "deal") {
+      newStageId = over.data.current.deal.dealStageId;
     }
+
+    if (newStageId && newStageId !== active.data.current?.deal.dealStageId) {
+      await handleStageChange(dealId as number, newStageId);
+    }
+    
     setActiveDragId(null);
   };
 
@@ -433,13 +502,16 @@ const Deals = () => {
         </div>
 
         {view === "kanban" ? (
-          <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-            <div className="flex gap-4 overflow-x-auto pb-4">
+          <DndContext 
+            sensors={sensors} 
+            onDragStart={handleDragStart} 
+            onDragEnd={handleDragEnd}
+            collisionDetection={closestCenter}
+          >
+            <div className="flex gap-4 overflow-x-auto pb-4 px-1 min-h-[calc(100vh-250px)] scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent">
               {sortedStages.map((stage: DealStage) => {
                 const stageDeals = groupedDeals[stage.id] || [];
                 const stageTotal = stageDeals.reduce((sum: number, d: Deal) => sum + (d.value || 0), 0);
-                const isWon = stage.name.toLowerCase().includes("won");
-                const isLost = stage.name.toLowerCase().includes("lost");
                 
                 return (
                   <StageColumn
@@ -447,17 +519,26 @@ const Deals = () => {
                     stage={stage}
                     deals={stageDeals}
                     totalValue={stageTotal}
-                    isWon={isWon}
-                    isLost={isLost}
                     currencyCode={currencyCode}
                     onDealClick={(deal) => {
-                      setSelectedDeal(deal);
-                      setShowDetail(true);
+                       navigate(`/deals/${deal.id}`);
                     }}
                   />
                 );
               })}
             </div>
+
+            <DragOverlay>
+              {activeDragId ? (
+                <div className="w-[280px]">
+                  <DraggableDeal 
+                    deal={deals.find(d => d.id === activeDragId)!} 
+                    onClick={() => {}} 
+                    currencyCode={currencyCode} 
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
           </DndContext>
         ) : (
           <Card>
@@ -474,7 +555,7 @@ const Deals = () => {
               </TableHeader>
               <TableBody>
                 {filteredDeals.map((deal: Deal) => (
-                  <TableRow key={deal.id} className="cursor-pointer" onClick={() => { setSelectedDeal(deal); setShowDetail(true); }}>
+                  <TableRow key={deal.id} className="cursor-pointer" onClick={() => navigate(`/deals/${deal.id}`)}>
                     <TableCell className="font-medium">{deal.name}</TableCell>
                     <TableCell>{deal.company || "—"}</TableCell>
                     <TableCell>{formatCurrency(deal.value || 0)}</TableCell>
@@ -601,82 +682,7 @@ const Deals = () => {
         </DrawerContent>
       </Drawer>
 
-      <Dialog open={showDetail && !!selectedDeal} onOpenChange={(open) => { setShowDetail(open); if (!open) setSelectedDeal(null); }}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>{selectedDeal?.name}</DialogTitle>
-            <DialogDescription>
-              {selectedDeal?.company || "No company"} · {selectedDeal?.contact || "No contact"}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedDeal && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Value</p>
-                  <p className="text-lg font-semibold">{formatCurrency(selectedDeal.value || 0)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Probability</p>
-                  <p className="text-lg font-semibold">{selectedDeal.probability || 0}%</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Stage</p>
-                  <Badge style={{ backgroundColor: selectedDeal.stage?.color + "20", color: selectedDeal.stage?.color }}>
-                    {selectedDeal.stage?.name || "—"}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Expected Close</p>
-                  <p className="text-lg font-semibold">
-                    {selectedDeal.expectedCloseDate ? new Date(selectedDeal.expectedCloseDate).toLocaleDateString() : "—"}
-                  </p>
-                </div>
-              </div>
-              {selectedDeal.notes && (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Notes</p>
-                  <p className="text-sm bg-muted p-3 rounded-lg">{selectedDeal.notes}</p>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-semibold">Activities</h4>
-                  <Button variant="ghost" size="sm" onClick={() => setShowActivity(true)}>
-                    <Plus className="h-4 w-4" /><span className="ml-1">Add</span>
-                  </Button>
-                </div>
-                {dealActivities && dealActivities.length > 0 ? (
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    {dealActivities.map((activity: any) => (
-                      <div key={activity.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => !activity.completed && completeActivityMutation.mutate(activity.id)}>
-                            {activity.completed ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
-                          </button>
-                          <div>
-                            <p className={`text-sm ${activity.completed ? "line-through text-muted-foreground" : ""}`}>{activity.subject || "Activity"}</p>
-                            <p className="text-xs text-muted-foreground">{activity.dueDate ? new Date(activity.dueDate).toLocaleDateString() : "No due date"}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No activities</p>
-                )}
-              </div>
-            </div>
-          )}
-          <DialogFooter className="gap-2">
-            <Button variant="destructive" onClick={() => deleteMutation.mutate(selectedDeal?.id)}>
-              <Trash2 className="h-4 w-4 mr-1" /> Delete
-            </Button>
-            <Button variant="outline" onClick={() => setShowDetail(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Detail logic moved to DealDetail.tsx */}
 
         <Dialog open={showReason} onOpenChange={setShowReason}>
           <DialogContent>
@@ -686,7 +692,7 @@ const Deals = () => {
             <div className="py-4 space-y-2">
               {reasons
                 .filter((r: DealReason) => {
-                  const stageName = stages.find((s: DealStage) => s.id === selectedDeal?.dealStageId)?.name || "";
+                  const stageName = stages.find((s: DealStage) => s.id === targetStageId)?.name || "";
                   return stageName.toLowerCase().includes("won") ? r.type === "win" : r.type === "lost";
                 })
                 .map((reason: DealReason) => (

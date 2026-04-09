@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Globe } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface Country {
   id: number;
@@ -35,6 +36,7 @@ interface Country {
 
 const CountriesSettings = () => {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [showDialog, setShowDialog] = useState(false);
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
   const [formData, setFormData] = useState({
@@ -109,8 +111,13 @@ const CountriesSettings = () => {
     setShowDialog(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this country?")) {
+  const handleDelete = async (id: number) => {
+    if (await confirm({ 
+      title: "Delete Country", 
+      description: "Are you sure you want to delete this country? This may affect records currently using this location.",
+      variant: "destructive",
+      confirmText: "Delete"
+    })) {
       deleteMutation.mutate(id);
     }
   };

@@ -4,10 +4,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Contacts from "./pages/Contacts.tsx";
+import ContactDetail from "./pages/ContactDetail.tsx";
 import Deals from "./pages/Deals.tsx";
+import DealDetail from "./pages/DealDetail.tsx";
 import Leads from "./pages/Leads.tsx";
 import NewLead from "./pages/NewLead.tsx";
+import LeadDetail from "./pages/LeadDetail.tsx";
 import Accounts from "./pages/Accounts.tsx";
+import AccountDetail from "./pages/AccountDetail.tsx";
 import LeadsSettings from "./pages/Settings.tsx";
 import ContactsSettings from "./pages/ContactsSettings.tsx";
 import AccountsSettings from "./pages/AccountsSettingsPage.tsx";
@@ -25,12 +29,16 @@ import ProfilePage from "./pages/ProfilePage.tsx";
 import EmailsPage from "./pages/EmailsPage.tsx";
 import CalendarPage from "./pages/CalendarPage.tsx";
 import Products from "./pages/Products.tsx";
+import ProductDetail from "./pages/ProductDetail.tsx";
+import Vendors from "./pages/Vendors.tsx";
+import VendorDetail from "./pages/VendorDetail.tsx";
 import CreateProduct from "./pages/CreateProduct.tsx";
 import ProductSettings from "./pages/ProductSettings.tsx";
 import QuotesPage from "./pages/QuotesPage.tsx";
 import InvoicesPage from "./pages/InvoicesPage.tsx";
 import OrdersPage from "./pages/OrdersPage.tsx";
 import PaymentsPage from "./pages/PaymentsPage.tsx";
+import Forecast from "./pages/Forecast.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
 import ActivitiesPage from "./pages/ActivitiesPage.tsx";
@@ -40,6 +48,10 @@ import Users from "./pages/team/Users.tsx";
 import Roles from "./pages/team/Roles.tsx";
 import RoleConfig from "./pages/team/RoleConfig.tsx";
 import Privileges from "./pages/team/Privileges.tsx";
+import Documents from "./pages/Documents.tsx";
+import CampaignsPage from "./pages/Campaigns.tsx";
+import NewVendor from "./pages/NewVendor.tsx";
+import { ConfirmProvider } from "@/hooks/use-confirm.tsx";
 
 const queryClient = new QueryClient();
 
@@ -47,9 +59,10 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Sonner />
+        <ConfirmProvider>
+          <Sonner />
 
-        <BrowserRouter>
+          <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login onLogin={() => {}} />} />
             <Route
@@ -65,6 +78,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Leads />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/leads/:id"
+              element={
+                <ProtectedRoute>
+                  <LeadDetail />
                 </ProtectedRoute>
               }
             />
@@ -93,6 +114,22 @@ const App = () => {
               }
             />
             <Route
+              path="/contacts/:id"
+              element={
+                <ProtectedRoute>
+                  <ContactDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/campaigns"
+              element={
+                <ProtectedRoute>
+                  <CampaignsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/accounts"
               element={
                 <ProtectedRoute>
@@ -101,10 +138,26 @@ const App = () => {
               }
             />
             <Route
+              path="/accounts/:id"
+              element={
+                <ProtectedRoute>
+                  <AccountDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/deals"
               element={
                 <ProtectedRoute>
                   <Deals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/deals/:id"
+              element={
+                <ProtectedRoute>
+                  <DealDetail />
                 </ProtectedRoute>
               }
             />
@@ -293,11 +346,43 @@ const App = () => {
               }
             />
             <Route path="/team" element={<Navigate to="/team/users" replace />} />
-             <Route
+            <Route
               path="/products"
               element={
                 <ProtectedRoute>
                   <Products />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/products/:id"
+              element={
+                <ProtectedRoute>
+                  <ProductDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vendors"
+              element={
+                <ProtectedRoute>
+                  <Vendors />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vendors/:id"
+              element={
+                <ProtectedRoute>
+                  <VendorDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vendor/new"
+              element={
+                <ProtectedRoute>
+                  <NewVendor />
                 </ProtectedRoute>
               }
             />
@@ -349,9 +434,26 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/forecast"
+              element={
+                <ProtectedRoute>
+                  <Forecast />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/documents"
+              element={
+                <ProtectedRoute>
+                  <Documents />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </ConfirmProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

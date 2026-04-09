@@ -31,9 +31,11 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Package, Layers, DollarSign, BarChart3, Wrench, ShieldCheck, Bookmark } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 const ProductSettings = () => {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState("categories");
   const [showDialog, setShowDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -346,8 +348,13 @@ const ProductSettings = () => {
     setShowDialog(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this?")) {
+  const handleDelete = async (id: string) => {
+    if (await confirm({ 
+      title: `Delete ${getActiveTabTitle()}`, 
+      description: `Are you sure you want to delete this ${getActiveTabTitle().toLowerCase()}? This action may impact existing products and records.`,
+      variant: "destructive",
+      confirmText: "Delete"
+    })) {
       const deletions: any = {
         categories: () => deleteCategoryMutation.mutate(id),
         units: () => deleteUnitMutation.mutate(id),

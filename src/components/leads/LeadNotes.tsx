@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
   SheetTitle,
   SheetDescription
 } from "@/components/ui/sheet";
@@ -14,11 +14,11 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { api, Note, Lead } from "@/lib/api";
 import { toast } from "sonner";
-import { 
-  StickyNote, 
-  Pencil, 
-  Trash2, 
-  Calendar, 
+import {
+  StickyNote,
+  Pencil,
+  Trash2,
+  Calendar,
   User as UserIcon,
   X,
   Type,
@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface LeadNotesProps {
   lead: Lead | null;
@@ -37,6 +38,7 @@ interface LeadNotesProps {
 
 export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [newNote, setNewNote] = useState({ title: "", content: "" });
   const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
 
@@ -46,7 +48,7 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
     enabled: open,
   });
 
-  const noteTypeId = activityTypes.find((t: any) => 
+  const noteTypeId = activityTypes.find((t: any) =>
     t.name.toLowerCase().includes('note') || t.name.toLowerCase().includes('sticky')
   )?.id || 1; // Fallback to 1 if not found
 
@@ -70,10 +72,10 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: { title: string; content: string }) => 
-      api.activities.create({ 
-        entityType: "lead", 
-        entityId: lead!.id, 
+    mutationFn: (data: { title: string; content: string }) =>
+      api.activities.create({
+        entityType: "lead",
+        entityId: lead!.id,
         typeId: noteTypeId,
         subject: data.title || "Note",
         description: data.content,
@@ -86,7 +88,7 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) => 
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
       api.activities.update(id, {
         subject: data.title || "Note",
         description: data.content
@@ -135,9 +137,6 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
         <div className="p-6 border-b border-border bg-card/50">
           <SheetHeader className="space-y-1">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <StickyNote className="h-5 w-5 text-blue-500" />
-              </div>
               <SheetTitle className="text-xl font-bold">Notes</SheetTitle>
               {notes.length > 0 && (
                 <span className="bg-muted px-2 py-0.5 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
@@ -172,8 +171,8 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
               </div>
             ) : (
               notes.map((note: Note) => (
-                <div 
-                  key={note.id} 
+                <div
+                  key={note.id}
                   className="group relative bg-card border border-border rounded-xl p-4 transition-all duration-200 hover:shadow-md hover:border-primary/20"
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
@@ -195,20 +194,25 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
                       </div>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
                         onClick={() => startEdit(note)}
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
-                        onClick={() => {
-                          if (confirm("Are you sure you want to delete this note?")) {
+                        onClick={async () => {
+                          if (await confirm({ 
+                            title: "Delete Note", 
+                            description: "Are you sure you want to delete this note? This action cannot be undone.",
+                            variant: "destructive",
+                            confirmText: "Delete"
+                          })) {
                             deleteMutation.mutate(note.id);
                           }
                         }}
@@ -217,7 +221,7 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
                       </Button>
                     </div>
                   </div>
-                  
+
                   {note.title && (
                     <h4 className="text-sm font-bold mb-1.5 text-foreground/90">
                       {note.title}
@@ -247,16 +251,16 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
             <div className="space-y-3">
               <div className="relative group">
                 <Type className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
-                <Input 
-                  placeholder="Note Title (Optional)" 
+                <Input
+                  placeholder="Note Title (Optional)"
                   className="pl-10 h-10 bg-background border-border focus-visible:ring-primary"
                   value={newNote.title}
                   onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
                 />
               </div>
               <div className="relative group">
-                <Textarea 
-                  placeholder="What's this note about?" 
+                <Textarea
+                  placeholder="What's this note about?"
                   className="min-h-[120px] bg-background border-border focus-visible:ring-primary resize-none p-4"
                   value={newNote.content}
                   onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
@@ -268,7 +272,7 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
                 </div>
               </div>
             </div>
-            <Button 
+            <Button
               className="w-full bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 h-11 font-bold"
               onClick={handleSaveNote}
               disabled={createMutation.isPending || updateMutation.isPending}

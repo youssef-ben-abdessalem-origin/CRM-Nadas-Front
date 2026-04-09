@@ -32,6 +32,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api, Role } from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 const PRESET_COLORS = [
   "#3b82f6", // Blue
@@ -47,6 +48,7 @@ const PRESET_COLORS = [
 const Roles = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [formData, setFormData] = useState({
@@ -206,8 +208,13 @@ const Roles = () => {
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-                          onClick={() => {
-                            if (confirm(`Delete the ${role.name} role?`)) {
+                          onClick={async () => {
+                            if (await confirm({ 
+                              title: "Decommission Role", 
+                              description: `Are you sure you want to delete the ${role.name} role? This action will affect all users currently assigned to this role.`,
+                              variant: "destructive",
+                              confirmText: "Decommission"
+                            })) {
                               deleteMutation.mutate(role.id);
                             }
                           }}

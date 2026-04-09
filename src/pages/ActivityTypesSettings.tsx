@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface ActivityType {
   id: number;
@@ -44,6 +45,7 @@ const iconOptions = [
 
 const ActivityTypesSettings = () => {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [showDialog, setShowDialog] = useState(false);
   const [editingType, setEditingType] = useState<ActivityType | null>(null);
   const [formData, setFormData] = useState({
@@ -114,8 +116,13 @@ const ActivityTypesSettings = () => {
     setShowDialog(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this activity type?")) {
+  const handleDelete = async (id: number) => {
+    if (await confirm({ 
+      title: "Delete Activity Type", 
+      description: "Are you sure you want to delete this activity type? Existing activities of this type may be affected.",
+      variant: "destructive",
+      confirmText: "Delete"
+    })) {
       deleteMutation.mutate(id);
     }
   };

@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface DynamicOption {
   id: number;
@@ -49,6 +50,7 @@ interface DynamicOption {
 
 export default function AccountsSettingsPage() {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [editingItem, setEditingItem] = useState<{ type: string; item: DynamicOption | null }>({ type: "", item: null });
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -180,12 +182,20 @@ export default function AccountsSettingsPage() {
     updateMutation.mutate({ type: editingItem.type, id: editingItem.item.id, data: editForm });
   };
 
-  const handleDelete = (type: string, item: DynamicOption) => {
+  const handleDelete = async (type: string, item: DynamicOption) => {
     if (item.isDefault) {
       toast.error("Cannot delete the default item");
       return;
     }
-    deleteMutation.mutate({ type, id: item.id });
+    
+    if (await confirm({
+      title: `Delete ${type}`,
+      description: `Are you sure you want to delete the "${item.name}" ${type.toLowerCase()}? This action cannot be undone and may affect associated accounts.`,
+      variant: "destructive",
+      confirmText: "Delete"
+    })) {
+      deleteMutation.mutate({ type, id: item.id });
+    }
   };
 
   const OptionTable = ({ items, type, loading }: { items: DynamicOption[]; type: string; loading: boolean }) => (

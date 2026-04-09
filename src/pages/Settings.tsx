@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useConfirm } from "@/hooks/use-confirm";
 
 interface DynamicOption {
   id: number;
@@ -54,6 +55,7 @@ interface DynamicOption {
 
 export default function LeadsSettingsPage() {
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [editingItem, setEditingItem] = useState<{
     type: string;
     item: DynamicOption | null;
@@ -235,8 +237,13 @@ export default function LeadsSettingsPage() {
     createMutation.mutate({ type: addType, data });
   };
 
-  const handleDelete = (type: string, id: number, name: string) => {
-    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
+  const handleDelete = async (type: string, id: number, name: string) => {
+    if (await confirm({ 
+      title: `Delete ${type.charAt(0).toUpperCase() + type.slice(1)}`, 
+      description: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+      variant: "destructive",
+      confirmText: "Delete"
+    })) {
       deleteMutation.mutate({ type, id });
     }
   };

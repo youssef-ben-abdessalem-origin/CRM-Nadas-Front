@@ -26,6 +26,8 @@ import {
   Shield,
   Lock,
   CheckSquare,
+  TrendingUp,
+  Megaphone,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -50,6 +52,14 @@ const navSections: NavSection[] = [
   {
     label: "Sales",
     items: [
+      {
+        label: "Campaigns",
+        icon: Megaphone,
+        children: [
+          { label: "Table", icon: Table2, path: "/campaigns" },
+          { label: "Settings", icon: Settings, path: "/campaigns/settings" },
+        ],
+      },
       {
         label: "Leads",
         icon: UserPlus,
@@ -87,10 +97,10 @@ const navSections: NavSection[] = [
   {
     label: "Sales Documents",
     items: [
-      { label: "Quotes", icon: FileText, path: "/quotes", locked: true },
-      { label: "Orders", icon: ShoppingCart, path: "/orders", locked: true },
-      { label: "Invoices", icon: Receipt, path: "/invoices", locked: true },
-      { label: "Payments", icon: CreditCard, path: "/payments", locked: true },
+      { label: "Quotes", icon: FileText, path: "/quotes" },
+      { label: "Orders", icon: ShoppingCart, path: "/orders" },
+      { label: "Invoices", icon: Receipt, path: "/invoices" },
+      { label: "Payments", icon: CreditCard, path: "/payments" },
     ],
   },
   {
@@ -102,6 +112,14 @@ const navSections: NavSection[] = [
         children: [
           { label: "Table", icon: Table2, path: "/products" },
           { label: "Settings", icon: Settings, path: "/products/settings" },
+        ],
+      },
+      {
+        label: "Vendors",
+        icon: Building2,
+        children: [
+          { label: "Table", icon: Table2, path: "/vendors" },
+          { label: "Settings", icon: Settings, path: "/vendors/settings" },
         ],
       },
     ],
@@ -116,11 +134,13 @@ const navSections: NavSection[] = [
       { label: "Calendar", icon: Calendar, path: "/calendar" },
       { label: "Tasks", icon: CheckSquare, path: "/tasks" },
       { label: "Activities", icon: Zap, path: "/activities" },
+      { label: "Documents", icon: FileSearch, path: "/documents" },
     ],
   },
   {
     label: "Analytics",
     items: [
+      { label: "Forecast", icon: TrendingUp, path: "/forecast" },
       { label: "Reports", icon: BarChart3, path: "/reports" },
       { label: "Automations", icon: Zap, path: "/automations" },
     ],
@@ -239,8 +259,8 @@ export function AppSidebar() {
                                 key={child.path}
                                 to={child.path || "/"}
                                 className={`sidebar-item text-sm ${childActive
-                                    ? "sidebar-item-active"
-                                    : "sidebar-item-inactive"
+                                  ? "sidebar-item-active"
+                                  : "sidebar-item-inactive"
                                   }`}
                               >
                                 <child.icon className="h-3.5 w-3.5 shrink-0" />

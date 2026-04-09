@@ -168,7 +168,108 @@ export interface DynamicOption {
   order?: number;
 }
 
+export interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  type: string;
+  categoryId: string | null;
+  category: { id: string; name: string } | null;
+  brandId: string | null;
+  brand: { id: string; name: string } | null;
+  status: string;
+  isActive: boolean;
+  isSellable: boolean;
+  isPurchasable: boolean;
+  productCode?: string;
+  vendorName?: string;
+  manufacturer?: string;
+  salesStartDate?: string;
+  salesEndDate?: string;
+  supportStartDate?: string;
+  supportEndDate?: string;
+  unitPrice: number;
+  tax: number;
+  commissionRate: number;
+  taxable: boolean;
+  usageUnit?: string;
+  quantityInStock: number;
+  handler?: string;
+  qtyOrdered: number;
+  reorderLevel: number;
+  quantityInDemand: number;
+  ownerId?: number;
+  owner?: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Vendor {
+  id: string;
+  name: string;
+  image?: string;
+  ownerId: number;
+  owner?: User;
+  phone?: string;
+  website?: string;
+  category?: string;
+  email?: string;
+  glAccount?: string;
+  emailOptOut: boolean;
+  country?: string;
+  flatNo?: string;
+  street?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  coordinates?: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Task {
+  id: number;
+  subject: string;
+  dueDate: string;
+  priority: string;
+  status: string;
+  ownerId: number;
+  entityType?: string;
+  entityId?: number;
+  description?: string;
+  hasReminder?: boolean;
+  hasRepeat?: boolean;
+  reminder?: any;
+  repeat?: any;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const api = {
+  tasks: {
+    getAll: async () => {
+      const res = await axiosInstance.get("/api/v1/tasks");
+      return res.data;
+    },
+    getByEntity: async (entityType: string, entityId: number) => {
+      const res = await axiosInstance.get(`/api/v1/tasks/entity/${entityType}/${entityId}`);
+      return res.data;
+    },
+    create: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/tasks", data);
+      return res.data;
+    },
+    update: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/tasks/${id}`, data);
+      return res.data;
+    },
+    delete: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/tasks/${id}`);
+      return res.data;
+    },
+  },
   roles: {
     getAll: async () => {
       const res = await axiosInstance.get("/api/v1/roles");
@@ -286,12 +387,12 @@ export const api = {
       const res = await axiosInstance.put("/api/v1/leads/bulk-update", { ids, updates });
       return normalizeResponse(res.data);
     },
-    convert: async (id: number) => {
-      const res = await axiosInstance.post(`/api/v1/leads/${id}/convert`);
+    convert: async (id: number, data?: any) => {
+      const res = await axiosInstance.post(`/api/v1/leads/${id}/convert`, data);
       return normalizeResponse(res.data);
     },
-    convertToDeal: async (id: number) => {
-      const res = await axiosInstance.post(`/api/v1/leads/${id}/convert-to-deal`);
+    convertToDeal: async (id: number, data?: any) => {
+      const res = await axiosInstance.post(`/api/v1/leads/${id}/convert-to-deal`, data);
       return normalizeResponse(res.data);
     },
     getSources: async () => {
@@ -484,6 +585,12 @@ export const api = {
       description?: string;
       dueDate?: string;
       assignedToId?: number;
+      callType?: string;
+      durationMinutes?: string;
+      durationSeconds?: string;
+      voiceRecording?: string;
+      reminder?: string;
+      status?: string;
     }) => {
       const res = await axiosInstance.post("/api/v1/activities", data);
       return normalizeResponse(res.data);
@@ -1191,6 +1298,161 @@ export const api = {
     },
     delete: async (id: number) => {
       const res = await axiosInstance.delete(`/api/v1/notes/${id}`);
+      return res.data;
+    },
+  },
+  workdrive: {
+    getTeam: async () => {
+      const res = await axiosInstance.get("/api/v1/workdrive/team");
+      return res.data;
+    },
+    createTeam: async (name: string) => {
+      const res = await axiosInstance.post("/api/v1/workdrive/team", { name });
+      return res.data;
+    },
+    getFolders: async (params: { teamId: number, isTeamFolder: boolean, parentId?: number }) => {
+      const queryParams = new URLSearchParams();
+      queryParams.append("teamId", String(params.teamId));
+      queryParams.append("isTeamFolder", String(params.isTeamFolder));
+      if (params.parentId) queryParams.append("parentId", String(params.parentId));
+      const res = await axiosInstance.get(`/api/v1/workdrive/folders?${queryParams.toString()}`);
+      return normalizeResponse(res.data);
+    },
+    createFolder: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/workdrive/folders", data);
+      return res.data;
+    },
+    getPermissions: async (folderId: number) => {
+      const res = await axiosInstance.get(`/api/v1/workdrive/folders/${folderId}/permissions`);
+      return normalizeResponse(res.data);
+    },
+    updatePermissions: async (folderId: number, permissions: any[]) => {
+      const res = await axiosInstance.post(`/api/v1/workdrive/folders/${folderId}/permissions`, { permissions });
+      return res.data;
+    },
+    getFiles: async (folderId: number) => {
+      const res = await axiosInstance.get(`/api/v1/workdrive/files?folderId=${folderId}`);
+      return normalizeResponse(res.data);
+    },
+    createFile: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/workdrive/files", data);
+      return res.data;
+    },
+  },
+
+  forecast: {
+    getDashboard: async (periodId: number, userId?: number) => {
+      const params = new URLSearchParams();
+      params.append("periodId", String(periodId));
+      if (userId) params.append("userId", String(userId));
+      const res = await axiosInstance.get(`/api/v1/forecast/dashboard?${params.toString()}`);
+      return normalizeResponse(res.data);
+    },
+    getMyForecast: async (periodId?: number) => {
+      const params = new URLSearchParams();
+      if (periodId) params.append("periodId", String(periodId));
+      const res = await axiosInstance.get(`/api/v1/forecast/my?${params.toString()}`);
+      return normalizeResponse(res.data);
+    },
+    adjust: async (data: { userId: number, periodId: number, commitOverride?: number, bestCaseOverride?: number, note?: string }) => {
+      const res = await axiosInstance.post("/api/v1/forecast/adjust", data);
+      return res.data;
+    },
+    getContributions: async (userId: number, periodId: number, category: string) => {
+      const params = new URLSearchParams();
+      params.append("userId", String(userId));
+      params.append("periodId", String(periodId));
+      params.append("category", category);
+      const res = await axiosInstance.get(`/api/v1/forecast/contributions?${params.toString()}`);
+      return normalizeResponse(res.data);
+    },
+    getPeriods: async () => {
+      const res = await axiosInstance.get("/api/v1/forecast/periods");
+      return normalizeResponse(res.data);
+    },
+    createPeriod: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/forecast/periods", data);
+      return res.data;
+    },
+    updatePeriod: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/forecast/periods/${id}`, data);
+      return res.data;
+    },
+    getMappings: async () => {
+      const res = await axiosInstance.get("/api/v1/forecast/mappings");
+      return normalizeResponse(res.data);
+    },
+    updateMapping: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/forecast/mappings/${id}`, data);
+      return res.data;
+    },
+    getTargets: async (periodId: number) => {
+      const res = await axiosInstance.get(`/api/v1/forecast/targets?periodId=${periodId}`);
+      return normalizeResponse(res.data);
+    },
+    setTarget: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/forecast/targets", data);
+      return res.data;
+    },
+  },
+  dashboard: {
+    getStats: async () => {
+      const res = await axiosInstance.get("/api/v1/dashboard/stats");
+      return res.data;
+    },
+  },
+  campaigns: {
+    getAll: async () => {
+      const res = await axiosInstance.get("/api/v1/campaigns");
+      return normalizeResponse(res.data);
+    },
+    getTypes: async () => {
+      const res = await axiosInstance.get("/api/v1/campaigns/types");
+      return normalizeResponse(res.data);
+    },
+    getStatuses: async () => {
+      const res = await axiosInstance.get("/api/v1/campaigns/statuses");
+      return normalizeResponse(res.data);
+    },
+    getOne: async (id: number) => {
+      const res = await axiosInstance.get(`/api/v1/campaigns/${id}`);
+      return res.data;
+    },
+    create: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/campaigns", data);
+      return res.data;
+    },
+    update: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/campaigns/${id}`, data);
+      return res.data;
+    },
+    delete: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/campaigns/${id}`);
+      return res.data;
+    },
+  },
+  vendors: {
+    getAll: async (search?: string, category?: string) => {
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (category) params.append('category', category);
+      const res = await axiosInstance.get(`/api/v1/vendors?${params.toString()}`);
+      return normalizeResponse(res.data);
+    },
+    getOne: async (id: string) => {
+      const res = await axiosInstance.get(`/api/v1/vendors/${id}`);
+      return res.data;
+    },
+    create: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/vendors", data);
+      return res.data;
+    },
+    update: async (id: string, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/vendors/${id}`, data);
+      return res.data;
+    },
+    delete: async (id: string) => {
+      const res = await axiosInstance.delete(`/api/v1/vendors/${id}`);
       return res.data;
     },
   },

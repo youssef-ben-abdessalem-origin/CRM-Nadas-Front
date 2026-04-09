@@ -73,17 +73,23 @@ export const LeadTaskDialog = ({ lead, open, onOpenChange }: LeadTaskDialogProps
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => api.activities.create({
+    mutationFn: (data: any) => api.tasks.create({
       entityType: "lead",
       entityId: lead!.id,
-      typeId: 1, // Assuming 1 is Task
       subject: data.subject,
-      description: `Priority: ${data.priority}. Reminder: ${data.hasReminder ? "Yes" : "No"}. Repeat: ${data.hasRepeat ? data.repeat.type : "No"}`,
+      priority: data.priority,
       dueDate: data.dueDate,
-      assignedToId: data.ownerId
+      ownerId: data.ownerId,
+      description: data.description || "",
+      hasReminder: data.hasReminder,
+      hasRepeat: data.hasRepeat,
+      reminder: data.reminder,
+      repeat: data.repeat,
+      status: "Pending"
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities", "lead", lead?.id] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", "lead", lead?.id] });
       toast.success("Task created successfully");
       onOpenChange(false);
     }
@@ -220,7 +226,7 @@ export const LeadTaskDialog = ({ lead, open, onOpenChange }: LeadTaskDialogProps
       </div>
 
       <div className="flex justify-end pt-4">
-        <Button onClick={() => setSubView("main")} className="bg-primary text-white">Done</Button>
+        <Button onClick={() => setSubView("main")} className="bg-primary text-white focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">Done</Button>
       </div>
     </div>
   );
@@ -295,7 +301,7 @@ export const LeadTaskDialog = ({ lead, open, onOpenChange }: LeadTaskDialogProps
       </div>
 
       <div className="flex justify-end pt-4">
-        <Button onClick={() => setSubView("main")} className="bg-primary text-white">Done</Button>
+        <Button onClick={() => setSubView("main")} className="bg-primary text-white focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">Done</Button>
       </div>
     </div>
   );
@@ -308,6 +314,8 @@ export const LeadTaskDialog = ({ lead, open, onOpenChange }: LeadTaskDialogProps
             <DialogTitle className="text-xl font-bold tracking-tight text-foreground">
               {subView === "main" ? "Create Task" : subView === "subject" ? "Choose Subject" : subView === "reminder" ? "Reminder" : "Repeat"}
             </DialogTitle>
+
+
           </div>
         </DialogHeader>
 
@@ -321,7 +329,7 @@ export const LeadTaskDialog = ({ lead, open, onOpenChange }: LeadTaskDialogProps
                   <Input
                     placeholder="Enter task Subject"
                     variant="unstyled"
-                    className="h-8 p-0 border-none focus-visible:ring-0 text-sm font-medium placeholder:text-muted-foreground/50"
+                    className="h-8 p-0 border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-medium placeholder:text-muted-foreground/50"
                     value={taskData.subject}
                     onChange={(e) => setTaskData({ ...taskData, subject: e.target.value })}
                   />
@@ -338,7 +346,7 @@ export const LeadTaskDialog = ({ lead, open, onOpenChange }: LeadTaskDialogProps
                   <Input
                     type="date"
                     variant="unstyled"
-                    className="h-8 p-0 border-none focus-visible:ring-0 text-sm font-medium"
+                    className="h-8 p-0 border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm font-medium"
                     value={taskData.dueDate}
                     onChange={(e) => setTaskData({ ...taskData, dueDate: e.target.value })}
                   />
@@ -353,7 +361,7 @@ export const LeadTaskDialog = ({ lead, open, onOpenChange }: LeadTaskDialogProps
                     value={taskData.priority}
                     onValueChange={(val) => setTaskData({ ...taskData, priority: val })}
                   >
-                    <SelectTrigger className="h-8 p-0 border-none focus:ring-0 shadow-none text-sm font-medium">
+                    <SelectTrigger className="h-8 p-0 border-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none text-sm font-medium">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -373,7 +381,7 @@ export const LeadTaskDialog = ({ lead, open, onOpenChange }: LeadTaskDialogProps
                     value={String(taskData.ownerId)}
                     onValueChange={(val) => setTaskData({ ...taskData, ownerId: Number.parseInt(val) })}
                   >
-                    <SelectTrigger className="h-8 p-0 border-none focus:ring-0 shadow-none text-sm font-medium">
+                    <SelectTrigger className="h-8 p-0 border-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none text-sm font-medium">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -445,10 +453,10 @@ export const LeadTaskDialog = ({ lead, open, onOpenChange }: LeadTaskDialogProps
 
         {subView === "main" && (
           <DialogFooter className="p-6 bg-card border-t border-border flex items-center gap-3">
-            <Button variant="outline" className="h-10 px-6 font-semibold" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" className="h-10 px-6 font-semibold focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button className="h-10 px-8 bg-primary text-white font-semibold shadow-lg shadow-primary/20" onClick={handleSave}>
+            <Button className="h-10 px-8 bg-primary text-white font-semibold shadow-lg shadow-primary/20 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0" onClick={handleSave}>
               Save Task
             </Button>
           </DialogFooter>
