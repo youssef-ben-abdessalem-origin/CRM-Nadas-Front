@@ -50,7 +50,7 @@ import RoleConfig from "./pages/team/RoleConfig.tsx";
 import Privileges from "./pages/team/Privileges.tsx";
 import Documents from "./pages/Documents.tsx";
 import CampaignsPage from "./pages/Campaigns.tsx";
-import NewVendor from "./pages/NewVendor.tsx";
+import NewVendor from "./pages/NewVendor";
 import EditProduct from "./pages/EditProduct.tsx";
 import NewQuote from "./pages/NewQuote.tsx";
 import { ConfirmProvider } from "@/hooks/use-confirm.tsx";

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { CRMLayout } from "@/components/CRMLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,14 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -41,7 +34,6 @@ import {
 import {
   Plus,
   Trash2,
-  MoreHorizontal,
   Eye,
   FileText,
   Send,
@@ -54,20 +46,19 @@ import {
   Loader2,
   Calendar,
   User,
-  DollarSign,
   FileSignature,
   Filter,
   ArrowUpRight,
   TrendingUp,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  ShoppingCart
 } from "lucide-react";
 import api from "@/lib/api";
+import { format } from "date-fns";
 import { useProfileCurrency } from "@/hooks/useProfileCurrency";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { motion } from "framer-motion";
 
 // Types
 interface QuoteItem {
@@ -93,6 +84,7 @@ interface Quote {
 }
 
 const QuotesPage: React.FC = () => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {
     data: quotes = [],
@@ -228,9 +220,9 @@ const QuotesPage: React.FC = () => {
 
   const updateQuoteStatus = async (quoteId: string, status: string) => {
     try {
-      await api.billing.quotes.update(quoteId, { status });
+      await api.billing.quotes.update(Number(quoteId), { status });
       await refetch();
-      if (detailQuote && detailQuote.id === quoteId) {
+      if (detailQuote?.id === quoteId) {
         setDetailQuote({ ...detailQuote, status: status as any });
       }
       toast.success(`Quote ${status}`);
@@ -280,132 +272,146 @@ const QuotesPage: React.FC = () => {
 
   const totalsSummary = quotes.reduce((acc: any, q: any) => {
     acc.total += Number(q.amount) || 0;
-    if (q.status === 'accepted') acc.accepted += Number(q.amount) || 0;
-    if (q.status === 'draft' || q.status === 'sent') acc.pending += Number(q.amount) || 0;
+    if (q.status === 'accepted' || q.status === 'closed_won' || q.status === 'confirmed') acc.accepted += Number(q.amount) || 0;
+    if (q.status === 'draft' || q.status === 'sent' || q.status === 'negotiation') acc.pending += Number(q.amount) || 0;
     return acc;
   }, { total: 0, accepted: 0, pending: 0 });
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0 }
+  const stats = {
+    total: quotes.length,
+    volume: totalsSummary.total,
+    accepted: totalsSummary.accepted,
+    pending: totalsSummary.pending,
+    successRate: quotes.length > 0 ? Math.round((quotes.filter((q:any) => ['accepted', 'closed_won', 'confirmed'].includes(q.status)).length / quotes.length) * 100) : 0
   };
 
   return (
     <CRMLayout title="Quotes Strategy">
       <div className="space-y-8 p-1">
-        {/* Stats Section */}
-        <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-slate-900 shadow-2xl border-white/5 overflow-hidden group">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Volume</p>
-                  <h3 className="text-2xl font-black tracking-tighter text-white">{fmt(totalsSummary.total)}</h3>
-                </div>
-                <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20 shadow-inner group-hover:scale-110 transition-transform">
-                  <DollarSign className="h-5 w-5" />
-                </div>
-              </div>
+        {/* Stats Section Match Vendors.tsx */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Total Quotes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.total}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                <FileSignature className="h-3 w-3 inline mr-1 text-slate-500" />
+                Drafts & Finals
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-900 shadow-2xl border-white/5 overflow-hidden group">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Accepted</p>
-                  <h3 className="text-2xl font-black tracking-tighter text-emerald-400">{fmt(totalsSummary.accepted)}</h3>
-                </div>
-                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 shadow-inner group-hover:scale-110 transition-transform">
-                  <CheckCircle2 className="h-5 w-5" />
-                </div>
-              </div>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Total Volume
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-500">{fmt(stats.volume)}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Gross Pipeline
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-900 shadow-2xl border-white/5 overflow-hidden group">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">In Pipeline</p>
-                  <h3 className="text-2xl font-black tracking-tighter text-amber-400">{fmt(totalsSummary.pending)}</h3>
-                </div>
-                <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20 shadow-inner group-hover:scale-110 transition-transform">
-                  <Clock className="h-5 w-5" />
-                </div>
-              </div>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Accepted
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-emerald-500">{fmt(stats.accepted)}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                <CheckCircle2 className="h-3 w-3 inline mr-1" />
+                Net Revenue
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-slate-900 shadow-2xl border-white/5 overflow-hidden group">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Success Rate</p>
-                  <h3 className="text-2xl font-black tracking-tighter text-indigo-400">
-                    {quotes.length > 0 ? Math.round((quotes.filter((q:any) => q.status === 'accepted').length / quotes.length) * 100) : 0}%
-                  </h3>
-                </div>
-                <div className="h-10 w-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-inner group-hover:scale-110 transition-transform">
-                  <TrendingUp className="h-5 w-5" />
-                </div>
-              </div>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                In Negotiation
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-amber-500">{fmt(stats.pending)}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                <Clock className="h-3 w-3 inline mr-1" />
+                Live Pipelines
+              </p>
             </CardContent>
           </Card>
-        </motion.div>
 
-        {/* Toolbar */}
-        <div className="flex items-center justify-between gap-4 flex-wrap pb-2">
-          <div className="flex items-center gap-4 flex-1 min-w-[300px]">
-            <div className="relative flex-1 max-w-md group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
-              <Input
-                placeholder="Search quotes, customers, notes..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="pl-11 h-12 bg-slate-900/50 border-white/5 rounded-2xl focus:bg-slate-900 transition-all shadow-xl"
-              />
-            </div>
-            <Button variant="outline" className="h-12 w-12 rounded-2xl border-white/5 bg-slate-900/50 hover:bg-slate-900 shadow-xl">
-              <Filter className="h-4 w-4 text-slate-400" />
-            </Button>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Conversion
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stats.successRate}%
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                <TrendingUp className="h-3 w-3 inline mr-1 text-indigo-500" />
+                Success Index
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Toolbar Match Vendors */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-1">
+             <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+                <Input
+                  placeholder="Search quotes, customers..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="pl-9 h-9"
+                />
+             </div>
+             <Button variant="outline" size="sm" className="h-9">
+               <Filter className="h-3.5 w-3.5 mr-1" /> Filter
+             </Button>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button variant="outline" className="h-12 rounded-2xl border-white/5 bg-slate-900/50 hover:bg-slate-900 px-6 font-bold uppercase tracking-widest text-[10px] text-slate-400 shadow-xl">
-              <Download className="h-4 w-4 mr-2" /> Export
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="h-9">
+              <Download className="h-3.5 w-3.5 mr-1" /> Export
             </Button>
             <Button
-              onClick={() => setOpenAdd(true)}
-              className="h-12 rounded-2xl bg-blue-600 hover:bg-blue-500 px-6 font-bold uppercase tracking-widest text-[10px] shadow-2xl transition-all hover:scale-105 active:scale-95"
+              size="sm"
+              onClick={() => navigate("/quotes/new")}
+              className="h-9"
             >
-              <Plus className="mr-2 h-4 w-4" /> New Quote
+              <Plus className="mr-1 h-3.5 w-3.5" /> New Quote
             </Button>
           </div>
         </div>
 
-        {/* Main Table */}
-        <Card className="border-none shadow-[0_0_50px_rgba(0,0,0,0.3)] bg-slate-900/40 backdrop-blur-xl rounded-[32px] overflow-hidden">
+        {/* Main Table Match Vendors.tsx Style */}
+        <Card>
           <Table>
-            <TableHeader className="bg-slate-950/40 border-b border-white/5">
-              <TableRow className="hover:bg-transparent h-16">
-                <TableHead className="w-12 pl-6">
-                  <div className="h-4 w-4 rounded border border-white/20 flex items-center justify-center" />
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12 pl-4">
+                  <input type="checkbox" className="h-4 w-4 rounded" />
                 </TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-500">Strategy Identity</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-500">Customer Domain</TableHead>
-                <TableHead className="text-right font-black text-[10px] uppercase tracking-widest text-slate-500">Valuation</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-500">Maturity Date</TableHead>
-                <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-500">Ops Status</TableHead>
-                <TableHead className="text-right pr-6 font-black text-[10px] uppercase tracking-widest text-slate-500">Actions</TableHead>
+                <TableHead>Quote</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead className="text-right">Valuation ({currencyInfo?.currency || '...'})</TableHead>
+                <TableHead>Valid Until</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right pr-4">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -431,35 +437,32 @@ const QuotesPage: React.FC = () => {
                     className="group border-b border-white/5 hover:bg-white/[0.02] cursor-pointer transition-colors"
                     onClick={() => onRowClick(q)}
                   >
-                    <TableCell className="pl-6" onClick={(e) => e.stopPropagation()}>
-                      <div className="h-4 w-4 rounded border border-white/10 group-hover:border-blue-500/50 transition-colors" />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-4">
-                        <div className="h-11 w-11 rounded-[14px] bg-gradient-to-br from-indigo-500/20 to-blue-500/10 flex items-center justify-center border border-white/10 shadow-inner">
-                          <FileSignature className="h-5 w-5 text-indigo-400" />
-                        </div>
-                        <div>
-                          <p className="font-black text-sm text-slate-200 tracking-tight">{q.name || "Untitled Strategy"}</p>
-                          <p className="text-[10px] text-slate-500 font-mono tracking-tighter uppercase">{q.id.slice(0, 8)}</p>
-                        </div>
-                      </div>
+                    <TableCell className="pl-4">
+                      <input type="checkbox" className="h-4 w-4 rounded" onClick={(e) => e.stopPropagation()} />
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-6 w-6 rounded-lg border border-white/5 shadow-lg">
-                          <AvatarFallback className="bg-slate-800 text-[10px] text-slate-400 font-bold">
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <FileSignature className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">{q.name || "Untitled Quote"}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">{String(q.id).slice(0, 8)}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6 rounded-lg opacity-70">
+                          <AvatarFallback className="bg-slate-800 text-[9px] font-bold">
                             {getInitials(q.customerName || q.customer)}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm font-bold text-slate-400 tracking-tight">{q.customerName || q.customer || "Anonymous"}</span>
+                        <span className="text-sm text-slate-400">{q.customerName || q.customer || "Anonymous"}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex flex-col items-end">
-                        <span className="text-sm font-black text-blue-400 tracking-tighter">{fmt(Number(q.amount) || 0)}</span>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Gross Point</span>
-                      </div>
+                      <span className="text-sm font-bold text-primary">{fmt(Number(q.amount) || 0)}</span>
                     </TableCell>
                     <TableCell>
                       {q.dueDate ? (
@@ -472,37 +475,14 @@ const QuotesPage: React.FC = () => {
                       )}
                     </TableCell>
                     <TableCell>{getStatusBadge(q.status)}</TableCell>
-                    <TableCell className="text-right pr-6" onClick={(e) => e.stopPropagation()}>
+                    <TableCell className="text-right pr-4" onClick={(e) => e.stopPropagation()}>
                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-white/5 hover:text-blue-400 transition-all opacity-0 group-hover:opacity-100">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-blue-400">
                              <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-rose-500/10 hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100 text-slate-600">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-rose-400 text-slate-600">
                              <Trash2 className="h-4 w-4" />
                           </Button>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-white/5 transition-all">
-                                <MoreHorizontal className="h-4 w-4 text-slate-500" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-slate-950 border-white/10 rounded-2xl shadow-2xl p-2 min-w-[180px]">
-                              <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-slate-500 p-3">Strategy Control</DropdownMenuLabel>
-                              <DropdownMenuItem className="rounded-xl p-3 gap-3 focus:bg-blue-500 focus:text-white group">
-                                <Send className="h-4 w-4 text-slate-500 group-focus:text-white" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Transmit</span>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="rounded-xl p-3 gap-3 focus:bg-blue-500 focus:text-white group">
-                                <Download className="h-4 w-4 text-slate-500 group-focus:text-white" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Capture PDF</span>
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator className="bg-white/5 mx-2 my-2" />
-                              <DropdownMenuItem className="rounded-xl p-3 gap-3 focus:bg-rose-500 focus:text-white group text-rose-500">
-                                <Trash2 className="h-4 w-4" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Purge</span>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
                        </div>
                     </TableCell>
                   </TableRow>

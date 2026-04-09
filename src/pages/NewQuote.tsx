@@ -33,17 +33,17 @@ import {
 } from "@/components/ui/table";
 import { 
   Trash2,
-  FileSignature,
-  Save,
-  Calendar,
   Truck,
-  DollarSign,
+  Coins,
   Package,
   Info,
   Briefcase,
   Plus,
   X,
-  ChevronLeft
+  ChevronLeft,
+  FileSignature,
+  Save,
+  Calendar
 } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -106,6 +106,14 @@ const NewQuote = () => {
       status: "draft",
       carrier: "FedEX",
       subject: "",
+      team: "",
+      validUntil: "",
+      billingAddress: "",
+      shippingAddress: "",
+      termsAndConditions: "",
+      description: "",
+      ownerId: undefined,
+      dealId: undefined
     },
   });
 
@@ -446,7 +454,7 @@ const NewQuote = () => {
                                     <TableHead className="w-16 text-center text-[10px] font-bold uppercase tracking-widest text-slate-500">#</TableHead>
                                     <TableHead className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Asset Selection</TableHead>
                                     <TableHead className="w-20 text-center text-[10px] font-bold uppercase tracking-widest text-slate-500">Vol</TableHead>
-                                    <TableHead className="text-right text-[10px] font-bold uppercase tracking-widest text-slate-500 pr-8">Valuation</TableHead>
+                                    <TableHead className="text-right text-[10px] font-bold uppercase tracking-widest text-slate-500 pr-8">Valuation ({currency?.currency || '...'})</TableHead>
                                  </TableRow>
                               </TableHeader>
                               <TableBody>
@@ -485,22 +493,22 @@ const NewQuote = () => {
 
                       <motion.div variants={itemAnim} className="space-y-6 pt-6 border-t border-white/5">
                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"><DollarSign className="h-4 w-4 text-indigo-500" /></div>
+                            <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"><Coins className="h-4 w-4 text-indigo-500" /></div>
                             <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Price Information</h3>
                          </div>
 
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="p-6 rounded-2xl bg-slate-950/40 border border-white/5 shadow-inner space-y-4">
                                <div className="flex justify-between items-center h-8">
-                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Subtotal ({currencyCode})</span>
+                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Subtotal ({currency?.currency || '...'})</span>
                                   <span className="font-bold text-slate-300 text-sm">{fmt(totals.subtotal)}</span>
                                </div>
                                <div className="flex justify-between items-center h-8 border-t border-white/5 pt-4 mt-2">
-                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Adjustment ({currencyCode})</span>
+                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Adjustment ({currency?.currency || '...'})</span>
                                   <Input type="number" className="h-7 w-20 bg-slate-900/50 border-white/5 text-right font-bold text-amber-500 p-1 rounded-md text-[11px]" value={adjustment} onChange={(e) => setAdjustment(Number(e.target.value))} />
                                </div>
                                <div className="pt-6 border-t border-white/10 text-center">
-                                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-500 mb-2">Grand Total ({currencyCode})</p>
+                                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-500 mb-2">Grand Total ({currency?.currency || '...'})</p>
                                   <h2 className="text-4xl font-bold tracking-tighter text-white leading-none">{fmt(totals.grandTotal)}</h2>
                                </div>
                             </div>

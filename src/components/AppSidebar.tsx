@@ -134,17 +134,17 @@ const navSections: NavSection[] = [
       { label: "Calendar", icon: Calendar, path: "/calendar" },
       { label: "Tasks", icon: CheckSquare, path: "/tasks" },
       { label: "Activities", icon: Zap, path: "/activities" },
-      { label: "Documents", icon: FileSearch, path: "/documents" },
+      // { label: "Documents", icon: FileSearch, path: "/documents" },
     ],
   },
-  {
-    label: "Analytics",
-    items: [
-      { label: "Forecast", icon: TrendingUp, path: "/forecast" },
-      { label: "Reports", icon: BarChart3, path: "/reports" },
-      { label: "Automations", icon: Zap, path: "/automations" },
-    ],
-  },
+  // {
+  //   label: "Analytics",
+  //   items: [
+  //     { label: "Forecast", icon: TrendingUp, path: "/forecast" },
+  //     { label: "Reports", icon: BarChart3, path: "/reports" },
+  //     { label: "Automations", icon: Zap, path: "/automations" },
+  //   ],
+  // },
   {
     label: "Admin",
     items: [
