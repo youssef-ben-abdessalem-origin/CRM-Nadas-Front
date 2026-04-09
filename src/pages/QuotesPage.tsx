@@ -51,21 +51,23 @@ import {
   Search,
   X,
   Check,
-  AlertCircle,
   Loader2,
   Calendar,
   User,
   DollarSign,
   FileSignature,
-  ShoppingCart,
-  Tag,
-  Percent,
-  CreditCard,
+  Filter,
+  ArrowUpRight,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  AlertCircle
 } from "lucide-react";
 import api from "@/lib/api";
 import { useProfileCurrency } from "@/hooks/useProfileCurrency";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 
 // Types
 interface QuoteItem {
@@ -238,15 +240,13 @@ const QuotesPage: React.FC = () => {
   };
 
   const { currency: currencyInfo } = useProfileCurrency();
-  const currencyCode = currencyInfo?.currency ?? "USD";
+  const currencyCode = currencyInfo?.currency ?? "TND";
   const fmt = (v: number) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: currencyCode,
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 0,
     }).format(v);
-
-  const totals = computeTotals();
 
   const filteredQuotes = quotes.filter((q: any) => {
     const text = [q.name, q.customerName || q.customer, q.notes]
@@ -259,38 +259,15 @@ const QuotesPage: React.FC = () => {
   const getStatusBadge = (status?: string) => {
     switch (status) {
       case "draft":
-        return (
-          <Badge variant="outline" className="bg-gray-100 text-gray-700">
-            Draft
-          </Badge>
-        );
+        return <Badge variant="outline" className="bg-slate-100 text-slate-700 border-slate-200">Draft</Badge>;
       case "sent":
-        return (
-          <Badge
-            variant="default"
-            className="bg-blue-100 text-blue-700 hover:bg-blue-100"
-          >
-            Sent
-          </Badge>
-        );
+        return <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none">Sent</Badge>;
       case "accepted":
-        return (
-          <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-            Accepted
-          </Badge>
-        );
+        return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-none">Accepted</Badge>;
       case "rejected":
-        return (
-          <Badge variant="destructive" className="bg-red-100 text-red-700">
-            Rejected
-          </Badge>
-        );
+        return <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-200 border-none">Rejected</Badge>;
       case "expired":
-        return (
-          <Badge variant="secondary" className="bg-orange-100 text-orange-700">
-            Expired
-          </Badge>
-        );
+        return <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-200 border-none">Expired</Badge>;
       default:
         return <Badge variant="outline">Draft</Badge>;
     }
@@ -298,628 +275,352 @@ const QuotesPage: React.FC = () => {
 
   const getInitials = (name?: string) => {
     if (!name) return "?";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  };
+
+  const totalsSummary = quotes.reduce((acc: any, q: any) => {
+    acc.total += Number(q.amount) || 0;
+    if (q.status === 'accepted') acc.accepted += Number(q.amount) || 0;
+    if (q.status === 'draft' || q.status === 'sent') acc.pending += Number(q.amount) || 0;
+    return acc;
+  }, { total: 0, accepted: 0, pending: 0 });
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 }
   };
 
   return (
-    <CRMLayout title="Quotes">
-      <div className="p-6 space-y-6">
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Quotes</h1>
-            <p className="text-muted-foreground text-sm">
-              Manage and track your sales quotes
-            </p>
-          </div>
-          <Button
-            onClick={() => setOpenAdd(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            New Quote
-          </Button>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search quotes by name, customer, or notes..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="pl-9 pr-8"
-          />
-          {query && (
-            <button
-              onClick={() => setQuery("")}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2"
-            >
-              <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-            </button>
-          )}
-        </div>
-
-        {/* Quotes Table */}
-        <Card className="border shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold">
-              All Quotes
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
-                ({filteredQuotes.length})
-              </span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : filteredQuotes && filteredQuotes.length > 0 ? (
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead className="w-[250px]">Quote Name</TableHead>
-                      <TableHead>Customer</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
-                      <TableHead>Due Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredQuotes.map((q: any) => (
-                      <TableRow
-                        key={q.id}
-                        className="cursor-pointer hover:bg-muted/30 transition-colors group"
-                        onClick={() => onRowClick(q)}
-                      >
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                              <FileSignature className="h-4 w-4 text-indigo-600" />
-                            </div>
-                            <span>{q.name || q.id}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Avatar className="h-6 w-6">
-                              <AvatarFallback className="text-xs">
-                                {getInitials(q.customerName || q.customer)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span>{q.customerName || q.customer || "—"}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          {fmt(Number(q.amount) || 0)}
-                        </TableCell>
-                        <TableCell>
-                          {q.dueDate ? (
-                            <div className="flex items-center gap-1 text-sm">
-                              <Calendar className="h-3 w-3 text-muted-foreground" />
-                              {format(new Date(q.dueDate), "MMM dd, yyyy")}
-                            </div>
-                          ) : (
-                            "—"
-                          )}
-                        </TableCell>
-                        <TableCell>{getStatusBadge(q.status)}</TableCell>
-                        <TableCell className="text-right">
-                          <div onClick={(e) => e.stopPropagation()}>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={() => onRowClick(q)}>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  View Details
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Send className="mr-2 h-4 w-4" />
-                                  Send to Customer
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Printer className="mr-2 h-4 w-4" />
-                                  Print
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Download className="mr-2 h-4 w-4" />
-                                  Download PDF
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                  <Copy className="mr-2 h-4 w-4" />
-                                  Duplicate
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                  <FileSignature className="h-6 w-6 text-muted-foreground" />
+    <CRMLayout title="Quotes Strategy">
+      <div className="space-y-8 p-1">
+        {/* Stats Section */}
+        <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="bg-slate-900 shadow-2xl border-white/5 overflow-hidden group">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Volume</p>
+                  <h3 className="text-2xl font-black tracking-tighter text-white">{fmt(totalsSummary.total)}</h3>
                 </div>
-                <h3 className="text-lg font-medium">No quotes found</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {query.trim()
-                    ? "No quotes match your search criteria."
-                    : "Get started by creating your first quote."}
-                </p>
-                {!query.trim() && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setOpenAdd(true)}
-                    className="mt-4"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Quote
-                  </Button>
-                )}
+                <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20 shadow-inner group-hover:scale-110 transition-transform">
+                  <DollarSign className="h-5 w-5" />
+                </div>
               </div>
-            )}
-          </CardContent>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-900 shadow-2xl border-white/5 overflow-hidden group">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Accepted</p>
+                  <h3 className="text-2xl font-black tracking-tighter text-emerald-400">{fmt(totalsSummary.accepted)}</h3>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 shadow-inner group-hover:scale-110 transition-transform">
+                  <CheckCircle2 className="h-5 w-5" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-900 shadow-2xl border-white/5 overflow-hidden group">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">In Pipeline</p>
+                  <h3 className="text-2xl font-black tracking-tighter text-amber-400">{fmt(totalsSummary.pending)}</h3>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20 shadow-inner group-hover:scale-110 transition-transform">
+                  <Clock className="h-5 w-5" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-900 shadow-2xl border-white/5 overflow-hidden group">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Success Rate</p>
+                  <h3 className="text-2xl font-black tracking-tighter text-indigo-400">
+                    {quotes.length > 0 ? Math.round((quotes.filter((q:any) => q.status === 'accepted').length / quotes.length) * 100) : 0}%
+                  </h3>
+                </div>
+                <div className="h-10 w-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-inner group-hover:scale-110 transition-transform">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Toolbar */}
+        <div className="flex items-center justify-between gap-4 flex-wrap pb-2">
+          <div className="flex items-center gap-4 flex-1 min-w-[300px]">
+            <div className="relative flex-1 max-w-md group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+              <Input
+                placeholder="Search quotes, customers, notes..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pl-11 h-12 bg-slate-900/50 border-white/5 rounded-2xl focus:bg-slate-900 transition-all shadow-xl"
+              />
+            </div>
+            <Button variant="outline" className="h-12 w-12 rounded-2xl border-white/5 bg-slate-900/50 hover:bg-slate-900 shadow-xl">
+              <Filter className="h-4 w-4 text-slate-400" />
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="h-12 rounded-2xl border-white/5 bg-slate-900/50 hover:bg-slate-900 px-6 font-bold uppercase tracking-widest text-[10px] text-slate-400 shadow-xl">
+              <Download className="h-4 w-4 mr-2" /> Export
+            </Button>
+            <Button
+              onClick={() => setOpenAdd(true)}
+              className="h-12 rounded-2xl bg-blue-600 hover:bg-blue-500 px-6 font-bold uppercase tracking-widest text-[10px] shadow-2xl transition-all hover:scale-105 active:scale-95"
+            >
+              <Plus className="mr-2 h-4 w-4" /> New Quote
+            </Button>
+          </div>
+        </div>
+
+        {/* Main Table */}
+        <Card className="border-none shadow-[0_0_50px_rgba(0,0,0,0.3)] bg-slate-900/40 backdrop-blur-xl rounded-[32px] overflow-hidden">
+          <Table>
+            <TableHeader className="bg-slate-950/40 border-b border-white/5">
+              <TableRow className="hover:bg-transparent h-16">
+                <TableHead className="w-12 pl-6">
+                  <div className="h-4 w-4 rounded border border-white/20 flex items-center justify-center" />
+                </TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-500">Strategy Identity</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-500">Customer Domain</TableHead>
+                <TableHead className="text-right font-black text-[10px] uppercase tracking-widest text-slate-500">Valuation</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-500">Maturity Date</TableHead>
+                <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-500">Ops Status</TableHead>
+                <TableHead className="text-right pr-6 font-black text-[10px] uppercase tracking-widest text-slate-500">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-64 text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-500 opacity-20" />
+                  </TableCell>
+                </TableRow>
+              ) : filteredQuotes.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-64 text-center">
+                    <div className="flex flex-col items-center justify-center gap-4 text-slate-600">
+                       <FileSignature className="h-12 w-12 opacity-10" />
+                       <p className="text-sm font-bold uppercase tracking-widest opacity-30">No Strategic Quotes Found</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredQuotes.map((q: any) => (
+                  <TableRow
+                    key={q.id}
+                    className="group border-b border-white/5 hover:bg-white/[0.02] cursor-pointer transition-colors"
+                    onClick={() => onRowClick(q)}
+                  >
+                    <TableCell className="pl-6" onClick={(e) => e.stopPropagation()}>
+                      <div className="h-4 w-4 rounded border border-white/10 group-hover:border-blue-500/50 transition-colors" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-4">
+                        <div className="h-11 w-11 rounded-[14px] bg-gradient-to-br from-indigo-500/20 to-blue-500/10 flex items-center justify-center border border-white/10 shadow-inner">
+                          <FileSignature className="h-5 w-5 text-indigo-400" />
+                        </div>
+                        <div>
+                          <p className="font-black text-sm text-slate-200 tracking-tight">{q.name || "Untitled Strategy"}</p>
+                          <p className="text-[10px] text-slate-500 font-mono tracking-tighter uppercase">{q.id.slice(0, 8)}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-6 w-6 rounded-lg border border-white/5 shadow-lg">
+                          <AvatarFallback className="bg-slate-800 text-[10px] text-slate-400 font-bold">
+                            {getInitials(q.customerName || q.customer)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm font-bold text-slate-400 tracking-tight">{q.customerName || q.customer || "Anonymous"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-col items-end">
+                        <span className="text-sm font-black text-blue-400 tracking-tighter">{fmt(Number(q.amount) || 0)}</span>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Gross Point</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {q.dueDate ? (
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-3.5 w-3.5 text-slate-600" />
+                          <span className="text-sm font-bold text-slate-400">{format(new Date(q.dueDate), "MMM dd, yyyy")}</span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-700 italic text-xs">Unscheduled</span>
+                      )}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(q.status)}</TableCell>
+                    <TableCell className="text-right pr-6" onClick={(e) => e.stopPropagation()}>
+                       <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-white/5 hover:text-blue-400 transition-all opacity-0 group-hover:opacity-100">
+                             <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-rose-500/10 hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100 text-slate-600">
+                             <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-white/5 transition-all">
+                                <MoreHorizontal className="h-4 w-4 text-slate-500" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-slate-950 border-white/10 rounded-2xl shadow-2xl p-2 min-w-[180px]">
+                              <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-slate-500 p-3">Strategy Control</DropdownMenuLabel>
+                              <DropdownMenuItem className="rounded-xl p-3 gap-3 focus:bg-blue-500 focus:text-white group">
+                                <Send className="h-4 w-4 text-slate-500 group-focus:text-white" />
+                                <span className="text-xs font-bold uppercase tracking-widest">Transmit</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="rounded-xl p-3 gap-3 focus:bg-blue-500 focus:text-white group">
+                                <Download className="h-4 w-4 text-slate-500 group-focus:text-white" />
+                                <span className="text-xs font-bold uppercase tracking-widest">Capture PDF</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator className="bg-white/5 mx-2 my-2" />
+                              <DropdownMenuItem className="rounded-xl p-3 gap-3 focus:bg-rose-500 focus:text-white group text-rose-500">
+                                <Trash2 className="h-4 w-4" />
+                                <span className="text-xs font-bold uppercase tracking-widest">Purge</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                       </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </Card>
       </div>
 
-      {/* Create Quote Dialog */}
-      <Dialog open={openAdd} onOpenChange={setOpenAdd}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl">Create New Quote</DialogTitle>
-            <DialogDescription>
-              Fill in the details below to create a professional quote for your
-              customer.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-6 py-4">
-            {/* Basic Information */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                Basic Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="flex items-center gap-1">
-                    Quote Name <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    placeholder="e.g., Q2024-001 - Website Development"
-                    className="focus:ring-indigo-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="customer" className="flex items-center gap-1">
-                    <User className="h-3 w-3" />
-                    Customer
-                  </Label>
-                  <Input
-                    id="customer"
-                    name="customer"
-                    value={form.customer}
-                    onChange={handleChange}
-                    placeholder="Customer name or company"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dueDate" className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    Due Date
-                  </Label>
-                  <Input
-                    id="dueDate"
-                    name="dueDate"
-                    type="date"
-                    value={form.dueDate}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="notes" className="flex items-center gap-1">
-                  Notes / Terms
-                </Label>
-                <Textarea
-                  id="notes"
-                  name="notes"
-                  value={form.notes}
-                  onChange={handleChange}
-                  rows={3}
-                  placeholder="Add any additional notes or terms for this quote..."
-                />
-              </div>
-            </div>
-
-            {/* Line Items Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  Line Items
-                </h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addItem}
-                  className="gap-1"
-                >
-                  <Plus className="h-3 w-3" />
-                  Add Item
-                </Button>
-              </div>
-
-              <div className="border rounded-lg overflow-hidden">
-                <div className="bg-muted/50 px-4 py-2 grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground">
-                  <div className="col-span-4">Description</div>
-                  <div className="col-span-1 text-center">Qty</div>
-                  <div className="col-span-2 text-right">Unit Price</div>
-                  <div className="col-span-2 text-right">Discount</div>
-                  <div className="col-span-2 text-right">Tax (%)</div>
-                  <div className="col-span-1 text-center"></div>
-                </div>
-                <div className="divide-y">
-                  {items.map((item, idx) => (
-                    <div
-                      key={item.id}
-                      className="p-3 grid grid-cols-12 gap-2 items-center"
-                    >
-                      <div className="col-span-4">
-                        <Input
-                          placeholder="Item description"
-                          value={item.description}
-                          onChange={(e) =>
-                            updateItem(idx, "description", e.target.value)
-                          }
-                          className="h-9 text-sm"
-                        />
-                      </div>
-                      <div className="col-span-1">
-                        <Input
-                          type="number"
-                          placeholder="Qty"
-                          value={item.quantity || ""}
-                          onChange={(e) =>
-                            updateItem(
-                              idx,
-                              "quantity",
-                              Number(e.target.value) || 0,
-                            )
-                          }
-                          className="h-9 text-sm text-center"
-                          min="0"
-                          step="1"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <Input
-                          type="number"
-                          placeholder="0.00"
-                          value={item.unitPrice || ""}
-                          onChange={(e) =>
-                            updateItem(
-                              idx,
-                              "unitPrice",
-                              Number(e.target.value) || 0,
-                            )
-                          }
-                          className="h-9 text-sm text-right"
-                          min="0"
-                          step="0.01"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <Input
-                          type="number"
-                          placeholder="0.00"
-                          value={item.discount || ""}
-                          onChange={(e) =>
-                            updateItem(
-                              idx,
-                              "discount",
-                              Number(e.target.value) || 0,
-                            )
-                          }
-                          className="h-9 text-sm text-right"
-                          min="0"
-                          step="0.01"
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          value={item.taxRate || ""}
-                          onChange={(e) =>
-                            updateItem(
-                              idx,
-                              "taxRate",
-                              Number(e.target.value) || 0,
-                            )
-                          }
-                          className="h-9 text-sm text-right"
-                          min="0"
-                          step="0.1"
-                        />
-                      </div>
-                      <div className="col-span-1 flex justify-center">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => removeItem(idx)}
-                                className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Remove item</TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Totals Section */}
-              {items.some((i) => i.quantity > 0 || i.unitPrice > 0) && (
-                <div className="flex justify-end">
-                  <div className="w-72 space-y-2 p-4 bg-muted/30 rounded-lg">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span>{fmt(totals.subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span>{fmt(totals.tax)}</span>
-                    </div>
-                    <div className="border-t pt-2 flex justify-between font-semibold">
-                      <span>Total</span>
-                      <span className="text-lg text-indigo-600">
-                        {fmt(totals.total)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setOpenAdd(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={createQuote}
-              disabled={isSubmitting || !form.name.trim()}
-              className="bg-indigo-600 hover:bg-indigo-700"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Check className="mr-2 h-4 w-4" />
-                  Create Quote
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Quote Detail Dialog */}
+      {/* Detail Dialog Modernized */}
       <Dialog open={openDetail} onOpenChange={setOpenDetail}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl">Quote Details</DialogTitle>
-              {detailQuote && getStatusBadge(detailQuote.status)}
-            </div>
-            <DialogDescription>
-              Quote information and line items
-            </DialogDescription>
-          </DialogHeader>
-
-          {detailQuote && (
-            <div className="space-y-6">
-              {/* Quote Header */}
-              <div className="bg-muted/30 rounded-lg p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-medium">
-                      Quote Name
-                    </p>
-                    <p className="font-medium">{detailQuote.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-medium">
-                      Customer
-                    </p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <Avatar className="h-5 w-5">
-                        <AvatarFallback className="text-[10px]">
-                          {getInitials(
-                            detailQuote.customerName || detailQuote.customer,
-                          )}
-                        </AvatarFallback>
-                      </Avatar>
-                      <p className="font-medium">
-                        {detailQuote.customerName ||
-                          detailQuote.customer ||
-                          "—"}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-medium">
-                      Amount
-                    </p>
-                    <p className="font-semibold text-lg text-indigo-600">
-                      {fmt(Number(detailQuote.amount) || 0)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-medium">
-                      Due Date
-                    </p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <Calendar className="h-3 w-3 text-muted-foreground" />
-                      <p className="font-medium">
-                        {detailQuote.dueDate
-                          ? format(new Date(detailQuote.dueDate), "PPP")
-                          : "Not set"}
-                      </p>
-                    </div>
-                  </div>
-                  {detailQuote.createdAt && (
-                    <div>
-                      <p className="text-xs text-muted-foreground uppercase font-medium">
-                        Created
-                      </p>
-                      <p className="text-sm">
-                        {format(new Date(detailQuote.createdAt), "PPP")}
-                      </p>
-                    </div>
-                  )}
-                  <div className="md:col-span-2">
-                    <p className="text-xs text-muted-foreground uppercase font-medium">
-                      Notes
-                    </p>
-                    <p className="text-sm mt-0.5 whitespace-pre-wrap">
-                      {detailQuote.notes || "No notes added"}
-                    </p>
-                  </div>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden bg-slate-950 border-white/10 rounded-[40px] shadow-2xl">
+           {detailQuote && (
+             <div className="flex flex-col h-full max-h-[90vh]">
+                <div className="p-10 bg-gradient-to-br from-indigo-500/10 via-slate-950 to-slate-950 border-b border-white/5 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 p-12 opacity-[0.03] scale-150 rotate-12">
+                      <FileSignature className="h-64 w-64" />
+                   </div>
+                   
+                   <div className="relative space-y-4">
+                      <div className="flex items-center gap-3">
+                         {getStatusBadge(detailQuote.status)}
+                         <Badge variant="outline" className="h-7 text-[10px] font-black uppercase tracking-widest border-white/10 bg-white/5 backdrop-blur-md">
+                            Live Blueprint
+                         </Badge>
+                      </div>
+                      <h2 className="text-4xl font-black tracking-tight text-white uppercase">{detailQuote.name}</h2>
+                      <div className="flex items-center gap-6">
+                         <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8 rounded-xl border border-white/10 shadow-xl">
+                               <AvatarFallback className="bg-slate-900 text-xs text-slate-400 font-bold">{getInitials(detailQuote.customerName || detailQuote.customer)}</AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm font-bold text-slate-400 tracking-tight">{detailQuote.customerName || detailQuote.customer}</span>
+                         </div>
+                         <div className="h-8 w-[1px] bg-white/5" />
+                         <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 text-slate-600" />
+                            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Target: {detailQuote.dueDate ? format(new Date(detailQuote.dueDate), "MMM dd, yyyy") : "ASAP"}</span>
+                         </div>
+                      </div>
+                   </div>
                 </div>
-              </div>
 
-              {/* Line Items Table */}
-              {detailQuote.items && detailQuote.items.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold mb-3">Line Items</h4>
-                  <div className="border rounded-lg overflow-hidden">
-                    <Table>
-                      <TableHeader className="bg-muted/50">
-                        <TableRow>
-                          <TableHead>Description</TableHead>
-                          <TableHead className="text-center">Qty</TableHead>
-                          <TableHead className="text-right">
-                            Unit Price
-                          </TableHead>
-                          <TableHead className="text-right">Discount</TableHead>
-                          <TableHead className="text-right">Tax</TableHead>
-                          <TableHead className="text-right">Total</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {detailQuote.items.map((item, idx) => {
-                          const lineTotal =
-                            item.quantity * item.unitPrice -
-                            item.discount +
-                            (item.quantity * item.unitPrice - item.discount) *
-                              (item.taxRate / 100);
-                          return (
-                            <TableRow key={idx}>
-                              <TableCell>{item.description}</TableCell>
-                              <TableCell className="text-center">
-                                {item.quantity}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                {fmt(item.unitPrice)}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                {fmt(item.discount)}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                {item.taxRate}%
-                              </TableCell>
-                              <TableCell className="text-right font-medium">
-                                {fmt(lineTotal)}
-                              </TableCell>
+                <div className="flex-1 overflow-y-auto p-10 space-y-10">
+                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div className="bg-white/5 rounded-3xl p-6 border border-white/5">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 leading-none">Net Point</p>
+                         <h4 className="text-2xl font-black tracking-tighter text-blue-400 leading-none">{fmt(detailQuote.amount)}</h4>
+                      </div>
+                      <div className="bg-white/5 rounded-3xl p-6 border border-white/5">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 leading-none">Asset Units</p>
+                         <h4 className="text-2xl font-black tracking-tighter text-indigo-400 leading-none">{detailQuote.items?.length || 0} ITEMS</h4>
+                      </div>
+                      <div className="bg-white/5 rounded-3xl p-6 border border-white/5">
+                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2 leading-none">Last Transmitted</p>
+                         <h4 className="text-2xl font-black tracking-tighter text-emerald-400 leading-none lowercase">Never</h4>
+                      </div>
+                   </div>
+
+                   <div className="space-y-6">
+                      <div className="flex items-center gap-3">
+                         <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 shadow-inner"><ShoppingCart className="h-4 w-4" /></div>
+                         <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Inventory Items</h3>
+                      </div>
+                      
+                      <div className="rounded-[32px] border border-white/5 bg-slate-900/40 overflow-hidden">
+                        <Table>
+                          <TableHeader className="bg-slate-950/40">
+                            <TableRow className="hover:bg-transparent border-b border-white/5">
+                              <TableHead className="font-bold text-[10px] uppercase tracking-widest text-slate-600">Metric / Intelligence</TableHead>
+                              <TableHead className="text-center font-bold text-[10px] uppercase tracking-widest text-slate-600">Volume</TableHead>
+                              <TableHead className="text-right font-bold text-[10px] uppercase tracking-widest text-slate-600">Unit Point</TableHead>
+                              <TableHead className="text-right font-bold text-[10px] uppercase tracking-widest text-slate-600">Disc (%)</TableHead>
+                              <TableHead className="text-right font-bold text-[10px] uppercase tracking-widest text-slate-600 pr-8">Total</TableHead>
                             </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
-              )}
+                          </TableHeader>
+                          <TableBody>
+                            {detailQuote.items?.map((it, idx) => (
+                              <TableRow key={idx} className="border-b border-white/5 hover:bg-white/[0.01]">
+                                <TableCell className="font-bold text-slate-300 text-sm py-4">{it.description}</TableCell>
+                                <TableCell className="text-center font-mono text-xs text-slate-500">{it.quantity}</TableCell>
+                                <TableCell className="text-right font-bold text-slate-400">{fmt(it.unitPrice)}</TableCell>
+                                <TableCell className="text-right font-bold text-slate-500">{it.discount}%</TableCell>
+                                <TableCell className="text-right font-black text-blue-400 pr-8">{fmt(it.quantity * it.unitPrice - (it.quantity * it.unitPrice * it.discount / 100))}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                   </div>
 
-              {/* Actions */}
-              <div className="flex flex-wrap gap-2 pt-4 border-t">
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Send className="h-4 w-4" />
-                  Send
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Printer className="h-4 w-4" />
-                  Print
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Download className="h-4 w-4" />
-                  PDF
-                </Button>
-                <div className="flex-1"></div>
-                {detailQuote.status === "draft" && (
-                  <>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700 gap-1"
-                      onClick={() =>
-                        updateQuoteStatus(detailQuote.id, "accepted")
-                      }
-                    >
-                      <Check className="h-4 w-4" />
-                      Accept
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="gap-1"
-                      onClick={() =>
-                        updateQuoteStatus(detailQuote.id, "rejected")
-                      }
-                    >
-                      <AlertCircle className="h-4 w-4" />
-                      Reject
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
+                   {detailQuote.notes && (
+                      <div className="space-y-4">
+                         <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 shadow-inner"><AlertCircle className="h-4 w-4" /></div>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Strategy Manifest</h3>
+                         </div>
+                         <div className="p-8 rounded-[32px] bg-slate-900/40 border border-white/5 italic text-slate-500 text-sm leading-relaxed shadow-inner">
+                            {detailQuote.notes}
+                         </div>
+                      </div>
+                   )}
+                </div>
+
+                <div className="p-10 border-t border-white/5 bg-slate-950 flex flex-col md:flex-row gap-4">
+                   <Button className="flex-1 h-14 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-widest text-[10px] shadow-2xl transition-all" onClick={() => updateQuoteStatus(detailQuote.id, 'sent')}>
+                      <Send className="mr-2 h-4 w-4" /> Transmit Quote
+                   </Button>
+                   <Button variant="outline" className="flex-1 h-14 rounded-2xl border-white/10 bg-slate-900/50 hover:bg-slate-900 font-black uppercase tracking-widest text-[10px] shadow-xl" onClick={() => updateQuoteStatus(detailQuote.id, 'accepted')}>
+                      <Check className="mr-2 h-4 w-4 text-emerald-500" /> Accept Logic
+                   </Button>
+                   <Button variant="outline" className="h-14 w-14 rounded-2xl border-white/10 bg-slate-900/50 hover:bg-slate-900 shadow-xl flex items-center justify-center">
+                      <Download className="h-5 w-5 text-slate-400" />
+                   </Button>
+                </div>
+             </div>
+           )}
         </DialogContent>
       </Dialog>
     </CRMLayout>
@@ -927,4 +628,3 @@ const QuotesPage: React.FC = () => {
 };
 
 export default QuotesPage;
-  

@@ -51,6 +51,8 @@ import Privileges from "./pages/team/Privileges.tsx";
 import Documents from "./pages/Documents.tsx";
 import CampaignsPage from "./pages/Campaigns.tsx";
 import NewVendor from "./pages/NewVendor.tsx";
+import EditProduct from "./pages/EditProduct.tsx";
+import NewQuote from "./pages/NewQuote.tsx";
 import { ConfirmProvider } from "@/hooks/use-confirm.tsx";
 
 const queryClient = new QueryClient();
@@ -394,22 +396,38 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/products/settings"
-              element={
-                <ProtectedRoute>
-                  <ProductSettings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/quotes"
-              element={
-                <ProtectedRoute>
-                  <QuotesPage />
-                </ProtectedRoute>
-              }
-            />
+             <Route
+               path="/products/settings"
+               element={
+                 <ProtectedRoute>
+                   <ProductSettings />
+                 </ProtectedRoute>
+               }
+             />
+             <Route
+               path="/products/edit/:id"
+               element={
+                 <ProtectedRoute>
+                   <EditProduct />
+                 </ProtectedRoute>
+               }
+             />
+             <Route
+               path="/quotes/new"
+               element={
+                 <ProtectedRoute>
+                   <NewQuote />
+                 </ProtectedRoute>
+               }
+             />
+             <Route
+               path="/quotes"
+               element={
+                 <ProtectedRoute>
+                   <QuotesPage />
+                 </ProtectedRoute>
+               }
+             />
             <Route
               path="/invoices"
               element={

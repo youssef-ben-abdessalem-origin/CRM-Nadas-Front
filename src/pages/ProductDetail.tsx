@@ -186,20 +186,22 @@ export default function ProductDetail() {
             </div>
 
             <div className="flex flex-col gap-3 w-full md:w-auto min-w-[200px]">
-              <Button className="h-14 rounded-[20px] text-xs font-black uppercase tracking-widest shadow-2xl transition-all hover:scale-[1.02] active:scale-95 group/btn relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80" />
+              <Button 
+                className="h-14 rounded-[20px] text-xs font-black uppercase tracking-widest shadow-2xl transition-all hover:scale-[1.02] active:scale-95 group/btn relative overflow-hidden"
+                onClick={() => navigate(`/products/edit/${product.id}`)}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600" />
                 <span className="relative flex items-center gap-2">
-                   Add to Order <ShoppingCart className="h-4 w-4" />
+                   Edit Blueprint <Settings className="h-4 w-4" />
                 </span>
               </Button>
               <div className="flex gap-2">
-                <Button variant="outline" size="icon" className="h-14 w-14 rounded-[20px] border-2 hover:bg-muted transition-all duration-300 shadow-xl group/icon">
-                   <Settings className="h-5 w-5 group-hover/icon:rotate-90 transition-transform duration-500" />
+                <Button className="flex-1 h-14 rounded-[20px] text-[10px] font-black uppercase tracking-widest shadow-xl group border-2 hover:bg-primary/5 transition-all">
+                   <div className="flex items-center justify-center gap-2">
+                     <ShoppingCart className="h-4 w-4" /> Add to Order
+                   </div>
                 </Button>
-                <Button variant="outline" size="icon" className="h-14 w-14 rounded-[20px] border-2 hover:bg-primary/10 transition-all duration-300 shadow-xl group/icon">
-                   <ShieldCheck className="h-5 w-5 text-green-500 group-hover/icon:scale-110 transition-transform" />
-                </Button>
-                <Button variant="outline" size="icon" className="h-14 w-14 rounded-[20px] border-2 hover:bg-destructive/10 transition-all duration-300 shadow-xl group/icon">
+                <Button variant="outline" size="icon" className="h-14 w-14 rounded-[20px] border-2 hover:bg-destructive/10 transition-all duration-300 shadow-xl group/icon" onClick={() => {/* Delete logic */}}>
                    <Archive className="h-5 w-5 text-destructive group-hover/icon:scale-125 transition-transform" />
                 </Button>
               </div>

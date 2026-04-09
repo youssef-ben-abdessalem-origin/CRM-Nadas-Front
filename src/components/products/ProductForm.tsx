@@ -23,20 +23,17 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
-  Package, 
   Trash2,
   UploadCloud,
   Truck,
   Warehouse,
-  User,
-  Hash,
-  Activity,
   Info,
   CalendarDays,
   Coins,
   ClipboardList,
   Image as ImageIcon,
-  UserCheck
+  UserCheck,
+  Hash
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import api from "@/lib/api";
@@ -46,10 +43,12 @@ import { useQuery } from "@tanstack/react-query";
 
 const productSchema = z.object({
   name: z.string().min(2, "Product name is required"),
+  slug: z.string().min(2, "Slug is required"),
   productCode: z.string().optional(),
-  productOwner: z.string().default("Djo Abdo"),
+  ownerId: z.coerce.number().optional(),
   productActive: z.boolean().default(true),
-  productCategory: z.string().optional(),
+  categoryId: z.string().nullable().optional(),
+  brandId: z.string().nullable().optional(),
   vendorName: z.string().optional(),
   manufacturer: z.string().optional(),
   salesStartDate: z.string().optional(),
@@ -80,7 +79,7 @@ interface ProductFormProps {
   productTypes?: any[];
 }
 
-export const ProductForm = ({ formData, setFormData, categories }: ProductFormProps) => {
+export const ProductForm = ({ formData, setFormData, categories, brands: brandsList }: ProductFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
 
   const { data: vendors = [] } = useQuery({
@@ -95,19 +94,25 @@ export const ProductForm = ({ formData, setFormData, categories }: ProductFormPr
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues: formData || {
-      productOwner: "Djo Abdo",
-      productActive: true,
-      usageUnit: "Box",
-      taxable: true,
-      unitPrice: 0,
-      quantityInStock: 0,
+    defaultValues: {
+      ...formData,
+      productActive: formData?.isActive ?? true,
+      ownerId: formData?.ownerId || undefined,
+      categoryId: formData?.categoryId || null,
+      brandId: formData?.brandId || null,
     },
   });
 
-  const handleChange = (name: keyof ProductFormValues, value: any) => {
-    form.setValue(name, value);
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
+  const handleChange = (name: string, value: any) => {
+    // Sanitize empty strings for UUID fields to null
+    const finalValue = (name === "categoryId" || name === "brandId") && value === "-None-" ? null : value;
+    
+    // Also map productActive back to isActive for parent if needed
+    if (name === "productActive") {
+      setFormData((prev: any) => ({ ...prev, isActive: finalValue }));
+    }
+    
+    setFormData((prev: any) => ({ ...prev, [name]: finalValue }));
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,7 +122,9 @@ export const ProductForm = ({ formData, setFormData, categories }: ProductFormPr
     try {
       setIsUploading(true);
       const res = await api.uploads.uploadAvatar(file);
-      handleChange("image", res.url);
+      const url = res.url;
+      form.setValue("image", url);
+      handleChange("image", url);
       toast.success("Image uploaded successfully");
     } catch (error) {
       console.error("Product image upload failed:", error);
@@ -131,9 +138,7 @@ export const ProductForm = ({ formData, setFormData, categories }: ProductFormPr
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
+      transition: { staggerChildren: 0.05 }
     }
   };
 
@@ -145,13 +150,8 @@ export const ProductForm = ({ formData, setFormData, categories }: ProductFormPr
   return (
     <Form {...form}>
       <div className="space-y-8 pb-10">
-        <motion.div 
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 lg:grid-cols-3 gap-8"
-        >
-          {/* Left Column: Image & Basic Info */}
+        <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column */}
           <div className="lg:col-span-1 space-y-6">
             <motion.div variants={item}>
               <Card className="overflow-hidden border-none shadow-2xl bg-slate-900/50 backdrop-blur-xl group">
@@ -161,13 +161,7 @@ export const ProductForm = ({ formData, setFormData, categories }: ProductFormPr
                       <div className="relative w-full h-full group">
                         <img src={form.watch("image")} alt="Product" className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                           <Button 
-                             variant="destructive" 
-                             size="icon" 
-                             onClick={() => handleChange("image", "")}
-                             className="rounded-full shadow-lg"
-                             type="button"
-                           >
+                           <Button variant="destructive" size="icon" onClick={() => { form.setValue("image", ""); handleChange("image", ""); }} className="rounded-full shadow-lg" type="button">
                               <Trash2 className="h-4 w-4" />
                            </Button>
                         </div>
@@ -190,274 +184,173 @@ export const ProductForm = ({ formData, setFormData, categories }: ProductFormPr
 
             <motion.div variants={item} className="space-y-4 pt-2">
                <div className="flex items-center gap-3 px-2 mb-4">
-                  <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                     <Info className="h-4 w-4 text-blue-500" />
-                  </div>
+                  <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center"><Info className="h-4 w-4 text-blue-500" /></div>
                   <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Basic Information</h3>
                </div>
                
-               <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
+               <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Product Name</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Product Name" 
-                        className="bg-slate-900/50 border-white/10 h-12 rounded-xl focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all" 
+                      <Input placeholder="Product Name" className="bg-slate-900/50 border-white/10 h-12 rounded-xl focus:border-blue-500/50 font-bold text-slate-200" 
                         {...field} 
-                        onChange={(e) => { field.onChange(e); handleChange("name", e.target.value); }}
+                        onChange={(e) => { 
+                          const val = e.target.value;
+                          field.onChange(val); 
+                          handleChange("name", val);
+                          const slug = val.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+                          form.setValue("slug", slug);
+                          handleChange("slug", slug);
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
-                )}
-              />
+                )} />
+
+              <FormField control={form.control} name="slug" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Slug</FormLabel>
+                    <FormControl>
+                      <div className="relative group/slug">
+                        <Input placeholder="product-slug" className="bg-slate-900/50 border-white/10 h-10 rounded-xl font-mono text-xs text-blue-400 pl-8 transition-all" {...field} onChange={(e) => { field.onChange(e); handleChange("slug", e.target.value); }} />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within/slug:text-blue-500"><Hash className="h-3 w-3" /></div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
 
               <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="productCode"
-                  render={({ field }) => (
+                <FormField control={form.control} name="productCode" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Product Code</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="SKU-001" 
-                          className="bg-slate-900/50 border-white/10 h-12 rounded-xl font-mono text-xs" 
-                          {...field} 
-                          onChange={(e) => { field.onChange(e); handleChange("productCode", e.target.value); }}
-                        />
+                        <Input placeholder="SKU-001" className="bg-slate-900/50 border-white/10 h-12 rounded-xl font-mono text-xs" {...field} onChange={(e) => { field.onChange(e); handleChange("productCode", e.target.value); }} />
                       </FormControl>
                     </FormItem>
-                  )}
-                />
+                  )} />
 
-                <FormField
-                  control={form.control}
-                  name="productActive"
-                  render={({ field }) => (
+                <FormField control={form.control} name="productActive" render={({ field }) => (
                     <FormItem className="flex flex-col justify-end pb-3 pl-2">
                       <div className="flex items-center space-x-2 bg-slate-900/40 p-3 rounded-xl border border-white/5 h-10 mt-auto hover:bg-slate-900/60 transition-colors cursor-pointer group">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={(checked) => { field.onChange(checked); handleChange("productActive", checked); }}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-400 cursor-pointer group-hover:text-slate-300">
-                          Is Active
-                        </FormLabel>
+                        <FormControl><Checkbox checked={field.value} onCheckedChange={(checked) => { field.onChange(checked); handleChange("productActive", checked); }} /></FormControl>
+                        <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-400 cursor-pointer group-hover:text-slate-300">Is Active</FormLabel>
                       </div>
                     </FormItem>
-                  )}
-                />
+                  )} />
               </div>
 
-              <FormField
-                control={form.control}
-                name="productOwner"
-                render={({ field }) => (
+              <FormField control={form.control} name="ownerId" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Product Owner</FormLabel>
-                    <Select 
-                      onValueChange={(v) => { field.onChange(v); handleChange("productOwner", v); }} 
-                      value={field.value}
-                    >
+                    <Select onValueChange={(v) => { const id = parseInt(v); field.onChange(id); handleChange("ownerId", id); }} value={field.value?.toString()}>
                       <FormControl>
                         <SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl">
-                          <div className="flex items-center gap-2">
-                            <UserCheck className="h-4 w-4 text-slate-500" />
-                            <SelectValue placeholder="Select Owner" />
-                          </div>
+                          <div className="flex items-center gap-2"><UserCheck className="h-4 w-4 text-slate-500" /><SelectValue placeholder="Select Owner" /></div>
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
                         {employees?.map((emp: any) => (
-                          <SelectItem key={emp.id} value={emp.user.name}>{emp.user.name}</SelectItem>
+                          <SelectItem key={emp.id} value={emp.user.id.toString()}>{emp.user.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </FormItem>
-                )}
-              />
+                )} />
             </motion.div>
           </div>
 
-          {/* Right Column: Details */}
+          {/* Right Column */}
           <div className="lg:col-span-2 space-y-10">
-            {/* Additional Information */}
             <motion.div variants={item} className="space-y-6">
               <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                     <ClipboardList className="h-4 w-4 text-emerald-500" />
-                  </div>
+                  <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center"><ClipboardList className="h-4 w-4 text-emerald-500" /></div>
                   <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Additional Information</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="productCategory"
-                  render={({ field }) => (
+                <FormField control={form.control} name="categoryId" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Category</FormLabel>
-                      <Select 
-                        onValueChange={(v) => { field.onChange(v); handleChange("productCategory", v); }} 
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl">
-                            <SelectValue placeholder="Select Category" />
-                          </SelectTrigger>
-                        </FormControl>
+                      <Select onValueChange={(v) => { const val = v === "-None-" ? null : v; field.onChange(val); handleChange("categoryId", val); }} value={field.value || "-None-"}>
+                        <FormControl><SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl"><SelectValue placeholder="Select Category" /></SelectTrigger></FormControl>
                         <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
                           <SelectItem value="-None-">-None-</SelectItem>
-                          {categories?.map((c) => (
-                            <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                          ))}
+                          {categories?.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
                         </SelectContent>
                       </Select>
                     </FormItem>
-                  )}
-                />
+                  )} />
 
-                <FormField
-                  control={form.control}
-                  name="vendorName"
-                  render={({ field }) => (
+                <FormField control={form.control} name="brandId" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Brand / Manufacturer</FormLabel>
+                      <Select onValueChange={(v) => { const val = v === "-None-" ? null : v; field.onChange(val); handleChange("brandId", val); }} value={field.value || "-None-"}>
+                        <FormControl><SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl"><SelectValue placeholder="Select Brand" /></SelectTrigger></FormControl>
+                        <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
+                          <SelectItem value="-None-">-None-</SelectItem>
+                          {brandsList?.map((b) => (<SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )} />
+
+                <FormField control={form.control} name="vendorName" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Vendor Name</FormLabel>
-                      <Select 
-                        onValueChange={(v) => { field.onChange(v); handleChange("vendorName", v); }} 
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl">
-                            <div className="flex items-center gap-2">
-                              <Truck className="h-4 w-4 text-slate-500" />
-                              <SelectValue placeholder="Select Vendor" />
-                            </div>
-                          </SelectTrigger>
-                        </FormControl>
+                      <Select onValueChange={(v) => { field.onChange(v); handleChange("vendorName", v); }} value={field.value}>
+                        <FormControl><SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl"><div className="flex items-center gap-2"><Truck className="h-4 w-4 text-slate-500" /><SelectValue placeholder="Select Vendor" /></div></SelectTrigger></FormControl>
                         <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
                           <SelectItem value="-None-">-None-</SelectItem>
-                          {vendors?.map((v: any) => (
-                            <SelectItem key={v.id} value={v.name}>{v.name}</SelectItem>
-                          ))}
+                          {vendors?.map((v: any) => (<SelectItem key={v.id} value={v.name}>{v.name}</SelectItem>))}
                         </SelectContent>
                       </Select>
                     </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="manufacturer"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Manufacturer</FormLabel>
-                      <Select 
-                        onValueChange={(v) => { field.onChange(v); handleChange("manufacturer", v); }} 
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl">
-                            <SelectValue placeholder="Select Manufacturer" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
-                          <SelectItem value="-None-">-None-</SelectItem>
-                          <SelectItem value="AltvetPet Inc.">AltvetPet Inc.</SelectItem>
-                          <SelectItem value="LexPon Inc.">LexPon Inc.</SelectItem>
-                          <SelectItem value="MetBeat Corp.">MetBeat Corp.</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
+                  )} />
               </div>
 
               <div className="flex items-center gap-3 mt-4">
-                  <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                     <CalendarDays className="h-4 w-4 text-indigo-500" />
-                  </div>
+                  <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"><CalendarDays className="h-4 w-4 text-indigo-500" /></div>
                   <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Important Dates</h3>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-slate-950/30 border border-white/5 shadow-inner">
                 {[
-                  { name: "salesStartDate", label: "Sales Start Date" },
-                  { name: "salesEndDate", label: "Sales End Date" },
-                  { name: "supportStartDate", label: "Support Start Date" },
-                  { name: "supportEndDate", label: "Support End Date" }
+                  { name: "salesStartDate", label: "Sales Start" },
+                  { name: "salesEndDate", label: "Sales End" },
+                  { name: "supportStartDate", label: "Support Start" },
+                  { name: "supportEndDate", label: "Support End" }
                 ].map((date) => (
-                  <FormField
-                    key={date.name}
-                    control={form.control}
-                    name={date.name as any}
-                    render={({ field }) => (
+                  <FormField key={date.name} control={form.control} name={date.name as any} render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">{date.label}</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="date" 
-                            className="bg-transparent border-none h-8 p-0 text-[11px] font-bold text-slate-300 uppercase cursor-pointer focus:ring-0" 
-                            {...field} 
-                            onChange={(e) => { field.onChange(e); handleChange(date.name as any, e.target.value); }}
-                          />
-                        </FormControl>
+                        <FormControl><Input type="date" className="bg-transparent border-none h-8 p-0 text-[11px] font-bold text-slate-300 uppercase cursor-pointer focus:ring-0" {...field} onChange={(e) => { field.onChange(e); handleChange(date.name, e.target.value); }} /></FormControl>
                       </FormItem>
-                    )}
-                  />
+                    )} />
                 ))}
               </div>
             </motion.div>
 
-            {/* Price Information */}
             <motion.div variants={item} className="space-y-6 pt-6 border-t border-white/5">
               <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                     <Coins className="h-4 w-4 text-amber-500" />
-                  </div>
+                  <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center"><Coins className="h-4 w-4 text-amber-500" /></div>
                   <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Price Information</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField
-                  control={form.control}
-                  name="unitPrice"
-                  render={({ field }) => (
+                <FormField control={form.control} name="unitPrice" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Unit Price (TND)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          className="bg-slate-900/50 border-white/10 h-12 rounded-xl font-bold text-amber-500 focus:border-amber-500/50" 
-                          {...field} 
-                          onChange={(e) => { field.onChange(e); handleChange("unitPrice", e.target.value); }}
-                        />
-                      </FormControl>
+                      <FormControl><Input type="number" className="bg-slate-900/50 border-white/10 h-12 rounded-xl font-bold text-amber-500 focus:border-amber-500/50" {...field} onChange={(e) => { field.onChange(e); handleChange("unitPrice", e.target.value); }} /></FormControl>
                     </FormItem>
-                  )}
-                />
+                  )} />
 
-                <FormField
-                  control={form.control}
-                  name="tax"
-                  render={({ field }) => (
+                <FormField control={form.control} name="tax" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Tax (%)</FormLabel>
-                      <Select 
-                        onValueChange={(v) => { field.onChange(v); handleChange("tax", v); }} 
-                        value={field.value?.toString()}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl">
-                            <SelectValue placeholder="Select Tax" />
-                          </SelectTrigger>
-                        </FormControl>
+                      <Select onValueChange={(v) => { field.onChange(v); handleChange("tax", v); }} value={field.value?.toString()}>
+                        <FormControl><SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl"><SelectValue placeholder="Select Tax" /></SelectTrigger></FormControl>
                         <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
                           <SelectItem value="0">0% (None)</SelectItem>
                           <SelectItem value="5">5% (Reduced)</SelectItem>
@@ -468,195 +361,87 @@ export const ProductForm = ({ formData, setFormData, categories }: ProductFormPr
                         </SelectContent>
                       </Select>
                     </FormItem>
-                  )}
-                />
+                  )} />
 
-                <FormField
-                  control={form.control}
-                  name="commissionRate"
-                  render={({ field }) => (
+                <FormField control={form.control} name="commissionRate" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Commission Rate (TND)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          className="bg-slate-900/50 border-white/10 h-12 rounded-xl" 
-                          {...field} 
-                          onChange={(e) => { field.onChange(e); handleChange("commissionRate", e.target.value); }}
-                        />
-                      </FormControl>
+                      <FormControl><Input type="number" className="bg-slate-900/50 border-white/10 h-12 rounded-xl" {...field} onChange={(e) => { field.onChange(e); handleChange("commissionRate", e.target.value); }} /></FormControl>
                     </FormItem>
-                  )}
-                />
+                  )} />
               </div>
 
-              <FormField
-                control={form.control}
-                name="taxable"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-2xl border border-white/5 p-4 bg-slate-900/20 max-w-xs group cursor-pointer hover:bg-slate-900/40 transition-colors">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={(checked) => { field.onChange(checked); handleChange("taxable", checked); }}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-amber-500 transition-colors cursor-pointer">
-                        Taxable
-                      </FormLabel>
-                    </div>
+              <FormField control={form.control} name="taxable" render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-2xl border border-white/5 p-4 bg-slate-900/20 max-w-xs group cursor-pointer hover:bg-slate-900/40">
+                    <FormControl><Checkbox checked={field.value} onCheckedChange={(checked) => { field.onChange(checked); handleChange("taxable", checked); }} /></FormControl>
+                    <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-amber-500 transition-colors pointer-events-none">Taxable</FormLabel>
                   </FormItem>
-                )}
-              />
+                )} />
             </motion.div>
 
-            {/* Stock Information */}
             <motion.div variants={item} className="space-y-6 pt-6 border-t border-white/5">
               <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                     <Warehouse className="h-4 w-4 text-indigo-500" />
-                  </div>
+                  <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"><Warehouse className="h-4 w-4 text-indigo-500" /></div>
                   <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Stock Information</h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <FormField
-                  control={form.control}
-                  name="usageUnit"
-                  render={({ field }) => (
+                <FormField control={form.control} name="usageUnit" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Usage Unit</FormLabel>
-                      <Select 
-                        onValueChange={(v) => { field.onChange(v); handleChange("usageUnit", v); }} 
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl">
-                            <SelectValue placeholder="Select Unit" />
-                          </SelectTrigger>
-                        </FormControl>
+                      <Select onValueChange={(v) => { field.onChange(v); handleChange("usageUnit", v); }} value={field.value}>
+                        <FormControl><SelectTrigger className="bg-slate-900/50 border-white/10 h-12 rounded-xl"><SelectValue placeholder="Select Unit" /></SelectTrigger></FormControl>
                         <SelectContent className="bg-slate-950 border-white/10 text-slate-300">
-                          {["Box", "Carton", "Dozen", "Each", "Hour(s)", "Impressions", "Lb", "M", "Pack", "Pages", "Pieces", "Quantity", "Reams", "Sheet", "Spiral Binder", "Square Feet"].map(u => (
-                            <SelectItem key={u} value={u}>{u}</SelectItem>
-                          ))}
+                          {["Box", "Carton", "Dozen", "Each", "Hour(s)", "Impressions", "Lb", "M", "Pack", "Pages", "Pieces", "Quantity", "Reams", "Sheet", "Spiral Binder", "Square Feet"].map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}
                         </SelectContent>
                       </Select>
                     </FormItem>
-                  )}
-                />
+                  )} />
 
-                <FormField
-                  control={form.control}
-                  name="quantityInStock"
-                  render={({ field }) => (
+                <FormField control={form.control} name="quantityInStock" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Quantity in Stock</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          className="bg-slate-900/50 border-white/10 h-12 rounded-xl font-bold text-indigo-400 focus:border-indigo-500/50" 
-                          {...field} 
-                          onChange={(e) => { field.onChange(e); handleChange("quantityInStock", e.target.value); }}
-                        />
-                      </FormControl>
+                      <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">In Stock</FormLabel>
+                      <FormControl><Input type="number" className="bg-slate-900/50 border-white/10 h-12 rounded-xl font-bold text-indigo-400 focus:border-indigo-500/50" {...field} onChange={(e) => { field.onChange(e); handleChange("quantityInStock", e.target.value); }} /></FormControl>
                     </FormItem>
-                  )}
-                />
+                  )} />
 
-                <FormField
-                  control={form.control}
-                  name="handler"
-                  render={({ field }) => (
+                <FormField control={form.control} name="handler" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Handler</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Handler Name" 
-                          className="bg-slate-900/50 border-white/10 h-12 rounded-xl font-medium" 
-                          {...field} 
-                          onChange={(e) => { field.onChange(e); handleChange("handler", e.target.value); }}
-                        />
-                      </FormControl>
+                      <FormControl><Input placeholder="Handler Name" className="bg-slate-900/50 border-white/10 h-12 rounded-xl font-medium" {...field} onChange={(e) => { field.onChange(e); handleChange("handler", e.target.value); }} /></FormControl>
                     </FormItem>
-                  )}
-                />
+                  )} />
 
-                <FormField
-                  control={form.control}
-                  name="qtyOrdered"
-                  render={({ field }) => (
+                <FormField control={form.control} name="qtyOrdered" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Qty Ordered</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          className="bg-slate-900/50 border-white/10 h-12 rounded-xl" 
-                          {...field} 
-                          onChange={(e) => { field.onChange(e); handleChange("qtyOrdered", e.target.value); }}
-                        />
-                      </FormControl>
+                      <FormControl><Input type="number" className="bg-slate-900/50 border-white/10 h-12 rounded-xl" {...field} onChange={(e) => { field.onChange(e); handleChange("qtyOrdered", e.target.value); }} /></FormControl>
                     </FormItem>
-                  )}
-                />
+                  )} />
 
-                <FormField
-                  control={form.control}
-                  name="reorderLevel"
-                  render={({ field }) => (
+                <FormField control={form.control} name="reorderLevel" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Reorder Level</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          className="bg-slate-900/50 border-white/10 h-12 rounded-xl" 
-                          {...field} 
-                          onChange={(e) => { field.onChange(e); handleChange("reorderLevel", e.target.value); }}
-                        />
-                      </FormControl>
+                      <FormControl><Input type="number" className="bg-slate-900/50 border-white/10 h-12 rounded-xl" {...field} onChange={(e) => { field.onChange(e); handleChange("reorderLevel", e.target.value); }} /></FormControl>
                     </FormItem>
-                  )}
-                />
+                  )} />
 
-                <FormField
-                  control={form.control}
-                  name="quantityInDemand"
-                  render={({ field }) => (
+                <FormField control={form.control} name="quantityInDemand" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Quantity in Demand</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          className="bg-slate-900/50 border-white/10 h-12 rounded-xl" 
-                          {...field} 
-                          onChange={(e) => { field.onChange(e); handleChange("quantityInDemand", e.target.value); }}
-                        />
-                      </FormControl>
+                      <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">In Demand</FormLabel>
+                      <FormControl><Input type="number" className="bg-slate-900/50 border-white/10 h-12 rounded-xl" {...field} onChange={(e) => { field.onChange(e); handleChange("quantityInDemand", e.target.value); }} /></FormControl>
                     </FormItem>
-                  )}
-                />
+                  )} />
               </div>
             </motion.div>
 
-            {/* Description */}
             <motion.div variants={item} className="pt-6 border-t border-white/5">
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
+              <FormField control={form.control} name="description" render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Description</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Product description and internal notes..." 
-                        className="bg-slate-900/50 border-white/10 min-h-[140px] resize-none rounded-2xl p-5 text-slate-300 leading-relaxed focus:border-blue-500/50" 
-                        {...field} 
-                        onChange={(e) => { field.onChange(e); handleChange("description", e.target.value); }}
-                      />
-                    </FormControl>
+                    <FormControl><Textarea placeholder="Product description..." className="bg-slate-900/50 border-white/10 min-h-[140px] resize-none rounded-2xl p-5 text-slate-300 focus:border-blue-500/50" {...field} onChange={(e) => { field.onChange(e); handleChange("description", e.target.value); }} /></FormControl>
                   </FormItem>
-                )}
-              />
+                )} />
             </motion.div>
           </div>
         </motion.div>

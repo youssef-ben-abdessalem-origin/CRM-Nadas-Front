@@ -367,55 +367,26 @@ const Products = () => {
   };
 
   const handleEditClick = (product: Product) => {
-    setEditingProduct(product);
-    
-    // Find default variant for base price/inventory info
-    const defaultVariant = product.variants?.find(v => v.isDefault) || product.variants?.[0];
-    const inventory = defaultVariant?.inventory?.[0];
-
-    setFormData({
-      name: product.name,
-      slug: product.slug,
-      description: product.description || "",
-      type: product.type,
-      status: product.status,
-      categoryId: product.categoryId || "",
-      brandId: product.brandId || "",
-      isActive: product.isActive,
-      isSellable: product.isSellable,
-      isPurchasable: product.isPurchasable,
-      billingType: product.billingType || "one_time",
-      billingCycle: product.billingCycle || "monthly",
-      trialPeriodDays: product.trialPeriodDays || 0,
-      setupFee: product.setupFee || 0,
-      unitOfMeasure: product.unitOfMeasure || "unit",
-      basePrice: defaultVariant?.price || 0,
-      cost: defaultVariant?.cost || 0,
-      currency: product.variants?.[0]?.prices?.[0]?.priceBook?.currency || "USD",
-      taxClass: "standard",
-      tags: [],
-      variants: product.variants || [],
-      media: product.media || [],
-      trackInventory: !!inventory,
-      quantity: inventory?.quantityAvailable || 0,
-      reorderLevel: inventory?.reorderLevel || 0,
-      warehouseId: inventory?.warehouseId || "central",
-    });
-    setShowEdit(true);
+    // navigate(`/products/edit/${product.id}`);
   };
 
 
   const handleEdit = () => {
     if (!editingProduct || !formData.name) return;
+
+    const payload = { ...formData };
+    if (payload.categoryId === "") payload.categoryId = null;
+    if (payload.brandId === "") payload.brandId = null;
+
     updateMutation.mutate({
       id: editingProduct.id,
-      data: formData,
+      data: payload,
     });
   };
 
   const handleDelete = async (product: Product) => {
-    if (await confirm({ 
-      title: "Delete Product", 
+    if (await confirm({
+      title: "Delete Product",
       description: `Are you sure you want to delete "${product.name}"? This action will permanently remove the product and all its variants from the catalog.`,
       variant: "destructive",
       confirmText: "Delete"
@@ -532,8 +503,8 @@ const Products = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search products..." 
+              <Input
+                placeholder="Search products..."
                 className="h-9 pl-9 text-sm"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -598,17 +569,17 @@ const Products = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                         <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/5">
-                            {product.image ? (
-                              <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
-                            ) : (
-                              <Package className="h-5 w-5 text-primary" />
-                            )}
-                         </div>
-                         <div>
-                            <p className="font-semibold text-sm">{product.name}</p>
-                            <p className="text-[10px] text-muted-foreground font-mono">{product.productCode || "NO_SKU"}</p>
-                         </div>
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/5">
+                          {product.image ? (
+                            <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                          ) : (
+                            <Package className="h-5 w-5 text-primary" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-sm">{product.name}</p>
+                          <p className="text-[10px] text-muted-foreground font-mono">{product.productCode || "NO_SKU"}</p>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -618,16 +589,16 @@ const Products = () => {
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="inline-flex flex-col items-center">
-                         <p className="text-sm font-bold">{product.quantityInStock || 0}</p>
-                         <p className="text-[9px] text-muted-foreground uppercase">{product.usageUnit || "units"}</p>
+                        <p className="text-sm font-bold">{product.quantityInStock || 0}</p>
+                        <p className="text-[9px] text-muted-foreground uppercase">{product.usageUnit || "units"}</p>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="inline-flex flex-col items-end">
-                         <p className="text-sm font-bold text-primary">
-                           {new Intl.NumberFormat("en-US", { style: "currency", currency: "TND" }).format(product.unitPrice || 0)}
-                         </p>
-                         <p className="text-[8px] text-muted-foreground uppercase tracking-widest">Base Rate</p>
+                        <p className="text-sm font-bold text-primary">
+                          {new Intl.NumberFormat("en-US", { style: "currency", currency: "TND" }).format(product.unitPrice || 0)}
+                        </p>
+                        <p className="text-[8px] text-muted-foreground uppercase tracking-widest">Base Rate</p>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -660,19 +631,19 @@ const Products = () => {
               Showing {products.length} assets
             </p>
             <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-8" 
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
                 Previous
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-8" 
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages || totalPages === 0}
               >
@@ -692,13 +663,13 @@ const Products = () => {
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">New Price Value</Label>
                 <div className="relative">
-                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                   <Input 
-                    type="number" 
-                    value={newPrice} 
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    value={newPrice}
                     onChange={(e) => setNewPrice(parseFloat(e.target.value))}
-                    className="h-12 pl-9 rounded-xl font-black text-lg border-2" 
-                   />
+                    className="h-12 pl-9 rounded-xl font-black text-lg border-2"
+                  />
                 </div>
               </div>
               <div className="flex gap-3">
@@ -735,31 +706,7 @@ const Products = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Dialog */}
-        <Dialog open={showEdit} onOpenChange={setShowEdit}>
-          <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-[32px]">
-            <div className="bg-primary/5 p-8 border-b">
-              <DialogTitle className="text-2xl font-black uppercase tracking-tighter">Edit Product Blueprint</DialogTitle>
-            </div>
-            <div className="max-h-[80vh] overflow-y-auto p-8">
-              <ProductForm 
-                formData={formData} 
-                setFormData={setFormData}
-                categories={categories}
-                brands={brands}
-                productTypes={productTypes}
-              />
-            </div>
-            <div className="p-8 border-t bg-muted/20 flex gap-4">
-              <Button className="flex-1 h-12 rounded-xl font-black uppercase tracking-widest" onClick={handleEdit}>
-                Finalize Updates
-              </Button>
-              <Button variant="outline" className="flex-1 h-12 rounded-xl font-black uppercase tracking-widest border-2" onClick={() => setShowEdit(false)}>
-                Discard Changes
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* Matrix Management & Variants remain in dialogs for quick access */}
       </div>
     </CRMLayout>
   );
