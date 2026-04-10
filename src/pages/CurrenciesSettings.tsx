@@ -31,6 +31,8 @@ interface Currency {
   name: string;
   code: string;
   symbol: string;
+  symbolArabic: string;
+  symbolEnglish: string;
   isActive: boolean;
   isDefault: boolean;
 }
@@ -45,6 +47,8 @@ const CurrenciesSettings = () => {
     name: "",
     code: "",
     symbol: "",
+    symbolArabic: "",
+    symbolEnglish: "",
     isDefault: false,
   });
 
@@ -87,7 +91,14 @@ const CurrenciesSettings = () => {
   });
 
   const resetForm = () => {
-    setFormData({ name: "", code: "", symbol: "", isDefault: false });
+    setFormData({ 
+      name: "", 
+      code: "", 
+      symbol: "", 
+      symbolArabic: "", 
+      symbolEnglish: "", 
+      isDefault: false 
+    });
   };
 
   const handleSubmit = () => {
@@ -108,6 +119,8 @@ const CurrenciesSettings = () => {
       name: currency.name,
       code: currency.code,
       symbol: currency.symbol || "",
+      symbolArabic: currency.symbolArabic || "",
+      symbolEnglish: currency.symbolEnglish || "",
       isDefault: currency.isDefault,
     });
     setShowDialog(true);
@@ -153,7 +166,7 @@ const CurrenciesSettings = () => {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Code</TableHead>
-                <TableHead>Symbol</TableHead>
+                <TableHead>Symbols (Ar/En)</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -170,7 +183,13 @@ const CurrenciesSettings = () => {
                   <TableRow key={currency.id}>
                     <TableCell className="font-medium">{currency.name}</TableCell>
                     <TableCell>{currency.code}</TableCell>
-                    <TableCell>{currency.symbol}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {currency.symbolArabic && <Badge variant="outline">{currency.symbolArabic}</Badge>}
+                        {currency.symbolEnglish && <Badge variant="outline">{currency.symbolEnglish}</Badge>}
+                        {!currency.symbolArabic && !currency.symbolEnglish && <span>{currency.symbol}</span>}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       {currency.isDefault && (
                         <Badge className="bg-green-500">Default</Badge>
@@ -200,46 +219,71 @@ const CurrenciesSettings = () => {
       </div>
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{editingCurrency ? "Edit Currency" : "Add Currency"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Name *</Label>
+                <Input
+                  placeholder="US Dollar"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Code *</Label>
+                <Input
+                  placeholder="USD"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Arabic Symbol</Label>
+                <Input
+                  placeholder="د.ت"
+                  value={formData.symbolArabic}
+                  onChange={(e) => setFormData({ ...formData, symbolArabic: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>English Symbol</Label>
+                <Input
+                  placeholder="$"
+                  value={formData.symbolEnglish}
+                  onChange={(e) => setFormData({ ...formData, symbolEnglish: e.target.value })}
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label>Name *</Label>
+              <Label>Default Symbol (Legacy)</Label>
               <Input
-                placeholder="US Dollar"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder={currencySymbol}
+                value={formData.symbol}
+                onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
               />
+              <p className="text-[10px] text-muted-foreground">Used as fallback if Ar/En symbols are empty.</p>
             </div>
-            <div className="space-y-2">
-              <Label>Code *</Label>
-              <Input
-                placeholder="USD"
-                value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Symbol</Label>
-               <Input
-                 placeholder={currencySymbol}
-                 value={formData.symbol}
-                 onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
-               />
-            </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 pt-2">
               <input
                 type="checkbox"
                 id="isDefault"
                 checked={formData.isDefault}
+                className="h-4 w-4"
                 onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
               />
               <Label htmlFor="isDefault">Set as default currency</Label>
             </div>
-            <Button onClick={handleSubmit} className="w-full">
-              {editingCurrency ? "Update" : "Create"}
+            <Button onClick={handleSubmit} className="w-full mt-2">
+              {editingCurrency ? "Update Currency" : "Create Currency"}
             </Button>
           </div>
         </DialogContent>

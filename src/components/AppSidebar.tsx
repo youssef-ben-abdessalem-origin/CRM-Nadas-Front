@@ -153,12 +153,14 @@ const navSections: NavSection[] = [
         icon: Users,
         children: [
           { label: "Users", icon: Users, path: "/team/users" },
+          { label: "Departments", icon: Building2, path: "/team/departments" },
           { label: "Roles", icon: Shield, path: "/team/roles" },
           { label: "Privileges", icon: Lock, path: "/team/privileges" },
         ]
       },
       { label: "Audit Logs", icon: FileSearch, path: "/settings/audit-logs" },
       { label: "Notifications", icon: Bell, path: "/settings/notifications" },
+      { label: "Automations", icon: Zap, path: "/automations" },
       { label: "Settings", icon: Settings, path: "/settings" },
     ],
   },

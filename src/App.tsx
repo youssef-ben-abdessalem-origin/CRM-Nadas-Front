@@ -48,11 +48,14 @@ import Users from "./pages/team/Users.tsx";
 import Roles from "./pages/team/Roles.tsx";
 import RoleConfig from "./pages/team/RoleConfig.tsx";
 import Privileges from "./pages/team/Privileges.tsx";
+import Departments from "./pages/team/Departments.tsx";
 import Documents from "./pages/Documents.tsx";
 import CampaignsPage from "./pages/Campaigns.tsx";
+import NewAutomationRule from "./pages/NewAutomationRule.tsx";
 import NewVendor from "./pages/NewVendor";
 import EditProduct from "./pages/EditProduct.tsx";
 import NewQuote from "./pages/NewQuote.tsx";
+import WorkflowArchitect from "./pages/WorkflowArchitect.tsx";
 import { ConfirmProvider } from "@/hooks/use-confirm.tsx";
 
 const queryClient = new QueryClient();
@@ -332,6 +335,14 @@ const App = () => {
               }
             />
             <Route
+              path="/team/departments"
+              element={
+                <ProtectedRoute>
+                  <Departments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/team/privileges"
               element={
                 <ProtectedRoute>
@@ -465,6 +476,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <Documents />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/automations/new"
+              element={
+                <ProtectedRoute>
+                  <NewAutomationRule />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/automations"
+              element={
+                <ProtectedRoute>
+                  <WorkflowArchitect />
                 </ProtectedRoute>
               }
             />

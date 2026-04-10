@@ -105,7 +105,19 @@ export interface User {
   enabled: boolean;
   phone?: string;
   avatar?: string;
+  language?: string;
   createdAt: string;
+}
+
+export interface Department {
+  id: number;
+  name: string;
+  description?: string;
+  representativeId?: number;
+  representative?: User;
+  members: User[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Note {
@@ -116,6 +128,25 @@ export interface Note {
   entityId: number;
   createdBy?: User;
   createdById: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Contact {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  title?: string;
+}
+
+export interface Department {
+  id: number;
+  name: string;
+  description?: string;
+  representativeId?: number;
+  representative?: User;
+  members?: User[];
   createdAt: string;
   updatedAt: string;
 }
@@ -225,6 +256,21 @@ export interface Vendor {
   zip?: string;
   coordinates?: string;
   description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AutomationRule {
+  id: number;
+  name: string;
+  entityType: "lead" | "deal";
+  eventType: "created" | "updated";
+  conditionField?: string;
+  conditionOperator?: string;
+  conditionValue?: string;
+  actionType: "assign_owner" | "create_task" | "send_notification" | "send_email";
+  actionPayload?: Record<string, any>;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -1030,6 +1076,37 @@ export const api = {
       return normalizeResponse(res.data);
     },
   },
+  departments: {
+    getAll: async () => {
+      const res = await axiosInstance.get("/api/v1/departments");
+      return normalizeResponse(res.data);
+    },
+    create: async (data: {
+      name: string;
+      description?: string;
+      representativeId?: number;
+      memberIds?: number[];
+    }) => {
+      const res = await axiosInstance.post("/api/v1/departments", data);
+      return res.data;
+    },
+    update: async (
+      id: number,
+      data: {
+        name?: string;
+        description?: string;
+        representativeId?: number | null;
+        memberIds?: number[];
+      },
+    ) => {
+      const res = await axiosInstance.put(`/api/v1/departments/${id}`, data);
+      return res.data;
+    },
+    delete: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/departments/${id}`);
+      return res.data;
+    },
+  },
 
   settings: {
     getCurrencies: async () => {
@@ -1431,6 +1508,32 @@ export const api = {
       return res.data;
     },
   },
+  automations: {
+    getAll: async () => {
+      const res = await axiosInstance.get("/api/v1/automations");
+      return normalizeResponse(res.data);
+    },
+    create: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/automations", data);
+      return res.data;
+    },
+    update: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/automations/${id}`, data);
+      return res.data;
+    },
+    toggle: async (id: number) => {
+      const res = await axiosInstance.patch(`/api/v1/automations/${id}/toggle`);
+      return res.data;
+    },
+    delete: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/automations/${id}`);
+      return res.data;
+    },
+    test: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/automations/test", data);
+      return res.data;
+    },
+  },
   vendors: {
     getAll: async (search?: string, category?: string) => {
       const params = new URLSearchParams();
@@ -1453,6 +1556,16 @@ export const api = {
     },
     delete: async (id: string) => {
       const res = await axiosInstance.delete(`/api/v1/vendors/${id}`);
+      return res.data;
+    },
+  },
+  profile: {
+    getCurrencyInfo: async () => {
+      const res = await axiosInstance.get("/api/v1/profile/currency");
+      return res.data;
+    },
+    updateLanguage: async (language: string) => {
+      const res = await axiosInstance.patch("/api/v1/profile/language", { language });
       return res.data;
     },
   },

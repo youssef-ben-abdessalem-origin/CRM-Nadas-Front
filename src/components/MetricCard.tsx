@@ -1,15 +1,24 @@
 import { ReactNode } from "react";
 import { LucideIcon } from "lucide-react";
+import { CurrencyNumbers } from "./CurrencyNumbers";
 
 interface MetricCardProps {
   label: string;
-  value: string;
+  value: ReactNode;
   change?: string;
   changeType?: "positive" | "negative" | "neutral";
   icon: LucideIcon;
+  isCurrency?: boolean;
 }
 
-export function MetricCard({ label, value, change, changeType = "neutral", icon: Icon }: MetricCardProps) {
+export function MetricCard({ 
+  label, 
+  value, 
+  change, 
+  changeType = "neutral", 
+  icon: Icon,
+  isCurrency = false
+}: MetricCardProps) {
   const changeColor =
     changeType === "positive"
       ? "text-success"
@@ -25,7 +34,13 @@ export function MetricCard({ label, value, change, changeType = "neutral", icon:
           <Icon className="h-4 w-4 text-accent-foreground" />
         </div>
       </div>
-      <div className="metric-value">{value}</div>
+      <div className="metric-value">
+        {isCurrency && (typeof value === "number" || typeof value === "string") ? (
+          <CurrencyNumbers amount={value} valueClassName="text-2xl" />
+        ) : (
+          value
+        )}
+      </div>
       {change && <span className={`text-xs font-medium ${changeColor}`}>{change}</span>}
     </div>
   );
