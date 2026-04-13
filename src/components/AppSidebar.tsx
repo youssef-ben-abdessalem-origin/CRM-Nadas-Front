@@ -158,6 +158,7 @@ const navSections: NavSection[] = [
           { label: "Privileges", icon: Lock, path: "/team/privileges" },
         ]
       },
+      { label: "Company Profile", icon: Building2, path: "/settings/company" },
       { label: "Audit Logs", icon: FileSearch, path: "/settings/audit-logs" },
       { label: "Notifications", icon: Bell, path: "/settings/notifications" },
       { label: "Automations", icon: Zap, path: "/automations" },

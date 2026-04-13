@@ -53,18 +53,26 @@ const emptyForm: FormState = {
 export default function DepartmentsPage() {
   const queryClient = useQueryClient();
   const confirm = useConfirm();
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(8);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Department | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
 
-  const { data: departments = [], isLoading: loadingDepartments } = useQuery({
-    queryKey: ["departments"],
-    queryFn: api.departments.getAll,
+  const { data: paginatedDepartments, isLoading: loadingDepartments } = useQuery({
+    queryKey: ["departments", "paginated", page, pageSize, search],
+    queryFn: () => api.departments.getPaginated({ page, limit: pageSize, search }),
   });
-  const { data: users = [], isLoading: loadingUsers } = useQuery({
-    queryKey: ["users"],
-    queryFn: api.users.getAll,
+  const departments = paginatedDepartments?.data || [];
+  const totalDepartments = paginatedDepartments?.total || 0;
+  const totalPages = paginatedDepartments?.totalPages || 1;
+
+  const { data: usersPage, isLoading: loadingUsers } = useQuery({
+    queryKey: ["users", "for-departments"],
+    queryFn: () => api.users.getPaginated({ page: 1, limit: 200 }),
   });
+  const users = usersPage?.data || [];
 
   const createMutation = useMutation({
     mutationFn: api.departments.create,
@@ -105,11 +113,11 @@ export default function DepartmentsPage() {
       0,
     );
     return {
-      totalDepartments: departments.length,
+      totalDepartments,
       totalMembers,
       withRepresentative: departments.filter((d: Department) => !!d.representativeId).length,
     };
-  }, [departments]);
+  }, [departments, totalDepartments]);
 
   const openCreate = () => {
     setEditing(null);
@@ -176,9 +184,20 @@ export default function DepartmentsPage() {
               Create departments and assign one representative with team members.
             </p>
           </div>
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-2" /> New Department
-          </Button>
+          <div className="flex gap-2 w-full md:w-auto">
+            <Input
+              placeholder="Search departments..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="md:w-64"
+            />
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4 mr-2" /> New Department
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -298,6 +317,32 @@ export default function DepartmentsPage() {
               )}
             </TableBody>
           </Table>
+          <div className="flex items-center justify-between border-t px-4 py-3 text-sm text-muted-foreground">
+            <span>
+              Showing {departments.length} of {totalDepartments}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Previous
+              </Button>
+              <span>
+                Page {page} / {Math.max(1, totalPages)}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
 
         <Dialog open={open} onOpenChange={setOpen}>

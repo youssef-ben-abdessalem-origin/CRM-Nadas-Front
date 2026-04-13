@@ -18,7 +18,9 @@ import {
   Monitor,
   Activity,
   Shield,
-  Box
+  Box,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import api from "@/lib/api";
 import { Input } from "@/components/ui/input";
@@ -46,11 +48,24 @@ interface AuditLog {
 const AuditLogsSettings = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [entityFilter, setEntityFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
-  const { data: auditLogs = [], isLoading } = useQuery({
-    queryKey: ["auditLogs"],
-    queryFn: () => api.settings.getAuditLogs().catch(() => []),
+  const { data: paginatedAuditLogs, isLoading } = useQuery({
+    queryKey: ["auditLogs", "paginated", page, pageSize, searchTerm, entityFilter],
+    queryFn: () =>
+      api.settings
+        .getAuditLogsPaginated({
+          page,
+          limit: pageSize,
+          search: searchTerm || undefined,
+          entityType: entityFilter !== "all" ? entityFilter : undefined,
+        })
+        .catch(() => ({ data: [], total: 0, page: 1, limit: pageSize, totalPages: 1 })),
   });
+  const auditLogs = paginatedAuditLogs?.data || [];
+  const totalAuditLogs = paginatedAuditLogs?.total || 0;
+  const totalPages = paginatedAuditLogs?.totalPages || 1;
 
   const getActionInfo = (action: string) => {
     const method = action.split(' ')[0];
@@ -73,21 +88,6 @@ const AuditLogsSettings = () => {
       return `ID: ${log.entityId}`;
     }
   };
-
-  const filteredLogs = useMemo(() => {
-    return auditLogs.filter((log: AuditLog) => {
-      const entityName = getEntityName(log);
-      const matchesSearch =
-        log.entityType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entityName.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesEntity = entityFilter === 'all' || log.entityType.toLowerCase() === entityFilter.toLowerCase();
-
-      return matchesSearch && matchesEntity;
-    });
-  }, [auditLogs, searchTerm, entityFilter]);
 
   const uniqueEntities = useMemo(() => {
     const entities = new Set(auditLogs.map((l: AuditLog) => l.entityType));
@@ -113,11 +113,20 @@ const AuditLogsSettings = () => {
               <Input
                 placeholder="Search logs..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
                 className="h-9 w-72 pl-9"
               />
             </div>
-            <Select value={entityFilter} onValueChange={setEntityFilter}>
+            <Select
+              value={entityFilter}
+              onValueChange={(value) => {
+                setEntityFilter(value);
+                setPage(1);
+              }}
+            >
               <SelectTrigger className="h-9 w-40">
                 <SelectValue placeholder="All Entities" />
               </SelectTrigger>
@@ -159,7 +168,7 @@ const AuditLogsSettings = () => {
                     </TableCell>
                   </TableRow>
                 ))
-              ) : filteredLogs.length === 0 ? (
+              ) : auditLogs.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={7}
@@ -169,7 +178,7 @@ const AuditLogsSettings = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredLogs.map((log: AuditLog) => {
+                auditLogs.map((log: AuditLog) => {
                   const action = getActionInfo(log.action);
                   const entityName = getEntityName(log);
                   return (
@@ -237,6 +246,32 @@ const AuditLogsSettings = () => {
               )}
             </TableBody>
           </Table>
+          <div className="flex items-center justify-between border-t px-4 py-3 text-sm text-muted-foreground">
+            <span>
+              Showing {auditLogs.length} of {totalAuditLogs}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+              </Button>
+              <span>
+                Page {page} / {Math.max(1, totalPages)}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
         </Card>
       </div>
     </CRMLayout>

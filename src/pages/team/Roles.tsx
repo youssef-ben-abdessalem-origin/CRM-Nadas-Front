@@ -50,6 +50,9 @@ const Roles = () => {
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(8);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -57,10 +60,13 @@ const Roles = () => {
     color: "#6366f1",
   });
 
-  const { data: roles = [], isLoading: loadingRoles } = useQuery({
-    queryKey: ["roles"],
-    queryFn: api.roles.getAll,
+  const { data: paginatedRoles, isLoading: loadingRoles } = useQuery({
+    queryKey: ["roles", "paginated", page, pageSize, search],
+    queryFn: () => api.roles.getPaginated({ page, limit: pageSize, search }),
   });
+  const roles = paginatedRoles?.data || [];
+  const totalRoles = paginatedRoles?.total || 0;
+  const totalPages = paginatedRoles?.totalPages || 1;
 
   const createMutation = useMutation({
     mutationFn: (data: any) => api.roles.create(data),
@@ -126,12 +132,23 @@ const Roles = () => {
               Configure the access levels and feature permissions for your organization.
             </p>
           </div>
-          <Button
-            onClick={openCreateDialog}
-            className="bg-primary hover:bg-secondary text-white h-11 px-6 rounded-lg font-medium transition-all"
-          >
-            <Plus className="h-4 w-4 mr-2" /> Add New Role
-          </Button>
+          <div className="flex gap-2 w-full md:w-auto">
+            <Input
+              placeholder="Search roles..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="md:w-64"
+            />
+            <Button
+              onClick={openCreateDialog}
+              className="bg-primary hover:bg-secondary text-white h-11 px-6 rounded-lg font-medium transition-all"
+            >
+              <Plus className="h-4 w-4 mr-2" /> Add New Role
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -228,6 +245,32 @@ const Roles = () => {
               </Card>
             ))
           )}
+        </div>
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            Showing {roles.length} of {totalRoles} roles
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Previous
+            </Button>
+            <span>
+              Page {page} / {Math.max(1, totalPages)}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -35,6 +35,7 @@ import VendorDetail from "./pages/VendorDetail.tsx";
 import CreateProduct from "./pages/CreateProduct.tsx";
 import ProductSettings from "./pages/ProductSettings.tsx";
 import QuotesPage from "./pages/QuotesPage.tsx";
+import QuoteDetail from "./pages/QuoteDetail.tsx";
 import InvoicesPage from "./pages/InvoicesPage.tsx";
 import OrdersPage from "./pages/OrdersPage.tsx";
 import PaymentsPage from "./pages/PaymentsPage.tsx";
@@ -43,6 +44,8 @@ import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
 import ActivitiesPage from "./pages/ActivitiesPage.tsx";
 import TasksPage from "./pages/TasksPage.tsx";
+import LogisticsSettings from "./pages/LogisticsSettings.tsx";
+import CompanySettings from "./pages/settings/CompanySettings.tsx";
 import { ProtectedRoute } from "@/components/ProtectedRoute.tsx";
 import Users from "./pages/team/Users.tsx";
 import Roles from "./pages/team/Roles.tsx";
@@ -439,8 +442,16 @@ const App = () => {
                  </ProtectedRoute>
                }
              />
-            <Route
-              path="/invoices"
+              <Route
+                path="/quotes/:id"
+                element={
+                  <ProtectedRoute>
+                    <QuoteDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/invoices"
               element={
                 <ProtectedRoute>
                   <InvoicesPage />
@@ -492,6 +503,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <WorkflowArchitect />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings/logistics"
+              element={
+                <ProtectedRoute>
+                  <LogisticsSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings/company"
+              element={
+                <ProtectedRoute>
+                  <CompanySettings />
                 </ProtectedRoute>
               }
             />

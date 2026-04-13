@@ -66,7 +66,7 @@ export const CurrencyNumbers = ({
       <span className={`font-semibold ${valueClassName}`}>
         {formattedValue}
       </span>
-      <sup className={`text-[0.6em] font-medium opacity-80 ${symbolClassName}`}>
+      <sup className={`text-[0.6em] font-medium ${symbolClassName}`}>
         {displaySymbol}
       </sup>
     </div>

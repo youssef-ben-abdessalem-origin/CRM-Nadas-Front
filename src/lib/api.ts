@@ -321,6 +321,23 @@ export const api = {
       const res = await axiosInstance.get("/api/v1/roles");
       return normalizeResponse(res.data);
     },
+    getPaginated: async (
+      params: {
+        page?: number;
+        limit?: number;
+        search?: string;
+      } = {},
+    ) => {
+      const { page = 1, limit = 10, search } = params;
+      const queryParams = new URLSearchParams();
+      queryParams.append("page", String(page));
+      queryParams.append("limit", String(limit));
+      if (search) queryParams.append("search", search);
+      const res = await axiosInstance.get(
+        `/api/v1/roles/paginated?${queryParams.toString()}`,
+      );
+      return res.data;
+    },
     getOne: async (id: string) => {
       const res = await axiosInstance.get(`/api/v1/roles/${id}`);
       return res.data;
@@ -1051,6 +1068,23 @@ export const api = {
       const res = await axiosInstance.get("/api/v1/users");
       return normalizeResponse(res.data);
     },
+    getPaginated: async (
+      params: {
+        page?: number;
+        limit?: number;
+        search?: string;
+      } = {},
+    ) => {
+      const { page = 1, limit = 10, search } = params;
+      const queryParams = new URLSearchParams();
+      queryParams.append("page", String(page));
+      queryParams.append("limit", String(limit));
+      if (search) queryParams.append("search", search);
+      const res = await axiosInstance.get(
+        `/api/v1/users/paginated?${queryParams.toString()}`,
+      );
+      return res.data;
+    },
     getProfile: async () => {
       const res = await axiosInstance.get("/api/v1/users/profile");
       return normalizeResponse(res.data);
@@ -1080,6 +1114,23 @@ export const api = {
     getAll: async () => {
       const res = await axiosInstance.get("/api/v1/departments");
       return normalizeResponse(res.data);
+    },
+    getPaginated: async (
+      params: {
+        page?: number;
+        limit?: number;
+        search?: string;
+      } = {},
+    ) => {
+      const { page = 1, limit = 10, search } = params;
+      const queryParams = new URLSearchParams();
+      queryParams.append("page", String(page));
+      queryParams.append("limit", String(limit));
+      if (search) queryParams.append("search", search);
+      const res = await axiosInstance.get(
+        `/api/v1/departments/paginated?${queryParams.toString()}`,
+      );
+      return res.data;
     },
     create: async (data: {
       name: string;
@@ -1282,9 +1333,54 @@ export const api = {
       });
       return normalizeResponse(res.data);
     },
+    getAuditLogsPaginated: async (
+      params: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        entityType?: string;
+        entityId?: number;
+      } = {},
+    ) => {
+      const { page = 1, limit = 10, search, entityType, entityId } = params;
+      const queryParams = new URLSearchParams();
+      queryParams.append("page", String(page));
+      queryParams.append("limit", String(limit));
+      if (search) queryParams.append("search", search);
+      if (entityType) queryParams.append("entityType", entityType);
+      if (entityId) queryParams.append("entityId", String(entityId));
+      const res = await axiosInstance.get(
+        `/api/v1/settings/audit-logs/paginated?${queryParams.toString()}`,
+      );
+      return res.data;
+    },
     createAuditLog: async (data: any) => {
       const res = await axiosInstance.post("/api/v1/settings/audit-logs", data);
       return normalizeResponse(res.data);
+    },
+    getCarriers: async () => {
+      const res = await axiosInstance.get("/api/v1/settings/carriers");
+      return normalizeResponse(res.data);
+    },
+    createCarrier: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/settings/carriers", data);
+      return normalizeResponse(res.data);
+    },
+    updateCarrier: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/settings/carriers/${id}`, data);
+      return normalizeResponse(res.data);
+    },
+    deleteCarrier: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/settings/carriers/${id}`);
+      return res.data;
+    },
+    getCompany: async () => {
+      const res = await axiosInstance.get("/api/v1/settings/company");
+      return res.data;
+    },
+    updateCompany: async (data: any) => {
+      const res = await axiosInstance.put("/api/v1/settings/company", data);
+      return res.data;
     },
   },
   uploads: {

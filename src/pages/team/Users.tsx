@@ -12,7 +12,9 @@ import {
   XCircle,
   Filter,
   User as UserIcon,
-  Shield
+  Shield,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +61,8 @@ const Users = () => {
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
   const [showAddUser, setShowAddUser] = useState(false);
   const [newUser, setNewUser] = useState({
     name: "",
@@ -68,10 +72,13 @@ const Users = () => {
     phone: "",
   });
 
-  const { data: users = [], isLoading: loadingUsers } = useQuery({
-    queryKey: ["users"],
-    queryFn: api.users.getAll,
+  const { data: paginatedUsers, isLoading: loadingUsers } = useQuery({
+    queryKey: ["users", "paginated", page, pageSize, search],
+    queryFn: () => api.users.getPaginated({ page, limit: pageSize, search }),
   });
+  const users = paginatedUsers?.data || [];
+  const totalUsers = paginatedUsers?.total || 0;
+  const totalPages = paginatedUsers?.totalPages || 1;
 
   const { data: roles = [], isLoading: loadingRoles } = useQuery({
     queryKey: ["roles"],
@@ -103,11 +110,6 @@ const Users = () => {
       toast.success("User deleted successfully");
     },
   });
-
-  const filteredUsers = users.filter((u: User) =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
-  );
 
   const getRoleBadge = (role?: Role) => {
     if (!role) return <Badge variant="outline">No Role</Badge>;
@@ -165,7 +167,7 @@ const Users = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="bg-primary/5 border-primary/20">
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold">{users.length}</div>
+              <div className="text-2xl font-bold">{totalUsers}</div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Total Members</p>
             </CardContent>
           </Card>
@@ -190,7 +192,10 @@ const Users = () => {
               placeholder="Search by name or email..."
               className="pl-9"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
             />
           </div>
           <Button variant="outline" size="icon">
@@ -218,15 +223,15 @@ const Users = () => {
                   </TableCell>
                 </TableRow>
               ) : null}
-              {!loadingUsers && filteredUsers.length === 0 ? (
+              {!loadingUsers && users.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                     No team members found matched your criteria.
                   </TableCell>
                 </TableRow>
               ) : null}
-              {!loadingUsers && filteredUsers.length > 0 ? (
-                filteredUsers.map((user: User) => (
+              {!loadingUsers && users.length > 0 ? (
+                users.map((user: User) => (
                   <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -332,6 +337,32 @@ const Users = () => {
               ) : null}
             </TableBody>
           </Table>
+          <div className="flex items-center justify-between border-t px-4 py-3 text-sm text-muted-foreground">
+            <span>
+              Showing {users.length} of {totalUsers}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+              </Button>
+              <span>
+                Page {page} / {Math.max(1, totalPages)}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         <Dialog open={showAddUser} onOpenChange={setShowAddUser}>

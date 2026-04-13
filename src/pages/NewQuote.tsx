@@ -40,6 +40,7 @@ import {
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
+import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 
 export default function NewQuote() {
   const queryClient = useQueryClient();
@@ -59,7 +60,8 @@ export default function NewQuote() {
     accountId: "",
     dealId: "",
     ownerId: "",
-    team: ""
+    team: "",
+    globalTax: 0
   });
 
   const [items, setItems] = useState<any[]>([
@@ -71,6 +73,10 @@ export default function NewQuote() {
   const { data: accounts = [] } = useQuery({ queryKey: ["accounts"], queryFn: () => api.accounts.getAll().catch(() => []) });
   const { data: deals = [] } = useQuery({ queryKey: ["deals"], queryFn: () => api.deals.getAll().catch(() => []) });
   const { data: users = [] } = useQuery({ queryKey: ["users"], queryFn: () => api.users.getAll().catch(() => []) });
+  const { data: departments = [] } = useQuery({ queryKey: ["departments"], queryFn: () => api.departments.getAll().catch(() => []) });
+  const { data: products = [] } = useQuery({ queryKey: ["products"], queryFn: () => api.products.getAll().catch(() => []) });
+  const { data: carriers = [] } = useQuery({ queryKey: ["carriers"], queryFn: () => api.settings.getCarriers().catch(() => []) });
+  const { data: taxClasses = [] } = useQuery({ queryKey: ["tax-classes"], queryFn: () => api.products.getTaxClasses().catch(() => []) });
 
   // Calculations
   const totals = useMemo(() => {
@@ -106,7 +112,7 @@ export default function NewQuote() {
     onError: (err: any) => toast.error(err.message || "Forge failed"),
   });
 
-  const addItem = () => setItems([...items, { productId: "", productName: "", quantity: 1, unitPrice: 0, discount: 0, taxRate: 0 }]);
+  const addItem = () => setItems([...items, { productId: "", productName: "", quantity: 1, unitPrice: 0, discount: 0, taxRate: formData.globalTax }]);
   const removeItem = (index: number) => items.length > 1 && setItems(items.filter((_, i) => i !== index));
   const updateItem = (index: number, field: string, value: any) => {
     const newItems = [...items];
@@ -140,15 +146,15 @@ export default function NewQuote() {
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate("/quotes")}><ArrowLeft className="h-4 w-4" /></Button>
             <div>
-              <h1 className="text-2xl font-bold">Forge New Quote</h1>
-              <p className="text-muted-foreground text-sm font-medium italic">Constructing Strategic Asset Proposal</p>
+              <h1 className="text-2xl font-bold">New Quote</h1>
+              <p className="text-muted-foreground text-sm font-medium">Prepare a proposal for your client</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={() => navigate("/quotes")}>Discard</Button>
             <Button onClick={handleSave} disabled={createMutation.isPending}>
               <Save className="h-4 w-4 mr-2" />
-              {createMutation.isPending ? "Forging..." : "Finalize Protocol"}
+              {createMutation.isPending ? "Saving..." : "Save Quote"}
             </Button>
           </div>
         </div>
@@ -159,14 +165,14 @@ export default function NewQuote() {
             <Card className="h-full">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                   <FileSignature className="h-4 w-4" /> Core Strategy Details
+                   <FileSignature className="h-4 w-4" /> Basic Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label>Subject (Minimum 2 Characters) *</Label>
+                  <Label>Quote Subject *</Label>
                   <Input 
-                    placeholder="e.g. Enterprise Infrastructure Forge" 
+                    placeholder="e.g. Enterprise Solution" 
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   />
@@ -174,17 +180,32 @@ export default function NewQuote() {
                 
                 <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <Label>Owner Agent</Label>
+                        <Label>Assigned To</Label>
                         <Select value={formData.ownerId} onValueChange={(v) => setFormData({ ...formData, ownerId: v })}>
-                            <SelectTrigger><SelectValue placeholder="Select unit owner" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder="Select assigned agent" /></SelectTrigger>
                             <SelectContent>
                                 {users.map((u: any) => <SelectItem key={u.id} value={String(u.id)}>{u.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>Assigned Team</Label>
-                        <Input placeholder="Engineering / Sales" value={formData.team} onChange={(e) => setFormData({ ...formData, team: e.target.value })} />
+                        <Label>Department</Label>
+                        <Select 
+                          value={formData.team} 
+                          onValueChange={(v) => {
+                            const dept = departments.find((d: any) => String(d.id) === v);
+                            setFormData({ 
+                                ...formData, 
+                                team: v,
+                                ownerId: dept?.representativeId ? String(dept.representativeId) : formData.ownerId
+                            });
+                          }}
+                        >
+                            <SelectTrigger><SelectValue placeholder="Select team" /></SelectTrigger>
+                            <SelectContent>
+                                {departments.map((d: any) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 
@@ -194,7 +215,7 @@ export default function NewQuote() {
                         <Select value={formData.contactId} onValueChange={(v) => setFormData({ ...formData, contactId: v })}>
                             <SelectTrigger><SelectValue placeholder="Contact" /></SelectTrigger>
                             <SelectContent>
-                                {contacts.map((c: any) => <SelectItem key={c.id} value={String(c.id)}>{c.firstName} {c.lastName}</SelectItem>)}
+                                {contacts.map((c: any) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
@@ -225,25 +246,33 @@ export default function NewQuote() {
              <Card className="border-primary/20 shadow-xl h-full">
                 <CardHeader className="bg-primary/[0.02]">
                     <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                        <Calculator className="h-3 w-3" /> Financial Summation
+                        <Calculator className="h-3 w-3" /> Quote Summary
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 p-6">
                     <div className="flex justify-between text-xs font-bold">
                     <span className="text-muted-foreground uppercase opacity-50">Subtotal</span>
-                    <span>{currencySymbol}{totals.subtotal.toLocaleString()}</span>
+                    <CurrencyNumbers amount={totals.subtotal} />
                     </div>
                     <div className="flex justify-between text-xs font-bold">
                         <span className="text-muted-foreground uppercase opacity-50">Applied Discount</span>
-                        <span className="text-destructive">-{currencySymbol}{totals.discount.toLocaleString()}</span>
+                        <div className="flex items-center gap-1 text-destructive font-bold">
+                            - <CurrencyNumbers amount={totals.discount} valueClassName="text-destructive" />
+                        </div>
                     </div>
                     <div className="flex justify-between text-xs font-bold">
                         <span className="text-muted-foreground uppercase opacity-50">Calculated Tax</span>
-                        <span className="text-primary">+{currencySymbol}{totals.taxAmount.toLocaleString()}</span>
+                        <div className="flex items-center gap-1 text-primary font-bold">
+                            + <CurrencyNumbers amount={totals.taxAmount} valueClassName="text-primary" />
+                        </div>
                     </div>
                     <div className="pt-6 border-t border-primary/10 flex justify-between items-end">
-                    <div className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">Net Payable</div>
-                    <div className="text-3xl font-black text-primary tracking-tighter">{currencySymbol}{totals.grandTotal.toLocaleString()}</div>
+                    <div className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">Grand Total</div>
+                    <CurrencyNumbers 
+                        amount={totals.grandTotal} 
+                        className="text-primary tracking-tighter" 
+                        valueClassName="text-3xl font-black" 
+                    />
                     </div>
                 </CardContent>
                 </Card>
@@ -253,21 +282,21 @@ export default function NewQuote() {
         {/* Asset Intelligence Grid - FULL WIDTH */}
         <Card className="z-0">
           <CardHeader className="flex flex-row items-center justify-between py-4">
-            <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Asset Inventory Matrix</CardTitle>
+            <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Products & Services</CardTitle>
             <Button variant="outline" size="sm" onClick={addItem}>
-              <Plus className="h-4 w-4 mr-1" /> Add Asset
+              <Plus className="h-4 w-4 mr-1" /> Add Item
             </Button>
           </CardHeader>
           <CardContent className="p-0 border-t">
             <Table>
               <TableHeader className="bg-muted/10 font-bold">
                 <TableRow>
-                  <TableHead className="pl-6">Product Intel</TableHead>
+                  <TableHead className="pl-6">Item Selection</TableHead>
                   <TableHead className="w-20 text-center">Qty</TableHead>
-                  <TableHead className="w-28 text-right">Unit Point</TableHead>
+                  <TableHead className="w-28 text-right">Price</TableHead>
                   <TableHead className="w-24 text-right">Disc (%)</TableHead>
                   <TableHead className="w-24 text-right">Tax (%)</TableHead>
-                  <TableHead className="w-40 text-right pr-6">Accumulation</TableHead>
+                  <TableHead className="w-40 text-right pr-6">Line Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -275,17 +304,55 @@ export default function NewQuote() {
                   <TableRow key={idx} className="group">
                     <TableCell className="pl-6 py-3">
                       <div className="grid grid-cols-2 gap-4">
-                        <Input className="h-8 text-xs font-bold" placeholder="Asset name..." value={it.productName} onChange={(e) => updateItem(idx, "productName", e.target.value)} />
-                        <Input className="h-8 text-[10px] text-muted-foreground" placeholder="Asset ID/SKU" value={it.productId} onChange={(e) => updateItem(idx, "productId", e.target.value)} />
+                        <Select 
+                          value={it.productId} 
+                          onValueChange={(v) => {
+                            const product = products.find((p: any) => p.productCode === v || String(p.id) === v);
+                            const updatedItems = [...items];
+                            updatedItems[idx] = {
+                              ...updatedItems[idx],
+                              productName: product?.name || "",
+                              productId: product?.productCode || "",
+                              unitPrice: product?.unitPrice || 0,
+                              quantity: 1,
+                              taxRate: formData.globalTax,
+                              maxQty: product?.quantityInStock || 999
+                            };
+                            setItems(updatedItems);
+                          }}
+                        >
+                            <SelectTrigger className="h-8 text-xs font-bold"><SelectValue placeholder="Asset..." /></SelectTrigger>
+                            <SelectContent>
+                                {products.map((p: any) => <SelectItem key={p.id} value={p.productCode || String(p.id)}>{p.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <Input className="h-8 text-[10px] text-muted-foreground bg-muted/20" placeholder="SKU" value={it.productId} readOnly />
                       </div>
                     </TableCell>
-                    <TableCell><Input type="number" className="h-8 text-center text-xs" value={it.quantity} onChange={(e) => updateItem(idx, "quantity", Number(e.target.value))} /></TableCell>
-                    <TableCell><Input type="number" className="h-8 text-right text-xs" value={it.unitPrice} onChange={(e) => updateItem(idx, "unitPrice", Number(e.target.value))} /></TableCell>
+                    <TableCell>
+                        <Input 
+                            type="number" 
+                            className="h-8 text-center text-xs" 
+                            value={it.quantity} 
+                            onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (it.maxQty && val > it.maxQty) {
+                                    toast.error(`Exceeds inventory (${it.maxQty} units)`);
+                                    return;
+                                }
+                                updateItem(idx, "quantity", val);
+                            }} 
+                        />
+                    </TableCell>
+                    <TableCell><Input type="number" className="h-8 text-right text-xs bg-muted/20" value={it.unitPrice} readOnly /></TableCell>
                     <TableCell><Input type="number" className="h-8 text-right text-xs" value={it.discount} onChange={(e) => updateItem(idx, "discount", Number(e.target.value))} /></TableCell>
-                    <TableCell><Input type="number" className="h-8 text-right text-xs" value={it.taxRate} onChange={(e) => updateItem(idx, "taxRate", Number(e.target.value))} /></TableCell>
+                    <TableCell><Input type="number" className="h-8 text-right text-xs bg-muted/20" value={it.taxRate} readOnly /></TableCell>
                     <TableCell className="text-right pr-6">
                         <div className="flex items-center justify-end gap-2">
-                            <span className="text-sm font-black">{currencySymbol}{((it.quantity * it.unitPrice) * (1 - it.discount/100) * (1 + it.taxRate/100)).toLocaleString()}</span>
+                             <CurrencyNumbers 
+                                amount={((it.quantity * it.unitPrice) * (1 - it.discount/100) * (1 + it.taxRate/100))} 
+                                valueClassName="text-sm font-black" 
+                             />
                             <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeItem(idx)}><Trash2 className="h-3.5 w-3.5" /></Button>
                         </div>
                     </TableCell>
@@ -301,43 +368,61 @@ export default function NewQuote() {
                 {/* Logistics & Documentation */}
                 <div className="grid grid-cols-2 gap-6">
                     <Card>
-                        <CardHeader><CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><Truck className="h-4 w-4" /> Logistics Channel</CardTitle></CardHeader>
+                         <CardHeader><CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><Truck className="h-4 w-4" /> Shipping & Delivery</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label>Preferred Carrier</Label>
-                                <Select value={formData.carrier} onValueChange={(v) => setFormData({ ...formData, carrier: v })}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                <Label>Shipping Carrier</Label>
+                                 <Select value={formData.carrier} onValueChange={(v) => setFormData({ ...formData, carrier: v })}>
+                                    <SelectTrigger><SelectValue placeholder="Carrier" /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="FedEX">FedEX</SelectItem>
-                                        <SelectItem value="DHL">DHL Express</SelectItem>
-                                        <SelectItem value="UPS">UPS Worldwide</SelectItem>
-                                        <SelectItem value="Aramex">Aramex</SelectItem>
+                                        {carriers.map((c: any) => (
+                                            <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label>Valid Until Protocol</Label>
+                                <Label>Expiry Date</Label>
                                 <Input type="date" value={formData.validUntil} onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })} />
+                            </div>
+                            <div className="space-y-2 pt-2 border-t">
+                                <Label className="text-primary font-bold">Tax Setting (%)</Label>
+                                 <Select 
+                                    value={String(formData.globalTax)} 
+                                    onValueChange={(v) => {
+                                        const tax = Number(v);
+                                        setFormData({ ...formData, globalTax: tax });
+                                        setItems(items.map(it => ({ ...it, taxRate: tax })));
+                                    }}
+                                >
+                                    <SelectTrigger className="border-primary/50"><SelectValue placeholder="Select protocol" /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="0">0% (Exempt)</SelectItem>
+                                        {taxClasses.map((t: any) => (
+                                            <SelectItem key={t.id} value={String(t.rate)}>{t.name} ({t.rate}%)</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </CardContent>
                     </Card>
                     <Card>
-                        <CardHeader><CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> Destination Intel</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> Address Details</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-1">
-                                <Label className="text-[10px]">Strategic Billing Address</Label>
+                                <Label className="text-[10px]">Billing Address</Label>
                                 <Textarea className="min-h-[60px] text-xs" placeholder="Street, City, Zip, Country..." value={formData.billingAddress} onChange={(e) => setFormData({ ...formData, billingAddress: e.target.value })} />
                             </div>
                             <div className="space-y-1">
-                                <Label className="text-[10px]">Transmission Hub (Shipping)</Label>
-                                <Textarea className="min-h-[60px] text-xs" placeholder="Same as billing or dedicated dock..." value={formData.shippingAddress} onChange={(e) => setFormData({ ...formData, shippingAddress: e.target.value })} />
+                                <Label className="text-[10px]">Shipping Address</Label>
+                                <Textarea className="min-h-[60px] text-xs" placeholder="Enter shipping destination..." value={formData.shippingAddress} onChange={(e) => setFormData({ ...formData, shippingAddress: e.target.value })} />
                             </div>
                         </CardContent>
                     </Card>
                 </div>
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><ShieldCheck className="h-3 w-3" /> Protocol Terms & Policy</CardTitle>
+                        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><ShieldCheck className="h-3 w-3" /> Terms & Conditions</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <Textarea className="min-h-[100px] text-xs italic" placeholder="Standard net-30, delivery schedules..." value={formData.termsAndConditions} onChange={(e) => setFormData({ ...formData, termsAndConditions: e.target.value })} />
@@ -349,13 +434,13 @@ export default function NewQuote() {
                 {/* Project Intel Summary - BOTTOM RIGHT */}
                 <Card className="h-full">
                     <CardHeader>
-                        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><Plus className="h-3 w-3" /> Project Intel Details</CardTitle>
+                        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><Plus className="h-3 w-3" /> Additional Notes</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
                             <div className="space-y-2 text-xs">
-                                <Label className="opacity-50 uppercase tracking-tighter">Value Proposition</Label>
-                                <Textarea className="min-h-[140px]" placeholder="Summarize for the board..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+                                <Label className="opacity-50 uppercase tracking-tighter">Quote Description</Label>
+                                <Textarea className="min-h-[140px]" placeholder="Add any extra details or internal notes..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
                             </div>
                         </div>
                     </CardContent>

@@ -26,6 +26,7 @@ import {
   Settings as SettingsIcon,
   Bell,
   History,
+  Truck,
 } from "lucide-react";
 
 interface SettingsCard {
@@ -184,6 +185,13 @@ const settingsCards: SettingsCard[] = [
     icon: History,
     href: "/settings/audit-logs",
     color: "text-slate-500",
+  },
+  {
+    title: "Logistics & Tax",
+    description: "Shipping carriers and tax settings",
+    icon: Truck,
+    href: "/settings/logistics",
+    color: "text-indigo-600",
   },
 ];
 
