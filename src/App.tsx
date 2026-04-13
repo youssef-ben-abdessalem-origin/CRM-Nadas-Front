@@ -37,6 +37,7 @@ import ProductSettings from "./pages/ProductSettings.tsx";
 import QuotesPage from "./pages/QuotesPage.tsx";
 import QuoteDetail from "./pages/QuoteDetail.tsx";
 import InvoicesPage from "./pages/InvoicesPage.tsx";
+import InvoiceDetail from "./pages/InvoiceDetail.tsx";
 import OrdersPage from "./pages/OrdersPage.tsx";
 import PaymentsPage from "./pages/PaymentsPage.tsx";
 import Forecast from "./pages/Forecast.tsx";
@@ -58,6 +59,7 @@ import NewAutomationRule from "./pages/NewAutomationRule.tsx";
 import NewVendor from "./pages/NewVendor";
 import EditProduct from "./pages/EditProduct.tsx";
 import NewQuote from "./pages/NewQuote.tsx";
+import VendorsSettings from "./pages/VendorsSettingsPage.tsx";
 import WorkflowArchitect from "./pages/WorkflowArchitect.tsx";
 import { ConfirmProvider } from "@/hooks/use-confirm.tsx";
 
@@ -198,6 +200,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <DealsSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/vendors/settings"
+              element={
+                <ProtectedRoute>
+                  <VendorsSettings />
                 </ProtectedRoute>
               }
             />
@@ -395,7 +405,7 @@ const App = () => {
               }
             />
             <Route
-              path="/vendor/new"
+              path="/vendors/new"
               element={
                 <ProtectedRoute>
                   <NewVendor />
@@ -463,6 +473,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <InvoicesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/invoices/:id"
+              element={
+                <ProtectedRoute>
+                  <InvoiceDetail />
                 </ProtectedRoute>
               }
             />

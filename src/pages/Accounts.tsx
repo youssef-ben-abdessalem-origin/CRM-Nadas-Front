@@ -83,6 +83,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 
 interface AccountType {
   id: number;
@@ -340,13 +341,9 @@ const Accounts = () => {
     totalPipeline: accounts.reduce((sum, a) => sum + (a.dealValue || 0), 0),
   };
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: value >= 1000000 ? 0 : 0,
-    }).format(value);
+  const formatCurrency = (value: number) => (
+    <CurrencyNumbers amount={value} />
+  );
 
   const formatNumber = (value: number) =>
     new Intl.NumberFormat("en-US").format(value);
@@ -563,7 +560,7 @@ const Accounts = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatCurrency(stats.totalRevenue)}
+                <CurrencyNumbers amount={stats.totalRevenue} valueClassName="text-2xl" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 <DollarSign className="h-3 w-3 inline mr-1" />
@@ -579,7 +576,7 @@ const Accounts = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {formatCurrency(stats.totalPipeline)}
+                <CurrencyNumbers amount={stats.totalPipeline} valueClassName="text-2xl" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 <TrendingUp className="h-3 w-3 inline mr-1" />

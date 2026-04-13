@@ -22,10 +22,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Plus, 
-  Trash2, 
-  Save, 
+import {
+  Plus,
+  Trash2,
+  Save,
   ArrowLeft,
   FileSignature,
   Building,
@@ -127,7 +127,7 @@ export default function NewQuote() {
       const lineTotal = item.quantity * item.unitPrice;
       const discountVal = lineTotal * (item.discount / 100);
       const taxVal = (lineTotal - discountVal) * (item.taxRate / 100);
-      
+
       subtotal += lineTotal;
       totalDiscount += discountVal;
       totalTax += taxVal;
@@ -137,9 +137,60 @@ export default function NewQuote() {
       subtotal,
       discount: totalDiscount,
       taxAmount: totalTax,
+      total: subtotal - totalDiscount + totalTax, // Explicitly provide both for backend compatibility
       grandTotal: subtotal - totalDiscount + totalTax
     };
   }, [items]);
+
+  const filteredContacts = useMemo(() => {
+    if (!formData.accountId) return contacts;
+    return contacts.filter((c: any) => String(c.accountId) === formData.accountId);
+  }, [contacts, formData.accountId]);
+
+  const filteredDeals = useMemo(() => {
+    if (!formData.accountId) return deals;
+    return deals.filter((d: any) => String(d.accountId) === formData.accountId);
+  }, [deals, formData.accountId]);
+
+  const handleAccountChange = (accountId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      accountId,
+      contactId: "", // Reset to enforce filtering consistency
+      dealId: ""
+    }));
+    toast.info("Context Restricted: Showing only related Contacts and Deals.");
+  };
+
+  const handleContactChange = (contactId: string) => {
+    const contact = contacts.find((c: any) => String(c.id) === contactId);
+    if (contact && contact.accountId) {
+      setFormData(prev => ({
+        ...prev,
+        contactId,
+        accountId: String(contact.accountId)
+      }));
+      toast.info("Intelligence Synced: Company auto-filled from Contact.");
+    } else {
+      setFormData(prev => ({ ...prev, contactId }));
+    }
+  };
+
+  const handleDealChange = (dealId: string) => {
+    const deal = deals.find((d: any) => String(d.id) === dealId);
+    if (deal) {
+      setFormData(prev => ({
+        ...prev,
+        dealId,
+        accountId: deal.accountId ? String(deal.accountId) : prev.accountId,
+        contactId: deal.contactId ? String(deal.contactId) : prev.contactId,
+        subject: prev.subject || deal.name
+      }));
+      toast.success("Intelligence Synced: Company and Contact derived from Deal.");
+    } else {
+      setFormData(prev => ({ ...prev, dealId }));
+    }
+  };
 
   const saveMutation = useMutation({
     mutationFn: (data: any) => isEdit ? api.billing.quotes.update(Number(id), data) : api.billing.quotes.create(data),
@@ -162,7 +213,7 @@ export default function NewQuote() {
 
   const handleSave = () => {
     if (!formData.subject || formData.subject.length < 2) return toast.error("Subject required (min 2 chars)");
-    
+
     saveMutation.mutate({
       ...formData,
       contactId: formData.contactId ? Number(formData.contactId) : undefined,
@@ -170,8 +221,8 @@ export default function NewQuote() {
       dealId: formData.dealId ? Number(formData.dealId) : undefined,
       ownerId: formData.ownerId ? Number(formData.ownerId) : undefined,
       items: items.map(it => ({
-          ...it,
-          total: (it.quantity * it.unitPrice) * (1 - it.discount/100) * (1 + it.taxRate/100)
+        ...it,
+        total: (it.quantity * it.unitPrice) * (1 - it.discount / 100) * (1 + it.taxRate / 100)
       })),
       ...totals,
       adjustment: 0
@@ -180,11 +231,11 @@ export default function NewQuote() {
 
   if (isEdit && isQuoteLoading) {
     return (
-        <CRMLayout title="Decrypting Proposal...">
-            <div className="flex h-screen items-center justify-center">
-                <RefreshCw className="h-10 w-10 text-primary animate-spin" />
-            </div>
-        </CRMLayout>
+      <CRMLayout title="Decrypting Proposal...">
+        <div className="flex h-screen items-center justify-center">
+          <RefreshCw className="h-10 w-10 text-primary animate-spin" />
+        </div>
+      </CRMLayout>
     );
   }
 
@@ -215,117 +266,128 @@ export default function NewQuote() {
             <Card className="h-full">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                   <FileSignature className="h-4 w-4" /> Basic Information
+                  <FileSignature className="h-4 w-4" /> Basic Information
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label>Quote Subject *</Label>
-                  <Input 
-                    placeholder="e.g. Enterprise Solution" 
+                  <Input
+                    placeholder="e.g. Enterprise Solution"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label>Assigned To</Label>
-                        <Select value={formData.ownerId} onValueChange={(v) => setFormData({ ...formData, ownerId: v })}>
-                            <SelectTrigger><SelectValue placeholder="Select assigned agent" /></SelectTrigger>
-                            <SelectContent>
-                                {users.map((u: any) => <SelectItem key={u.id} value={String(u.id)}>{u.name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Department</Label>
-                        <Select 
-                          value={formData.team} 
-                          onValueChange={(v) => {
-                            const dept = departments.find((d: any) => String(d.id) === v);
-                            setFormData({ 
-                                ...formData, 
-                                team: v,
-                                ownerId: dept?.representativeId ? String(dept.representativeId) : formData.ownerId
-                            });
-                          }}
-                        >
-                            <SelectTrigger><SelectValue placeholder="Select team" /></SelectTrigger>
-                            <SelectContent>
-                                {departments.map((d: any) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Assigned To</Label>
+                    <Select value={formData.ownerId} onValueChange={(v) => setFormData({ ...formData, ownerId: v })}>
+                      <SelectTrigger><SelectValue placeholder="Select assigned agent" /></SelectTrigger>
+                      <SelectContent>
+                        {users.map((u: any) => <SelectItem key={u.id} value={String(u.id)}>{u.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Department</Label>
+                    <Select
+                      value={formData.team}
+                      onValueChange={(v) => {
+                        const dept = departments.find((d: any) => String(d.id) === v);
+                        setFormData({
+                          ...formData,
+                          team: v,
+                          ownerId: dept?.representativeId ? String(dept.representativeId) : formData.ownerId
+                        });
+                      }}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Select team" /></SelectTrigger>
+                      <SelectContent>
+                        {departments.map((d: any) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                        <Label>Related Contact</Label>
-                        <Select value={formData.contactId} onValueChange={(v) => setFormData({ ...formData, contactId: v })}>
-                            <SelectTrigger><SelectValue placeholder="Contact" /></SelectTrigger>
-                            <SelectContent>
-                                {contacts.map((c: any) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Related Account</Label>
-                        <Select value={formData.accountId} onValueChange={(v) => setFormData({ ...formData, accountId: v })}>
-                            <SelectTrigger><SelectValue placeholder="Account" /></SelectTrigger>
-                            <SelectContent>
-                                {accounts.map((a: any) => <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Linked Deal</Label>
-                        <Select value={formData.dealId} onValueChange={(v) => setFormData({ ...formData, dealId: v })}>
-                            <SelectTrigger><SelectValue placeholder="Link deal" /></SelectTrigger>
-                            <SelectContent>
-                                {deals.map((d: any) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      Related Account
+                      <span className="text-[10px] font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded italic">Base Context</span>
+                    </Label>
+                    <Select value={formData.accountId} onValueChange={handleAccountChange}>
+                      <SelectTrigger className="hover:border-primary/50 transition-all"><SelectValue placeholder="Account" /></SelectTrigger>
+                      <SelectContent>
+                        {accounts.map((a: any) => <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[9px] text-muted-foreground italic">Restricts WHO and WHY options below.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Related Contact</Label>
+                    <Select value={formData.contactId} onValueChange={handleContactChange}>
+                      <SelectTrigger className="hover:border-primary/50 transition-all"><SelectValue placeholder="Who is the signer?" /></SelectTrigger>
+                      <SelectContent>
+                        {filteredContacts.map((c: any) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    {formData.accountId && filteredContacts.length === 0 && (
+                      <p className="text-[9px] text-destructive italic font-bold">No contacts found for this account.</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-primary flex items-center gap-2">
+                      Linked Deal
+                      <RefreshCw className={`h-3 w-3 ${formData.dealId ? 'text-primary animate-pulse' : 'text-muted-foreground'}`} />
+                    </Label>
+                    <Select value={formData.dealId} onValueChange={handleDealChange}>
+                      <SelectTrigger className="border-primary/20 hover:border-primary transition-all"><SelectValue placeholder="Link commercial deal" /></SelectTrigger>
+                      <SelectContent>
+                        {filteredDeals.map((d: any) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[9px] text-primary/60 italic font-black uppercase tracking-tighter shadow-sm">Overwrites Who & Where context.</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
           <div className="lg:col-span-1">
-             {/* Financial Intelligence Summation - TOP RIGHT */}
-             <Card className="border-primary/20 shadow-xl h-full">
-                <CardHeader className="bg-primary/[0.02]">
-                    <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                        <Calculator className="h-3 w-3" /> Quote Summary
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 p-6">
-                    <div className="flex justify-between text-xs font-bold">
-                    <span className="text-muted-foreground uppercase opacity-50">Subtotal</span>
-                    <CurrencyNumbers amount={totals.subtotal} />
-                    </div>
-                    <div className="flex justify-between text-xs font-bold">
-                        <span className="text-muted-foreground uppercase opacity-50">Applied Discount</span>
-                        <div className="flex items-center gap-1 text-destructive font-bold">
-                            - <CurrencyNumbers amount={totals.discount} valueClassName="text-destructive" />
-                        </div>
-                    </div>
-                    <div className="flex justify-between text-xs font-bold">
-                        <span className="text-muted-foreground uppercase opacity-50">Calculated Tax</span>
-                        <div className="flex items-center gap-1 text-primary font-bold">
-                            + <CurrencyNumbers amount={totals.taxAmount} valueClassName="text-primary" />
-                        </div>
-                    </div>
-                    <div className="pt-6 border-t border-primary/10 flex justify-between items-end">
-                    <div className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">Grand Total</div>
-                    <CurrencyNumbers 
-                        amount={totals.grandTotal} 
-                        className="text-primary tracking-tighter" 
-                        valueClassName="text-3xl font-black" 
-                    />
-                    </div>
-                </CardContent>
-                </Card>
+            {/* Financial Intelligence Summation - TOP RIGHT */}
+            <Card className="border-primary/20 shadow-xl h-full">
+              <CardHeader className="bg-primary/[0.02]">
+                <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                  <Calculator className="h-3 w-3" /> Quote Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 p-6">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-muted-foreground uppercase opacity-50">Subtotal</span>
+                  <CurrencyNumbers amount={totals.subtotal} />
+                </div>
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-muted-foreground uppercase opacity-50">Applied Discount</span>
+                  <div className="flex items-center gap-1 text-destructive font-bold">
+                    - <CurrencyNumbers amount={totals.discount} valueClassName="text-destructive" />
+                  </div>
+                </div>
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-muted-foreground uppercase opacity-50">Calculated Tax</span>
+                  <div className="flex items-center gap-1 text-primary font-bold">
+                    + <CurrencyNumbers amount={totals.taxAmount} valueClassName="text-primary" />
+                  </div>
+                </div>
+                <div className="pt-6 border-t border-primary/10 flex justify-between items-end">
+                  <div className="text-[10px] uppercase font-black text-muted-foreground tracking-widest">Grand Total</div>
+                  <CurrencyNumbers
+                    amount={totals.grandTotal}
+                    className="text-primary tracking-tighter"
+                    valueClassName="text-3xl font-black"
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
@@ -354,8 +416,8 @@ export default function NewQuote() {
                   <TableRow key={idx} className="group">
                     <TableCell className="pl-6 py-3">
                       <div className="grid grid-cols-2 gap-4">
-                        <Select 
-                          value={it.productId} 
+                        <Select
+                          value={it.productId}
                           onValueChange={(v) => {
                             const product = products.find((p: any) => p.productCode === v || String(p.id) === v);
                             const updatedItems = [...items];
@@ -371,40 +433,40 @@ export default function NewQuote() {
                             setItems(updatedItems);
                           }}
                         >
-                            <SelectTrigger className="h-8 text-xs font-bold"><SelectValue placeholder="Asset..." /></SelectTrigger>
-                            <SelectContent>
-                                {products.map((p: any) => <SelectItem key={p.id} value={p.productCode || String(p.id)}>{p.name}</SelectItem>)}
-                            </SelectContent>
+                          <SelectTrigger className="h-8 text-xs font-bold"><SelectValue placeholder="Asset..." /></SelectTrigger>
+                          <SelectContent>
+                            {products.map((p: any) => <SelectItem key={p.id} value={p.productCode || String(p.id)}>{p.name}</SelectItem>)}
+                          </SelectContent>
                         </Select>
                         <Input className="h-8 text-[10px] text-muted-foreground bg-muted/20" placeholder="SKU" value={it.productId} readOnly />
                       </div>
                     </TableCell>
                     <TableCell>
-                        <Input 
-                            type="number" 
-                            className="h-8 text-center text-xs" 
-                            value={it.quantity} 
-                            onChange={(e) => {
-                                const val = Number(e.target.value);
-                                if (it.maxQty && val > it.maxQty) {
-                                    toast.error(`Exceeds inventory (${it.maxQty} units)`);
-                                    return;
-                                }
-                                updateItem(idx, "quantity", val);
-                            }} 
-                        />
+                      <Input
+                        type="number"
+                        className="h-8 text-center text-xs"
+                        value={it.quantity}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          if (it.maxQty && val > it.maxQty) {
+                            toast.error(`Exceeds inventory (${it.maxQty} units)`);
+                            return;
+                          }
+                          updateItem(idx, "quantity", val);
+                        }}
+                      />
                     </TableCell>
                     <TableCell><Input type="number" className="h-8 text-right text-xs bg-muted/20" value={it.unitPrice} readOnly /></TableCell>
                     <TableCell><Input type="number" className="h-8 text-right text-xs" value={it.discount} onChange={(e) => updateItem(idx, "discount", Number(e.target.value))} /></TableCell>
                     <TableCell><Input type="number" className="h-8 text-right text-xs bg-muted/20" value={it.taxRate} readOnly /></TableCell>
                     <TableCell className="text-right pr-6">
-                        <div className="flex items-center justify-end gap-2">
-                             <CurrencyNumbers 
-                                amount={((it.quantity * it.unitPrice) * (1 - it.discount/100) * (1 + it.taxRate/100))} 
-                                valueClassName="text-sm font-black" 
-                             />
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeItem(idx)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                        </div>
+                      <div className="flex items-center justify-end gap-2">
+                        <CurrencyNumbers
+                          amount={((it.quantity * it.unitPrice) * (1 - it.discount / 100) * (1 + it.taxRate / 100))}
+                          valueClassName="text-sm font-black"
+                        />
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeItem(idx)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -414,88 +476,88 @@ export default function NewQuote() {
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-                {/* Logistics & Documentation */}
-                <div className="grid grid-cols-2 gap-6">
-                    <Card>
-                         <CardHeader><CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><Truck className="h-4 w-4" /> Shipping & Delivery</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Shipping Carrier</Label>
-                                 <Select value={formData.carrier} onValueChange={(v) => setFormData({ ...formData, carrier: v })}>
-                                    <SelectTrigger><SelectValue placeholder="Carrier" /></SelectTrigger>
-                                    <SelectContent>
-                                        {carriers.map((c: any) => (
-                                            <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Expiry Date</Label>
-                                <Input type="date" value={formData.validUntil} onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })} />
-                            </div>
-                            <div className="space-y-2 pt-2 border-t">
-                                <Label className="text-primary font-bold">Tax Setting (%)</Label>
-                                 <Select 
-                                    value={String(formData.globalTax)} 
-                                    onValueChange={(v) => {
-                                        const tax = Number(v);
-                                        setFormData({ ...formData, globalTax: tax });
-                                        setItems(items.map(it => ({ ...it, taxRate: tax })));
-                                    }}
-                                >
-                                    <SelectTrigger className="border-primary/50"><SelectValue placeholder="Select protocol" /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="0">0% (Exempt)</SelectItem>
-                                        {taxClasses.map((t: any) => (
-                                            <SelectItem key={t.id} value={String(t.rate)}>{t.name} ({t.rate}%)</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader><CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> Address Details</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-1">
-                                <Label className="text-[10px]">Billing Address</Label>
-                                <Textarea className="min-h-[60px] text-xs" placeholder="Street, City, Zip, Country..." value={formData.billingAddress} onChange={(e) => setFormData({ ...formData, billingAddress: e.target.value })} />
-                            </div>
-                            <div className="space-y-1">
-                                <Label className="text-[10px]">Shipping Address</Label>
-                                <Textarea className="min-h-[60px] text-xs" placeholder="Enter shipping destination..." value={formData.shippingAddress} onChange={(e) => setFormData({ ...formData, shippingAddress: e.target.value })} />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><ShieldCheck className="h-3 w-3" /> Terms & Conditions</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Textarea className="min-h-[100px] text-xs italic" placeholder="Standard net-30, delivery schedules..." value={formData.termsAndConditions} onChange={(e) => setFormData({ ...formData, termsAndConditions: e.target.value })} />
-                    </CardContent>
-                </Card>
+          <div className="lg:col-span-2 space-y-6">
+            {/* Logistics & Documentation */}
+            <div className="grid grid-cols-2 gap-6">
+              <Card>
+                <CardHeader><CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><Truck className="h-4 w-4" /> Shipping & Delivery</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Shipping Carrier</Label>
+                    <Select value={formData.carrier} onValueChange={(v) => setFormData({ ...formData, carrier: v })}>
+                      <SelectTrigger><SelectValue placeholder="Carrier" /></SelectTrigger>
+                      <SelectContent>
+                        {carriers.map((c: any) => (
+                          <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Expiry Date</Label>
+                    <Input type="date" value={formData.validUntil} onChange={(e) => setFormData({ ...formData, validUntil: e.target.value })} />
+                  </div>
+                  <div className="space-y-2 pt-2 border-t">
+                    <Label className="text-primary font-bold">Tax Setting (%)</Label>
+                    <Select
+                      value={String(formData.globalTax)}
+                      onValueChange={(v) => {
+                        const tax = Number(v);
+                        setFormData({ ...formData, globalTax: tax });
+                        setItems(items.map(it => ({ ...it, taxRate: tax })));
+                      }}
+                    >
+                      <SelectTrigger className="border-primary/50"><SelectValue placeholder="Select protocol" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0% (Exempt)</SelectItem>
+                        {taxClasses.map((t: any) => (
+                          <SelectItem key={t.id} value={String(t.rate)}>{t.name} ({t.rate}%)</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" /> Address Details</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-1">
+                    <Label className="text-[10px]">Billing Address</Label>
+                    <Textarea className="min-h-[60px] text-xs" placeholder="Street, City, Zip, Country..." value={formData.billingAddress} onChange={(e) => setFormData({ ...formData, billingAddress: e.target.value })} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px]">Shipping Address</Label>
+                    <Textarea className="min-h-[60px] text-xs" placeholder="Enter shipping destination..." value={formData.shippingAddress} onChange={(e) => setFormData({ ...formData, shippingAddress: e.target.value })} />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><ShieldCheck className="h-3 w-3" /> Terms & Conditions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea className="min-h-[100px] text-xs italic" placeholder="Standard net-30, delivery schedules..." value={formData.termsAndConditions} onChange={(e) => setFormData({ ...formData, termsAndConditions: e.target.value })} />
+              </CardContent>
+            </Card>
+          </div>
 
-            <div className="lg:col-span-1">
-                {/* Project Intel Summary - BOTTOM RIGHT */}
-                <Card className="h-full">
-                    <CardHeader>
-                        <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><Plus className="h-3 w-3" /> Additional Notes</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="space-y-2 text-xs">
-                                <Label className="opacity-50 uppercase tracking-tighter">Quote Description</Label>
-                                <Textarea className="min-h-[140px]" placeholder="Add any extra details or internal notes..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+          <div className="lg:col-span-1">
+            {/* Project Intel Summary - BOTTOM RIGHT */}
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2"><Plus className="h-3 w-3" /> Additional Notes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2 text-xs">
+                    <Label className="opacity-50 uppercase tracking-tighter">Quote Description</Label>
+                    <Textarea className="min-h-[140px]" placeholder="Add any extra details or internal notes..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </CRMLayout>

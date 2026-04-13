@@ -34,6 +34,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerDescription } from "@/components/ui/drawer";
+import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -137,7 +138,7 @@ function DraggableDeal({ deal, onClick, currencyCode }: { deal: Deal, onClick: (
     opacity: isDragging ? 0.3 : 1,
   };
 
-  const fmt = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: currencyCode, minimumFractionDigits: 0 }).format(v);
+  const fmt = (v: number) => <CurrencyNumbers amount={v} />;
 
   return (
     <Card
@@ -193,7 +194,7 @@ function StageColumn({ stage, deals, totalValue, onDealClick, currencyCode }: {
     }
   });
 
-  const fmt = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: currencyCode, minimumFractionDigits: 0 }).format(v);
+  const fmt = (v: number) => <CurrencyNumbers amount={v} />;
 
   return (
     <div className={`flex flex-col w-[280px] shrink-0 bg-muted/20 rounded-xl border border-border/40 overflow-hidden transition-colors ${isOver ? 'bg-muted/40 ring-1 ring-primary/20' : ''}`}>
@@ -384,7 +385,7 @@ const Deals = () => {
   const lostValue = lostDeals.reduce((sum: number, d: Deal) => sum + (d.value || 0), 0);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: currencyCode, minimumFractionDigits: 0 }).format(value);
+    return <CurrencyNumbers amount={value} />;
   };
 
   const handleStageChange = async (dealId: number, newStageId: number) => {

@@ -98,9 +98,8 @@ const navSections: NavSection[] = [
     label: "Sales Documents",
     items: [
       { label: "Quotes", icon: FileText, path: "/quotes" },
-      { label: "Orders", icon: ShoppingCart, path: "/orders", locked: true },
-      { label: "Invoices", icon: Receipt, path: "/invoices", locked: true },
-      { label: "Payments", icon: CreditCard, path: "/payments", locked: true },
+      { label: "Invoices", icon: Receipt, path: "/invoices" },
+      { label: "Payments", icon: CreditCard, path: "/payments" }  ,
     ],
   },
   {

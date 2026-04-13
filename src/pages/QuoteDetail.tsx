@@ -227,6 +227,16 @@ export default function QuoteDetail() {
         },
     });
 
+    const dispatchMutation = useMutation({
+        mutationFn: () => api.billing.quotes.dispatch(Number(id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["quote", id] });
+            queryClient.invalidateQueries({ queryKey: ["quotes"] });
+            toast.success("Strategic dispatch complete. Client notified.");
+        },
+        onError: (err: any) => toast.error(err.message || "Dispatch protocol failed"),
+    });
+
     if (isLoading) {
         return (
             <CRMLayout title="Quote Intelligence">
@@ -275,7 +285,7 @@ export default function QuoteDetail() {
                 <div className="print:hidden flex flex-col flex-1 text-slate-200">
                     {/* 🟢 1. HEADER (Quick snapshot) */}
                     <div className="flex items-center gap-6 p-10 border-b border-white/5">
-                        <button 
+                        <button
                             onClick={() => navigate("/quotes")}
                             className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors"
                         >
@@ -318,7 +328,7 @@ export default function QuoteDetail() {
                                 <Button variant="outline" size="sm" className="bg-[#0b0e14] border-white/5 text-slate-400 hover:text-white hover:bg-white/5 font-bold text-[11px] tracking-wider h-10 px-5 rounded-lg" onClick={() => window.print()}>
                                     <Download className="h-4 w-4 mr-2" /> PDF Export
                                 </Button>
-                                
+
                                 <div className="w-px h-6 bg-white/5 mx-2" />
 
                                 {isDraft ? (
@@ -326,8 +336,14 @@ export default function QuoteDetail() {
                                         <Button variant="outline" size="sm" className="bg-[#0b0e14] border-white/5 text-slate-400 hover:text-white hover:bg-white/5 font-bold text-[11px] tracking-wider h-10 px-5 rounded-lg" onClick={() => navigate(`/quotes/edit/${id}`)}>
                                             <FileEdit className="h-4 w-4 mr-2" /> Modify Blueprint
                                         </Button>
-                                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-white font-bold text-[11px] tracking-wider h-10 px-10 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 ml-2">
-                                            <Send className="h-4 w-4 mr-2" /> Dispatch to Client
+                                        <Button 
+                                            size="sm" 
+                                            className="bg-primary hover:bg-primary/90 text-white font-bold text-[11px] tracking-wider h-10 px-10 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 ml-2"
+                                            onClick={() => dispatchMutation.mutate()}
+                                            disabled={dispatchMutation.isPending}
+                                        >
+                                            <Send className="h-4 w-4 mr-2" /> 
+                                            {dispatchMutation.isPending ? "Sending..." : "Dispatch to Client"}
                                         </Button>
                                     </>
                                 ) : isSent ? (
@@ -335,8 +351,14 @@ export default function QuoteDetail() {
                                         <Button variant="outline" size="sm" className="bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 font-bold text-[11px] tracking-wider h-10 px-5 rounded-lg" onClick={() => reviseMutation.mutate()}>
                                             <RefreshCw className="h-4 w-4 mr-2" /> Forge Revision (v2)
                                         </Button>
-                                        <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-[11px] tracking-wider h-10 px-10 rounded-lg shadow-lg shadow-emerald-500/20 transition-all active:scale-95 ml-2">
-                                            <ShieldCheck className="h-4 w-4 mr-2" /> Accept Proposal
+                                        <Button 
+                                            size="sm" 
+                                            className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-[11px] tracking-wider h-10 px-10 rounded-lg shadow-lg shadow-emerald-500/20 transition-all active:scale-95 ml-2"
+                                            onClick={() => updateStatusMutation.mutate('accepted')}
+                                            disabled={updateStatusMutation.isPending}
+                                        >
+                                            <ShieldCheck className="h-4 w-4 mr-2" /> 
+                                            {updateStatusMutation.isPending ? "Processing..." : "Accept Proposal"}
                                         </Button>
                                     </>
                                 ) : isAccepted ? (

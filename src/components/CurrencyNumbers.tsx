@@ -55,8 +55,11 @@ export const CurrencyNumbers = ({
     return <Skeleton className="h-6 w-16 inline-block" />;
   }
 
+  // Robust numeric parsing to prevent NaN errors
+  const numericAmount = isNaN(Number(amount)) ? 0 : Number(amount);
+
   // Format the number for better readability (e.g., 1,234.56)
-  const formattedValue = Number(amount).toLocaleString(undefined, {
+  const formattedValue = numericAmount.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });

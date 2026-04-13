@@ -325,7 +325,7 @@ export default function Vendors() {
             <Button variant="outline" size="sm">
               <Download className="h-3.5 w-3.5 mr-1" /> Export
             </Button>
-            <Button size="sm" onClick={() => navigate("/vendor/new")}>
+            <Button size="sm" onClick={() => navigate("/vendors/new")}>
               <Plus className="h-3.5 w-3.5 mr-1" /> Add Vendor
             </Button>
           </div>

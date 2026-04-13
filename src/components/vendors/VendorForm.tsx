@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -34,6 +35,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { COUNTRIES } from "@/lib/countries";
 
 const vendorSchema = z.object({
   name: z.string().min(2, "Vendor name is required"),
@@ -42,7 +44,6 @@ const vendorSchema = z.object({
   website: z.string().url("Invalid website URL").optional().or(z.literal("")),
   category: z.string().min(2, "Category is required"),
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
-  glAccount: z.string().optional(),
   emailOptOut: z.boolean().default(false),
   address: z.string().optional(),
   country: z.string().optional(),
@@ -66,13 +67,17 @@ interface VendorFormProps {
 }
 
 export function VendorForm({ onSubmit, onCancel, initialData, isPending }: VendorFormProps) {
+  const { data: categories = [] } = useQuery({
+    queryKey: ["vendor-categories"],
+    queryFn: () => api.vendors.getCategories(),
+  });
+
   const form = useForm<VendorFormValues>({
     resolver: zodResolver(vendorSchema),
     defaultValues: initialData || {
       owner: "Djo Abdo",
       name: "",
-      category: "Software",
-      glAccount: "Sales-Software",
+      category: "",
       emailOptOut: false,
       country: "-None-",
       state: "-None-",
@@ -109,7 +114,6 @@ export function VendorForm({ onSubmit, onCancel, initialData, isPending }: Vendo
       owner: "Djo Abdo",
       name: "",
       category: "Software",
-      glAccount: "Sales-Software",
       emailOptOut: false,
       country: "-None-",
       state: "-None-",
@@ -241,40 +245,16 @@ export function VendorForm({ onSubmit, onCancel, initialData, isPending }: Vendo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Category</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-slate-900/50 border-white/5 h-12">
                           <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Software">Software</SelectItem>
-                        <SelectItem value="Hardware">Hardware</SelectItem>
-                        <SelectItem value="Logistics">Logistics</SelectItem>
-                        <SelectItem value="Consulting">Consulting</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="glAccount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">GL Account</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="bg-slate-900/50 border-white/5 h-12">
-                          <SelectValue placeholder="Select Account" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Sales-Software">Sales-Software</SelectItem>
-                        <SelectItem value="Procurement">Procurement</SelectItem>
-                        <SelectItem value="Operations">Operations</SelectItem>
+                        {categories.map((cat: any) => (
+                          <SelectItem key={cat.id} value={cat.name}>{cat.name}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -367,9 +347,9 @@ export function VendorForm({ onSubmit, onCancel, initialData, isPending }: Vendo
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="-None-">-None-</SelectItem>
-                        <SelectItem value="USA">United States</SelectItem>
-                        <SelectItem value="UK">United Kingdom</SelectItem>
-                        <SelectItem value="UAE">United Arab Emirates</SelectItem>
+                        {COUNTRIES.map((country) => (
+                          <SelectItem key={country.code} value={country.name}>{country.name}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

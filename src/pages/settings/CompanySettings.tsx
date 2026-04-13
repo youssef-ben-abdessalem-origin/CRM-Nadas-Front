@@ -229,9 +229,10 @@ export default function CompanySettings() {
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* 📍 Section 2: Contact & HQ */}
-                    <div className="bg-[#151921] border border-white/5 rounded-xl p-10 space-y-8 shadow-2xl">
+                {/* 📍 Section 2: Contact & HQ */}
+                <div className="bg-[#151921] border border-white/5 rounded-xl p-10 space-y-8 shadow-2xl">
                         <div className="flex items-center gap-3 text-slate-400 mb-2">
                             <MapPin className="h-5 w-5 text-primary" />
                             <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Headquarters & Contact</h2>

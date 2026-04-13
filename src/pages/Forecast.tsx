@@ -44,8 +44,8 @@ import {
   Plus,
   ArrowRight
 } from "lucide-react";
-import { formatCurrency as formatUSD } from "@/lib/utils";
 import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
+import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 import { 
   Dialog as UI_Dialog, 
   DialogContent as UI_DialogContent, 
@@ -55,6 +55,12 @@ import {
   DialogDescription as UI_DialogDescription
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+
+const CurrencyBadge = ({ amount, className }: { amount: number, className?: string }) => (
+  <span className={className}>
+    <CurrencyNumbers amount={amount} />
+  </span>
+);
 
 const Forecast = () => {
   const queryClient = useQueryClient();
@@ -76,12 +82,7 @@ const Forecast = () => {
   });
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currencyCode || "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+    return <CurrencyNumbers amount={amount} />;
   };
 
   const { data: periods = [] } = useQuery({

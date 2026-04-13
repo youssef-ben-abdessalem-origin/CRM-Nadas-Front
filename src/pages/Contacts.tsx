@@ -79,6 +79,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 
 interface ContactStatus {
   id: number;
@@ -321,13 +322,13 @@ const Contacts = () => {
       const name = getStatusName(c).toLowerCase();
       return name === 'active';
     }).length,
-    totalRevenue: contacts.reduce((sum, c) => sum + c.revenueTotal, 0),
+    totalRevenue: contacts.reduce((sum, c) => sum + (c.revenueTotal || 0), 0),
     avgDealSize:
       contacts.filter((c) => c.dealsWon > 0).length > 0
         ? Math.round(
-            contacts.reduce((sum, c) => sum + c.revenueTotal, 0) /
+            contacts.reduce((sum, c) => sum + (c.revenueTotal || 0), 0) /
               contacts.filter((c) => c.dealsWon > 0).reduce(
-                (sum, c) => sum + c.dealsWon,
+                (sum, c) => sum + (c.dealsWon || 0),
                 0
               )
           )
@@ -340,13 +341,7 @@ const Contacts = () => {
     ),
   };
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
+  const formatCurrency = (value: number) => <CurrencyNumbers amount={value} />;
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);

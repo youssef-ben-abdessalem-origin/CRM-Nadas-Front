@@ -81,6 +81,7 @@ import { DynamicAutoSelect } from "@/components/ui/DynamicAutoSelect";
 import { cn } from "@/lib/utils";
 
 import { ProductForm } from "@/components/products/ProductForm";
+import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 
 export type ProductType = "service" | "physical" | "digital";
 export type ProductStatus = "draft" | "active" | "archived";
@@ -471,9 +472,10 @@ const Products = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-amber-500">
-                {new Intl.NumberFormat("en-US", { style: "currency", currency: "TND" }).format(
-                  products.length > 0 ? products.reduce((acc, p) => acc + (p.unitPrice || 0), 0) / products.length : 0
-                )}
+                <CurrencyNumbers 
+                  amount={products.length > 0 ? products.reduce((acc, p) => acc + (p.unitPrice || 0), 0) / products.length : 0} 
+                  valueClassName="text-2xl"
+                />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Market average
@@ -596,7 +598,7 @@ const Products = () => {
                     <TableCell className="text-right">
                       <div className="inline-flex flex-col items-end">
                         <p className="text-sm font-bold text-primary">
-                          {new Intl.NumberFormat("en-US", { style: "currency", currency: "TND" }).format(product.unitPrice || 0)}
+                          <CurrencyNumbers amount={product.unitPrice || 0} />
                         </p>
                         <p className="text-[8px] text-muted-foreground uppercase tracking-widest">Base Rate</p>
                       </div>

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
 import { Plus } from "lucide-react";
+import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 
 type LocalOrder = {
   id: string;
@@ -85,7 +86,7 @@ const OrdersPage: React.FC = () => {
                   <TableCell className="font-medium">{o.id}</TableCell>
                   <TableCell>{o.customer}</TableCell>
                   <TableCell>
-                    {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(o.amount)}
+                    <CurrencyNumbers amount={o.amount} />
                   </TableCell>
                   <TableCell>{new Date(o.date).toLocaleDateString()}</TableCell>
                   <TableCell>{o.status}</TableCell>
@@ -138,7 +139,7 @@ const OrdersPage: React.FC = () => {
               <>
                 <div><strong>Order ID:</strong> {detailOrder.id}</div>
                 <div><strong>Customer:</strong> {detailOrder.customer}</div>
-                <div><strong>Amount:</strong> {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(detailOrder.amount)}</div>
+                <div><strong>Amount:</strong> <CurrencyNumbers amount={detailOrder.amount} /></div>
                 <div><strong>Date:</strong> {new Date(detailOrder.date).toLocaleDateString()}</div>
                 <div><strong>Status:</strong> {detailOrder.status}</div>
                 {detailOrder.notes && <div><strong>Notes:</strong> {detailOrder.notes}</div>}

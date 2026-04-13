@@ -102,6 +102,7 @@
   } from "lucide-react";
   import { toast } from "sonner";
   import api, { Lead, DynamicOption, Note } from "@/lib/api";
+  import { CurrencyNumbers } from "@/components/CurrencyNumbers";
   import { LeadNotes } from "@/components/leads/LeadNotes";
   import { LeadTaskDialog } from "@/components/leads/LeadTaskDialog";
   import { LeadCallDialog } from "@/components/leads/LeadCallDialog";
@@ -497,11 +498,7 @@
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                    minimumFractionDigits: 0,
-                  }).format(lead.value || 0)}
+                  <CurrencyNumbers amount={lead.value || 0} />
                 </span>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <ExternalLink className="h-3 w-3" />
@@ -549,17 +546,9 @@
                 {lead.scoreCategory?.name || "—"}
               </Badge>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Building2 className="h-3 w-3" />
-              {lead.company || "—"}
-            </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold">
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  minimumFractionDigits: 0,
-                }).format(lead.value || 0)}
+                <CurrencyNumbers amount={lead.value || 0} />
               </span>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <ExternalLink className="h-3 w-3" />
@@ -893,13 +882,9 @@
     };
 
 
-    const formatCurrency = (value: number | string) =>
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(Number(value) || 0);
+    const formatCurrency = (value: number | string) => (
+      <CurrencyNumbers amount={value} />
+    );
 
     const formatDate = (dateStr: string) => {
       if (!dateStr) return "—";
@@ -950,10 +935,13 @@
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.total}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {stats.totalValue > 0 &&
-                    formatCurrency(stats.totalValue) + " pipeline"}
-                </p>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1 lowercase font-medium">
+                  {stats.totalValue > 0 && (
+                    <>
+                      {formatCurrency(stats.totalValue)} pipeline
+                    </>
+                  )}
+                </div>
               </CardContent>
             </Card>
             <Card>
@@ -1619,7 +1607,7 @@
                           <Label className="text-sm font-semibold">Create a new Deal</Label>
                           {isCreateDeal && (
                             <p className="text-[10px] font-bold text-primary uppercase tracking-tight">
-                              Projected: {formatCurrency(selectedLead.value || 0)}
+                              Projected: <CurrencyNumbers amount={selectedLead.value || 0} />
                             </p>
                           )}
                         </div>

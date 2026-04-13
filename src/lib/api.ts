@@ -894,6 +894,10 @@ export const api = {
         const res = await axiosInstance.post(`/api/v1/billing/quotes/${id}/duplicate`);
         return normalizeResponse(res.data);
       },
+      dispatch: async (id: number) => {
+        const res = await axiosInstance.post(`/api/v1/billing/quotes/${id}/dispatch`);
+        return normalizeResponse(res.data);
+      },
     },
     invoices: {
       getAll: async () => {
@@ -914,6 +918,24 @@ export const api = {
       },
       delete: async (id: number) => {
         const res = await axiosInstance.delete(`/api/v1/billing/invoices/${id}`);
+        return normalizeResponse(res.data);
+      },
+    },
+    payments: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/billing/payments");
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/billing/payments/${id}`);
+        return normalizeResponse(res.data);
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/billing/payments", data);
+        return normalizeResponse(res.data);
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/billing/payments/${id}`);
         return normalizeResponse(res.data);
       },
     },
@@ -1668,6 +1690,22 @@ export const api = {
     },
     delete: async (id: string) => {
       const res = await axiosInstance.delete(`/api/v1/vendors/${id}`);
+      return res.data;
+    },
+    getCategories: async () => {
+      const res = await axiosInstance.get("/api/v1/vendors/categories");
+      return normalizeResponse(res.data);
+    },
+    createCategory: async (data: any) => {
+      const res = await axiosInstance.post("/api/v1/vendors/categories", data);
+      return res.data;
+    },
+    updateCategory: async (id: number, data: any) => {
+      const res = await axiosInstance.put(`/api/v1/vendors/categories/${id}`, data);
+      return res.data;
+    },
+    deleteCategory: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/vendors/categories/${id}`);
       return res.data;
     },
   },
