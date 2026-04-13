@@ -1,36 +1,51 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CRMLayout } from "@/components/CRMLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { 
-    Building2, 
-    Palette, 
-    Globe, 
-    CreditCard, 
-    Scale, 
-    FileText, 
-    Save, 
+import {
+    Building2,
+    Palette,
+    Globe,
+    CreditCard,
+    Scale,
+    FileText,
+    Save,
     UploadCloud,
     Phone,
     Mail,
     MapPin,
     BadgePercent,
     Hash,
-    Link2
+    Link2,
+    ArrowLeft
 } from "lucide-react";
 
 export default function CompanySettings() {
     const queryClient = useQueryClient();
     const [formData, setFormData] = useState<any>({});
+    const navigate = useNavigate();
 
     const { data: company, isLoading: isFetching } = useQuery({
         queryKey: ["company-settings"],
         queryFn: () => api.settings.getCompany(),
+    });
+
+    const { data: currencies } = useQuery({
+        queryKey: ["currencies"],
+        queryFn: () => api.settings.getCurrencies(),
     });
 
     useEffect(() => {
@@ -50,6 +65,20 @@ export default function CompanySettings() {
         }
     });
 
+    const logoUploadMutation = useMutation({
+        mutationFn: (file: File) => api.uploads.uploadLogo(file),
+        onSuccess: (res: any) => {
+            const logoUrl = res.url || res.path || res.data?.url || res.data?.path;
+            if (logoUrl) {
+                handleChange("logoUrl", logoUrl);
+                toast.success("Corporate branding updated. Transmission complete.");
+            }
+        },
+        onError: () => {
+            toast.error("Logo uplink failed. Signal lost.");
+        }
+    });
+
     const handleSave = () => {
         mutation.mutate(formData);
     };
@@ -60,209 +89,280 @@ export default function CompanySettings() {
 
     if (isFetching) {
         return (
-            <CRMLayout title="Initializing DNA...">
-                <div className="h-screen flex items-center justify-center bg-background">
-                    <p className="text-[10px] font-black uppercase tracking-[0.5em] animate-pulse italic opacity-40">Decrypting Corporate Core...</p>
-                </div>
-            </CRMLayout>
+            <div className="h-screen flex items-center justify-center bg-[#0b0e14]">
+                <p className="text-[10px] font-black uppercase tracking-[0.5em] animate-pulse italic opacity-40 text-white">Initializing DNS...</p>
+            </div>
         );
     }
 
     return (
-        <CRMLayout title="Company Management">
-            <div className="flex flex-col h-screen -m-6 bg-background overflow-hidden font-sans">
-                {/* Executive Sticky Header */}
-                <header className="h-20 bg-card/80 backdrop-blur-md border-b border-border flex items-center justify-between px-10 shrink-0 z-20 sticky top-0 shadow-sm">
-                    <div className="flex items-center gap-5">
-                        <div className="h-10 w-10 bg-primary/10 rounded-none flex items-center justify-center border border-primary/20 text-primary shadow-inner">
-                            <Building2 className="h-5 w-5" />
-                        </div>
-                        <div className="space-y-0.5">
-                            <h1 className="text-sm font-black tracking-tight text-foreground uppercase italic">
-                                Company Management <span className="text-muted-foreground font-bold italic tracking-normal normal-case ml-1 opacity-40">- Corporate Identity Control</span>
-                            </h1>
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">System-wide Organizational DNA</p>
-                        </div>
-                    </div>
-                    <Button 
-                        onClick={handleSave} 
-                        disabled={mutation.isPending} 
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-black h-11 px-10 gap-3 shadow-2xl shadow-primary/20 uppercase text-[10px] tracking-[0.2em] transition-all rounded-none border-b-2 border-primary-foreground/20 active:translate-y-0.5"
+        <CRMLayout title="Company Profile">
+            <div className="min-h-screen bg-[#0b0e14] text-slate-200 p-8 font-sans">
+                {/* Header matching the image style */}
+                <div className="flex items-center gap-6 mb-12 ml-2">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors"
                     >
-                        <Save className="h-4 w-4" /> {mutation.isPending ? "Synchronizing..." : "Commit Changes"}
-                    </Button>
-                </header>
+                        <ArrowLeft className="h-5 w-5 text-slate-400" />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight text-white mb-1">Company Profile</h1>
+                        <p className="text-slate-400 text-sm">Configure your global organizational identity and document defaults</p>
+                    </div>
+                    <div className="ml-auto">
+                        <Button
+                            onClick={handleSave}
+                            disabled={mutation.isPending}
+                            className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-8 rounded-md transition-all active:scale-95 shadow-lg shadow-primary/20"
+                        >
+                            <Save className="h-4 w-4 mr-2" />
+                            {mutation.isPending ? "Saving..." : "Save Changes"}
+                        </Button>
+                    </div>
+                </div>
 
-                <main className="flex-1 overflow-y-auto p-10 space-y-12 bg-muted/20 scrollbar-hide pb-32">
-                    {/* 🏛️ Section 1: Legal Identity */}
-                    <section className="bg-card border border-border p-12 space-y-10 rounded-none shadow-2xl relative overflow-hidden group transition-all hover:border-primary/20">
-                        <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.08] group-hover:scale-110 transition-all duration-1000 pointer-events-none">
-                            <Building2 className="h-40 w-40" />
-                        </div>
-                        <div className="flex items-center gap-4 border-b border-border/60 pb-8">
-                            <div className="h-10 w-10 bg-primary/10 flex items-center justify-center text-primary rounded-none border border-primary/20"><Scale className="h-5 w-5" /></div>
-                            <h2 className="text-[14px] font-black uppercase tracking-[0.5em] text-foreground italic">Legal Identity & Vector</h2>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
-                            <div className="space-y-3">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Legal Entity Name</Label>
-                                <Input value={formData.legalName || ""} onChange={(e) => handleChange("legalName", e.target.value)} placeholder="e.g. Nadas Group SARL" className="rounded-none border-border bg-muted/10 font-black uppercase text-[13px] h-12 focus:bg-white transition-all border-l-2 focus:border-l-primary" />
-                            </div>
-                            <div className="space-y-3">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Tax ID / Matricule Fiscale</Label>
-                                <Input value={formData.taxId || ""} onChange={(e) => handleChange("taxId", e.target.value)} className="rounded-none border-border bg-muted/10 font-mono font-black text-[13px] h-12 focus:bg-white border-l-2 focus:border-l-primary" />
-                            </div>
-                            <div className="space-y-3">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Commercial Registration (RC)</Label>
-                                <Input value={formData.commercialRegistration || ""} onChange={(e) => handleChange("commercialRegistration", e.target.value)} className="rounded-none border-border bg-muted/10 font-black text-[13px] h-12 focus:bg-white border-l-2 focus:border-l-primary" />
-                            </div>
-                            <div className="space-y-3">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Industry Sector</Label>
-                                <Input value={formData.industry || ""} onChange={(e) => handleChange("industry", e.target.value)} className="rounded-none border-border bg-muted/10 font-black text-[13px] h-12 focus:bg-white border-l-2 focus:border-l-primary" />
+                <div className="max-w-6xl mx-auto space-y-8 pb-20">
+                    {/* 📦 Section 1: Basic Information */}
+                    <div className="bg-[#151921] border border-white/5 rounded-xl p-10 space-y-10 shadow-2xl">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-slate-400">
+                                <Building2 className="h-5 w-5 text-primary" />
+                                <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Basic Information</h2>
                             </div>
                         </div>
-                    </section>
 
-                    {/* 🎨 Section 2: Branding Engine */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                        <section className="bg-card border border-border p-12 space-y-12 rounded-none shadow-2xl overflow-hidden group transition-all hover:border-blue-500/20">
-                            <div className="flex items-center gap-4 border-b border-border/60 pb-8">
-                                <div className="h-10 w-10 bg-blue-500/10 flex items-center justify-center text-blue-500 rounded-none border border-blue-500/20"><Palette className="h-5 w-5" /></div>
-                                <h2 className="text-[14px] font-black uppercase tracking-[0.5em] text-foreground italic">Visual Asset Engine</h2>
-                            </div>
-                            <div className="space-y-12">
-                                <div className="flex items-center gap-10">
-                                    <div className="h-32 w-32 border border-border bg-muted/30 flex items-center justify-center relative group/logo cursor-pointer overflow-hidden rounded-none shadow-inner">
-                                        <img src={formData.logoUrl || "https://www.nadas-group.com/wp-content/uploads/2023/07/logo-nadas-avec-contour.webp"} className="w-20 h-auto opacity-90 group-hover/logo:scale-110 transition-transform duration-500" />
-                                        <div className="absolute inset-0 bg-primary/90 opacity-0 group-hover/logo:opacity-100 flex items-center justify-center transition-all duration-300">
-                                            <UploadCloud className="text-white h-7 w-7 animate-bounce" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <h3 className="text-[12px] font-black uppercase tracking-widest italic">Primary Brand Vector</h3>
-                                        <p className="text-[11px] text-muted-foreground font-bold italic leading-relaxed opacity-60">Used for high-fidelity Quotes & Global Invoicing.<br/>Preferred format: WebP or Scalable Vector (SVG).</p>
-                                        <div className="flex items-center gap-3">
-                                            <Input 
-                                                value={formData.logoUrl || ""} 
-                                                onChange={(e) => handleChange("logoUrl", e.target.value)}
-                                                placeholder="Vector Remote URL"
-                                                className="h-9 text-[10px] font-mono rounded-none bg-muted/10"
+                        <div className="flex flex-col md:flex-row gap-12 items-start">
+                            {/* Logo Upload Section */}
+                            <div className="space-y-4 shrink-0">
+                                <Label className="text-sm font-semibold text-slate-200">Corporate Seal / Logo</Label>
+                                <div className="relative group">
+                                    <div className="h-40 w-40 bg-[#0b0e14] border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-3 overflow-hidden group-hover:border-primary/50 transition-all cursor-pointer relative shadow-inner">
+                                        {formData.logoUrl ? (
+                                            <img 
+                                                src={formData.logoUrl} 
+                                                alt="Company Logo" 
+                                                className="w-full h-full object-contain p-4 group-hover:opacity-40 transition-opacity" 
                                             />
-                                            <Button variant="outline" size="sm" className="rounded-none h-9 text-[9px] font-black uppercase tracking-widest px-6 border-primary/20 text-primary hover:bg-primary/5">Refresh</Button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="space-y-4 pt-6 border-t border-border/40">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Primary Brand Color Signature</Label>
-                                    <div className="flex items-center gap-8">
-                                        <div className="h-14 w-24 border-2 border-border/20 rounded-none shadow-xl transition-colors duration-500" style={{ backgroundColor: formData.primaryColor }} />
-                                        <Input value={formData.primaryColor || ""} onChange={(e) => handleChange("primaryColor", e.target.value)} className="w-40 rounded-none border-border bg-muted/10 font-mono font-black text-[13px] h-12 uppercase" />
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                                        ) : (
+                                            <>
+                                                <UploadCloud className="h-8 w-8 text-slate-600 group-hover:text-primary transition-colors" />
+                                                <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest text-center px-4">Initialize<br/>Visual Identity</span>
+                                            </>
+                                        )}
+                                        
+                                        <input 
+                                            type="file" 
+                                            className="absolute inset-0 opacity-0 cursor-pointer" 
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    logoUploadMutation.mutate(file);
+                                                }
+                                            }}
+                                        />
 
-                        {/* 📍 Section 3: Global Headquarters */}
-                        <section className="bg-card border border-border p-12 space-y-12 rounded-none shadow-2xl overflow-hidden group transition-all hover:border-emerald-500/20">
-                            <div className="flex items-center gap-4 border-b border-border/60 pb-8">
-                                <div className="h-10 w-10 bg-emerald-500/10 flex items-center justify-center text-emerald-500 rounded-none border border-emerald-500/20"><MapPin className="h-5 w-5" /></div>
-                                <h2 className="text-[14px] font-black uppercase tracking-[0.5em] text-foreground italic">Command HQ & Contacts</h2>
-                            </div>
-                            <div className="grid grid-cols-1 gap-10">
-                                <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Registered HQ Address</Label>
-                                    <Input value={formData.officeAddress || ""} onChange={(e) => handleChange("officeAddress", e.target.value)} className="rounded-none border-border bg-muted/10 font-black text-[13px] h-12 focus:bg-white border-l-2 focus:border-l-primary" />
-                                </div>
-                                <div className="grid grid-cols-2 gap-8">
-                                    <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">General HQ Phone</Label>
-                                        <div className="relative">
-                                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
-                                            <Input value={formData.phone || ""} onChange={(e) => handleChange("phone", e.target.value)} className="pl-12 rounded-none border-border bg-muted/10 font-mono font-black text-[13px] h-12 focus:bg-white border-l-2 focus:border-l-primary" />
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                            <span className="text-[10px] font-black text-white uppercase tracking-[0.3em] bg-primary/80 px-4 py-2 rounded-full">New Transmission</span>
                                         </div>
                                     </div>
-                                    <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Corporate Email</Label>
-                                        <div className="relative">
-                                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
-                                            <Input value={formData.email || ""} onChange={(e) => handleChange("email", e.target.value)} className="pl-12 rounded-none border-border bg-muted/10 font-black text-[13px] h-12 focus:bg-white border-l-2 focus:border-l-primary" />
+                                    {logoUploadMutation.isPending && (
+                                        <div className="absolute inset-0 bg-[#0b0e14]/80 flex items-center justify-center rounded-2xl">
+                                            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                                         </div>
-                                    </div>
+                                    )}
+                                </div>
+                                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Recommended: Transparent PNG (400x400px)</p>
+                            </div>
+
+                            <div className="flex-1 grid grid-cols-1 gap-8 w-full">
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold text-slate-200">Legal Name *</Label>
+                                    <Input
+                                        value={formData.legalName || ""}
+                                        onChange={(e) => handleChange("legalName", e.target.value)}
+                                        placeholder="e.g. Nadas Group SARL"
+                                        className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary transition-all"
+                                    />
+                                </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold text-slate-200">Tax ID / Matricule Fiscale</Label>
+                                    <Input
+                                        value={formData.taxId || ""}
+                                        onChange={(e) => handleChange("taxId", e.target.value)}
+                                        className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary font-mono"
+                                    />
                                 </div>
                                 <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Official Website URL Vector</Label>
-                                    <div className="relative">
-                                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary opacity-40" />
-                                        <Input value={formData.website || ""} onChange={(e) => handleChange("website", e.target.value)} className="pl-12 rounded-none border-border bg-muted/10 font-black text-[13px] h-12 focus:bg-white border-l-2 focus:border-l-primary" />
+                                    <Label className="text-sm font-semibold text-slate-200">Commercial Registration (RC)</Label>
+                                    <Input
+                                        value={formData.commercialRegistration || ""}
+                                        onChange={(e) => handleChange("commercialRegistration", e.target.value)}
+                                        className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold text-slate-200">Industry</Label>
+                                    <Input
+                                        value={formData.industry || ""}
+                                        onChange={(e) => handleChange("industry", e.target.value)}
+                                        className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold text-slate-200">Brand Color Signature</Label>
+                                    <div className="flex gap-4">
+                                        <div className="h-12 w-20 rounded-lg border border-white/10" style={{ backgroundColor: formData.primaryColor }} />
+                                        <Input
+                                            value={formData.primaryColor || ""}
+                                            onChange={(e) => handleChange("primaryColor", e.target.value)}
+                                            className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary font-mono"
+                                        />
                                     </div>
                                 </div>
                             </div>
-                        </section>
+                        </div>
                     </div>
 
-                    {/* ⚙️ Section 4: Operational Pulse */}
-                    <section className="bg-card border border-border p-12 space-y-12 rounded-none shadow-2xl relative group pb-16 transition-all hover:border-amber-500/20">
-                         <div className="flex items-center gap-4 border-b border-border/60 pb-8">
-                            <div className="h-10 w-10 bg-amber-500/10 flex items-center justify-center text-amber-500 rounded-none border border-amber-500/20"><CreditCard className="h-5 w-5" /></div>
-                            <h2 className="text-[14px] font-black uppercase tracking-[0.5em] text-foreground italic">Operational Pulse & Defaults</h2>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
-                            <div className="space-y-3">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Default Currency</Label>
-                                <Input value={formData.defaultCurrency || ""} onChange={(e) => handleChange("defaultCurrency", e.target.value)} className="rounded-none border-border bg-muted/10 font-black text-[13px] h-12 border-l-2 focus:border-l-primary" />
-                            </div>
-                            <div className="space-y-3">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 flex items-center gap-2">Standard Tax Vector <BadgePercent className="h-3.5 w-3.5 text-primary" /></Label>
-                                <Input value={formData.defaultTaxRate || ""} onChange={(e) => handleChange("defaultTaxRate", e.target.value)} className="rounded-none border-border bg-muted/10 font-black text-[13px] h-12 border-l-2 focus:border-l-primary" />
-                            </div>
-                            <div className="space-y-3">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 flex items-center gap-2">Sequence Formatting <Hash className="h-3.5 w-3.5 text-primary" /></Label>
-                                <Input value={formData.quoteNumberPrefix || ""} onChange={(e) => handleChange("quoteNumberPrefix", e.target.value)} className="rounded-none border-border bg-muted/10 font-mono font-black text-[13px] h-12 border-l-2 focus:border-l-primary text-primary" />
-                            </div>
+                    {/* 📍 Section 2: Contact & HQ */}
+                    <div className="bg-[#151921] border border-white/5 rounded-xl p-10 space-y-8 shadow-2xl">
+                        <div className="flex items-center gap-3 text-slate-400 mb-2">
+                            <MapPin className="h-5 w-5 text-primary" />
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Headquarters & Contact</h2>
                         </div>
 
-                        <Separator className="bg-border/60" />
-
-                        <div className="space-y-8">
-                            <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 bg-primary/10 flex items-center justify-center text-primary rounded-none border border-primary/20"><FileText className="h-5 w-5" /></div>
-                                <h3 className="text-[13px] font-black uppercase tracking-[0.3em] font-sans">Global Binding Protocols (T&C)</h3>
+                        <div className="grid grid-cols-1 gap-8">
+                            <div className="space-y-3">
+                                <Label className="text-sm font-semibold text-slate-200">HQ Address</Label>
+                                <Input
+                                    value={formData.officeAddress || ""}
+                                    onChange={(e) => handleChange("officeAddress", e.target.value)}
+                                    className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary"
+                                />
                             </div>
-                            <div className="pl-14 border-l-2 border-primary/20 relative">
-                                <div className="absolute -left-1.5 top-0 w-3 h-3 bg-primary border border-white" />
-                                <textarea 
-                                    value={formData.termsAndConditions || ""}
-                                    onChange={(e) => handleChange("termsAndConditions", e.target.value)}
-                                    className="w-full min-h-[160px] bg-muted/5 border border-border p-8 rounded-none font-bold text-[14px] italic leading-relaxed text-muted-foreground focus:bg-white focus:text-foreground focus:ring-0 outline-none transition-all border-b-2 border-b-border focus:border-b-primary shadow-inner"
-                                    placeholder="Define standard binding protocols..."
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold text-slate-200">HQ Phone</Label>
+                                    <Input
+                                        value={formData.phone || ""}
+                                        onChange={(e) => handleChange("phone", e.target.value)}
+                                        className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold text-slate-200">Corporate Email</Label>
+                                    <Input
+                                        value={formData.email || ""}
+                                        onChange={(e) => handleChange("email", e.target.value)}
+                                        className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold text-slate-200">Official Website</Label>
+                                    <Input
+                                        value={formData.website || ""}
+                                        onChange={(e) => handleChange("website", e.target.value)}
+                                        className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 💸 Section 3: Financial & Operational */}
+                    <div className="bg-[#151921] border border-white/5 rounded-xl p-10 space-y-8 shadow-2xl">
+                        <div className="flex items-center gap-3 text-slate-400 mb-2">
+                            <CreditCard className="h-5 w-5 text-primary" />
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Financial Protocols</h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="space-y-3">
+                                <Label className="text-sm font-semibold text-slate-200">Default Currency</Label>
+                                <Select
+                                    value={formData.defaultCurrency || ""}
+                                    onValueChange={(val) => handleChange("defaultCurrency", val)}
+                                >
+                                    <SelectTrigger className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary uppercase font-bold">
+                                        <SelectValue placeholder="Select Functional Currency" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-[#151921] border-white/10 text-slate-200">
+                                        {currencies?.map((curr: any) => (
+                                            <SelectItem key={curr.code} value={curr.code} className="hover:bg-primary/10 transition-colors cursor-pointer">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-mono text-primary">{curr.code}</span>
+                                                    <span>{curr.name}</span>
+                                                    <span className="text-slate-500 ml-auto opacity-50">{curr.symbol}</span>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-3">
+                                <Label className="text-sm font-semibold text-slate-200">VAT/Tax Rate (%)</Label>
+                                <Input
+                                    value={formData.defaultTaxRate || ""}
+                                    onChange={(e) => handleChange("defaultTaxRate", e.target.value)}
+                                    className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary"
+                                />
+                            </div>
+                            <div className="space-y-3">
+                                <Label className="text-sm font-semibold text-slate-200">Quote Sequence Template</Label>
+                                <Input
+                                    value={formData.quoteNumberPrefix || ""}
+                                    onChange={(e) => handleChange("quoteNumberPrefix", e.target.value)}
+                                    className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-primary focus:border-primary font-mono font-bold"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-8 pt-12 relative">
-                             <div className="absolute top-12 right-0 opacity-[0.02] pointer-events-none transform rotate-12">
-                                <CreditCard className="h-48 w-48" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                            <div className="space-y-3">
+                                <Label className="text-sm font-semibold text-slate-200">Bank Name</Label>
+                                <Input
+                                    value={formData.bankName || ""}
+                                    onChange={(e) => handleChange("bankName", e.target.value)}
+                                    className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary"
+                                />
                             </div>
-                            <div className="flex items-center gap-4 relative z-10">
-                                <div className="h-10 w-10 bg-[#003366]/10 flex items-center justify-center text-[#003366] rounded-none border border-[#003366]/20"><CreditCard className="h-5 w-5" /></div>
-                                <h3 className="text-[13px] font-black uppercase tracking-[0.3em]">Bank Remittance Intelligence</h3>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pl-14 relative z-10">
-                                <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40">Primary Bank Entity</Label>
-                                    <Input value={formData.bankName || ""} onChange={(e) => handleChange("bankName", e.target.value)} className="rounded-none border-border bg-muted/10 font-black text-[13px] h-12 focus:bg-white border-l-2 focus:border-l-primary" />
-                                </div>
-                                <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest opacity-40 font-mono italic">IBAN / RIB Signature</Label>
-                                    <div className="relative">
-                                        <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary opacity-40" />
-                                        <Input value={formData.bankIban || ""} onChange={(e) => handleChange("bankIban", e.target.value)} className="pl-14 rounded-none border-border bg-muted/10 font-mono font-black text-[13px] h-12 focus:bg-white border-l-2 focus:border-l-primary" />
-                                    </div>
-                                </div>
+                            <div className="space-y-3">
+                                <Label className="text-sm font-semibold text-slate-200">IBAN / RIB Signature</Label>
+                                <Input
+                                    value={formData.bankIban || ""}
+                                    onChange={(e) => handleChange("bankIban", e.target.value)}
+                                    className="bg-[#0b0e14] border-white/10 rounded-lg h-12 text-slate-200 focus:border-primary font-mono"
+                                />
                             </div>
                         </div>
-                    </section>
-                </main>
+                    </div>
+
+                    {/* ⚖️ Section 4: Binding Terms */}
+                    <div className="bg-[#151921] border border-white/5 rounded-xl p-10 space-y-8 shadow-2xl">
+                        <div className="flex items-center gap-3 text-slate-400 mb-2">
+                            <FileText className="h-5 w-5 text-primary" />
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Binding Protocols (T&C)</h2>
+                        </div>
+
+                        <div className="space-y-4">
+                            <Label className="text-sm font-semibold text-slate-200">Global Terms and Conditions</Label>
+                            <textarea
+                                value={formData.termsAndConditions || ""}
+                                onChange={(e) => handleChange("termsAndConditions", e.target.value)}
+                                className="w-full min-h-[160px] bg-[#0b0e14] border border-white/10 p-6 rounded-lg text-slate-300 text-sm italic leading-relaxed focus:border-primary outline-none transition-all"
+                                placeholder="Define your default quote terms..."
+                            />
+                            <p className="text-[10px] text-slate-500 italic uppercase tracking-wider">Note: These terms will appear on all generated PDF Documents.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </CRMLayout>
     );

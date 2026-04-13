@@ -35,14 +35,19 @@ import {
   MapPin,
   ShieldCheck,
   Percent,
-  Calculator
+  Calculator,
+  RefreshCw
 } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
 import { CurrencyNumbers } from "@/components/CurrencyNumbers";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function NewQuote() {
+  const { id } = useParams();
+  const isEdit = !!id;
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { symbol: currencySymbol } = useDefaultCurrency();
@@ -69,6 +74,12 @@ export default function NewQuote() {
   ]);
 
   // Queries
+  const { data: quote, isLoading: isQuoteLoading } = useQuery({
+    queryKey: ["quote", id],
+    queryFn: () => api.billing.quotes.getOne(Number(id)),
+    enabled: isEdit
+  });
+
   const { data: contacts = [] } = useQuery({ queryKey: ["contacts"], queryFn: () => api.contacts.getAll().catch(() => []) });
   const { data: accounts = [] } = useQuery({ queryKey: ["accounts"], queryFn: () => api.accounts.getAll().catch(() => []) });
   const { data: deals = [] } = useQuery({ queryKey: ["deals"], queryFn: () => api.deals.getAll().catch(() => []) });
@@ -77,6 +88,34 @@ export default function NewQuote() {
   const { data: products = [] } = useQuery({ queryKey: ["products"], queryFn: () => api.products.getAll().catch(() => []) });
   const { data: carriers = [] } = useQuery({ queryKey: ["carriers"], queryFn: () => api.settings.getCarriers().catch(() => []) });
   const { data: taxClasses = [] } = useQuery({ queryKey: ["tax-classes"], queryFn: () => api.products.getTaxClasses().catch(() => []) });
+
+  useEffect(() => {
+    if (quote && isEdit) {
+      setFormData({
+        subject: quote.subject || "",
+        status: quote.status || "draft",
+        carrier: quote.carrier || "FedEX",
+        validUntil: quote.validUntil || "",
+        termsAndConditions: quote.termsAndConditions || "",
+        description: quote.description || "",
+        billingAddress: quote.billingAddress || "",
+        shippingAddress: quote.shippingAddress || "",
+        contactId: quote.contactId ? String(quote.contactId) : "",
+        accountId: quote.accountId ? String(quote.accountId) : "",
+        dealId: quote.dealId ? String(quote.dealId) : "",
+        ownerId: quote.ownerId ? String(quote.ownerId) : "",
+        team: quote.team || "",
+        globalTax: quote.items?.[0]?.taxRate || 0
+      });
+      if (quote.items?.length > 0) {
+        setItems(quote.items.map((it: any) => ({
+          ...it,
+          productId: it.productId || "",
+          productName: it.productName || ""
+        })));
+      }
+    }
+  }, [quote, isEdit]);
 
   // Calculations
   const totals = useMemo(() => {
@@ -102,14 +141,15 @@ export default function NewQuote() {
     };
   }, [items]);
 
-  const createMutation = useMutation({
-    mutationFn: api.billing.quotes.create,
+  const saveMutation = useMutation({
+    mutationFn: (data: any) => isEdit ? api.billing.quotes.update(Number(id), data) : api.billing.quotes.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quotes"] });
-      toast.success("Structural proposal forged successfully");
-      navigate("/quotes");
+      queryClient.invalidateQueries({ queryKey: ["quote", id] });
+      toast.success(isEdit ? "Proposal refined in the encrypted ledger" : "Structural proposal forged successfully");
+      navigate(isEdit ? `/quotes/${id}` : "/quotes");
     },
-    onError: (err: any) => toast.error(err.message || "Forge failed"),
+    onError: (err: any) => toast.error(err.message || "Operation failed"),
   });
 
   const addItem = () => setItems([...items, { productId: "", productName: "", quantity: 1, unitPrice: 0, discount: 0, taxRate: formData.globalTax }]);
@@ -123,7 +163,7 @@ export default function NewQuote() {
   const handleSave = () => {
     if (!formData.subject || formData.subject.length < 2) return toast.error("Subject required (min 2 chars)");
     
-    createMutation.mutate({
+    saveMutation.mutate({
       ...formData,
       contactId: formData.contactId ? Number(formData.contactId) : undefined,
       accountId: formData.accountId ? Number(formData.accountId) : undefined,
@@ -138,6 +178,16 @@ export default function NewQuote() {
     });
   };
 
+  if (isEdit && isQuoteLoading) {
+    return (
+        <CRMLayout title="Decrypting Proposal...">
+            <div className="flex h-screen items-center justify-center">
+                <RefreshCw className="h-10 w-10 text-primary animate-spin" />
+            </div>
+        </CRMLayout>
+    );
+  }
+
   return (
     <CRMLayout title="Quote Forge">
       <div className="space-y-6 max-w-6xl mx-auto pb-20">
@@ -146,15 +196,15 @@ export default function NewQuote() {
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate("/quotes")}><ArrowLeft className="h-4 w-4" /></Button>
             <div>
-              <h1 className="text-2xl font-bold">New Quote</h1>
-              <p className="text-muted-foreground text-sm font-medium">Prepare a proposal for your client</p>
+              <h1 className="text-2xl font-bold">{isEdit ? `Refine Quote: Q-${String(quote?.quoteNumber || quote?.id).padStart(6, '0')}` : "New Quote"}</h1>
+              <p className="text-muted-foreground text-sm font-medium">{isEdit ? "Update tactical specifications" : "Prepare a proposal for your client"}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => navigate("/quotes")}>Discard</Button>
-            <Button onClick={handleSave} disabled={createMutation.isPending}>
+            <Button variant="outline" onClick={() => navigate(isEdit ? `/quotes/${id}` : "/quotes")}>Discard</Button>
+            <Button onClick={handleSave} disabled={saveMutation.isPending}>
               <Save className="h-4 w-4 mr-2" />
-              {createMutation.isPending ? "Saving..." : "Save Quote"}
+              {saveMutation.isPending ? "Syncing..." : isEdit ? "Update Registry" : "Save Quote"}
             </Button>
           </div>
         </div>

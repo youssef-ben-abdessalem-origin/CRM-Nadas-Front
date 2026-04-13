@@ -886,6 +886,14 @@ export const api = {
         const res = await axiosInstance.post(`/api/v1/billing/quotes/${id}/create-invoice`);
         return normalizeResponse(res.data);
       },
+      revise: async (id: number) => {
+        const res = await axiosInstance.post(`/api/v1/billing/quotes/${id}/revise`);
+        return normalizeResponse(res.data);
+      },
+      duplicate: async (id: number) => {
+        const res = await axiosInstance.post(`/api/v1/billing/quotes/${id}/duplicate`);
+        return normalizeResponse(res.data);
+      },
     },
     invoices: {
       getAll: async () => {
@@ -1388,6 +1396,14 @@ export const api = {
       const formData = new FormData();
       formData.append("file", file);
       const res = await axiosInstance.post("/api/v1/uploads/avatar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return res.data;
+    },
+    uploadLogo: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await axiosInstance.post("/api/v1/uploads/logo", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       return res.data;
