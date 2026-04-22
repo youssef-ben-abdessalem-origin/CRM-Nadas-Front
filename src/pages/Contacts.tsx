@@ -81,6 +81,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 
 interface ContactStatus {
@@ -140,6 +141,7 @@ const Contacts = () => {
   const confirm = useConfirm();
   const navigate = useNavigate();
   const { id } = useParams();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -481,39 +483,39 @@ const Contacts = () => {
     <div className="grid grid-cols-2 gap-4 py-4">
       <div className="space-y-2">
         <Label>
-          Name <span className="text-red-500">*</span>
+          {t('contacts.forms.name')} <span className="text-red-500">*</span>
         </Label>
         <Input
-          placeholder="John Doe"
+          placeholder={t('contacts.forms.placeholder.name')}
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
         />
       </div>
       <div className="space-y-2">
         <Label>
-          Email <span className="text-red-500">*</span>
+          {t('contacts.forms.email')} <span className="text-red-500">*</span>
         </Label>
         <Input
           type="email"
-          placeholder="john@company.com"
+          placeholder={t('contacts.forms.placeholder.email')}
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
         />
       </div>
       <div className="space-y-2">
-        <Label>Phone</Label>
+        <Label>{t('contacts.forms.phone')}</Label>
         <Input
-          placeholder="+1 (555) 000-0000"
+          placeholder={t('contacts.forms.placeholder.phone')}
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
         />
       </div>
       <div className="space-y-2">
         <Label>
-          Company <span className="text-red-500">*</span>
+          {t('contacts.forms.company')} <span className="text-red-500">*</span>
         </Label>
         <Input
-          placeholder="Acme Corp"
+          placeholder={t('contacts.forms.placeholder.company')}
           value={formData.company}
           onChange={(e) =>
             setFormData({ ...formData, company: e.target.value })
@@ -521,15 +523,15 @@ const Contacts = () => {
         />
       </div>
       <div className="space-y-2">
-        <Label>Title</Label>
+        <Label>{t('contacts.forms.title')}</Label>
         <Input
-          placeholder="VP of Engineering"
+          placeholder={t('contacts.forms.placeholder.title')}
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
         />
       </div>
       <div className="space-y-2">
-        <Label>Status</Label>
+        <Label>{t('contacts.forms.status')}</Label>
         <Select
           value={formData.statusId?.toString() || ""}
           onValueChange={(v) =>
@@ -537,7 +539,7 @@ const Contacts = () => {
           }
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select status" />
+            <SelectValue placeholder={t('contacts.forms.placeholder.status')} />
           </SelectTrigger>
           <SelectContent>
             {statuses.map((status) => (
@@ -549,7 +551,7 @@ const Contacts = () => {
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>Tier</Label>
+        <Label>{t('contacts.forms.tier')}</Label>
         <Select
           value={formData.tierId?.toString() || ""}
           onValueChange={(v) =>
@@ -557,7 +559,7 @@ const Contacts = () => {
           }
         >
           <SelectTrigger>
-            <SelectValue placeholder="Select tier" />
+            <SelectValue placeholder={t('contacts.forms.placeholder.tier')} />
           </SelectTrigger>
           <SelectContent>
             {tiers.map((tier) => (
@@ -569,10 +571,10 @@ const Contacts = () => {
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>Deal Value</Label>
+        <Label>{t('contacts.forms.dealValue')}</Label>
         <Input
           type="number"
-          placeholder="50000"
+          placeholder={t('contacts.forms.placeholder.dealValue')}
           value={formData.dealValue}
           onChange={(e) =>
             setFormData({ ...formData, dealValue: e.target.value })
@@ -580,9 +582,9 @@ const Contacts = () => {
         />
       </div>
       <div className="space-y-2">
-        <Label>Location</Label>
+        <Label>{t('contacts.forms.location')}</Label>
         <Input
-          placeholder="San Francisco, CA"
+          placeholder={t('contacts.forms.placeholder.location')}
           value={formData.location}
           onChange={(e) =>
             setFormData({ ...formData, location: e.target.value })
@@ -590,9 +592,9 @@ const Contacts = () => {
         />
       </div>
       <div className="space-y-2">
-        <Label>Industry</Label>
+        <Label>{t('contacts.forms.industry')}</Label>
         <Input
-          placeholder="Technology"
+          placeholder={t('contacts.forms.placeholder.industry')}
           value={formData.industry}
           onChange={(e) =>
             setFormData({ ...formData, industry: e.target.value })
@@ -600,9 +602,9 @@ const Contacts = () => {
         />
       </div>
       <div className="space-y-2">
-        <Label>Website</Label>
+        <Label>{t('contacts.forms.website')}</Label>
         <Input
-          placeholder="company.com"
+          placeholder={t('contacts.forms.placeholder.website')}
           value={formData.website}
           onChange={(e) =>
             setFormData({ ...formData, website: e.target.value })
@@ -610,9 +612,9 @@ const Contacts = () => {
         />
       </div>
       <div className="space-y-2 col-span-2">
-        <Label>Notes</Label>
+        <Label>{t('contacts.forms.notes')}</Label>
         <Textarea
-          placeholder="Additional context..."
+          placeholder={t('contacts.forms.placeholder.notes')}
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           className="resize-none"
@@ -623,28 +625,28 @@ const Contacts = () => {
   );
 
   return (
-    <CRMLayout title="Contacts">
+    <CRMLayout title={t('contacts.title')}>
       <div className="space-y-4">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Contacts
+                {t('contacts.stats.total')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 <Users className="h-3 w-3 inline mr-1" />
-                In database
+                {t('common.stats.inDatabase')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Active
+                {t('contacts.stats.active')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -652,14 +654,14 @@ const Contacts = () => {
                 {stats.active}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Engaged contacts
+                {t('common.stats.engaged')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Revenue
+                {t('contacts.stats.revenue')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -668,14 +670,14 @@ const Contacts = () => {
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 <DollarSign className="h-3 w-3 inline mr-1" />
-                Won deals
+                {t('common.stats.wonDeals')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Avg Deal Size
+                {t('contacts.stats.avgDealSize')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -684,14 +686,14 @@ const Contacts = () => {
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 <TrendingUp className="h-3 w-3 inline mr-1" />
-                Per closed deal
+                {t('contacts.stats.perClosedDeal', 'Per closed deal')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Churn Rate
+                {t('contacts.stats.churnRate')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -699,7 +701,7 @@ const Contacts = () => {
                 {stats.churnRate}%
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Lost contacts
+                {t('contacts.stats.churnDesc', 'Lost contacts')}
               </p>
             </CardContent>
           </Card>
@@ -711,7 +713,7 @@ const Contacts = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search contacts..."
+                placeholder={t('contacts.toolbar.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9 w-72 pl-9"
@@ -719,45 +721,45 @@ const Contacts = () => {
             </div>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="h-9 w-36">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t('contacts.toolbar.status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="all">{t('common.allStatuses', 'All Statuses')}</SelectItem>
                 {statuses.map((status) => (
                   <SelectItem key={status.id} value={status.id.toString()}>
-                    {status.name}
+                    {t(`contacts.statuses.${status.name.toLowerCase().replace(/\s+/g, '_')}`, status.name)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select value={filterTier} onValueChange={setFilterTier}>
               <SelectTrigger className="h-9 w-36">
-                <SelectValue placeholder="Tier" />
+                <SelectValue placeholder={t('contacts.toolbar.tier')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Tiers</SelectItem>
+                <SelectItem value="all">{t('common.allTiers', 'All Tiers')}</SelectItem>
                 {tiers.map((tier) => (
                   <SelectItem key={tier.id} value={tier.id.toString()}>
-                    {tier.name}
+                    {t(`contacts.tiers.${tier.name.toLowerCase().replace(/\s+/g, '_')}`, tier.name)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm">
-              <Filter className="h-3.5 w-3.5 mr-1" /> Filter
+              <Filter className="h-3.5 w-3.5 mr-1" /> {t('contacts.toolbar.filter')}
             </Button>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm">
-              <Download className="h-3.5 w-3.5 mr-1" /> Export
+              <Download className="h-3.5 w-3.5 mr-1" /> {t('contacts.toolbar.export')}
             </Button>
             {selectedContacts.length > 0 && (
               <Button variant="outline" size="sm" onClick={() => setShowBulkActions(true)}>
-                <CheckSquare className="h-3.5 w-3.5 mr-1" /> Bulk ({selectedContacts.length})
+                <CheckSquare className="h-3.5 w-3.5 mr-1" /> {t('contacts.toolbar.bulk')} ({selectedContacts.length})
               </Button>
             )}
             <Button size="sm" onClick={() => { resetForm(); setShowAdd(true); }}>
-              <Plus className="h-3.5 w-3.5 mr-1" /> Add Contact
+              <Plus className="h-3.5 w-3.5 mr-1" /> {t('contacts.toolbar.add')}
             </Button>
           </div>
         </div>
@@ -781,14 +783,14 @@ const Contacts = () => {
                       className="h-4 w-4 rounded border-gray-300"
                     />
                   </TableHead>
-                  <TableHead>Contact</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Tier</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Deal Value</TableHead>
-                <TableHead>Won / Total</TableHead>
-                <TableHead>Last Contact</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('contacts.table.contact')}</TableHead>
+                <TableHead>{t('contacts.table.company')}</TableHead>
+                <TableHead>{t('contacts.table.tier')}</TableHead>
+                <TableHead>{t('contacts.table.status')}</TableHead>
+                <TableHead className="text-right">{t('contacts.table.dealValue')}</TableHead>
+                <TableHead>{t('contacts.table.wonTotal')}</TableHead>
+                <TableHead>{t('contacts.table.lastContact')}</TableHead>
+                <TableHead className="text-right">{t('contacts.table.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -796,8 +798,8 @@ const Contacts = () => {
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
                     <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p className="text-lg font-medium">No contacts found</p>
-                    <p className="text-sm">Get started by adding your first contact</p>
+                    <p className="text-lg font-medium">{t('contacts.empty.title')}</p>
+                    <p className="text-sm">{t('contacts.empty.desc')}</p>
                   </TableCell>
                 </TableRow>
               ) : filtered.map((contact) => (
@@ -842,7 +844,7 @@ const Contacts = () => {
                       className={getTierColor(contact)}
                     >
                       <Star className="h-3 w-3 mr-1" />
-                      {getTierName(contact)}
+                      {t(`contacts.tiers.${getTierName(contact).toLowerCase().replace(/\s+/g, '_')}`, getTierName(contact))}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -850,7 +852,7 @@ const Contacts = () => {
                       variant="outline"
                       className={getStatusColor(contact)}
                     >
-                      {getStatusName(contact)}
+                      {t(`contacts.statuses.${getStatusName(contact).toLowerCase().replace(/\s+/g, '_')}`, getStatusName(contact))}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right font-medium">
@@ -920,7 +922,7 @@ const Contacts = () => {
                             }}
                           >
                             <Edit className="h-4 w-4 mr-2" />
-                            Edit
+                            {t('common.actions.edit', 'Edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={(e) => {
@@ -929,7 +931,7 @@ const Contacts = () => {
                             }}
                           >
                             <CheckSquare className="h-4 w-4 mr-2" />
-                            Create Task
+                            {t('leads.actions.createTask', 'Create Task')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={(e) => {
@@ -938,7 +940,7 @@ const Contacts = () => {
                             }}
                           >
                             <Tag className="h-4 w-4 mr-2" />
-                            Add Tags
+                            {t('leads.actions.addTags', 'Add Tags')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={(e) => {
@@ -949,7 +951,7 @@ const Contacts = () => {
                             }}
                           >
                             <Copy className="h-4 w-4 mr-2" />
-                            Copy URL
+                            {t('leads.actions.copyUrl', 'Copy URL')}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           {statuses.map((status) => (
@@ -961,7 +963,7 @@ const Contacts = () => {
                               }}
                             >
                               <Check className="h-4 w-4 mr-2" />
-                              Mark as {status.name}
+                              {t('contacts.actions.markAs', { status: t(`contacts.statuses.${status.name.toLowerCase().replace(/\s+/g, '_')}`, status.name) })}
                             </DropdownMenuItem>
                           ))}
                           <DropdownMenuSeparator />
@@ -973,7 +975,7 @@ const Contacts = () => {
                             }}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
+                            {t('common.actions.delete', 'Delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -1142,10 +1144,10 @@ const Contacts = () => {
               </div>
             </div>
             <DrawerFooter>
-              <Button variant="outline" onClick={() => { setShowAdd(false); resetForm(); }}>Cancel</Button>
+              <Button variant="outline" onClick={() => { setShowAdd(false); resetForm(); }}>{t('common.actions.cancel')}</Button>
               <Button onClick={handleAdd} disabled={createMutation.isPending}>
                 <Check className="h-4 w-4 mr-2" />
-                {createMutation.isPending ? "Creating..." : "Create Contact"}
+                {createMutation.isPending ? t('common.actions.creating') : t('contacts.toolbar.add')}
               </Button>
             </DrawerFooter>
           </DrawerContent>
@@ -1155,18 +1157,18 @@ const Contacts = () => {
         <Dialog open={showEdit} onOpenChange={setShowEdit}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Edit Contact</DialogTitle>
+              <DialogTitle>{t('common.actions.edit')}</DialogTitle>
               <DialogDescription>
-                Update contact information.
+                {t('contacts.detail.updateContact', 'Update contact information.')}
               </DialogDescription>
             </DialogHeader>
-            <ContactForm onSubmit={handleEdit} submitLabel="Save Changes" />
+            <ContactForm onSubmit={handleEdit} submitLabel={t('common.actions.save')} />
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowEdit(false)}>
-                Cancel
+                {t('common.actions.cancel')}
               </Button>
               <Button onClick={handleEdit}>
-                <Edit className="h-4 w-4 mr-2" /> Save Changes
+                <Edit className="h-4 w-4 mr-2" /> {t('common.actions.save')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1203,12 +1205,12 @@ const Contacts = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowActivity(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowActivity(false)}>{t('common.actions.cancel')}</Button>
               <Button onClick={() => {
-                if (!selectedContact || !newActivity.typeId) { toast.error("Please select activity type"); return; }
+                if (!selectedContact || !newActivity.typeId) { toast.error(t('activities.forms.placeholder.type')); return; }
                 createActivityMutation.mutate({ entityType: "contact", entityId: selectedContact.id, typeId: newActivity.typeId, subject: newActivity.subject, description: newActivity.description, dueDate: newActivity.dueDate || undefined });
               }} disabled={createActivityMutation.isPending}>
-                {createActivityMutation.isPending ? "Adding..." : "Add Activity"}
+                {createActivityMutation.isPending ? t('common.actions.saving') : t('activities.toolbar.add')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1217,9 +1219,9 @@ const Contacts = () => {
         <Dialog open={showBulkActions} onOpenChange={setShowBulkActions}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Bulk Actions</DialogTitle>
+              <DialogTitle>{t('common.actions.bulkActions')}</DialogTitle>
               <DialogDescription>
-                Apply actions to {selectedContacts.length} selected contacts
+                {t('common.actions.bulkDesc', { count: selectedContacts.length })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -1228,27 +1230,27 @@ const Contacts = () => {
                 className="w-full justify-start"
                 onClick={() => {
                   api.contacts.bulkUpdate(selectedContacts, { contactStatusId: 1 }).then(() => {
-                    toast.success("Contacts updated");
+                    toast.success(t('contacts.bulkActions.updateSuccess'));
                     setSelectedContacts([]);
                     setShowBulkActions(false);
                     queryClient.invalidateQueries({ queryKey: ["contacts"] });
                   }).catch((err: Error) => toast.error(err.message));
                 }}
               >
-                <Star className="h-4 w-4 mr-2" /> Update Status
+                <Star className="h-4 w-4 mr-2" /> {t('contacts.toolbar.bulkUpdate', 'Update Status')}
               </Button>
               <Button
                 variant="outline"
                 className="w-full justify-start text-red-500"
                 onClick={async () => {
                   if (await confirm({ 
-                    title: "Bulk Delete Contacts", 
-                    description: `Are you sure you want to delete ${selectedContacts.length} contacts? This action is permanent and will affect all selected records.`,
+                    title: t('common.actions.deleteSelected'), 
+                    description: t('contacts.bulkActions.confirmDelete', { count: selectedContacts.length }),
                     variant: "destructive",
-                    confirmText: "Delete All"
+                    confirmText: t('common.actions.delete')
                   })) {
                     api.contacts.bulkDelete(selectedContacts).then(() => {
-                      toast.success("Contacts deleted");
+                      toast.success(t('contacts.bulkActions.deleteSuccess'));
                       setSelectedContacts([]);
                       setShowBulkActions(false);
                       queryClient.invalidateQueries({ queryKey: ["contacts"] });
@@ -1256,7 +1258,7 @@ const Contacts = () => {
                   }
                 }}
               >
-                <Trash2 className="h-4 w-4 mr-2" /> Delete Selected
+                <Trash2 className="h-4 w-4 mr-2" /> {t('common.actions.deleteSelected')}
               </Button>
             </div>
           </DialogContent>

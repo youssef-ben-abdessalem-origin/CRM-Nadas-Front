@@ -54,6 +54,7 @@ import {
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 import { DynamicAutoSelect } from "@/components/ui/DynamicAutoSelect";
 
 interface Activity {
@@ -81,6 +82,7 @@ interface Activity {
 
 const ActivitiesPage = () => {
   const { symbol: currencySymbol } = useDefaultCurrency();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [showDialog, setShowDialog] = useState(false);
@@ -161,41 +163,41 @@ const ActivitiesPage = () => {
     mutationFn: api.activities.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast.success("Activity created successfully");
+      toast.success(t('activities.statusUpdates.created', 'Activity created successfully'));
       setShowDialog(false);
       resetForm();
     },
-    onError: (err: any) => toast.error(err.message || "Failed to create activity"),
+    onError: (err: any) => toast.error(err.message || t('activities.statusUpdates.createFailed', 'Failed to create activity')),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) => api.activities.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast.success("Activity updated successfully");
+      toast.success(t('activities.statusUpdates.updated', 'Activity updated successfully'));
       setShowDialog(false);
       setEditingActivity(null);
       resetForm();
     },
-    onError: (err: any) => toast.error(err.message || "Failed to update activity"),
+    onError: (err: any) => toast.error(err.message || t('activities.statusUpdates.updateFailed', 'Failed to update activity')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: api.activities.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast.success("Activity deleted successfully");
+      toast.success(t('activities.statusUpdates.deleted', 'Activity deleted successfully'));
     },
-    onError: (err: any) => toast.error(err.message || "Failed to delete activity"),
+    onError: (err: any) => toast.error(err.message || t('activities.statusUpdates.deleteFailed', 'Failed to delete activity')),
   });
 
   const completeMutation = useMutation({
     mutationFn: api.activities.complete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast.success("Activity marked as complete");
+      toast.success(t('activities.statusUpdates.markedComplete', 'Activity marked as complete'));
     },
-    onError: (err: any) => toast.error(err.message || "Failed to complete activity"),
+    onError: (err: any) => toast.error(err.message || t('activities.statusUpdates.completeFailed', 'Failed to complete activity')),
   });
 
   const resetForm = () => {
@@ -228,7 +230,7 @@ const ActivitiesPage = () => {
 
   const handleSubmit = () => {
     if (!formData.subject || !formData.typeId) {
-      toast.error("Please fill in required fields");
+      toast.error(t('common.errors.fillRequired', 'Please fill in all required fields'));
       return;
     }
 
@@ -251,18 +253,18 @@ const ActivitiesPage = () => {
     switch (s) {
       case "done":
       case "completed":
-        return <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">Done</Badge>;
+        return <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">{t('activities.status.done')}</Badge>;
       case "in_progress":
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-blue-200">In Progress</Badge>;
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-blue-200">{t('activities.status.inProgress')}</Badge>;
       case "todo":
       case "pending":
-        return <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200">To Do</Badge>;
+        return <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200">{t('activities.status.todo')}</Badge>;
       case "cancelled":
-        return <Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100 border-red-200">Cancelled</Badge>;
+        return <Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100 border-red-200">{t('activities.status.cancelled')}</Badge>;
       case "overdue":
-        return <Badge variant="destructive">Overdue</Badge>;
+        return <Badge variant="destructive">{t('activities.status.overdue')}</Badge>;
       default:
-        return <Badge variant="outline">{status || "To Do"}</Badge>;
+        return <Badge variant="outline">{status || t('activities.status.todo')}</Badge>;
     }
   };
 
@@ -282,15 +284,15 @@ const ActivitiesPage = () => {
   );
 
   return (
-    <CRMLayout title="Activities">
+    <CRMLayout title={t('activities.title')}>
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Activities</h1>
-            <p className="text-muted-foreground">Manage your tasks, calls, and meetings.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t('activities.title')}</h1>
+            <p className="text-muted-foreground">{t('activities.desc')}</p>
           </div>
           <Button onClick={() => { resetForm(); setEditingActivity(null); setShowDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" /> New Activity
+            <Plus className="h-4 w-4 mr-2" /> {t('activities.toolbar.add')}
           </Button>
         </div>
 
@@ -298,7 +300,7 @@ const ActivitiesPage = () => {
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
-              placeholder="Search activities..." 
+              placeholder={t('activities.toolbar.search')} 
               className="pl-9"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -311,13 +313,13 @@ const ActivitiesPage = () => {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[40px]"></TableHead>
-                <TableHead>Subject</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Assigned To</TableHead>
-                <TableHead>Related To</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('activities.table.subject')}</TableHead>
+                <TableHead>{t('activities.table.type')}</TableHead>
+                <TableHead>{t('activities.table.dueDate')}</TableHead>
+                <TableHead>{t('activities.table.assignedTo')}</TableHead>
+                <TableHead>{t('activities.table.relatedTo')}</TableHead>
+                <TableHead>{t('activities.table.status')}</TableHead>
+                <TableHead className="text-right">{t('activities.table.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -326,14 +328,14 @@ const ActivitiesPage = () => {
                   <TableCell colSpan={8} className="text-center py-12">
                     <div className="flex items-center justify-center text-muted-foreground">
                       <Clock className="h-4 w-4 mr-2 animate-spin" />
-                      Loading activities...
+                      {t('activities.loading')}
                     </div>
                   </TableCell>
                 </TableRow>
               ) : filteredActivities.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
-                    No activities found.
+                    {t('activities.empty')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -378,7 +380,7 @@ const ActivitiesPage = () => {
                         <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
                           {activity.assignedTo?.name?.charAt(0) || <User className="h-3 w-3" />}
                         </div>
-                        <span className="text-sm">{activity.assignedTo?.name || 'Unassigned'}</span>
+                        <span className="text-sm">{activity.assignedTo?.name || t('activities.unassigned')}</span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -399,13 +401,13 @@ const ActivitiesPage = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => handleEdit(activity)}>
-                            <Pencil className="h-4 w-4 mr-2" /> Edit
+                            <Pencil className="h-4 w-4 mr-2" /> {t('common.actions.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-red-500"
-                            onClick={() => { if(confirm("Are you sure?")) deleteMutation.mutate(activity.id) }}
+                            onClick={() => { if(confirm(t('common.actions.confirm_delete'))) deleteMutation.mutate(activity.id) }}
                           >
-                            <Trash2 className="h-4 w-4 mr-2" /> Delete
+                            <Trash2 className="h-4 w-4 mr-2" /> {t('common.actions.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -422,14 +424,14 @@ const ActivitiesPage = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{editingActivity ? "Edit Activity" : "Create New Activity"}</DialogTitle>
+            <DialogTitle>{editingActivity ? t('activities.forms.edit') : t('activities.forms.new')}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="subject">Subject *</Label>
+              <Label htmlFor="subject">{t('activities.forms.subject')} *</Label>
               <Input 
                 id="subject" 
-                placeholder="Call with Client" 
+                placeholder={t('activities.forms.placeholder.subject')} 
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
               />
@@ -437,13 +439,13 @@ const ActivitiesPage = () => {
             
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="type">Type *</Label>
+                <Label htmlFor="type">{t('activities.forms.type')} *</Label>
                 <Select 
                   value={formData.typeId} 
                   onValueChange={(v) => setFormData({ ...formData, typeId: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder={t('activities.forms.placeholder.type')} />
                   </SelectTrigger>
                   <SelectContent>
                     {activityTypes.map((t: any) => (
@@ -453,7 +455,7 @@ const ActivitiesPage = () => {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="dueDate">Due Date *</Label>
+                <Label htmlFor="dueDate">{t('activities.forms.dueDate')} *</Label>
                 <div className="relative">
                   <Input 
                     id="dueDate" 
@@ -467,41 +469,41 @@ const ActivitiesPage = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="entityType">Related To</Label>
+                <Label htmlFor="entityType">{t('activities.forms.relatedTo')}</Label>
                 <Select 
                   value={formData.entityType} 
                   onValueChange={(v) => setFormData({ ...formData, entityType: v, entityId: "" })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Entity Type" />
+                    <SelectValue placeholder={t('activities.forms.placeholder.entityType')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="lead">Lead</SelectItem>
-                    <SelectItem value="contact">Contact</SelectItem>
-                    <SelectItem value="account">Account</SelectItem>
-                    <SelectItem value="deal">Deal</SelectItem>
+                    <SelectItem value="lead">{t('common.entities.lead')}</SelectItem>
+                    <SelectItem value="contact">{t('common.entities.contact')}</SelectItem>
+                    <SelectItem value="account">{t('common.entities.account')}</SelectItem>
+                    <SelectItem value="deal">{t('common.entities.deal')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label>Search {formData.entityType}</Label>
+                <Label>{t('activities.forms.searchEntity', { entity: t(`common.entities.${formData.entityType}`) })}</Label>
                 <DynamicAutoSelect
                   options={getEntityOptions()}
                   value={formData.entityId}
                   onSelect={(v) => setFormData({ ...formData, entityId: v })}
-                  placeholder={`Select ${formData.entityType}...`}
+                  placeholder={t('activities.forms.placeholder.selectEntity', { entity: t(`common.entities.${formData.entityType}`) })}
                 />
               </div>
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="assignedTo">Assigned To</Label>
+              <Label htmlFor="assignedTo">{t('activities.forms.assignedTo')}</Label>
               <Select 
                 value={formData.assignedToId} 
                 onValueChange={(v) => setFormData({ ...formData, assignedToId: v })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select user" />
+                  <SelectValue placeholder={t('activities.forms.placeholder.user', 'Select user')} />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((u: any) => (
@@ -512,18 +514,20 @@ const ActivitiesPage = () => {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('activities.forms.description')}</Label>
               <Input 
                 id="description" 
-                placeholder="Additional details..." 
+                placeholder={t('activities.forms.placeholder.description')} 
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)}>Cancel</Button>
-            <Button onClick={handleSubmit}>{editingActivity ? "Update" : "Create"} Activity</Button>
+            <Button variant="outline" onClick={() => setShowDialog(false)}>{t('common.actions.cancel')}</Button>
+            <Button onClick={handleSubmit}>
+              {editingActivity ? t('activities.forms.submit.update') : t('activities.forms.submit.create')} {t('activities.forms.activitySuffix')}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

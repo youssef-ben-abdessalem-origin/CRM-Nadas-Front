@@ -49,6 +49,7 @@ import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 export default function CampaignsPage() {
   const [view, setView] = useState<"table" | "kanban">("table");
@@ -60,6 +61,7 @@ export default function CampaignsPage() {
 
   const queryClient = useQueryClient();
   const confirm = useConfirm();
+  const { t } = useTranslation();
   const { symbol: currencySymbol } = useDefaultCurrency();
 
   const { data: campaigns = [], isLoading } = useQuery({
@@ -82,7 +84,7 @@ export default function CampaignsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       setIsOpen(false);
-      toast.success("Campaign created successfully");
+      toast.success(t('campaigns.statusUpdates.created', 'Campaign created successfully'));
     },
   });
 
@@ -90,7 +92,7 @@ export default function CampaignsPage() {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.campaigns.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
-      toast.success("Campaign updated");
+      toast.success(t('campaigns.statusUpdates.updated', 'Campaign updated'));
     },
   });
 
@@ -99,7 +101,7 @@ export default function CampaignsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       setSelectedIds([]);
-      toast.success("Campaign deleted");
+      toast.success(t('campaigns.statusUpdates.deleted', 'Campaign deleted'));
     },
   });
 
@@ -110,7 +112,7 @@ export default function CampaignsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["campaigns"] });
       setSelectedIds([]);
-      toast.success("Batch operations complete");
+      toast.success(t('campaigns.statusUpdates.batchComplete', 'Batch operations complete'));
     },
   });
 
@@ -146,61 +148,61 @@ export default function CampaignsPage() {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Campaigns">
+      <CRMLayout title={t('campaigns.title')}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading campaigns...</div>
+          <div className="text-muted-foreground">{t('campaigns.loading')}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Campaigns">
+    <CRMLayout title={t('campaigns.title')}>
       <div className="space-y-4">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Campaigns</h1>
-            <p className="text-muted-foreground">Manage and track your marketing efforts</p>
+            <h1 className="text-2xl font-bold">{t('campaigns.title')}</h1>
+            <p className="text-muted-foreground">{t('campaigns.desc')}</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex border rounded-lg p-0.5 bg-muted/30">
                 <Button variant={view === "table" ? "secondary" : "ghost"} size="sm" className="h-7 px-3" onClick={() => setView("table")}>
-                    <List className="h-3.5 w-3.5 mr-2" /> Table
+                    <List className="h-3.5 w-3.5 mr-2" /> {t('campaigns.toolbar.table')}
                 </Button>
                 <Button variant={view === "kanban" ? "secondary" : "ghost"} size="sm" className="h-7 px-3" onClick={() => setView("kanban")}>
-                    <LayoutGrid className="h-3.5 w-3.5 mr-2" /> Kanban
+                    <LayoutGrid className="h-3.5 w-3.5 mr-2" /> {t('campaigns.toolbar.kanban')}
                 </Button>
             </div>
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
                 <Button>
-                  <Plus className="h-4 w-4 mr-2" /> Add Campaign
+                  <Plus className="h-4 w-4 mr-2" /> {t('campaigns.toolbar.add')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>New Campaign</DialogTitle>
+                  <DialogTitle>{t('campaigns.forms.new')}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Campaign Name *</Label>
-                    <Input name="name" required placeholder="Summer Sale 2026" />
+                    <Label>{t('campaigns.forms.name')} *</Label>
+                    <Input name="name" required placeholder={t('campaigns.forms.placeholder.name')} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Type</Label>
+                      <Label>{t('campaigns.forms.type')}</Label>
                       <Select name="campaignTypeId">
-                        <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t('campaigns.forms.placeholder.type')} /></SelectTrigger>
                         <SelectContent>
                           {types.map((t: any) => <SelectItem key={t.id} value={t.id.toString()}>{t.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Status</Label>
+                      <Label>{t('campaigns.forms.status')}</Label>
                       <Select name="statusId">
-                        <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t('campaigns.forms.placeholder.status')} /></SelectTrigger>
                         <SelectContent>
                           {statuses.map((s: any) => <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>)}
                         </SelectContent>
@@ -208,12 +210,12 @@ export default function CampaignsPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Budget ({currencySymbol})</Label>
-                    <Input name="budgetedCost" type="number" placeholder="5000" />
+                    <Label>{t('campaigns.forms.budget')} ({currencySymbol})</Label>
+                    <Input name="budgetedCost" type="number" placeholder={t('campaigns.forms.placeholder.budget')} />
                   </div>
                   <DialogFooter>
                     <Button type="submit" className="w-full" disabled={createMutation.isPending}>
-                        {createMutation.isPending ? "Creating..." : "Create Campaign"}
+                        {createMutation.isPending ? t('campaigns.forms.creating') : t('campaigns.forms.create')}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -228,7 +230,7 @@ export default function CampaignsPage() {
                 <div className="relative flex-1 max-w-sm">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input 
-                        placeholder="Search campaigns..." 
+                        placeholder={t('campaigns.toolbar.search')} 
                         className="pl-9 h-9 bg-background"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -237,17 +239,17 @@ export default function CampaignsPage() {
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-[140px] h-9">
                         <Filter className="h-3 w-3 mr-2" />
-                        <SelectValue placeholder="Status" />
+                        <SelectValue placeholder={t('campaigns.toolbar.status')} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
+                        <SelectItem value="all">{t('campaigns.toolbar.allStatuses')}</SelectItem>
                         {statuses.map((s: any) => <SelectItem key={s.id} value={s.name.toLowerCase()}>{s.name}</SelectItem>)}
                     </SelectContent>
                 </Select>
             </div>
             {selectedIds.length > 0 && (
                 <Button variant="destructive" size="sm" onClick={() => bulkDeleteMutation.mutate(selectedIds)}>
-                    <Trash2 className="h-3 w-3 mr-2" /> Delete {selectedIds.length}
+                    <Trash2 className="h-3 w-3 mr-2" /> {t('campaigns.toolbar.deleteSelected')} {selectedIds.length}
                 </Button>
             )}
         </div>
@@ -261,18 +263,18 @@ export default function CampaignsPage() {
                             <TableHead className="w-[40px] pl-4">
                                 <Checkbox checked={selectedIds.length === filteredCampaigns.length} onCheckedChange={toggleSelectAll} />
                             </TableHead>
-                            <TableHead>Campaign Name</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Budget</TableHead>
-                            <TableHead className="text-right pr-4">Actions</TableHead>
+                            <TableHead>{t('campaigns.table.name')}</TableHead>
+                            <TableHead>{t('campaigns.table.type')}</TableHead>
+                            <TableHead>{t('campaigns.table.status')}</TableHead>
+                            <TableHead>{t('campaigns.table.budget')}</TableHead>
+                            <TableHead className="text-right pr-4">{t('campaigns.table.actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {filteredCampaigns.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                    No campaigns found
+                                    {t('campaigns.empty')}
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -327,7 +329,7 @@ export default function CampaignsPage() {
                                                 <Badge variant="outline" className="text-[10px] py-0">{c.campaignType?.name}</Badge>
                                                 <span className="text-[10px] text-muted-foreground ml-auto flex items-center gap-1">
                                                     <Calendar className="h-3 w-3" />
-                                                    {c.startDate ? new Date(c.startDate).toLocaleDateString() : "No date"}
+                                                    {c.startDate ? new Date(c.startDate).toLocaleDateString() : t('campaigns.kanban.noDate')}
                                                 </span>
                                             </div>
                                         </CardContent>
@@ -345,6 +347,7 @@ export default function CampaignsPage() {
 }
 
 function CampaignActions({ campaign, deleteMutation }: any) {
+    const { t } = useTranslation();
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -353,16 +356,16 @@ function CampaignActions({ campaign, deleteMutation }: any) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('campaigns.actions.title')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="gap-2 cursor-pointer">
-                    <Copy className="h-4 w-4" /> Duplicate
+                    <Copy className="h-4 w-4" /> {t('campaigns.actions.duplicate')}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                     className="gap-2 text-destructive focus:text-destructive cursor-pointer"
                     onClick={() => deleteMutation.mutate(campaign.id)}
                 >
-                    <Trash2 className="h-4 w-4" /> Delete
+                    <Trash2 className="h-4 w-4" /> {t('campaigns.actions.delete')}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

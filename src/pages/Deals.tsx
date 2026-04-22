@@ -66,6 +66,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 import { Textarea } from "@/components/ui/textarea";
 
 interface Deal {
@@ -186,6 +187,7 @@ function StageColumn({ stage, deals, totalValue, onDealClick, currencyCode }: {
   onDealClick: (deal: Deal) => void;
   currencyCode: string;
 }) {
+  const { t } = useTranslation();
   const { setNodeRef, isOver } = useDroppable({ 
     id: stage.id,
     data: {
@@ -234,7 +236,7 @@ function StageColumn({ stage, deals, totalValue, onDealClick, currencyCode }: {
             <div className="h-8 w-8 rounded-full bg-muted/40 flex items-center justify-center mb-2">
                <Plus className="h-4 w-4 text-muted-foreground/50" />
             </div>
-            <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Drop Here</span>
+            <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-tighter">{t('deals.kanban.dropHere')}</span>
           </div>
         )}
       </div>
@@ -249,6 +251,7 @@ const Deals = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"kanban" | "list">("kanban");
+  const { t } = useTranslation();
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [showAddDeal, setShowAddDeal] = useState(false);
 
@@ -455,7 +458,7 @@ const Deals = () => {
 
   const handleAddDeal = () => {
     if (!newDeal.name) {
-      toast.error("Deal name is required");
+      toast.error(t('deals.forms.errors.nameRequired', 'Deal name is required'));
       return;
     }
     createMutation.mutate({
@@ -471,34 +474,34 @@ const Deals = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Deals Pipeline">
+      <CRMLayout title={t('deals.title', 'Deals Pipeline')}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading deals...</div>
+          <div className="text-muted-foreground">{t('common.loading')}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Deals Pipeline">
+    <CRMLayout title={t('deals.title', 'Deals Pipeline')}>
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
             <div className="text-sm text-muted-foreground">
-              Total pipeline: <span className="font-semibold text-foreground">{formatCurrency(totalPipeline)}</span>
+              {t('deals.stats.totalPipeline')}: <span className="font-semibold text-foreground">{formatCurrency(totalPipeline)}</span>
             </div>
             <div className="text-sm text-green-600">
-              Won: <span className="font-semibold">{formatCurrency(wonValue)}</span>
+              {t('deals.stats.won')}: <span className="font-semibold">{formatCurrency(wonValue)}</span>
             </div>
             <div className="text-sm text-red-600">
-              Lost: <span className="font-semibold">{formatCurrency(lostValue)}</span>
+              {t('deals.stats.lost')}: <span className="font-semibold">{formatCurrency(lostValue)}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search deals..."
+                placeholder={t('deals.toolbar.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 w-64"
@@ -508,7 +511,7 @@ const Deals = () => {
               {view === "kanban" ? <List className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
             </Button>
             <Button size="sm" onClick={() => setShowAddDeal(true)}>
-              <Plus className="h-4 w-4 mr-1" /> Add Deal
+              <Plus className="h-4 w-4 mr-1" /> {t('deals.toolbar.add')}
             </Button>
           </div>
         </div>
@@ -557,12 +560,12 @@ const Deals = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Deal Name</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Stage</TableHead>
-                  <TableHead>Expected Close</TableHead>
-                  <TableHead>Probability</TableHead>
+                  <TableHead>{t('deals.table.name')}</TableHead>
+                  <TableHead>{t('deals.table.company')}</TableHead>
+                  <TableHead>{t('deals.table.value')}</TableHead>
+                  <TableHead>{t('deals.table.stage')}</TableHead>
+                  <TableHead>{t('deals.table.expectedClose')}</TableHead>
+                  <TableHead>{t('deals.table.probability')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -588,35 +591,35 @@ const Deals = () => {
         <Drawer open={showAddDeal} onOpenChange={setShowAddDeal}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Create New Deal</DrawerTitle>
-            <DrawerDescription>Add a new deal to your pipeline.</DrawerDescription>
+            <DrawerTitle>{t('deals.forms.title')}</DrawerTitle>
+            <DrawerDescription>{t('deals.forms.desc')}</DrawerDescription>
           </DrawerHeader>
           <div className="grid gap-4">
             <div className="space-y-2">
-              <Label>Deal Name *</Label>
+              <Label>{t('deals.forms.name')} *</Label>
               <Input
                 value={newDeal.name}
                 onChange={(e) => setNewDeal({ ...newDeal, name: e.target.value })}
-                placeholder="Enter deal name"
+                placeholder={t('deals.forms.placeholder.name')}
               />
             </div>
             <div className="space-y-2">
-              <Label>Value</Label>
+              <Label>{t('deals.forms.value')}</Label>
               <Input
                 type="number"
                 value={newDeal.value}
                 onChange={(e) => setNewDeal({ ...newDeal, value: parseFloat(e.target.value) || 0 })}
-                placeholder="Enter deal value"
+                placeholder={t('deals.forms.placeholder.value')}
               />
             </div>
             <div className="space-y-2">
-              <Label>Stage</Label>
+              <Label>{t('deals.forms.stage')}</Label>
               <Select
                 value={String(newDeal.dealStageId)}
                 onValueChange={(val) => setNewDeal({ ...newDeal, dealStageId: parseInt(val) })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select stage" />
+                  <SelectValue placeholder={t('deals.forms.placeholder.stage')} />
                 </SelectTrigger>
                 <SelectContent>
                   {stages.map((stage: DealStage) => (
@@ -631,16 +634,16 @@ const Deals = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Account</Label>
+              <Label>{t('deals.forms.account')}</Label>
               <Select
                 value={String(newDeal.accountId)}
                 onValueChange={(val) => setNewDeal({ ...newDeal, accountId: val === "none" ? undefined : parseInt(val) })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select account" />
+                  <SelectValue placeholder={t('deals.forms.placeholder.account')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="none">{t('deals.forms.placeholder.none')}</SelectItem>
                   {accounts.map((acc: Account) => (
                     <SelectItem key={acc.id} value={String(acc.id)}>
                       {acc.name}
@@ -650,16 +653,16 @@ const Deals = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Contact</Label>
+              <Label>{t('deals.forms.contact')}</Label>
               <Select
                 value={String(newDeal.contactId)}
                 onValueChange={(val) => setNewDeal({ ...newDeal, contactId: val === "none" ? undefined : parseInt(val) })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select contact" />
+                  <SelectValue placeholder={t('deals.forms.placeholder.contact')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="none">{t('deals.forms.placeholder.none')}</SelectItem>
                   {contacts.map((cont: Contact) => (
                     <SelectItem key={cont.id} value={String(cont.id)}>
                       {cont.name}
@@ -669,7 +672,7 @@ const Deals = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Expected Close Date</Label>
+              <Label>{t('deals.forms.expectedCloseDate')}</Label>
               <Input
                 type="date"
                 value={newDeal.expectedCloseDate}
@@ -677,18 +680,18 @@ const Deals = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label>Notes</Label>
+              <Label>{t('deals.forms.notes')}</Label>
               <Textarea
                 value={newDeal.notes}
                 onChange={(e) => setNewDeal({ ...newDeal, notes: e.target.value })}
-                placeholder="Add notes..."
+                placeholder={t('deals.forms.placeholder.notes')}
               />
             </div>
           </div>
           <DrawerFooter>
-            <Button variant="outline" onClick={() => setShowAddDeal(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShowAddDeal(false)}>{t('common.actions.cancel')}</Button>
             <Button onClick={handleAddDeal} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create Deal"}
+              {createMutation.isPending ? t('deals.forms.creating') : t('deals.toolbar.add')}
             </Button>
           </DrawerFooter>
         </DrawerContent>
@@ -699,7 +702,7 @@ const Deals = () => {
         <Dialog open={showReason} onOpenChange={setShowReason}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Select Reason</DialogTitle>
+              <DialogTitle>{t('deals.reasons.title')}</DialogTitle>
             </DialogHeader>
             <div className="py-4 space-y-2">
               {reasons

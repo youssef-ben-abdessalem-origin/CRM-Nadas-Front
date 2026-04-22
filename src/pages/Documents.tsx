@@ -35,6 +35,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { useTranslation, Trans } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,7 @@ const ROLE_LABELS = {
 };
 
 const Documents = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'my' | 'team'>('my');
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
@@ -92,7 +94,7 @@ const Documents = () => {
     mutationFn: api.workdrive.createTeam,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workdrive-team"] });
-      toast.success("WorkDrive team set up successfully!");
+      toast.success(t('documents.setup.success', { defaultValue: 'WorkDrive team set up successfully!' }));
       setShowSetup(false);
     }
   });
@@ -101,7 +103,7 @@ const Documents = () => {
     mutationFn: api.workdrive.createFolder,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workdrive-folders"] });
-      toast.success("Folder created");
+      toast.success(t('documents.createFolder.success', { defaultValue: 'Folder created' }));
       setShowCreateFolder(false);
       setNewFolderName("");
       setSelectedUsersByRole({ ADMIN: [], ORGANIZER: [], EDITOR: [], COMMENTER: [], VIEWER: [] });
@@ -149,12 +151,13 @@ const Documents = () => {
 
 
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-semibold tracking-tight text-white leading-tight">
-          Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60">WorkDrive</span>
+          <Trans i18nKey="documents.welcome.title">
+            Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60">WorkDrive</span>
+          </Trans>
         </h1>
 
         <p className="text-slate-400 max-w-2xl mx-auto text-base sm:text-lg md:text-xl font-normal leading-relaxed px-4">
-          A high-performance workspace designed for modern teams.
-          Secure, unified, and built for enterprise-scale collaboration.
+          {t('documents.welcome.desc')}
         </p>
       </motion.div>
 
@@ -162,22 +165,22 @@ const Documents = () => {
         {[
           {
             id: 1,
-            text: "Intelligent Collaboration",
-            desc: "Build shared ecosystems with granular RBAC and real-time synchronization.",
+            text: t('documents.welcome.features.collab.title'),
+            desc: t('documents.welcome.features.collab.desc'),
             icon: UsersIcon,
             accent: "bg-blue-500"
           },
           {
             id: 2,
-            text: "Unified Team Hubs",
-            desc: "Centralize departmental assets in secure, sovereign team containers.",
+            text: t('documents.welcome.features.hubs.title'),
+            desc: t('documents.welcome.features.hubs.desc'),
             icon: FolderPlus,
             accent: "bg-amber-500"
           },
           {
             id: 3,
-            text: "Seamless Integration",
-            desc: "Native high-speed connectivity for CRM and enterprise toolchains.",
+            text: t('documents.welcome.features.integration.title'),
+            desc: t('documents.welcome.features.integration.desc'),
             icon: File,
             accent: "bg-emerald-500"
           }
@@ -220,7 +223,7 @@ const Documents = () => {
           className="bg-white hover:bg-slate-100 text-slate-950 font-semibold px-10 h-14 rounded-xl shadow-xl transition-all group relative"
         >
           <span className="flex items-center gap-2">
-            Get Started <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
+            {t('documents.welcome.getStarted')} <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
           </span>
         </Button>
 
@@ -242,18 +245,18 @@ const Documents = () => {
       <Dialog open={!!currentSharingRole} onOpenChange={() => setCurrentSharingRole(null)}>
         <DialogContent className="sm:max-w-[800px] h-[500px] flex flex-col p-0 overflow-hidden rounded-2xl bg-[#0A0C10] border-white/10 shadow-2xl">
           <DialogHeader className="p-6 pb-2">
-            <DialogTitle className="text-xl font-black text-white">Select Custom Share</DialogTitle>
+            <DialogTitle className="text-xl font-black text-white">{t('documents.userSelector.title')}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-1 overflow-hidden border-t border-white/5">
             {/* Left: Available */}
             <div className="w-1/2 border-r border-white/5 flex flex-col">
               <div className="p-4 border-b border-white/5 bg-white/[0.02] flex items-center gap-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Available</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t('documents.userSelector.available')}</span>
                 <div className="relative flex-1">
                   <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
                   <Input
                     className="pl-9 h-9 text-xs border-none bg-transparent text-white placeholder:text-slate-600 focus-visible:ring-0"
-                    placeholder="Search users..."
+                    placeholder={t('documents.userSelector.search')}
                     value={localQuery}
                     onChange={(e) => setLocalQuery(e.target.value)}
                   />
@@ -288,7 +291,7 @@ const Documents = () => {
             {/* Right: Selected */}
             <div className="w-1/2 flex flex-col bg-white/[0.01]">
               <div className="p-4 border-b border-white/5 bg-white/[0.02] flex items-center gap-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Selected</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{t('documents.userSelector.selected')}</span>
                 <Badge variant="secondary" className="text-[10px] px-2 h-5 bg-white/10 text-white border-none py-0">
                   {selectedUsersByRole[currentSharingRole].length}
                 </Badge>
@@ -297,7 +300,7 @@ const Documents = () => {
                 {selectedUsersByRole[currentSharingRole].length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-slate-700 space-y-2 opacity-60">
                     <UsersIcon className="h-10 w-10 stroke-1" />
-                    <span className="text-xs font-medium">No one selected</span>
+                    <span className="text-xs font-medium">{t('documents.userSelector.noneSelected')}</span>
                   </div>
                 ) : (
                   selectedUsersByRole[currentSharingRole].map((user: any) => (
@@ -338,7 +341,7 @@ const Documents = () => {
               onClick={() => setCurrentSharingRole(null)}
               className="bg-primary hover:bg-primary/90 text-white font-black h-10 px-8 rounded-xl shadow-lg shadow-primary/20"
             >
-              Add Selected
+              {t('documents.userSelector.addSelected')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -360,12 +363,12 @@ const Documents = () => {
                   activeTab === 'my' && !selectedFolderId ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-slate-400 hover:bg-white/5"
                 )}
               >
-                <Folder className="h-4 w-4" /> My Folders
+                <Folder className="h-4 w-4" /> {t('documents.sidebar.myFolders')}
               </button>
 
               <div className="pt-2">
                 <div className="px-3 py-3 flex items-center justify-between group">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Team Hubs</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{t('documents.sidebar.teamHubs')}</span>
                   <button
                     onClick={() => { setActiveTab('team'); setShowCreateFolder(true); }}
                     className="p-1 rounded-lg hover:bg-white/10 text-slate-400 transition-colors"
@@ -397,7 +400,7 @@ const Documents = () => {
 
         <div className="p-4 border-t border-white/5">
           <Button variant="ghost" className="w-full justify-start text-xs font-bold text-slate-500 gap-2 h-10 px-3 hover:bg-white/5 hover:text-white">
-            <ExternalLink className="h-3.5 w-3.5" /> Open WorkDrive
+            <ExternalLink className="h-3.5 w-3.5" /> {t('documents.sidebar.openWorkdrive')}
           </Button>
         </div>
       </div>
@@ -416,7 +419,7 @@ const Documents = () => {
               ) : (
                 <>
                   <Grid className="h-5 w-5 text-slate-500" />
-                  All Folders
+                  {t('documents.header.allFolders')}
                 </>
               )}
             </h2>
@@ -424,10 +427,10 @@ const Documents = () => {
               <div className="hidden sm:flex items-center gap-2">
                 <Lock className="h-3.5 w-3.5 text-slate-600" />
                 <div className="flex items-center gap-1.5 p-1 pr-3 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-slate-400">
-                  <UsersIcon className="h-3 w-3 ml-1" /> 1 Member
+                  <UsersIcon className="h-3 w-3 ml-1" /> {t('documents.header.memberCount', { count: 1 })}
                 </div>
                 <Button variant="ghost" size="sm" className="h-8 rounded-lg font-black text-[10px] uppercase tracking-widest gap-2 text-slate-500 hover:text-white hover:bg-white/5">
-                  <Settings className="h-3 w-3" /> Manage <ChevronDownIcon className="h-3 w-3" />
+                  <Settings className="h-3 w-3" /> {t('documents.header.manage')} <ChevronDownIcon className="h-3 w-3" />
                 </Button>
               </div>
             )}
@@ -440,10 +443,10 @@ const Documents = () => {
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-500 hover:text-white"><Grid className="h-4 w-4" /></Button>
             </div>
             <Button variant="outline" className="hidden sm:flex h-10 rounded-xl font-black text-xs uppercase tracking-widest border-white/10 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 gap-2">
-              Record <ChevronDownIcon className="h-4 w-4" />
+              {t('documents.header.record')} <ChevronDownIcon className="h-4 w-4" />
             </Button>
             <Button className="h-10 md:h-11 bg-primary hover:bg-primary/90 text-white font-black rounded-xl px-4 md:px-8 gap-2 shadow-xl shadow-primary/20 text-xs md:text-sm">
-              <Plus className="h-4 w-4 md:h-5 md:w-5" /> <span className="hidden xs:inline">New Action</span>
+              <Plus className="h-4 w-4 md:h-5 md:w-5" /> <span className="hidden xs:inline">{t('documents.header.newAction')}</span>
             </Button>
           </div>
         </div>
@@ -487,20 +490,20 @@ const Documents = () => {
                 </div>
               </div>
               <div className="text-center space-y-4">
-                <h3 className="text-2xl font-black text-white tracking-tight">Ecosystem is Empty</h3>
+                <h3 className="text-2xl font-black text-white tracking-tight">{t('documents.empty.title')}</h3>
                 <p className="text-sm font-medium text-slate-500 max-w-sm leading-relaxed">
-                  Initiate your workspace by deploying new assets or migrating existing documentation into this hub.
+                  {t('documents.empty.desc')}
                 </p>
                 <div className="pt-4 flex flex-col items-center gap-2">
-                  <Badge variant="outline" className="text-[10px] font-black text-slate-700 border-white/5 uppercase tracking-[0.2em] px-4 py-1">Drag & Drop Enabled</Badge>
+                   <Badge variant="outline" className="text-[10px] font-black text-slate-700 border-white/5 uppercase tracking-[0.2em] px-4 py-1">{t('documents.empty.dragDrop')}</Badge>
                 </div>
               </div>
               <div className="flex items-center gap-4 pt-4">
                 <Button variant="outline" className="rounded-2xl font-black text-xs uppercase tracking-widest h-12 px-8 border-white/5 bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 gap-3 transition-all">
-                  Create <ChevronDownIcon className="h-4 w-4" />
+                  {t('documents.actions.create')} <ChevronDownIcon className="h-4 w-4" />
                 </Button>
                 <Button variant="outline" className="rounded-2xl font-black text-xs uppercase tracking-widest h-12 px-8 border-white/5 bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 gap-3 transition-all">
-                  Upload <ChevronDownIcon className="h-4 w-4" />
+                  {t('documents.actions.upload')} <ChevronDownIcon className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -514,20 +517,20 @@ const Documents = () => {
           <div className="p-2 rounded-xl group-hover:bg-white/10 text-slate-500 group-hover:text-primary transition-all">
             <Info className="h-5 w-5" />
           </div>
-          <span className="text-[9px] font-black uppercase text-slate-600 tracking-tighter">Details</span>
+          <span className="text-[9px] font-black uppercase text-slate-600 tracking-tighter">{t('documents.rightBar.details')}</span>
         </button>
         <button className="flex flex-col items-center gap-1.5 group">
           <div className="p-2 rounded-xl group-hover:bg-white/10 text-slate-500 group-hover:text-primary transition-all">
             <Zap className="h-5 w-5" />
           </div>
-          <span className="text-[9px] font-black uppercase text-slate-600 tracking-tighter">Zia</span>
+          <span className="text-[9px] font-black uppercase text-slate-600 tracking-tighter">{t('documents.rightBar.zia')}</span>
         </button>
       </div>
     </div>
   );
 
   return (
-    <CRMLayout title="Documents">
+    <CRMLayout title={t('documents.title')}>
       <div className="h-full px-4 py-8">
         {!isTeamLoading && (team ? <DriveDashboard /> : <WelcomeView />)}
 
@@ -536,21 +539,21 @@ const Documents = () => {
           <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-3xl bg-[#0A0C10] border-white/5">
             <div className="overflow-y-auto max-h-[70vh] p-8 pb-12 space-y-8 custom-scrollbar">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-black tracking-tight text-white inter-font">Set up WorkDrive</DialogTitle>
+                <DialogTitle className="text-2xl font-black tracking-tight text-white inter-font">{t('documents.setup.title')}</DialogTitle>
                 <DialogDescription className="text-sm font-medium mt-2 leading-relaxed text-slate-400">
-                  All your service files are powered by WorkDrive. Set up your account to create, store, share, and manage files and folders in service.
+                  {t('documents.setup.desc')}
                 </DialogDescription>
               </DialogHeader>
 
 
 
               <div className="space-y-4">
-                <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">When you convert to a team account:</p>
+                <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">{t('documents.setup.benefitsTitle')}</p>
                 <div className="space-y-3">
                   {[
-                    "The WorkDrive Essentials plan will be bundled with your service account for free.",
-                    "All Djo llc users in service will be added to your WorkDrive team account automatically.",
-                    "You will be the Super Admin of your WorkDrive team account."
+                    t('documents.setup.benefit1'),
+                    t('documents.setup.benefit2'),
+                    t('documents.setup.benefit3')
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3">
                       <div className="p-1 rounded-full bg-primary/10 text-primary">
@@ -563,10 +566,10 @@ const Documents = () => {
               </div>
 
               <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pl-1">Team Name</Label>
-                <p className="text-xs font-bold text-slate-600 pl-1">Give your team a name (You can change this later)</p>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 pl-1">{t('documents.setup.teamNameLabel')}</Label>
+                <p className="text-xs font-bold text-slate-600 pl-1">{t('documents.setup.teamNameSub')}</p>
                 <Input
-                  placeholder="E.g. Engineering Team"
+                  placeholder={t('documents.setup.teamNamePlaceholder')}
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
                   className="h-12 rounded-xl font-bold border-white/5 bg-white/5 text-white focus:ring-primary/20 placeholder:text-slate-700"
@@ -580,7 +583,7 @@ const Documents = () => {
                 disabled={!teamName || createTeamMutation.isPending}
                 className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-black rounded-xl shadow-2xl shadow-primary/20"
               >
-                {createTeamMutation.isPending ? "Configuring Hub..." : "Convert and Hub Sync"}
+                {createTeamMutation.isPending ? t('documents.setup.submit_pending') : t('documents.setup.submit')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -591,19 +594,19 @@ const Documents = () => {
           <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden rounded-[2.5rem] bg-[#0A0C10] border-white/5">
             <div className="overflow-y-auto max-h-[70vh] p-10 space-y-10 custom-scrollbar">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-black text-white">Create Team Folder</DialogTitle>
+                <DialogTitle className="text-2xl font-black text-white">{t('documents.createFolder.title')}</DialogTitle>
                 <DialogDescription className="text-sm font-bold text-slate-400 mt-2">
-                  Team Folder can be accessed by member of their respective Teams/Departments.
+                  {t('documents.createFolder.desc')}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-[100px_1fr] items-center gap-4">
-                  <Label className="sm:text-right text-xs font-bold text-slate-500">Name</Label>
+                  <Label className="sm:text-right text-xs font-bold text-slate-500">{t('documents.createFolder.nameLabel')}</Label>
                   <Input
                     value={newFolderName}
                     onChange={(e) => setNewFolderName(e.target.value)}
-                    placeholder="Enter Team Folder Name"
+                    placeholder={t('documents.createFolder.namePlaceholder')}
                     className="h-12 rounded-xl font-bold border-white/10 bg-white/5 text-white border-l-4 border-l-primary"
                   />
                 </div>
@@ -618,14 +621,14 @@ const Documents = () => {
                     { role: 'VIEWER', label: 'Viewer' }
                   ].map(field => (
                     <div key={field.role} className="grid grid-cols-1 sm:grid-cols-[100px_1fr] items-start gap-2 sm:gap-4 group">
-                      <Label className="sm:text-right text-xs font-bold text-slate-400 group-hover:text-slate-200 transition-colors pt-1 sm:pt-3">{field.label}</Label>
+                      <Label className="sm:text-right text-xs font-bold text-slate-400 group-hover:text-slate-200 transition-colors pt-1 sm:pt-3">{t(`common.roles.${field.role.toLowerCase()}`)}</Label>
                       <div className="relative">
                         <div
                           className="min-h-[48px] px-3 py-2 rounded-xl border border-white/10 bg-white/5 flex flex-wrap gap-2 items-center cursor-pointer hover:border-white/20 transition-all font-bold"
                           onClick={() => setCurrentSharingRole(field.role as any)}
                         >
                           {selectedUsersByRole[field.role].length === 0 ? (
-                            <span className="text-slate-600 pointer-events-none">Select users...</span>
+                            <span className="text-slate-600 pointer-events-none">{t('documents.createFolder.selectUsers')}</span>
                           ) : (
                             selectedUsersByRole[field.role].map(u => (
                               <Badge key={u.id} variant="secondary" className="bg-white/10 text-white h-8 gap-2 pl-1 rounded-lg border-none pr-2">
@@ -657,14 +660,14 @@ const Documents = () => {
                 onClick={() => setShowCreateFolder(false)}
                 className="font-bold text-slate-400 h-11 px-8 hover:bg-white/5 hover:text-white transition-all"
               >
-                Cancel
+                {t('common.actions.cancel')}
               </Button>
               <Button
                 onClick={handleCreateFolder}
                 disabled={!newFolderName || createFolderMutation.isPending}
                 className="bg-primary hover:bg-primary/90 text-white font-black px-12 h-11 rounded-xl shadow-xl shadow-primary/20 transition-all min-w-[140px]"
               >
-                {createFolderMutation.isPending ? "Creating..." : "Create Folder"}
+                {createFolderMutation.isPending ? t('documents.createFolder.submit_pending') : t('documents.createFolder.submit')}
               </Button>
             </DialogFooter>
           </DialogContent>

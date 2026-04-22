@@ -77,6 +77,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 import { DynamicAutoSelect } from "@/components/ui/DynamicAutoSelect";
 import { cn } from "@/lib/utils";
 
@@ -177,6 +178,7 @@ export interface Product {
 
 const Products = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [search, setSearch] = useState("");
@@ -234,7 +236,7 @@ const Products = () => {
       api.products.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Product updated successfully");
+      toast.success(t('products.statusUpdates.updated', 'Product updated successfully'));
       setShowEdit(false);
       setEditingProduct(null);
       resetForm();
@@ -246,7 +248,7 @@ const Products = () => {
     mutationFn: api.products.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Product deleted successfully");
+      toast.success(t('products.statusUpdates.deleted', 'Product deleted successfully'));
       setShowDetail(false);
       setSelectedProduct(null);
     },
@@ -257,7 +259,7 @@ const Products = () => {
     mutationFn: api.products.archive,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Product archived successfully");
+      toast.success(t('products.statusUpdates.archived', 'Product archived successfully'));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -266,7 +268,7 @@ const Products = () => {
     mutationFn: api.products.duplicate,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Product duplicated successfully");
+      toast.success(t('products.statusUpdates.duplicated', 'Product duplicated successfully'));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -282,7 +284,7 @@ const Products = () => {
     mutationFn: api.products.createVariant,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Variant created successfully");
+      toast.success(t('products.statusUpdates.variantCreated', 'Variant created successfully'));
       setShowVariantDialog(false);
       setVariantName(""); setVariantSku("");
     },
@@ -293,7 +295,7 @@ const Products = () => {
       api.products.upsertPricing(data.variantId, data.priceBookId, data.price),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Pricing matrix updated");
+      toast.success(t('products.statusUpdates.pricingUpdated', 'Pricing matrix updated'));
       setShowPricingDialog(false);
     },
   });
@@ -303,7 +305,7 @@ const Products = () => {
       api.products.setPrimaryPrice(variantId, priceId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Primary rate updated");
+      toast.success(t('products.statusUpdates.primaryRateUpdated', 'Primary rate updated'));
     },
   });
 
@@ -387,10 +389,10 @@ const Products = () => {
 
   const handleDelete = async (product: Product) => {
     if (await confirm({
-      title: "Delete Product",
-      description: `Are you sure you want to delete "${product.name}"? This action will permanently remove the product and all its variants from the catalog.`,
+      title: t('products.actions.deleteTitle', 'Delete Product'),
+      description: t('products.actions.deleteDesc', { name: product.name }),
       variant: "destructive",
-      confirmText: "Delete"
+      confirmText: t('common.delete', 'Delete')
     })) {
       deleteMutation.mutate(product.id);
     }
@@ -407,37 +409,37 @@ const Products = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Products">
+      <CRMLayout title={t('products.title')}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground animate-pulse font-medium">Loading products...</div>
+          <div className="text-muted-foreground animate-pulse font-medium">{t('products.loading')}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Products">
+    <CRMLayout title={t('products.title')}>
       <div className="space-y-4">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Assets
+                {t('products.stats.totalAssets')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{total}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 <Package className="h-3 w-3 inline mr-1" />
-                Active catalog
+                {t('products.stats.activeCatalog')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Inventory
+                {t('products.stats.inventory')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -445,14 +447,14 @@ const Products = () => {
                 {products.reduce((acc, p) => acc + (p.quantityInStock || 0), 0)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Units in stock
+                {t('products.stats.unitsInStock')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Operational
+                {t('products.stats.operational')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -460,14 +462,14 @@ const Products = () => {
                 {products.filter(p => p.productActive).length}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Active products
+                {t('products.stats.activeProducts')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Avg. Rate
+                {t('products.stats.avgRate')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -478,14 +480,14 @@ const Products = () => {
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Market average
+                {t('products.stats.marketAverage')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Categories
+                {t('products.stats.categories')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -494,7 +496,7 @@ const Products = () => {
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 <Filter className="h-3 w-3 inline mr-1" />
-                Product realms
+                {t('products.stats.realms')}
               </p>
             </CardContent>
           </Card>
@@ -506,7 +508,7 @@ const Products = () => {
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search products..."
+                placeholder={t('products.toolbar.search')}
                 className="h-9 pl-9 text-sm"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -514,25 +516,25 @@ const Products = () => {
             </div>
             <Select value={filterCategoryId} onValueChange={setFilterCategoryId}>
               <SelectTrigger className="h-9 w-40">
-                <SelectValue placeholder="Categories" />
+                <SelectValue placeholder={t('products.toolbar.categories')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="all">{t('products.toolbar.allCategories')}</SelectItem>
                 {categories.map((c: any) => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm">
-              <Filter className="h-3.5 w-3.5 mr-1" /> Filter
+              <Filter className="h-3.5 w-3.5 mr-1" /> {t('products.toolbar.filter')}
             </Button>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm">
-              <Download className="h-3.5 w-3.5 mr-1" /> Export
+              <Download className="h-3.5 w-3.5 mr-1" /> {t('products.toolbar.export')}
             </Button>
             <Button size="sm" onClick={() => navigate("/products/new")}>
-              <Plus className="h-3.5 w-3.5 mr-1" /> Deploy Asset
+              <Plus className="h-3.5 w-3.5 mr-1" /> {t('products.toolbar.deploy')}
             </Button>
           </div>
         </div>
@@ -544,19 +546,19 @@ const Products = () => {
                 <TableHead className="w-12 pl-4">
                   <input type="checkbox" className="h-4 w-4 rounded" />
                 </TableHead>
-                <TableHead>Asset Identity</TableHead>
-                <TableHead>Domain</TableHead>
-                <TableHead className="text-center">Stock</TableHead>
-                <TableHead className="text-right">Unit Price</TableHead>
-                <TableHead className="text-center">Ops Status</TableHead>
-                <TableHead className="text-right pr-4">Actions</TableHead>
+                <TableHead>{t('products.table.identity')}</TableHead>
+                <TableHead>{t('products.table.domain')}</TableHead>
+                <TableHead className="text-center">{t('products.table.stock')}</TableHead>
+                <TableHead className="text-right">{t('products.table.unitPrice')}</TableHead>
+                <TableHead className="text-center">{t('products.table.status')}</TableHead>
+                <TableHead className="text-right pr-4">{t('products.table.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {products.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-32 text-center text-sm text-muted-foreground">
-                    No products found for this view.
+                    {t('products.empty')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -580,13 +582,13 @@ const Products = () => {
                         </div>
                         <div>
                           <p className="font-semibold text-sm">{product.name}</p>
-                          <p className="text-[10px] text-muted-foreground font-mono">{product.productCode || "NO_SKU"}</p>
+                          <p className="text-[10px] text-muted-foreground font-mono">{product.productCode || t('products.table.noSku')}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-tight">
-                        {product.productCategory || "General"}
+                        {product.productCategory || t('products.table.general')}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
@@ -600,7 +602,7 @@ const Products = () => {
                         <p className="text-sm font-bold text-primary">
                           <CurrencyNumbers amount={product.unitPrice || 0} />
                         </p>
-                        <p className="text-[8px] text-muted-foreground uppercase tracking-widest">Base Rate</p>
+                        <p className="text-[8px] text-muted-foreground uppercase tracking-widest">{t('products.table.baseRate')}</p>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -609,7 +611,7 @@ const Products = () => {
                           "h-2 w-2 rounded-full",
                           product.productActive ? "bg-green-500" : "bg-red-500"
                         )} />
-                        <span className="text-xs font-medium">{product.productActive ? "Operational" : "Offline"}</span>
+                        <span className="text-xs font-medium">{product.productActive ? t('products.table.operational') : t('products.table.offline')}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right pr-4" onClick={(e) => e.stopPropagation()}>
@@ -630,7 +632,7 @@ const Products = () => {
 
           <div className="flex items-center justify-between px-4 py-3 border-t">
             <p className="text-xs text-muted-foreground">
-              Showing {products.length} assets
+              {t('products.pagination.showing', { count: products.length })}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -640,7 +642,7 @@ const Products = () => {
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
-                Previous
+                {t('products.pagination.previous')}
               </Button>
               <Button
                 variant="outline"
@@ -649,7 +651,7 @@ const Products = () => {
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages || totalPages === 0}
               >
-                Next
+                {t('products.pagination.next')}
               </Button>
             </div>
           </div>
@@ -659,11 +661,11 @@ const Products = () => {
         <Dialog open={showPricingDialog} onOpenChange={setShowPricingDialog}>
           <DialogContent className="max-w-md rounded-3xl p-8">
             <DialogHeader>
-              <DialogTitle className="text-xl font-black uppercase tracking-tight">Update Matrix Point</DialogTitle>
+              <DialogTitle className="text-xl font-black uppercase tracking-tight">{t('products.pricingDialog.title')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-6 pt-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">New Price Value</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">{t('products.pricingDialog.label')}</Label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -676,10 +678,10 @@ const Products = () => {
               </div>
               <div className="flex gap-3">
                 <Button className="flex-1 h-12 rounded-xl font-black uppercase tracking-widest" onClick={handleUpsertPrice}>
-                  Apply Change
+                  {t('products.pricingDialog.apply')}
                 </Button>
                 <Button variant="outline" className="flex-1 h-12 rounded-xl font-black uppercase tracking-widest border-2" onClick={() => setShowPricingDialog(false)}>
-                  Cancel
+                  {t('products.pricingDialog.cancel')}
                 </Button>
               </div>
             </div>
@@ -690,19 +692,19 @@ const Products = () => {
         <Dialog open={showVariantDialog} onOpenChange={setShowVariantDialog}>
           <DialogContent className="max-w-md rounded-3xl p-8">
             <DialogHeader>
-              <DialogTitle className="text-xl font-black uppercase tracking-tight">Forge New Variant</DialogTitle>
+              <DialogTitle className="text-xl font-black uppercase tracking-tight">{t('products.variantDialog.title')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-6 pt-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Variant Alias</Label>
-                <Input value={variantName} onChange={(e) => setVariantName(e.target.value)} placeholder="e.g. 50 User Bundle" className="h-12 rounded-xl font-bold border-2" />
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">{t('products.variantDialog.nameLabel')}</Label>
+                <Input value={variantName} onChange={(e) => setVariantName(e.target.value)} placeholder={t('products.variantDialog.namePlaceholder')} className="h-12 rounded-xl font-bold border-2" />
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Specific SKU Code</Label>
-                <Input value={variantSku} onChange={(e) => setVariantSku(e.target.value)} placeholder="SRV-ENT-50" className="h-12 rounded-xl font-mono border-2" />
+                <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">{t('products.variantDialog.skuLabel')}</Label>
+                <Input value={variantSku} onChange={(e) => setVariantSku(e.target.value)} placeholder={t('products.variantDialog.skuPlaceholder')} className="h-12 rounded-xl font-mono border-2" />
               </div>
               <Button className="w-full h-12 rounded-xl font-black uppercase tracking-widest" onClick={handleCreateVariant}>
-                Create Variant Logic
+                {t('products.variantDialog.create')}
               </Button>
             </div>
           </DialogContent>

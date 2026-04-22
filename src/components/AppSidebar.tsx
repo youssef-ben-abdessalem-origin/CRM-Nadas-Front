@@ -30,9 +30,10 @@ import {
   Megaphone,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type NavItem = {
-  label: string;
+  label: string; // T-key
   icon: React.ComponentType<{ className?: string }>;
   path?: string;
   children?: NavItem[];
@@ -40,128 +41,119 @@ type NavItem = {
 };
 
 type NavSection = {
-  label: string;
+  label: string; // T-key
   items: NavItem[];
 };
 
 const navSections: NavSection[] = [
   {
     label: "",
-    items: [{ label: "Dashboard", icon: LayoutDashboard, path: "/" }],
+    items: [{ label: "nav.dashboard", icon: LayoutDashboard, path: "/" }],
   },
   {
-    label: "Sales",
+    label: "nav.sections.sales",
     items: [
       {
-        label: "Campaigns",
+        label: "nav.campaigns",
         icon: Megaphone,
         children: [
-          { label: "Table", icon: Table2, path: "/campaigns" },
-          { label: "Settings", icon: Settings, path: "/campaigns/settings" },
+          { label: "nav.labels.table", icon: Table2, path: "/campaigns" },
+          // { label: "nav.labels.settings", icon: Settings, path: "/campaigns/settings" },
         ],
       },
       {
-        label: "Leads",
+        label: "nav.leads",
         icon: UserPlus,
         children: [
-          { label: "Table", icon: Table2, path: "/leads" },
-          { label: "Settings", icon: Settings, path: "/leads/settings" },
+          { label: "nav.labels.table", icon: Table2, path: "/leads" },
+          { label: "nav.labels.settings", icon: Settings, path: "/leads/settings" },
         ],
       },
       {
-        label: "Contacts",
+        label: "nav.contacts",
         icon: Users,
         children: [
-          { label: "Table", icon: Table2, path: "/contacts" },
-          { label: "Settings", icon: Settings, path: "/contacts/settings" },
+          { label: "nav.labels.table", icon: Table2, path: "/contacts" },
+          { label: "nav.labels.settings", icon: Settings, path: "/contacts/settings" },
         ],
       },
       {
-        label: "Accounts",
+        label: "nav.accounts",
         icon: Building2,
         children: [
-          { label: "Table", icon: Table2, path: "/accounts" },
-          { label: "Settings", icon: Settings, path: "/accounts/settings" },
+          { label: "nav.labels.table", icon: Table2, path: "/accounts" },
+          { label: "nav.labels.settings", icon: Settings, path: "/accounts/settings" },
         ],
       },
       {
-        label: "Deals",
+        label: "nav.deals",
         icon: Handshake,
         children: [
-          { label: "Table", icon: Table2, path: "/deals" },
-          { label: "Settings", icon: Settings, path: "/deals/settings" },
+          { label: "nav.labels.table", icon: Table2, path: "/deals" },
+          { label: "nav.labels.settings", icon: Settings, path: "/deals/settings" },
         ],
       },
     ],
   },
   {
-    label: "Sales Documents",
+    label: "nav.sections.salesDocuments",
     items: [
-      { label: "Quotes", icon: FileText, path: "/quotes" },
-      { label: "Invoices", icon: Receipt, path: "/invoices" },
-      { label: "Payments", icon: CreditCard, path: "/payments" }  ,
+      { label: "nav.quotes", icon: FileText, path: "/quotes" },
+      { label: "nav.invoices", icon: Receipt, path: "/invoices" },
+      { label: "nav.payments", icon: CreditCard, path: "/payments" },
     ],
   },
   {
-    label: "Catalog",
+    label: "nav.sections.catalog",
     items: [
       {
-        label: "Products",
+        label: "nav.products",
         icon: Package,
         children: [
-          { label: "Table", icon: Table2, path: "/products" },
-          { label: "Settings", icon: Settings, path: "/products/settings" },
+          { label: "nav.labels.table", icon: Table2, path: "/products" },
+          { label: "nav.labels.settings", icon: Settings, path: "/products/settings" },
         ],
       },
       {
-        label: "Vendors",
+        label: "nav.vendors",
         icon: Building2,
         children: [
-          { label: "Table", icon: Table2, path: "/vendors" },
-          { label: "Settings", icon: Settings, path: "/vendors/settings" },
+          { label: "nav.labels.table", icon: Table2, path: "/vendors" },
+          { label: "nav.labels.settings", icon: Settings, path: "/vendors/settings" },
         ],
       },
     ],
   },
   {
-    label: "Communication",
-    items: [{ label: "Emails", icon: Mail, path: "/emails" }],
+    label: "nav.sections.communication",
+    items: [{ label: "nav.emails", icon: Mail, path: "/emails" }],
   },
   {
-    label: "Productivity",
+    label: "nav.sections.productivity",
     items: [
-      { label: "Calendar", icon: Calendar, path: "/calendar" },
-      { label: "Tasks", icon: CheckSquare, path: "/tasks" },
-      { label: "Activities", icon: Zap, path: "/activities" },
-      // { label: "Documents", icon: FileSearch, path: "/documents" },
+      { label: "nav.calendar", icon: Calendar, path: "/calendar" },
+      { label: "nav.tasks", icon: CheckSquare, path: "/tasks" },
+      { label: "nav.activities", icon: Zap, path: "/activities" },
     ],
   },
-  // {
-  //   label: "Analytics",
-  //   items: [
-  //     { label: "Forecast", icon: TrendingUp, path: "/forecast" },
-  //     { label: "Reports", icon: BarChart3, path: "/reports" },
-  //     { label: "Automations", icon: Zap, path: "/automations" },
-  //   ],
-  // },
   {
-    label: "Admin",
+    label: "nav.sections.admin",
     items: [
       {
-        label: "Team",
+        label: "nav.team",
         icon: Users,
         children: [
-          { label: "Users", icon: Users, path: "/team/users" },
-          { label: "Departments", icon: Building2, path: "/team/departments" },
-          { label: "Roles", icon: Shield, path: "/team/roles" },
-          { label: "Privileges", icon: Lock, path: "/team/privileges" },
+          { label: "nav.users", icon: Users, path: "/team/users" },
+          { label: "nav.departments", icon: Building2, path: "/team/departments" },
+          { label: "nav.roles", icon: Shield, path: "/team/roles" },
+          { label: "nav.privileges", icon: Lock, path: "/team/privileges" },
         ]
       },
-      { label: "Company Profile", icon: Building2, path: "/settings/company" },
-      { label: "Audit Logs", icon: FileSearch, path: "/settings/audit-logs" },
-      { label: "Notifications", icon: Bell, path: "/settings/notifications" },
-      { label: "Automations", icon: Zap, path: "/automations" },
-      { label: "Settings", icon: Settings, path: "/settings" },
+      { label: "nav.labels.companyProfile", icon: Building2, path: "/settings/company" },
+      { label: "nav.labels.auditLogs", icon: FileSearch, path: "/settings/audit-logs" },
+      { label: "nav.labels.notifications", icon: Bell, path: "/settings/notifications" },
+      { label: "nav.labels.automations", icon: Zap, path: "/automations" },
+      { label: "nav.labels.settings", icon: Settings, path: "/settings" },
     ],
   },
 ];
@@ -169,6 +161,7 @@ const navSections: NavSection[] = [
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const { t } = useTranslation();
   const location = useLocation();
 
   const toggleExpand = (label: string) => {
@@ -191,7 +184,7 @@ export function AppSidebar() {
 
   return (
     <aside
-      className={`flex flex-col h-screen bg-[hsl(var(--sidebar-bg))] border-r border-[hsl(var(--sidebar-border))] transition-all duration-200 ${collapsed ? "w-15" : "w-60"
+      className={`flex flex-col h-screen bg-[hsl(var(--sidebar-bg))] border-e border-[hsl(var(--sidebar-border))] transition-all duration-200 ${collapsed ? "w-15" : "w-60"
         }`}
     >
       <div className="flex items-center gap-2 px-4 h-14 border-b border-[hsl(var(--sidebar-border))]">
@@ -214,7 +207,7 @@ export function AppSidebar() {
           <div key={sIdx}>
             {!collapsed && section.label && (
               <div className="px-2 mb-1 text-[10px] font-semibold uppercase tracking-wider text-[hsl(var(--sidebar-fg))] opacity-50">
-                {section.label}
+                {t(section.label)}
               </div>
             )}
             <div className="space-y-0.5">
@@ -245,14 +238,14 @@ export function AppSidebar() {
                           }`}
                       >
                         <item.icon className="h-4 w-4 shrink-0" />
-                        <span className="flex-1 text-left">{item.label}</span>
+                        <span className="flex-1 text-start">{t(item.label)}</span>
                         <ChevronDown
                           className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-180" : ""
                             }`}
                         />
                       </button>
                       {isExpanded && (
-                        <div className="ml-4 mt-1 space-y-0.5 border-l border-muted pl-2">
+                        <div className="ms-4 mt-1 space-y-0.5 border-s border-muted ps-2">
                           {item.children?.map((child) => {
                             const childActive =
                               location.pathname === child.path;
@@ -266,7 +259,7 @@ export function AppSidebar() {
                                   }`}
                               >
                                 <child.icon className="h-3.5 w-3.5 shrink-0" />
-                                <span>{child.label}</span>
+                                <span>{t(child.label)}</span>
                               </NavLink>
                             );
                           })}
@@ -285,7 +278,7 @@ export function AppSidebar() {
                       } ${item.locked ? "opacity-60 cursor-not-allowed grayscale" : ""}`}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
-                    <span className="flex-1">{item.label}</span>
+                    <span className="flex-1">{t(item.label)}</span>
                     {item.locked && (
                       <div className="flex items-center gap-1.5 ml-auto">
                         <Lock className="h-3 w-3 text-muted-foreground/60" />

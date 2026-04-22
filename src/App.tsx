@@ -63,9 +63,28 @@ import VendorsSettings from "./pages/VendorsSettingsPage.tsx";
 import WorkflowArchitect from "./pages/WorkflowArchitect.tsx";
 import { ConfirmProvider } from "@/hooks/use-confirm.tsx";
 
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+
 const queryClient = new QueryClient();
 
 const App = () => {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    const lang = i18n.language || 'en';
+    const isArabic = lang.startsWith('ar');
+    document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    
+    // Add class for additional CSS targeting
+    if (isArabic) {
+      document.body.classList.add('lang-ar');
+    } else {
+      document.body.classList.remove('lang-ar');
+    }
+  }, [i18n.language]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

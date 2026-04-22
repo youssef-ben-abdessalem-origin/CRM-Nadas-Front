@@ -66,6 +66,7 @@ import {
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { format, isToday, isBefore, addDays } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { DynamicAutoSelect } from "@/components/ui/DynamicAutoSelect";
 
 interface Task {
@@ -90,25 +91,26 @@ interface Column {
   icon: React.ReactNode;
 }
 
-const columns: Column[] = [
-  { id: "todo", title: "To Do", color: "#94a3b8", icon: <ClipboardList className="h-4 w-4" /> },
-  { id: "in_progress", title: "In Progress", color: "#6366f1", icon: <Timer className="h-4 w-4" /> },
-  { id: "done", title: "Complete", color: "#10b981", icon: <CheckCircle2 className="h-4 w-4" /> },
-  { id: "cancelled", title: "Cancelled", color: "#ef4444", icon: <AlertTriangle className="h-4 w-4" /> },
+const columns = [
+  { id: "todo", title: 'tasks.kanban.view_todo', color: "#94a3b8", icon: <ClipboardList className="h-4 w-4" /> },
+  { id: "in_progress", title: 'tasks.kanban.view_in_progress', color: "#6366f1", icon: <Timer className="h-4 w-4" /> },
+  { id: "done", title: 'tasks.kanban.view_done', color: "#10b981", icon: <CheckCircle2 className="h-4 w-4" /> },
+  { id: "cancelled", title: 'tasks.kanban.view_cancelled', color: "#ef4444", icon: <AlertTriangle className="h-4 w-4" /> },
 ];
 
 
 
-const getPriorityInfo = (priority: string) => {
+const getPriorityInfo = (priority: string, t: any) => {
   switch (priority) {
-    case "urgent": return { color: "text-red-400 bg-red-400/10 border-red-400/20", label: "Urgent" };
-    case "high": return { color: "text-orange-400 bg-orange-400/10 border-orange-400/20", label: "High" };
-    case "medium": return { color: "text-indigo-400 bg-indigo-400/10 border-indigo-400/20", label: "Medium" };
-    default: return { color: "text-slate-400 bg-slate-400/10 border-slate-400/20", label: "Low" };
+    case "urgent": return { color: "text-red-400 bg-red-400/10 border-red-400/20", label: t('common.priorities.urgent') };
+    case "high": return { color: "text-orange-400 bg-orange-400/10 border-orange-400/20", label: t('common.priorities.high') };
+    case "medium": return { color: "text-indigo-400 bg-indigo-400/10 border-indigo-400/20", label: t('common.priorities.medium') };
+    default: return { color: "text-slate-400 bg-slate-400/10 border-slate-400/20", label: t('common.priorities.low') };
   }
 };
 
 const SortableTaskCard = ({ task, onClick }: { task: Task; onClick: () => void }) => {
+  const { t } = useTranslation();
   const {
     attributes,
     listeners,
@@ -134,7 +136,7 @@ const SortableTaskCard = ({ task, onClick }: { task: Task; onClick: () => void }
     );
   }
 
-  const pInfo = getPriorityInfo(task.priority);
+  const pInfo = getPriorityInfo(task.priority, t);
 
   return (
     <div
@@ -150,7 +152,7 @@ const SortableTaskCard = ({ task, onClick }: { task: Task; onClick: () => void }
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-2">
             <h4 className="font-semibold text-sm text-slate-200 group-hover/card:text-primary transition-colors line-clamp-1 leading-tight">
-              {task.subject || "Untitled Task"}
+              {task.subject || t('tasks.kanban.untitled')}
             </h4>
             <Badge variant="outline" className={`text-[9px] font-bold tracking-tight uppercase px-1.5 py-0 shrink-0 ${pInfo.color}`}>
               {pInfo.label}
@@ -161,7 +163,7 @@ const SortableTaskCard = ({ task, onClick }: { task: Task; onClick: () => void }
               <div className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400">
                 {task.entityType === 'lead' ? <Target className="h-3 w-3" /> :
                   task.entityType === 'contact' ? <User className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
-                <span className="capitalize">{task.entityType}</span>
+                <span className="capitalize">{t(`common.entities.${task.entityType}`)}</span>
               </div>
             )}
             {task.dueDate && (
@@ -177,7 +179,7 @@ const SortableTaskCard = ({ task, onClick }: { task: Task; onClick: () => void }
                 {task.assignedTo?.name?.charAt(0) || "U"}
               </div>
               <span className="text-[10px] font-medium text-slate-400 truncate max-w-[80px]">
-                {task.assignedTo?.name || "Unassigned"}
+                {task.assignedTo?.name || t('tasks.kanban.unassigned')}
               </span>
             </div>
             <div className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -191,6 +193,7 @@ const SortableTaskCard = ({ task, onClick }: { task: Task; onClick: () => void }
 };
 
 const TasksPage = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [view, setView] = useState<"kanban" | "table">("kanban");
   const [search, setSearch] = useState("");
@@ -242,11 +245,11 @@ const TasksPage = () => {
     mutationFn: api.activities.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast.success("Strategic Protocol Initialized");
+      toast.success(t('tasks.create.success'));
       setShowCreate(false);
       resetForm();
     },
-    onError: (err: any) => toast.error(err.message || "Failed to create task"),
+    onError: (err: any) => toast.error(err.message || t('common.errors.create_failed')),
   });
 
   const updateMutation = useMutation({
@@ -256,11 +259,11 @@ const TasksPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast.success("Status updated");
+      toast.success(t('common.actions.update_success'));
     },
     onError: (err: any) => {
       console.error('Update failed:', err);
-      toast.error(err.message || "Failed to update status");
+      toast.error(err.message || t('common.errors.update_failed'));
     },
   });
 
@@ -273,7 +276,7 @@ const TasksPage = () => {
     const task = tasks.find((t: Task) => t.id === taskId);
     if (task && overId && columns.some(c => c.id === overId) && task.status !== overId) {
       updateMutation.mutate({ id: taskId, data: { status: overId } });
-      toast.success(`Moved to ${columns.find(c => c.id === overId)?.title}`);
+      toast.success(t('common.actions.moved_to', { destination: t(`activities.status.${overId}`) }));
     }
   };
 
@@ -306,7 +309,7 @@ const TasksPage = () => {
       return uniqueLeads.map((l: any) => ({
         value: String(l.id),
         label: l.name,
-        description: l.email || l.company || 'Lead'
+        description: l.email || l.company || t('common.entities.lead')
       }));
     }
     if (formData.entityType === "contact") {
@@ -327,33 +330,33 @@ const TasksPage = () => {
   const overdueCount = tasks.filter((t: Task) => t.status !== 'done' && t.dueDate && isBefore(new Date(t.dueDate), new Date()) && !isToday(new Date(t.dueDate))).length;
 
   return (
-    <CRMLayout title="Task Management">
+    <CRMLayout title={t('tasks.title')}>
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-700">
         <div className="flex flex-wrap gap-4 p-2 bg-[#1a1f2e]/40 border border-white/5 rounded-2xl backdrop-blur-xl">
           <div className="flex-1 min-w-[140px] px-4 py-3 bg-[#11141d]/60 rounded-xl border border-white/5 flex items-center justify-between group">
             <div className="space-y-0.5">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('tasks.stats.active')}</p>
               <p className="text-xl font-bold text-slate-200 tracking-tight">{totalOpen}</p>
             </div>
             <CheckSquare className="h-7 w-7 text-primary/40" />
           </div>
           <div className="flex-1 min-w-[140px] px-4 py-3 bg-[#11141d]/60 rounded-xl border border-white/5 flex items-center justify-between group">
             <div className="space-y-0.5">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Priority</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('tasks.stats.priority')}</p>
               <p className="text-xl font-bold text-slate-200 tracking-tight">{dueSoon}</p>
             </div>
             <Timer className="h-7 w-7 text-orange-500/40" />
           </div>
           <div className="flex-1 min-w-[140px] px-4 py-3 bg-[#11141d]/60 rounded-xl border border-white/5 flex items-center justify-between group">
             <div className="space-y-0.5">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Critical</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('tasks.stats.critical')}</p>
               <p className="text-xl font-bold text-red-400 tracking-tight">{overdueCount}</p>
             </div>
             <AlertCircle className="h-7 w-7 text-red-500/40" />
           </div>
           <div className="flex-1 min-w-[140px] px-4 py-3 bg-[#11141d]/60 rounded-xl border border-white/5 flex items-center justify-between group">
             <div className="space-y-0.5">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Impact</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('tasks.stats.impact')}</p>
               <p className="text-xl font-bold text-emerald-400 tracking-tight">{completedToday}</p>
             </div>
             <CheckCircle2 className="h-7 w-7 text-emerald-500/40" />
@@ -368,16 +371,15 @@ const TasksPage = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
           <div className="space-y-0.5">
             <h2 className="text-xl font-bold text-slate-200 tracking-tight flex items-center gap-2">
-
-              Task Pipeline
+              {t('tasks.kanban.title')}
             </h2>
-            <p className="text-xs text-slate-500 font-medium tracking-wide">Managing {tasks.length} strategic objectives</p>
+            <p className="text-xs text-slate-500 font-medium tracking-wide">{t('tasks.kanban.desc', { count: tasks.length })}</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500 group-focus-within:text-primary transition-colors" />
               <input
-                placeholder="Find anything..."
+                placeholder={t('tasks.kanban.searchPlaceholder')}
                 className="pl-9 h-9 w-60 bg-[#11141d]/60 border border-white/5 rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary/40 focus:border-primary/40 transition-all outline-none text-slate-200"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -391,7 +393,7 @@ const TasksPage = () => {
                 onClick={() => setView("kanban")}
               >
                 <LayoutGrid className="h-3 w-3" />
-                Kanban
+                {t('tasks.kanban.viewKanban')}
               </Button>
               <Button
                 variant="ghost"
@@ -400,7 +402,7 @@ const TasksPage = () => {
                 onClick={() => setView("table")}
               >
                 <List className="h-3 w-3" />
-                Table
+                {t('tasks.kanban.viewTable')}
               </Button>
             </div>
           </div>
@@ -417,8 +419,8 @@ const TasksPage = () => {
                         {column.icon}
                       </div>
                       <div className="flex flex-col">
-                        <h3 className="font-bold text-xs tracking-tight text-slate-300 group-hover/col:text-slate-100 transition-colors uppercase italic">{column.title}</h3>
-                        <span className="text-[10px] font-bold text-slate-600 group-hover/col:text-primary/60 transition-colors uppercase tracking-widest">{getColumnTasks(column.id).length} Items</span>
+                        <h3 className="font-bold text-xs tracking-tight text-slate-300 group-hover/col:text-slate-100 transition-colors uppercase italic">{t(column.title)}</h3>
+                        <span className="text-[10px] font-bold text-slate-600 group-hover/col:text-primary/60 transition-colors uppercase tracking-widest">{t('tasks.kanban.itemsCount', { count: getColumnTasks(column.id).length })}</span>
                       </div>
                     </div>
                   </div>
@@ -440,7 +442,7 @@ const TasksPage = () => {
             </div>
             <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.3' } } }) }}>
               {activeDragId ? (
-                <div className="w-[280px] shadow-2xl shadow-black/80 rotate-1 scale-105 transition-transform"><SortableTaskCard task={tasks.find((t: Task) => t.id === activeDragId)!} onClick={() => { }} /></div>
+                <div className="w-[280px] shadow-2xl shadow-black/80 rotate-1 scale-105 transition-transform"><SortableTaskCard task={tasks.find((t: Task) => t.id === activeDragId)!} onClick={() => {}} /></div>
               ) : null}
             </DragOverlay>
           </DndContext>
@@ -450,17 +452,17 @@ const TasksPage = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-white/5 bg-white/[0.02]">
-                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Subject</th>
-                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Status</th>
-                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Priority</th>
-                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Assignee</th>
-                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Due Date</th>
-                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Relation</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{t('tasks.table.subject')}</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{t('tasks.table.status')}</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{t('tasks.table.priority')}</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{t('tasks.table.assignee')}</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{t('tasks.table.dueDate')}</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">{t('tasks.table.relation')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.03]">
                   {filteredTasks.length > 0 ? filteredTasks.map((task: Task) => {
-                    const pInfo = getPriorityInfo(task.priority);
+                    const pInfo = getPriorityInfo(task.priority, t);
                     const isOverdue = task.status !== 'done' && task.dueDate && isBefore(new Date(task.dueDate), new Date()) && !isToday(new Date(task.dueDate));
                     
                     return (
@@ -495,23 +497,23 @@ const TasksPage = () => {
                              <div className="h-6 w-6 rounded-md bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-400 border border-white/5">
                                {task.assignedTo?.name?.charAt(0) || "U"}
                              </div>
-                             <span className="text-[11px] font-medium text-slate-400">{task.assignedTo?.name || "Unassigned"}</span>
+                             <span className="text-[11px] font-medium text-slate-400">{task.assignedTo?.name || t('tasks.kanban.unassigned')}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className={`flex items-center gap-2 text-[11px] font-bold ${isOverdue ? 'text-red-400' : 'text-slate-500'}`}>
                              <Calendar className="h-3 w-3" />
-                             {task.dueDate ? format(new Date(task.dueDate), "MMM dd, yyyy") : "N/A"}
+                             {task.dueDate ? format(new Date(task.dueDate), "MMM dd, yyyy") : t('tasks.detail.noDeadline')}
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           {task.entityType ? (
                             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                                {task.entityType === 'lead' ? <Target className="h-3 w-3" /> : <User className="h-3 w-3" />}
-                               {task.entityType}
+                               {t(`common.entities.${task.entityType}`)}
                             </div>
                           ) : (
-                            <span className="text-[10px] text-slate-700 italic">None</span>
+                            <span className="text-[10px] text-slate-700 italic">{t('tasks.table.noRecord')}</span>
                           )}
                         </td>
                       </tr>
@@ -521,7 +523,7 @@ const TasksPage = () => {
                       <td colSpan={6} className="px-6 py-20 text-center">
                         <div className="flex flex-col items-center gap-2 opacity-50">
                            <Zap className="h-8 w-8 text-slate-700" />
-                           <p className="text-sm font-medium text-slate-500">No strategic objectives found in current filter</p>
+                           <p className="text-sm font-medium text-slate-500">{t('tasks.table.noTasks')}</p>
                         </div>
                       </td>
                     </tr>
@@ -542,10 +544,10 @@ const TasksPage = () => {
                   <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
                     <Sparkles className="h-5 w-5 text-indigo-400" />
                   </div>
-                  <span>New Objective Initiative</span>
+                  <span>{t('tasks.create.title')}</span>
                 </DialogTitle>
                 <p className="text-sm text-slate-400 font-normal tracking-wide pl-12">
-                  Define mission parameters and allocate resources.
+                  {t('tasks.create.desc')}
                 </p>
               </DialogHeader>
             </div>
@@ -556,7 +558,7 @@ const TasksPage = () => {
               <div className="space-y-2">
                 <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Subject</Label>
                 <Input
-                  placeholder="e.g., Follow-up on project proposal"
+                  placeholder={t('tasks.create.subjectPlaceholder')}
                   className="h-11 bg-[#141822] border-slate-700/50 text-slate-200 placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/30 rounded-lg px-4 text-sm shadow-sm transition-all duration-200"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
@@ -569,7 +571,7 @@ const TasksPage = () => {
                   <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</Label>
                   <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
                     <SelectTrigger className="h-11 bg-[#141822] border-slate-700/50 text-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/30 shadow-sm">
-                      <SelectValue placeholder="Select status..." />
+                      <SelectValue placeholder={t('tasks.create.statusPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent className="bg-[#141822] border-slate-700 text-slate-200 backdrop-blur-sm">
                       {columns.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
@@ -583,10 +585,10 @@ const TasksPage = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-[#141822] border-slate-700 text-slate-200">
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="urgent">Urgent</SelectItem>
+                      <SelectItem value="low">{t('common.priorities.low')}</SelectItem>
+                      <SelectItem value="medium">{t('common.priorities.medium')}</SelectItem>
+                      <SelectItem value="high">{t('common.priorities.high')}</SelectItem>
+                      <SelectItem value="urgent">{t('common.priorities.urgent')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -607,7 +609,7 @@ const TasksPage = () => {
                   <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Assignee</Label>
                   <Select value={formData.assignedToId} onValueChange={(v) => setFormData({ ...formData, assignedToId: v })}>
                     <SelectTrigger className="h-11 bg-[#141822] border-slate-700/50 text-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 shadow-sm">
-                      <SelectValue placeholder="Select user" />
+                      <SelectValue placeholder={t('tasks.create.assigneePlaceholder')} />
                     </SelectTrigger>
                     <SelectContent className="bg-[#141822] border-slate-700 text-slate-200">
                       {users.map((u: any) => <SelectItem key={u.id} value={String(u.id)}>{u.name}</SelectItem>)}
@@ -622,21 +624,21 @@ const TasksPage = () => {
                   <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Relate To</Label>
                   <Select value={formData.entityType} onValueChange={(v) => setFormData({ ...formData, entityType: v, entityId: "" })}>
                     <SelectTrigger className="h-11 bg-[#141822] border-slate-700/50 text-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 shadow-sm">
-                      <SelectValue placeholder="Select type" />
+                      <SelectValue placeholder={t('tasks.create.relateToPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent className="bg-[#141822] border-slate-700 text-slate-200">
-                      <SelectItem value="lead">Lead</SelectItem>
-                      <SelectItem value="contact">Contact</SelectItem>
+                      <SelectItem value="lead">{t('common.entities.lead')}</SelectItem>
+                      <SelectItem value="contact">{t('common.entities.contact')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Search Record</Label>
+                  <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('tasks.create.searchRecordLabel')}</Label>
                   <DynamicAutoSelect
                     options={getEntityOptions()}
                     value={formData.entityId}
                     onSelect={(v) => setFormData({ ...formData, entityId: v })}
-                    placeholder={`Find ${formData.entityType || 'record'}...`}
+                    placeholder={t('tasks.create.searchRecordPlaceholder', { entity: t(`common.entities.${formData.entityType || 'lead'}`) })}
                   />
                 </div>
               </div>
@@ -645,7 +647,7 @@ const TasksPage = () => {
               <div className="space-y-2 pt-1">
                 <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Description</Label>
                 <Textarea
-                  placeholder="Enter task details and notes..."
+                  placeholder={t('tasks.create.descPlaceholder')}
                   className="bg-[#141822] border-slate-700/50 text-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500/50 min-h-[110px] p-4 text-sm leading-relaxed resize-none shadow-sm transition-all duration-200"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -657,7 +659,7 @@ const TasksPage = () => {
             <DialogFooter className="px-8 py-5 bg-[#0F131C] border-t border-slate-800/80 flex flex-row items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
                 <Terminal className="h-4 w-4" />
-                <span className="tracking-wide">Protocol v2.4 · Awaiting command</span>
+                <span className="tracking-wide">{t('tasks.create.protocolLabel')}</span>
               </div>
               <div className="flex gap-3">
                 <Button
@@ -665,7 +667,7 @@ const TasksPage = () => {
                   className="h-9 px-4 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-lg text-sm font-medium transition-colors"
                   onClick={() => setShowCreate(false)}
                 >
-                  Cancel
+                  {t('common.actions.cancel')}
                 </Button>
                 <Button
                   disabled={createMutation.isPending}
@@ -683,10 +685,10 @@ const TasksPage = () => {
                   {createMutation.isPending ? (
                     <span className="flex items-center gap-2">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                      Syncing...
+                      {t('tasks.create.submit_pending')}
                     </span>
                   ) : (
-                    "Initialize Protocol"
+                    t('tasks.create.submit')
                   )}
                 </Button>
               </div>
@@ -706,12 +708,12 @@ const TasksPage = () => {
                       <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
                         {selectedTask.priority === 'urgent' ? <Zap className="h-5 w-5" /> : <ClipboardList className="h-5 w-5" />}
                       </div>
-                      <span>Task Intelligence</span>
+                      <span>{t('tasks.detail.title')}</span>
                     </DialogTitle>
                     <p className="text-sm text-slate-400 font-normal tracking-wide pl-12 flex items-center gap-2">
-                      Protocol REF: <span className="text-indigo-400 font-bold tracking-widest">#{selectedTask.id}</span>
+                      {t('tasks.detail.protocolRef')} <span className="text-indigo-400 font-bold tracking-widest">#{selectedTask.id}</span>
                       <span className="h-1 w-1 rounded-full bg-slate-700" />
-                      <span className="capitalize">{selectedTask.priority} Mission</span>
+                      {t('tasks.detail.missionType', { priority: t(`common.priorities.${selectedTask.priority}`) })}
                     </p>
                   </DialogHeader>
                 </div>
@@ -720,7 +722,7 @@ const TasksPage = () => {
                 <div className="grid gap-6 p-8 bg-[#0B0E14] overflow-y-auto flex-1 custom-scrollbar min-h-0">
                   {/* Subject Row */}
                   <div className="space-y-2">
-                    <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Subject</Label>
+                    <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('tasks.create.subjectLabel')}</Label>
                     <p className="text-xl font-bold text-white italic tracking-tight leading-snug">
                       {selectedTask.subject}
                     </p>
@@ -729,23 +731,23 @@ const TasksPage = () => {
                   {/* 2-Column Grid: Status & Priority */}
                   <div className="grid grid-cols-2 gap-5">
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Status</Label>
+                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('tasks.create.statusLabel')}</Label>
                       <Select value={selectedTask.status} onValueChange={(val) => updateMutation.mutate({ id: selectedTask.id, data: { status: val } })}>
                         <SelectTrigger className="h-11 bg-[#141822] border-slate-700/50 text-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 shadow-sm font-medium">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-[#141822] border-slate-700 text-slate-200">
-                          {columns.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+                          {columns.map(c => <SelectItem key={c.id} value={c.id}>{t(c.title)}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Priority</Label>
+                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('tasks.create.priorityLabel')}</Label>
                       <div className="h-11 flex items-center px-4 bg-[#141822] border border-slate-700/50 rounded-lg">
                         <span className={`text-xs font-bold uppercase tracking-widest ${selectedTask.priority === 'urgent' ? 'text-red-400' :
                             selectedTask.priority === 'high' ? 'text-orange-400' : 'text-indigo-400'
                           }`}>
-                          {selectedTask.priority}
+                          {t(`common.priorities.${selectedTask.priority}`)}
                         </span>
                       </div>
                     </div>
@@ -754,22 +756,22 @@ const TasksPage = () => {
                   {/* 2-Column Grid: Date & Assignee */}
                   <div className="grid grid-cols-2 gap-5">
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Due Date</Label>
+                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('tasks.create.dueDateLabel')}</Label>
                       <div className="h-11 flex items-center px-4 bg-[#141822] border border-slate-700/50 rounded-lg gap-3">
                         <Calendar className="h-4 w-4 text-slate-500" />
                         <span className="text-sm text-slate-200">
-                          {selectedTask.dueDate ? format(new Date(selectedTask.dueDate), "MMM dd, yyyy") : "No deadline"}
+                          {selectedTask.dueDate ? format(new Date(selectedTask.dueDate), "MMM dd, yyyy") : t('tasks.detail.noDeadline')}
                         </span>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Assignee</Label>
+                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('tasks.create.assigneeLabel')}</Label>
                       <Select
                         value={selectedTask.assignedToId ? String(selectedTask.assignedToId) : ""}
                         onValueChange={(val) => updateMutation.mutate({ id: selectedTask.id, data: { assignedToId: Number(val) } })}
                       >
                         <SelectTrigger className="h-11 bg-[#141822] border-slate-700/50 text-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/50 shadow-sm font-medium">
-                          <SelectValue placeholder="Select officer..." />
+                          <SelectValue placeholder={t('tasks.detail.selectOfficer')} />
                         </SelectTrigger>
                         <SelectContent className="bg-[#141822] border-slate-700 text-slate-200">
                           {users.map((u: any) => (
@@ -788,16 +790,14 @@ const TasksPage = () => {
                   {/* 2-Column Grid: Relate To & Record */}
                   <div className="grid grid-cols-2 gap-5">
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Relate To</Label>
+                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('tasks.create.relateToLabel')}</Label>
                       <div className="h-11 flex items-center px-4 bg-[#141822] border border-slate-700/50 rounded-lg gap-2">
                         <Target className="h-4 w-4 text-slate-500" />
-                        <span className="text-sm font-medium text-slate-300 capitalize">
-                          {selectedTask.entityType || "None"}
-                        </span>
+                          {selectedTask.entityType ? t(`common.entities.${selectedTask.entityType}`) : t('tasks.table.noRecord')}
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Linked Record</Label>
+                      <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('tasks.create.searchRecordLabel')}</Label>
                       <div className="h-11 flex items-center px-4 bg-indigo-500/5 border border-indigo-500/10 rounded-lg group cursor-pointer hover:bg-indigo-500/10 transition-colors">
                         <span className="text-sm font-bold text-indigo-400 truncate">
                           {selectedTask.entityType} Nexus Ref
@@ -809,7 +809,7 @@ const TasksPage = () => {
 
                   {/* Description */}
                   <div className="space-y-2 pt-1">
-                    <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Description</Label>
+                    <Label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('tasks.create.descLabel')}</Label>
                     <div className="p-4 bg-[#141822] border border-slate-700/50 rounded-lg text-sm text-slate-300 leading-relaxed italic min-h-[110px]">
                       {selectedTask.description || "No mission intelligence documented for this objective."}
                     </div>

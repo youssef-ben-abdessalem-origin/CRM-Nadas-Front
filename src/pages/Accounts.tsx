@@ -85,6 +85,7 @@ import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { CurrencyNumbers } from "@/components/CurrencyNumbers";
+import { useTranslation } from "react-i18next";
 
 interface AccountType {
   id: number;
@@ -184,6 +185,7 @@ const initialAccounts: Account[] = [];
 const Accounts = () => {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
@@ -244,7 +246,7 @@ const Accounts = () => {
     mutationFn: api.accounts.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      toast.success("Account created successfully");
+      toast.success(t('common.actions.create_success'));
       setShowAdd(false);
       resetForm();
     },
@@ -255,7 +257,7 @@ const Accounts = () => {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.accounts.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      toast.success("Account updated successfully");
+      toast.success(t('common.actions.update_success'));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -264,7 +266,7 @@ const Accounts = () => {
     mutationFn: api.accounts.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      toast.success("Account deleted successfully");
+      toast.success(t('common.actions.delete_success'));
       setShowDetail(false);
       setSelectedAccount(null);
     },
@@ -275,7 +277,7 @@ const Accounts = () => {
     mutationFn: (id: number) => api.activities.complete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["account-activities"] });
-      toast.success("Activity completed");
+      toast.success(t('activities.actions.completed'));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -310,9 +312,9 @@ const Accounts = () => {
   const getTierId = (account: Account) =>
     account.tier?.id || account.accountTierId;
 
-  const getTypeName = (account: Account) => account.type?.name || "Unknown";
-  const getStatusName = (account: Account) => account.status?.name || "Unknown";
-  const getTierName = (account: Account) => account.tier?.name || "Unknown";
+  const getTypeName = (account: Account) => account.type?.name || t('common.unknown');
+  const getStatusName = (account: Account) => account.status?.name || t('common.unknown');
+  const getTierName = (account: Account) => account.tier?.name || t('common.unknown');
 
   const getTypeColor = (account: Account) => account.type?.color || "#6b7280";
   const getStatusColor = (account: Account) =>
@@ -426,7 +428,7 @@ const Accounts = () => {
 
   const handleAdd = () => {
     if (!formData.name || !formData.website) {
-      toast.error("Please fill in required fields");
+      toast.error(t('common.errors.fillRequired'));
       return;
     }
     createMutation.mutate({
@@ -511,32 +513,33 @@ const Accounts = () => {
       data: { accountStatusId: newStatusId },
     });
     const found = accountStatuses.find((s) => s.id === newStatusId);
-    toast.success(`Status updated to ${found?.name || "Unknown"}`);
+    const translatedStatus = found ? t(`accounts.statuses.${found.name.toLowerCase().replace(/\s+/g, '_')}`, found.name) : t('common.unknown');
+    toast.success(t('accounts.actions.statusUpdated', { status: translatedStatus }));
   };
 
   return (
-    <CRMLayout title="Accounts">
+    <CRMLayout title={t('accounts.title')}>
       <div className="space-y-4">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Accounts
+                {t('accounts.stats.total')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 <Building2 className="h-3 w-3 inline mr-1" />
-                In database
+                {t('common.stats.inDatabase')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Active
+                {t('accounts.stats.active')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -544,14 +547,14 @@ const Accounts = () => {
                 {stats.active}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Engaged accounts
+                {t('common.stats.engaged')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Customers
+                {t('accounts.stats.customers')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -560,14 +563,14 @@ const Accounts = () => {
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 <Handshake className="h-3 w-3 inline mr-1" />
-                Paying customers
+                {t('common.stats.paying')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Total Revenue
+                {t('accounts.stats.revenue')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -576,14 +579,14 @@ const Accounts = () => {
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 <DollarSign className="h-3 w-3 inline mr-1" />
-                Won deals
+                {t('common.stats.wonDeals')}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Pipeline
+                {t('accounts.stats.pipeline')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -592,7 +595,7 @@ const Accounts = () => {
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 <TrendingUp className="h-3 w-3 inline mr-1" />
-                Open opportunities
+                {t('common.stats.openOpps')}
               </p>
             </CardContent>
           </Card>
@@ -604,7 +607,7 @@ const Accounts = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search accounts..."
+                placeholder={t('accounts.toolbar.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="h-9 w-72 pl-9"
@@ -612,10 +615,10 @@ const Accounts = () => {
             </div>
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="h-9 w-36">
-                <SelectValue placeholder="Type" />
+                <SelectValue placeholder={t('accounts.toolbar.type')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="all">{t('accounts.toolbar.type')}</SelectItem>
                 {accountTypes.map((t) => (
                   <SelectItem key={t.id} value={String(t.id)}>
                     {t.name}
@@ -625,10 +628,10 @@ const Accounts = () => {
             </Select>
             <Select value={filterIndustry} onValueChange={setFilterIndustry}>
               <SelectTrigger className="h-9 w-40">
-                <SelectValue placeholder="Industry" />
+                <SelectValue placeholder={t('accounts.toolbar.industry')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Industries</SelectItem>
+                <SelectItem value="all">{t('accounts.toolbar.industry')}</SelectItem>
                 {industries.map((ind) => (
                   <SelectItem key={ind} value={ind}>
                     {ind}
@@ -638,10 +641,10 @@ const Accounts = () => {
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="h-9 w-36">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t('accounts.toolbar.status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="all">{t('accounts.toolbar.status')}</SelectItem>
                 {accountStatuses.map((s) => (
                   <SelectItem key={s.id} value={String(s.id)}>
                     {s.name}
@@ -651,10 +654,10 @@ const Accounts = () => {
             </Select>
             <Select value={filterTier} onValueChange={setFilterTier}>
               <SelectTrigger className="h-9 w-36">
-                <SelectValue placeholder="Tier" />
+                <SelectValue placeholder={t('accounts.toolbar.tier')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Tiers</SelectItem>
+                <SelectItem value="all">{t('accounts.toolbar.tier')}</SelectItem>
                 {accountTiers.map((t) => (
                   <SelectItem key={t.id} value={String(t.id)}>
                     {t.name}
@@ -663,16 +666,16 @@ const Accounts = () => {
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm">
-              <Filter className="h-3.5 w-3.5 mr-1" /> Filter
+              <Filter className="h-3.5 w-3.5 mr-1" /> {t('accounts.toolbar.filter')}
             </Button>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm">
-              <Download className="h-3.5 w-3.5 mr-1" /> Export
+              <Download className="h-3.5 w-3.5 mr-1" /> {t('accounts.toolbar.export')}
             </Button>
             {selectedAccounts.length > 0 && (
               <Button variant="outline" size="sm" onClick={() => setShowBulkActions(true)}>
-                <CheckSquare className="h-3.5 w-3.5 mr-1" /> Bulk ({selectedAccounts.length})
+                <CheckSquare className="h-3.5 w-3.5 mr-1" /> {t('accounts.toolbar.bulk')} ({selectedAccounts.length})
               </Button>
             )}
             <Button
@@ -682,7 +685,7 @@ const Accounts = () => {
                 setShowAdd(true);
               }}
             >
-              <Plus className="h-3.5 w-3.5 mr-1" /> Add Account
+              <Plus className="h-3.5 w-3.5 mr-1" /> {t('accounts.toolbar.add')}
             </Button>
           </div>
         </div>
@@ -706,16 +709,16 @@ const Accounts = () => {
                     className="h-4 w-4 rounded border-gray-300"
                   />
                 </TableHead>
-                <TableHead>Account</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Tier</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Industry</TableHead>
-                <TableHead className="text-right">Revenue</TableHead>
-                <TableHead className="text-right">Contacts</TableHead>
-                <TableHead className="text-right">Deals</TableHead>
-                <TableHead>Owner</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('accounts.table.account')}</TableHead>
+                <TableHead>{t('accounts.table.type')}</TableHead>
+                <TableHead>{t('accounts.table.tier')}</TableHead>
+                <TableHead>{t('accounts.table.status')}</TableHead>
+                <TableHead>{t('accounts.table.industry')}</TableHead>
+                <TableHead className="text-right">{t('accounts.table.revenue')}</TableHead>
+                <TableHead className="text-right">{t('accounts.table.contacts')}</TableHead>
+                <TableHead className="text-right">{t('accounts.table.deals')}</TableHead>
+                <TableHead>{t('accounts.table.owner')}</TableHead>
+                <TableHead className="text-right">{t('accounts.table.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -726,9 +729,9 @@ const Accounts = () => {
                     className="text-center py-12 text-muted-foreground"
                   >
                     <Building2 className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p className="text-lg font-medium">No accounts found</p>
+                    <p className="text-lg font-medium">{t('accounts.empty.title')}</p>
                     <p className="text-sm">
-                      Get started by adding your first account
+                      {t('accounts.empty.desc')}
                     </p>
                   </TableCell>
                 </TableRow>
@@ -1105,7 +1108,7 @@ const Accounts = () => {
 
                 {selectedAccount.notes && (
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold">Internal Notes</h4>
+                    <h4 className="text-sm font-semibold">{t('accounts.create.notes')}</h4>
                     <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
                       {selectedAccount.notes}
                     </p>
@@ -1114,7 +1117,7 @@ const Accounts = () => {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold">Activities</h4>
+                    <h4 className="text-sm font-semibold">{t('accounts.detail.activities')}</h4>
 
                   </div>
                   {accountActivities && accountActivities.length > 0 ? (
@@ -1148,7 +1151,7 @@ const Accounts = () => {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold">Deals</h4>
+                    <h4 className="text-sm font-semibold">{t('accounts.detail.deals')}</h4>
 
                   </div>
                   {accountDeals && accountDeals.length > 0 ? (
@@ -1177,7 +1180,7 @@ const Accounts = () => {
                     variant="outline"
                     onClick={() => openEdit(selectedAccount)}
                   >
-                    <Edit className="h-4 w-4 mr-2" /> Edit
+                    <Edit className="h-4 w-4 mr-2" /> {t('common.actions.edit')}
                   </Button>
                   <Button
                     variant="outline"
@@ -1201,7 +1204,7 @@ const Accounts = () => {
                     variant="destructive"
                     onClick={() => handleDelete(selectedAccount)}
                   >
-                    <Trash2 className="h-4 w-4 mr-2" /> Delete
+                    <Trash2 className="h-4 w-4 mr-2" /> {t('common.actions.delete')}
                   </Button>
                 </DialogFooter>
               </>
@@ -1221,9 +1224,9 @@ const Accounts = () => {
         >
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle>Add New Account</DrawerTitle>
+              <DrawerTitle>{t('accounts.create.title')}</DrawerTitle>
               <DrawerDescription>
-                Fill in the details to create a new account.
+                {t('accounts.create.desc')}
               </DrawerDescription>
             </DrawerHeader>
             <div
@@ -1232,12 +1235,12 @@ const Accounts = () => {
             >
               {/* Company Info */}
               <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1">
-                Company Info
+                {t('accounts.create.basicInfo')}
               </div>
 
               <div className="space-y-2">
                 <Label>
-                  Name <span className="text-red-500">*</span>
+                  {t('accounts.create.name')} <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   placeholder="Acme Corp"
@@ -1249,7 +1252,7 @@ const Accounts = () => {
               </div>
               <div className="space-y-2">
                 <Label>
-                  Website <span className="text-red-500">*</span>
+                  {t('accounts.create.website')} <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   placeholder="acmecorp.com"
@@ -1260,7 +1263,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Industry</Label>
+                <Label>{t('accounts.create.industry')}</Label>
                 <Select
                   value={formData.industry}
                   onValueChange={(v) =>
@@ -1280,7 +1283,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Location</Label>
+                <Label>{t('accounts.create.location')}</Label>
                 <Input
                   placeholder="San Francisco, CA"
                   value={formData.location}
@@ -1290,7 +1293,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2 col-span-1 md:col-span-2">
-                <Label>Description</Label>
+                <Label>{t('accounts.create.description')}</Label>
                 <Textarea
                   placeholder="Brief description..."
                   value={formData.description}
@@ -1308,7 +1311,7 @@ const Accounts = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Phone</Label>
+                <Label>{t('accounts.create.phone')}</Label>
                 <Input
                   placeholder="+1 (555) 000-0000"
                   value={formData.phone}
@@ -1318,7 +1321,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Email</Label>
+                <Label>{t('accounts.create.email')}</Label>
                 <Input
                   type="email"
                   placeholder="contact@company.com"
@@ -1329,7 +1332,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Account Owner</Label>
+                <Label>{t('accounts.create.owner')}</Label>
                 <Input
                   placeholder="Alex Morgan"
                   value={formData.owner}
@@ -1341,11 +1344,11 @@ const Accounts = () => {
 
               {/* Details */}
               <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1 mt-2">
-                Details
+                {t('accounts.create.meta')}
               </div>
 
               <div className="space-y-2">
-                <Label>Type</Label>
+                <Label>{t('accounts.create.type')}</Label>
                 <Select
                   value={
                     formData.accountTypeId ? String(formData.accountTypeId) : ""
@@ -1355,7 +1358,7 @@ const Accounts = () => {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder={t('accounts.create.type')} />
                   </SelectTrigger>
                   <SelectContent>
                     {accountTypes.map((t) => (
@@ -1367,7 +1370,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Status</Label>
+                <Label>{t('accounts.create.status')}</Label>
                 <Select
                   value={
                     formData.accountStatusId
@@ -1379,7 +1382,7 @@ const Accounts = () => {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder={t('accounts.create.status')} />
                   </SelectTrigger>
                   <SelectContent>
                     {accountStatuses.map((s) => (
@@ -1391,7 +1394,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Tier</Label>
+                <Label>{t('accounts.create.tier')}</Label>
                 <Select
                   value={
                     formData.accountTierId ? String(formData.accountTierId) : ""
@@ -1401,7 +1404,7 @@ const Accounts = () => {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select tier" />
+                    <SelectValue placeholder={t('accounts.create.tier')} />
                   </SelectTrigger>
                   <SelectContent>
                     {accountTiers.map((t) => (
@@ -1413,7 +1416,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Annual Revenue</Label>
+                <Label>{t('accounts.create.annualRevenue')}</Label>
                 <Input
                   type="number"
                   placeholder="10000000"
@@ -1424,7 +1427,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Employee Count</Label>
+                <Label>{t('accounts.create.employees')}</Label>
                 <Input
                   type="number"
                   placeholder="500"
@@ -1435,7 +1438,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Parent Account</Label>
+                <Label>{t('accounts.create.parent')}</Label>
                 <Input
                   placeholder="Leave blank if none"
                   value={formData.parentAccount}
@@ -1445,7 +1448,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Tags</Label>
+                <Label>{t('accounts.create.tags')}</Label>
                 <Input
                   placeholder="strategic, cloud"
                   value={formData.tags}
@@ -1457,11 +1460,11 @@ const Accounts = () => {
 
               {/* Address */}
               <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1 mt-2">
-                Address
+                {t('common.address.title')}
               </div>
 
               <div className="space-y-2 col-span-1 md:col-span-2">
-                <Label>Street Address</Label>
+                <Label>{t('common.address.street')}</Label>
                 <Input
                   placeholder="100 Market Street"
                   value={formData.address}
@@ -1471,7 +1474,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>City</Label>
+                <Label>{t('common.address.city')}</Label>
                 <Input
                   placeholder="San Francisco"
                   value={formData.city}
@@ -1481,7 +1484,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>State</Label>
+                <Label>{t('common.address.state')}</Label>
                 <Input
                   placeholder="CA"
                   value={formData.state}
@@ -1491,7 +1494,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Country</Label>
+                <Label>{t('common.address.country')}</Label>
                 <Input
                   placeholder="USA"
                   value={formData.country}
@@ -1501,7 +1504,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>ZIP Code</Label>
+                <Label>{t('common.address.zip')}</Label>
                 <Input
                   placeholder="94105"
                   value={formData.zipCode}
@@ -1511,7 +1514,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2 col-span-1 md:col-span-2">
-                <Label>Notes</Label>
+                <Label>{t('accounts.create.notes')}</Label>
                 <Textarea
                   placeholder="Internal notes..."
                   value={formData.notes}
@@ -1535,7 +1538,7 @@ const Accounts = () => {
               </Button>
               <Button onClick={handleAdd} disabled={createMutation.isPending}>
                 <Check className="h-4 w-4 mr-2" />
-                {createMutation.isPending ? "Creating..." : "Create Account"}
+                {createMutation.isPending ? t('common.actions.creating') : t('accounts.create.submit')}
               </Button>
             </DrawerFooter>
           </DrawerContent>
@@ -1553,8 +1556,8 @@ const Accounts = () => {
         >
           <DrawerContent>
             <DrawerHeader>
-              <DrawerTitle>Edit Account</DrawerTitle>
-              <DrawerDescription>Update account information.</DrawerDescription>
+              <DrawerTitle>{t('accounts.create.editTitle')}</DrawerTitle>
+              <DrawerDescription>{t('accounts.create.desc')}</DrawerDescription>
             </DrawerHeader>
             <div
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4 px-6 overflow-y-auto"
@@ -1562,7 +1565,7 @@ const Accounts = () => {
             >
               {/* Company Info */}
               <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1">
-                Company Info
+                {t('accounts.create.basicInfo')}
               </div>
 
               <div className="space-y-2">
@@ -1590,7 +1593,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Industry</Label>
+                <Label>{t('accounts.create.industry')}</Label>
                 <Select
                   value={formData.industry}
                   onValueChange={(v) =>
@@ -1610,7 +1613,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Location</Label>
+                <Label>{t('accounts.create.location')}</Label>
                 <Input
                   placeholder="San Francisco, CA"
                   value={formData.location}
@@ -1620,7 +1623,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2 col-span-1 md:col-span-2">
-                <Label>Description</Label>
+                <Label>{t('accounts.create.description')}</Label>
                 <Textarea
                   placeholder="Brief description..."
                   value={formData.description}
@@ -1638,7 +1641,7 @@ const Accounts = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Phone</Label>
+                <Label>{t('accounts.create.phone')}</Label>
                 <Input
                   placeholder="+1 (555) 000-0000"
                   value={formData.phone}
@@ -1648,7 +1651,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Email</Label>
+                <Label>{t('accounts.create.email')}</Label>
                 <Input
                   type="email"
                   placeholder="contact@company.com"
@@ -1659,7 +1662,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Account Owner</Label>
+                <Label>{t('accounts.create.owner')}</Label>
                 <Input
                   placeholder="Alex Morgan"
                   value={formData.owner}
@@ -1685,7 +1688,7 @@ const Accounts = () => {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder={t('accounts.create.type')} />
                   </SelectTrigger>
                   <SelectContent>
                     {accountTypes.map((t) => (
@@ -1697,7 +1700,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Status</Label>
+                <Label>{t('accounts.create.status')}</Label>
                 <Select
                   value={
                     formData.accountStatusId
@@ -1709,7 +1712,7 @@ const Accounts = () => {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
+                    <SelectValue placeholder={t('accounts.create.status')} />
                   </SelectTrigger>
                   <SelectContent>
                     {accountStatuses.map((s) => (
@@ -1721,7 +1724,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Tier</Label>
+                <Label>{t('accounts.create.tier')}</Label>
                 <Select
                   value={
                     formData.accountTierId ? String(formData.accountTierId) : ""
@@ -1731,7 +1734,7 @@ const Accounts = () => {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select tier" />
+                    <SelectValue placeholder={t('accounts.create.tier')} />
                   </SelectTrigger>
                   <SelectContent>
                     {accountTiers.map((t) => (
@@ -1743,7 +1746,7 @@ const Accounts = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Annual Revenue</Label>
+                <Label>{t('accounts.create.annualRevenue')}</Label>
                 <Input
                   type="number"
                   placeholder="10000000"
@@ -1754,7 +1757,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Employee Count</Label>
+                <Label>{t('accounts.create.employees')}</Label>
                 <Input
                   type="number"
                   placeholder="500"
@@ -1765,7 +1768,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Parent Account</Label>
+                <Label>{t('accounts.create.parent')}</Label>
                 <Input
                   placeholder="Leave blank if none"
                   value={formData.parentAccount}
@@ -1775,7 +1778,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Tags</Label>
+                <Label>{t('accounts.create.tags')}</Label>
                 <Input
                   placeholder="strategic, cloud"
                   value={formData.tags}
@@ -1787,11 +1790,11 @@ const Accounts = () => {
 
               {/* Address */}
               <div className="col-span-1 md:col-span-2 lg:col-span-3 text-sm font-semibold text-foreground border-b pb-1 mt-2">
-                Address
+                {t('common.address.title')}
               </div>
 
               <div className="space-y-2 col-span-1 md:col-span-2">
-                <Label>Street Address</Label>
+                <Label>{t('common.address.street')}</Label>
                 <Input
                   placeholder="100 Market Street"
                   value={formData.address}
@@ -1801,7 +1804,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>City</Label>
+                <Label>{t('common.address.city')}</Label>
                 <Input
                   placeholder="San Francisco"
                   value={formData.city}
@@ -1811,7 +1814,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>State</Label>
+                <Label>{t('common.address.state')}</Label>
                 <Input
                   placeholder="CA"
                   value={formData.state}
@@ -1821,7 +1824,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Country</Label>
+                <Label>{t('common.address.country')}</Label>
                 <Input
                   placeholder="USA"
                   value={formData.country}
@@ -1831,7 +1834,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>ZIP Code</Label>
+                <Label>{t('common.address.zip')}</Label>
                 <Input
                   placeholder="94105"
                   value={formData.zipCode}
@@ -1841,7 +1844,7 @@ const Accounts = () => {
                 />
               </div>
               <div className="space-y-2 col-span-1 md:col-span-2">
-                <Label>Notes</Label>
+                <Label>{t('accounts.create.notes')}</Label>
                 <Textarea
                   placeholder="Internal notes..."
                   value={formData.notes}
@@ -1861,11 +1864,11 @@ const Accounts = () => {
                   setEditingAccount(null);
                 }}
               >
-                Cancel
+                {t('common.actions.cancel')}
               </Button>
               <Button onClick={handleEdit} disabled={updateMutation.isPending}>
                 <Check className="h-4 w-4 mr-2" />
-                {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateMutation.isPending ? t('common.actions.saving') : t('accounts.create.submitEdit')}
               </Button>
             </DrawerFooter>
           </DrawerContent>
@@ -1874,9 +1877,9 @@ const Accounts = () => {
         <Dialog open={showBulkActions} onOpenChange={setShowBulkActions}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Bulk Actions</DialogTitle>
+              <DialogTitle>{t('common.actions.bulkActions')}</DialogTitle>
               <DialogDescription>
-                Apply actions to {selectedAccounts.length} selected accounts
+                {t('common.actions.bulkDesc', { count: selectedAccounts.length })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -1885,7 +1888,7 @@ const Accounts = () => {
                 className="w-full justify-start"
                 onClick={() => {
                   api.accounts.bulkUpdate(selectedAccounts, { accountTypeId: 1 }).then(() => {
-                    toast.success("Accounts updated");
+                    toast.success(t('accounts.bulkActions.updateSuccess'));
                     setSelectedAccounts([]);
                     setShowBulkActions(false);
                     queryClient.invalidateQueries({ queryKey: ["accounts"] });
@@ -1898,9 +1901,9 @@ const Accounts = () => {
                 variant="outline"
                 className="w-full justify-start text-red-500"
                 onClick={() => {
-                  if (confirm(`Delete ${selectedAccounts.length} accounts?`)) {
+                  if (confirm(t('accounts.bulkActions.confirmDelete', { count: selectedAccounts.length }))) {
                     api.accounts.bulkDelete(selectedAccounts).then(() => {
-                      toast.success("Accounts deleted");
+                      toast.success(t('accounts.bulkActions.deleteSuccess'));
                       setSelectedAccounts([]);
                       setShowBulkActions(false);
                       queryClient.invalidateQueries({ queryKey: ["accounts"] });
@@ -1908,7 +1911,7 @@ const Accounts = () => {
                   }
                 }}
               >
-                <Trash2 className="h-4 w-4 mr-2" /> Delete Selected
+                <Trash2 className="h-4 w-4 mr-2" /> {t('common.actions.deleteSelected')}
               </Button>
             </div>
           </DialogContent>

@@ -33,10 +33,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Breadcrumbs } from "./Breadcrumbs";
 import Cookies from "js-cookie";
+import { useTranslation } from "react-i18next";
 
 type Language = "en" | "fr" | "ar";
 
-const translations = {
+const translationsData = {
   en: { name: "English", native: "English" },
   fr: { name: "French", native: "Français" },
   ar: { name: "Arabic", native: "العربية" },
@@ -47,6 +48,7 @@ import api from "@/lib/api";
 
 export function TopBar({ title }: { title: string }) {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user?.id;
 
@@ -56,7 +58,7 @@ export function TopBar({ title }: { title: string }) {
     refetchInterval: 30000, // Refresh every 30 seconds
   });
   const [language, setLanguage] = useState<Language>(
-    (Cookies.get("language") as Language) || "en"
+    (i18n.language as Language) || "en"
   );
 
   const handleNew = (type: string, path: string) => {
@@ -66,8 +68,20 @@ export function TopBar({ title }: { title: string }) {
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
+    i18n.changeLanguage(lang);
     Cookies.set("language", lang);
-    toast.success(`Language changed to ${translations[lang].native}`);
+    localStorage.setItem("language", lang);
+    toast.success(`${t('common.language')} changed to ${translationsData[lang].native}`);
+    
+    // Handle RTL and Metadata
+    const html = document.documentElement;
+    if (lang === 'ar') {
+      html.dir = 'rtl';
+      html.lang = 'ar';
+    } else {
+      html.dir = 'ltr';
+      html.lang = lang;
+    }
   };
 
   const handleLogout = () => {
@@ -85,16 +99,16 @@ export function TopBar({ title }: { title: string }) {
       </div>
       <div className="flex items-center gap-2">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Search..."
-            className="h-9 w-64 rounded-lg border border-input bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder={t('common.searchPlaceholder')}
+            className="h-9 w-64 rounded-lg border border-input bg-background ps-9 pe-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
         <Button variant="ghost" size="icon" className="relative group" onClick={() => navigate("/settings/notifications")}>
           <Bell className="h-4 w-4 group-hover:text-white transition-colors" />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
+            <span className="absolute -top-0.5 -end-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -102,40 +116,40 @@ export function TopBar({ title }: { title: string }) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="sm">
-              <Plus className="h-4 w-4 mr-1" /> New
+              <Plus className="h-4 w-4 mr-1" /> {t('common.new')}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Create New</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('common.new')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => handleNew("Lead", "/leads?create=true")}>
-              <UserPlus className="h-4 w-4 mr-2" /> Lead
+              <UserPlus className="h-4 w-4 mr-2" /> {t('nav.leads')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleNew("Contact", "/contacts?create=true")}>
-              <Users className="h-4 w-4 mr-2" /> Contact
+              <Users className="h-4 w-4 mr-2" /> {t('nav.contacts')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleNew("Account", "/accounts?create=true")}>
-              <Building2 className="h-4 w-4 mr-2" /> Account
+              <Building2 className="h-4 w-4 mr-2" /> {t('nav.accounts')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleNew("Deal", "/deals?create=true")}>
-              <Handshake className="h-4 w-4 mr-2" /> Deal
+              <Handshake className="h-4 w-4 mr-2" /> {t('nav.deals')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => handleNew("Quote", "/quotes/new")}>
-              <FileText className="h-4 w-4 mr-2" /> Quote
+              <FileText className="h-4 w-4 mr-2" /> {t('nav.quotes')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleNew("Order", "/orders?create=true")}>
-              <ShoppingCart className="h-4 w-4 mr-2" /> Order
+              <ShoppingCart className="h-4 w-4 mr-2" /> {t('nav.orders')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleNew("Invoice", "/invoices?create=true")}>
-              <Receipt className="h-4 w-4 mr-2" /> Invoice
+              <Receipt className="h-4 w-4 mr-2" /> {t('nav.invoices')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleNew("Payment", "/payments?create=true")}>
-              <CreditCard className="h-4 w-4 mr-2" /> Payment
+              <CreditCard className="h-4 w-4 mr-2" /> {t('nav.payments')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => handleNew("Product", "/products/new")}>
-              <Package className="h-4 w-4 mr-2" /> Product
+              <Package className="h-4 w-4 mr-2" /> {t('nav.products')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -154,31 +168,31 @@ export function TopBar({ title }: { title: string }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate("/profile")}>
-              <User className="h-4 w-4 mr-2" /> Profile
+              <User className="h-4 w-4 mr-2" /> {t('common.profile')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate("/settings")}>
-              <Settings className="h-4 w-4 mr-2" /> Settings
+              <Settings className="h-4 w-4 mr-2" /> {t('common.settings')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
-                <Globe className="h-4 w-4 mr-2" /> Language
+                <Globe className="h-4 w-4 mr-2" /> {t('common.language')}
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
                 <DropdownMenuItem onClick={() => handleLanguageChange("en")}>
-                  <span className={language === "en" ? "font-bold" : ""}>English</span>
+                  <span className={language === "en" ? "font-bold" : ""}>{t('common.english')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleLanguageChange("fr")}>
-                  <span className={language === "fr" ? "font-bold" : ""}>Français</span>
+                  <span className={language === "fr" ? "font-bold" : ""}>{t('common.french')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleLanguageChange("ar")}>
-                  <span className={language === "ar" ? "font-bold" : ""}>العربية</span>
+                  <span className={language === "ar" ? "font-bold" : ""}>{t('common.arabic')}</span>
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-red-500">
-              <LogOut className="h-4 w-4 mr-2" /> Logout
+              <LogOut className="h-4 w-4 mr-2" /> {t('common.logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

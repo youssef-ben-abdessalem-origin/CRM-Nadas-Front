@@ -1,0 +1,769 @@
+{
+  "common": {
+    "search": "Search",
+    "searchPlaceholder": "Search...",
+    "new": "New",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "language": "Language",
+    "english": "English",
+    "french": "French",
+    "arabic": "Arabic",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "actions": "Actions",
+    "allStatuses": "All Statuses",
+    "allTiers": "All Tiers",
+    "allScores": "All Scores",
+    "allSources": "All Sources",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "success": "Success",
+    "error": "Error",
+    "errors": {
+      "fillRequired": "Please fill in all required fields"
+    },
+    "unknown": "Unknown",
+    "stats": {
+      "inDatabase": "In database",
+      "engaged": "Engaged items",
+      "paying": "Paying customers",
+      "wonDeals": "Won deals",
+      "openOpps": "Open opportunities"
+    },
+    "actions": {
+      "create_success": "Record created successfully",
+      "update_success": "Record updated successfully",
+      "delete_success": "Record deleted successfully",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "saving": "Saving...",
+      "creating": "Creating...",
+      "bulkActions": "Bulk Actions",
+      "bulkDesc": "Apply actions to {{count}} selected items",
+      "deleteSelected": "Delete Selected"
+    },
+    "address": {
+      "title": "Address",
+      "street": "Street Address",
+      "city": "City",
+      "state": "State / Province",
+      "country": "Country",
+      "zip": "ZIP / Postal Code"
+    },
+    "time": {
+      "justNow": "Just now"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "leads": "Leads",
+    "contacts": "Contacts",
+    "accounts": "Accounts",
+    "deals": "Deals",
+    "campaigns": "Campaigns",
+    "quotes": "Quotes",
+    "orders": "Orders",
+    "invoices": "Invoices",
+    "payments": "Payments",
+    "products": "Products",
+    "vendors": "Vendors",
+    "forecast": "Forecast",
+    "documents": "Documents",
+    "tasks": "Tasks",
+    "activities": "Activities",
+    "team": "Team",
+    "users": "Users",
+    "roles": "Roles",
+    "departments": "Departments",
+    "privileges": "Privileges",
+    "sections": {
+      "sales": "Sales",
+      "salesDocuments": "Sales Documents",
+      "catalog": "Catalog",
+      "communication": "Communication",
+      "productivity": "Productivity",
+      "admin": "Admin"
+    },
+    "labels": {
+      "table": "Table",
+      "settings": "Settings",
+      "companyProfile": "Company Profile",
+      "auditLogs": "Audit Logs",
+      "notifications": "Notifications",
+      "automations": "Automations"
+    }
+  },
+  "dashboard": {
+    "title": "Command Center",
+    "metrics": {
+      "totalRevenue": "Total Revenue",
+      "avgDealSize": "Avg. Deal Size",
+      "conversionRate": "Conversion Rate",
+      "activeDeals": "Active Deals",
+      "totalContacts": "Total Contacts",
+      "activeCampaigns": "Active Campaigns",
+      "leadVelocity": "Lead Velocity"
+    },
+    "charts": {
+      "revenuePerformance": "Revenue Performance",
+      "actual": "Actual",
+      "target": "Target",
+      "leadDistribution": "Lead Distribution",
+      "totalLeads": "Total Leads",
+      "pipelineVelocity": "Pipeline Velocity",
+      "campaignROI": "Campaign Performance (ROI)",
+      "leadsGenerated": "Leads Generated",
+      "roi": "ROI (x)"
+    },
+    "activity": {
+      "stream": "Live Activity Stream",
+      "viewAll": "View All Logs"
+    }
+  },
+  "leads": {
+    "title": "Leads",
+    "stats": {
+      "total": "Total Leads",
+      "today": "New Today",
+      "hot": "Hot Leads",
+      "conversion": "Conversion Rate",
+      "value": "Total Value",
+      "pipelineDesc": "pipeline",
+      "awaitingOutreach": "Awaiting outreach",
+      "highPriority": "High priority",
+      "qualifiedTotal": "Qualified / Total",
+      "activeOpps": "Active opportunities"
+    },
+    "toolbar": {
+      "search": "Search leads...",
+      "score": "Score",
+      "source": "Source",
+      "viewKanban": "Kanban View",
+      "viewList": "List View",
+      "filter": "Filter",
+      "export": "Export",
+      "bulk": "Bulk",
+      "add": "Add Lead"
+    },
+    "table": {
+      "lead": "Lead",
+      "company": "Company",
+      "stage": "Stage",
+      "score": "Score",
+      "value": "Value",
+      "owner": "Owner",
+      "source": "Source",
+      "actions": "Actions"
+    },
+    "kanban": {
+      "empty": "No leads in this stage"
+    },
+    "actions": {
+      "edit": "Edit",
+      "sendEmail": "Send Email",
+      "createTask": "Create Task",
+      "createMeeting": "Create Meeting",
+      "createCall": "Create Call",
+      "scheduleCall": "Schedule Call",
+      "logCall": "Log Call",
+      "addTags": "Add Tags",
+      "convert": "Convert",
+      "delete": "Delete",
+      "copyUrl": "Copy URL",
+      "more": "More",
+      "markLost": "Mark as Lost"
+    },
+    "statusUpdates": {
+      "selectLossReason": "Please select a loss reason",
+      "markedLost": "{{name}} marked as lost",
+      "assignedTo": "Lead assigned to {{name}}",
+      "teamMember": "team member"
+    }
+  },
+  "contacts": {
+    "title": "Contacts",
+    "stats": {
+      "total": "Total Contacts",
+      "active": "Active",
+      "revenue": "Total Revenue",
+      "avgDealSize": "Avg Deal Size",
+      "churnRate": "Churn Rate",
+      "perClosedDeal": "Per closed deal",
+      "churnDesc": "Lost contacts"
+    },
+    "toolbar": {
+      "search": "Search contacts...",
+      "status": "Status",
+      "tier": "Tier",
+      "filter": "Filter",
+      "export": "Export",
+      "bulk": "Bulk",
+      "bulkUpdate": "Update Status",
+      "add": "Add Contact"
+    },
+    "table": {
+      "contact": "Contact",
+      "company": "Company",
+      "tier": "Tier",
+      "status": "Status",
+      "dealValue": "Deal Value",
+      "wonTotal": "Won / Total",
+      "lastContact": "Last Contact",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No contacts found",
+      "desc": "Get started by adding your first contact"
+    },
+    "forms": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "company": "Company",
+      "title": "Title",
+      "status": "Status",
+      "tier": "Tier",
+      "dealValue": "Deal Value",
+      "location": "Location",
+      "industry": "Industry",
+      "website": "Website",
+      "notes": "Notes",
+      "placeholder": {
+        "name": "John Doe",
+        "email": "john@company.com",
+        "phone": "+1 (555) 000-0000",
+        "company": "Acme Corp",
+        "title": "VP of Engineering",
+        "status": "Select status",
+        "tier": "Select tier",
+        "dealValue": "50000",
+        "location": "San Francisco, CA",
+        "industry": "Technology",
+        "website": "company.com",
+        "notes": "Additional context..."
+      }
+    },
+    "actions": {
+      "markAs": "Mark as {{status}}"
+    },
+    "bulkActions": {
+      "updateSuccess": "Contacts updated successfully",
+      "deleteSuccess": "Contacts deleted successfully",
+      "confirmDelete": "Are you sure you want to delete {{count}} contacts?"
+    },
+    "detail": {
+      "updateContact": "Update contact information."
+    }
+  },
+  "deals": {
+    "title": "Deals Pipeline",
+    "stats": {
+      "totalPipeline": "Total pipeline",
+      "won": "Won",
+      "lost": "Lost"
+    },
+    "toolbar": {
+      "search": "Search deals...",
+      "viewList": "Switch to list view",
+      "viewKanban": "Switch to kanban view",
+      "add": "Add Deal"
+    },
+    "kanban": {
+      "dropHere": "Drop Here"
+    },
+    "table": {
+      "name": "Deal Name",
+      "company": "Company",
+      "value": "Value",
+      "stage": "Stage",
+      "expectedClose": "Expected Close",
+      "probability": "Probability"
+    },
+    "forms": {
+      "title": "Create New Deal",
+      "desc": "Add a new deal to your pipeline.",
+      "name": "Deal Name",
+      "value": "Value",
+      "stage": "Stage",
+      "account": "Account",
+      "contact": "Contact",
+      "expectedCloseDate": "Expected Close Date",
+      "notes": "Notes",
+      "placeholder": {
+        "name": "Enter deal name",
+        "value": "Enter deal value",
+        "stage": "Select stage",
+        "account": "Select account",
+        "contact": "Select contact",
+        "notes": "Add notes...",
+        "none": "None"
+      },
+      "creating": "Creating...",
+      "errors": {
+        "nameRequired": "Deal name is required"
+      }
+    },
+    "reasons": {
+      "title": "Select Reason"
+    },
+    "loading": "Loading deals..."
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "desc": "Manage and track your marketing efforts",
+    "toolbar": {
+      "table": "Table",
+      "kanban": "Kanban",
+      "add": "Add Campaign",
+      "search": "Search campaigns...",
+      "status": "Status",
+      "allStatuses": "All Statuses",
+      "deleteSelected": "Delete"
+    },
+    "table": {
+      "name": "Campaign Name",
+      "type": "Type",
+      "status": "Status",
+      "budget": "Budget",
+      "actions": "Actions"
+    },
+    "empty": "No campaigns found",
+    "forms": {
+      "new": "New Campaign",
+      "name": "Campaign Name",
+      "type": "Type",
+      "status": "Status",
+      "budget": "Budget",
+      "placeholder": {
+        "name": "Summer Sale 2026",
+        "type": "Select type",
+        "status": "Select status",
+        "budget": "5000"
+      },
+      "creating": "Creating...",
+      "create": "Create Campaign"
+    },
+    "kanban": {
+      "noDate": "No date"
+    },
+    "actions": {
+      "title": "Actions",
+      "duplicate": "Duplicate",
+      "delete": "Delete"
+    },
+    "loading": "Loading campaigns...",
+    "statusUpdates": {
+      "created": "Campaign created successfully",
+      "updated": "Campaign updated",
+      "deleted": "Campaign deleted",
+      "batchComplete": "Batch operations complete"
+    }
+  },
+  "products": {
+    "title": "Products",
+    "stats": {
+      "totalAssets": "Total Assets",
+      "activeCatalog": "Active catalog",
+      "inventory": "Inventory",
+      "unitsInStock": "Units in stock",
+      "operational": "Operational",
+      "activeProducts": "Active products",
+      "avgRate": "Avg. Rate",
+      "marketAverage": "Market average",
+      "categories": "Categories",
+      "realms": "Product realms"
+    },
+    "toolbar": {
+      "search": "Search products...",
+      "categories": "Categories",
+      "allCategories": "All Categories",
+      "filter": "Filter",
+      "export": "Export",
+      "deploy": "Deploy Asset"
+    },
+    "table": {
+      "identity": "Asset Identity",
+      "domain": "Domain",
+      "stock": "Stock",
+      "unitPrice": "Unit Price",
+      "status": "Ops Status",
+      "actions": "Actions",
+      "baseRate": "Base Rate",
+      "noSku": "NO_SKU",
+      "general": "General",
+      "operational": "Operational",
+      "offline": "Offline"
+    },
+    "empty": "No products found for this view.",
+    "pagination": {
+      "showing": "Showing {{count}} assets",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "pricingDialog": {
+      "title": "Update Matrix Point",
+      "label": "New Price Value",
+      "apply": "Apply Change",
+      "cancel": "Cancel"
+    },
+    "variantDialog": {
+      "title": "Forge New Variant",
+      "nameLabel": "Variant Alias",
+      "namePlaceholder": "e.g. 50 User Bundle",
+      "skuLabel": "Specific SKU Code",
+      "skuPlaceholder": "SRV-ENT-50",
+      "create": "Create Variant Logic"
+    },
+    "loading": "Loading products...",
+    "statusUpdates": {
+      "updated": "Product updated successfully",
+      "deleted": "Product deleted successfully",
+      "archived": "Product archived successfully",
+      "duplicated": "Product duplicated successfully",
+      "variantCreated": "Variant created successfully",
+      "pricingUpdated": "Pricing matrix updated",
+      "primaryRateUpdated": "Primary rate updated"
+    },
+    "actions": {
+      "deleteTitle": "Delete Product",
+      "deleteDesc": "Are you sure you want to delete \"{{name}}\"? This action will permanently remove the product and all its variants from the catalog."
+    }
+  },
+  "activities": {
+    "title": "Activities",
+    "desc": "Manage your tasks, calls, and meetings.",
+    "toolbar": {
+      "add": "New Activity",
+      "search": "Search activities..."
+    },
+    "table": {
+      "subject": "Subject",
+      "type": "Type",
+      "dueDate": "Due Date",
+      "assignedTo": "Assigned To",
+      "relatedTo": "Related To",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "done": "Done",
+      "inProgress": "In Progress",
+      "todo": "To Do",
+      "cancelled": "Cancelled",
+      "overdue": "Overdue"
+    },
+    "unassigned": "Unassigned",
+    "empty": "No activities found.",
+    "loading": "Loading activities...",
+    "forms": {
+      "edit": "Edit Activity",
+      "new": "Create New Activity",
+      "subject": "Subject",
+      "type": "Type",
+      "dueDate": "Due Date",
+      "relatedTo": "Related To",
+      "searchEntity": "Search {{entity}}",
+      "assignedTo": "Assigned To",
+      "description": "Description",
+      "placeholder": {
+        "subject": "Call with Client",
+        "type": "Select type",
+        "entityType": "Entity Type",
+        "selectEntity": "Select {{entity}}...",
+        "user": "Select user",
+        "description": "Additional details..."
+      },
+      "submit": {
+        "update": "Update",
+        "create": "Create"
+      },
+      "activitySuffix": "Activity"
+    },
+    "actions": {
+      "completed": "Activity completed successfully"
+    },
+    "statusUpdates": {
+      "created": "Activity created successfully",
+      "updated": "Activity updated successfully",
+      "deleted": "Activity deleted successfully",
+      "markedComplete": "Activity marked as complete",
+      "createFailed": "Failed to create activity",
+      "updateFailed": "Failed to update activity",
+      "deleteFailed": "Failed to delete activity",
+      "completeFailed": "Failed to complete activity"
+    }
+  },
+  "documents": {
+    "title": "Documents",
+    "welcome": {
+      "title": "Welcome to <0>WorkDrive</0>",
+      "desc": "A high-performance workspace designed for modern teams. Secure, unified, and built for enterprise-scale collaboration.",
+      "features": {
+        "collab": {
+          "title": "Intelligent Collaboration",
+          "desc": "Build shared ecosystems with granular RBAC and real-time synchronization."
+        },
+        "hubs": {
+          "title": "Unified Team Hubs",
+          "desc": "Centralize departmental assets in secure, sovereign team containers."
+        },
+        "integration": {
+          "title": "Seamless Integration",
+          "desc": "Native high-speed connectivity for CRM and enterprise toolchains."
+        }
+      },
+      "getStarted": "Get Started"
+    },
+    "sidebar": {
+      "myFolders": "My Folders",
+      "teamHubs": "Team Hubs",
+      "openWorkdrive": "Open WorkDrive"
+    },
+    "header": {
+      "allFolders": "All Folders",
+      "memberCount": "{{count}} Member",
+      "memberCount_plural": "{{count}} Members",
+      "manage": "Manage",
+      "record": "Record",
+      "newAction": "New Action"
+    },
+    "empty": {
+      "title": "Ecosystem is Empty",
+      "desc": "Initiate your workspace by deploying new assets or migrating existing documentation into this hub.",
+      "dragDrop": "Drag & Drop Enabled"
+    },
+    "actions": {
+      "create": "Create",
+      "upload": "Upload"
+    },
+    "rightBar": {
+      "details": "Details",
+      "zia": "Zia"
+    },
+    "setup": {
+      "title": "Set up WorkDrive",
+      "desc": "All your service files are powered by WorkDrive. Set up your account to create, store, share, and manage files and folders in service.",
+      "benefitsTitle": "When you convert to a team account:",
+      "benefit1": "The WorkDrive Essentials plan will be bundled with your service account for free.",
+      "benefit2": "All users in service will be added to your WorkDrive team account automatically.",
+      "benefit3": "You will be the Super Admin of your WorkDrive team account.",
+      "teamNameLabel": "Team Name",
+      "teamNameSub": "Give your team a name (You can change this later)",
+      "teamNamePlaceholder": "E.g. Engineering Team",
+      "submit_pending": "Configuring Hub...",
+      "submit": "Convert and Hub Sync"
+    },
+    "createFolder": {
+      "title": "Create Team Folder",
+      "desc": "Team Folder can be accessed by member of their respective Teams/Departments.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Enter Team Folder Name",
+      "selectUsers": "Select users...",
+      "submit_pending": "Creating...",
+      "submit": "Create Folder"
+    },
+    "userSelector": {
+      "title": "Select Custom Share",
+      "available": "Available",
+      "selected": "Selected",
+      "search": "Search users...",
+      "noneSelected": "No one selected",
+      "addSelected": "Add Selected"
+    }
+  },
+  "tasks": {
+    "title": "Task Management",
+    "stats": {
+      "active": "Active",
+      "priority": "Priority",
+      "critical": "Critical",
+      "impact": "Impact"
+    },
+    "kanban": {
+      "title": "Task Pipeline",
+      "desc": "Managing {{count}} strategic objectives",
+      "searchPlaceholder": "Find anything...",
+      "viewKanban": "Kanban",
+      "viewTable": "Table",
+      "itemsCount": "{{count}} Items",
+      "itemsCount_plural": "{{count}} Items",
+      "overdue": "Overdue",
+      "untitled": "Untitled Task",
+      "unassigned": "Unassigned",
+      "view_todo": "Objectif : À faire",
+      "view_in_progress": "Objectif : En cours",
+      "view_done": "Objectif : Terminé",
+      "view_cancelled": "Objectif : Annulé"
+    },
+    "table": {
+      "subject": "Subject",
+      "status": "Status",
+      "priority": "Priority",
+      "assignee": "Assignee",
+      "dueDate": "Due Date",
+      "relation": "Relation",
+      "noRecord": "None",
+      "noTasks": "No strategic objectives found in current filter"
+    },
+    "create": {
+      "title": "New Objective Initiative",
+      "desc": "Define mission parameters and allocate resources.",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "e.g., Follow-up on project proposal",
+      "statusLabel": "Status",
+      "statusPlaceholder": "Select status...",
+      "priorityLabel": "Priority",
+      "dueDateLabel": "Due Date",
+      "assigneeLabel": "Assignee",
+      "assigneePlaceholder": "Select user",
+      "relateToLabel": "Relate To",
+      "relateToPlaceholder": "Select type",
+      "searchRecordLabel": "Search Record",
+      "searchRecordPlaceholder": "Find {{entity}}...",
+      "descLabel": "Description",
+      "descPlaceholder": "Enter task details and notes...",
+      "protocolLabel": "Protocol v2.4 · Awaiting command",
+      "submit_pending": "Syncing...",
+      "submit": "Initialize Protocol",
+      "success": "Strategic Protocol Initialized"
+    },
+    "detail": {
+      "title": "Task Intelligence",
+      "protocolRef": "Protocol REF:",
+      "missionType": "{{priority}} Mission",
+      "noDeadline": "No deadline",
+      "selectOfficer": "Select officer..."
+    }
+  },
+  "invoices": {
+    "title": "Invoice Intelligence",
+    "header": {
+      "title": "Invoices",
+      "subtitle": "Manage commercial fulfillment and revenue cycles",
+      "exportCsv": "Export CSV",
+      "newInvoice": "New Invoice"
+    },
+    "stats": {
+      "totalRevenue": "Total Revenue",
+      "accountsReceivable": "Accounts Receivable",
+      "settledLogic": "Settled Logic",
+      "dossierCount": "Dossier Count"
+    },
+    "status": {
+      "paid": "Paid",
+      "sent": "Sent",
+      "overdue": "Overdue",
+      "draft": "Draft"
+    },
+    "table": {
+      "searchPlaceholder": "Search invoice number or contact...",
+      "filterTime": "All Time",
+      "filterStatus": "Status: All",
+      "colId": "Dossier ID",
+      "colContact": "Client Contact",
+      "colStatus": "Status",
+      "colDate": "Issue Date",
+      "colValue": "Aggregate Val",
+      "viewDossier": "View Dossier",
+      "exportPdf": "Export PDF",
+      "markPaid": "Mark as Paid",
+      "loading": "Decrypting Commercial Ledger...",
+      "noInvoices": "Zero recorded commercial outcomes in filtered range."
+    },
+    "create": {
+      "title": "Generate New Invoice",
+      "engineTitle": "Invoice Engine Initializing",
+      "engineDesc": "The advanced billing module is being deployed. This feature will allow you to generate professional invoices from quotes or manual entries shortly.",
+      "deployEngine": "Deploy Engine"
+    }
+  },
+  "accounts": {
+    "title": "Accounts",
+    "stats": {
+      "total": "Total Accounts",
+      "active": "Active Status",
+      "customers": "Paying Customers",
+      "revenue": "Total Revenue",
+      "pipeline": "Pipeline Value"
+    },
+    "toolbar": {
+      "search": "Search accounts, industries...",
+      "type": "Account Type",
+      "industry": "Industry",
+      "status": "Status",
+      "tier": "Account Tier",
+      "filter": "More Filters",
+      "export": "Export",
+      "bulk": "Bulk Action",
+      "add": "Add Account"
+    },
+    "table": {
+      "account": "Account",
+      "type": "Type",
+      "tier": "Tier",
+      "status": "Status",
+      "industry": "Industry",
+      "revenue": "Revenue",
+      "contacts": "Contacts",
+      "deals": "Deals",
+      "owner": "Account Owner",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No accounts found",
+      "desc": "Try adjusting your search or filters to find what you're looking for."
+    },
+    "create": {
+      "title": "New Account",
+      "editTitle": "Edit Account",
+      "desc": "Fill in the details to create a new organization.",
+      "basicInfo": "Basic Information",
+      "name": "Account Name",
+      "website": "Website",
+      "industry": "Industry",
+      "type": "Account Type",
+      "status": "Account Status",
+      "tier": "Account Tier",
+      "financials": "Financials & Size",
+      "annualRevenue": "Annual Revenue",
+      "employees": "Employee Count",
+      "contactInfo": "Contact Information",
+      "phone": "Phone",
+      "email": "Email",
+      "location": "Location",
+      "meta": "Metadata & Labels",
+      "owner": "Owner",
+      "parent": "Parent Account",
+      "tags": "Tags (comma separated)",
+      "description": "Description",
+      "notes": "Internal Notes"
+    },
+    "actions": {
+      "statusUpdated": "Status updated to {{status}}"
+    },
+    "detail": {
+      "title": "Account Insights",
+      "overview": "Overview",
+      "activities": "Activities",
+      "deals": "Deals",
+      "contacts": "Contacts",
+      "documents": "Documents",
+      "location": "Global Presence",
+      "financials": "Commercial Metrics",
+      "metadata": "System Context",
+      "created": "System Created",
+      "lastActivity": "Last Pulse"
+    },
+    "bulkActions": {
+      "updateSuccess": "Accounts updated successfully",
+      "deleteSuccess": "Accounts deleted successfully",
+      "confirmDelete": "Are you sure you want to delete {{count}} accounts?"
+    }
+  }
+}

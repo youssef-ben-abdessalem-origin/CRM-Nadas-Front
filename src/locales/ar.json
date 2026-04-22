@@ -1,0 +1,753 @@
+{
+  "common": {
+    "search": "بحث",
+    "searchPlaceholder": "بحث...",
+    "new": "جديد",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "language": "اللغة",
+    "english": "الإنجليزية",
+    "french": "الفرنسية",
+    "arabic": "العربية",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "actions": "إجراءات",
+    "allStatuses": "جميع الحالات",
+    "allTiers": "جميع الفئات",
+    "loading": "جاري التحميل...",
+    "noResults": "لم يتم العثور على نتائج",
+    "success": "نجاح",
+    "error": "خطأ",
+    "errors": {
+      "fillRequired": "يرجى ملء جميع الحقول المطلوبة"
+    },
+    "unknown": "غير معروف",
+    "stats": {
+      "inDatabase": "في قاعدة البيانات",
+      "engaged": "عناصر متفاعلة",
+      "paying": "عملاء دافعون",
+      "wonDeals": "صفقات رابحة",
+      "openOpps": "فرص مفتوحة"
+    },
+    "actions": {
+      "create_success": "تم إنشاء السجل بنجاح",
+      "update_success": "تم تحديث السجل بنجاح",
+      "delete_success": "تم حذف السجل بنجاح",
+      "cancel": "إلغاء",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "save": "حفظ",
+      "saving": "جاري الحفظ...",
+      "creating": "جاري الإنشاء...",
+      "bulkActions": "إجراءات جماعية",
+      "bulkDesc": "تطبيق الإجراءات على {{count}} عناصر مختارة",
+      "deleteSelected": "حذف المختارة"
+    },
+    "address": {
+      "title": "العنوان",
+      "street": "العنوان",
+      "city": "المدينة",
+      "state": "الولاية / المقاطعة",
+      "country": "البلد",
+      "zip": "الرمز البريدي"
+    },
+    "time": {
+      "justNow": "الآن"
+    }
+  },
+  "nav": {
+    "dashboard": "لوحة القيادة",
+    "leads": "العملاء المحتملون",
+    "contacts": "جهات الاتصال",
+    "accounts": "الحسابات",
+    "deals": "الصفقات",
+    "campaigns": "الحملات",
+    "quotes": "العروض",
+    "orders": "الطلبات",
+    "invoices": "الفواتير",
+    "payments": "المدفوعات",
+    "products": "المنتجات",
+    "vendors": "الموردين",
+    "forecast": "التوقعات",
+    "documents": "المستندات",
+    "tasks": "المهام",
+    "activities": "الأنشطة",
+    "team": "الفريق",
+    "users": "المستخدمين",
+    "roles": "الأدوار",
+    "departments": "الأقسام",
+    "privileges": "الصلاحيات",
+    "sections": {
+      "sales": "المبيعات",
+      "salesDocuments": "مستندات البيع",
+      "catalog": "الكاتالوج",
+      "communication": "الاتصالات",
+      "productivity": "الإنتاجية",
+      "admin": "الإدارة"
+    },
+    "labels": {
+      "table": "الجدول",
+      "settings": "الإعدادات",
+      "companyProfile": "ملف الشركة",
+      "auditLogs": "سجلات التدقيق",
+      "notifications": "التنبيهات",
+      "automations": "الأتمتة"
+    }
+  },
+  "dashboard": {
+    "title": "مركز القيادة",
+    "metrics": {
+      "totalRevenue": "إجمالي الإيرادات",
+      "avgDealSize": "متوسط حجم الصفقة",
+      "conversionRate": "معدل التحويل",
+      "activeDeals": "الصفقات النشطة",
+      "totalContacts": "إجمالي جهات الاتصال",
+      "activeCampaigns": "الحملات النشطة",
+      "leadVelocity": "سرعة العملاء المحتملين"
+    },
+    "charts": {
+      "revenuePerformance": "أداء الإيرادات",
+      "actual": "الفعلي",
+      "target": "المستهدف",
+      "leadDistribution": "توزيع العملاء المحتملين",
+      "totalLeads": "إجمالي العملاء المحتملين",
+      "pipelineVelocity": "سرعة خط الأنابيب",
+      "campaignROI": "أداء الحملة (ROI)",
+      "leadsGenerated": "العملاء المحتملون المتولدون",
+      "roi": "العائد على الاستثمار (x)"
+    },
+    "activity": {
+      "stream": "بث النشاط المباشر",
+      "viewAll": "عرض جميع السجلات"
+    }
+  },
+  "leads": {
+    "title": "العملاء المحتملون",
+    "stats": {
+      "total": "إجمالي العملاء المحتملين",
+      "today": "جديد اليوم",
+      "hot": "عملاء مهتمون جداً",
+      "conversion": "معدل التحويل",
+      "value": "القيمة الإجمالية",
+      "pipelineDesc": "خط الأنابيب",
+      "awaitingOutreach": "في انتظار التواصل",
+      "highPriority": "أولوية عالية",
+      "qualifiedTotal": "المؤهلين / الإجمالي",
+      "activeOpps": "فرص نشطة"
+    },
+    "toolbar": {
+      "search": "البحث في العملاء المحتملين...",
+      "score": "الدرجة",
+      "source": "المصدر",
+      "viewKanban": "عرض كانبان",
+      "viewList": "عرض القائمة",
+      "filter": "تصفية",
+      "export": "تصدير",
+      "bulk": "إجراءات جماعية",
+      "add": "إضافة عميل محتمل"
+    },
+    "table": {
+      "lead": "العميل المحتمل",
+      "company": "الشركة",
+      "stage": "المرحلة",
+      "score": "الدرجة",
+      "value": "القيمة",
+      "owner": "المالك",
+      "source": "المصدر",
+      "actions": "الإجراءات"
+    },
+    "kanban": {
+      "empty": "لا يوجد عملاء في هذه المرحلة"
+    },
+    "actions": {
+      "edit": "تعديل",
+      "sendEmail": "إرسال بريد إلكتروني",
+      "createTask": "إنشاء مهمة",
+      "createMeeting": "إنشاء اجتماع",
+      "createCall": "إنشاء مكالمة",
+      "scheduleCall": "جدولة مكالمة",
+      "logCall": "تسجيل مكالمة",
+      "addTags": "إضافة وسوم",
+      "convert": "تحويل",
+      "delete": "حذف",
+      "copyUrl": "نسخ الرابط",
+      "more": "المزيد",
+      "markLost": "تحديد كمفقود"
+    },
+    "statusUpdates": {
+      "selectLossReason": "يرجى اختيار سبب الخسارة",
+      "markedLost": "تم تحديد {{name}} كمفقود",
+      "assignedTo": "تم تعيين العميل لـ {{name}}",
+      "teamMember": "عضو الفريق"
+    }
+  },
+  "contacts": {
+    "title": "جهات الاتصال",
+    "stats": {
+      "total": "إجمالي جهات الاتصال",
+      "active": "نشط",
+      "revenue": "إجمالي الإيرادات",
+      "avgDealSize": "متوسط حجم الصفقة",
+      "churnRate": "معدل الانصراف",
+      "perClosedDeal": "لكل صفقة مغلقة",
+      "churnDesc": "جهات اتصال مفقودة"
+    },
+    "toolbar": {
+      "search": "البحث في جهات الاتصال...",
+      "status": "الحالة",
+      "tier": "الفئة",
+      "filter": "تصفية",
+      "export": "تصدير",
+      "bulk": "إجراءات جماعية",
+      "bulkUpdate": "تحديث الحالة",
+      "add": "إضافة جهة اتصال"
+    },
+    "table": {
+      "contact": "جهة الاتصال",
+      "company": "الشركة",
+      "tier": "الفئة",
+      "status": "الحالة",
+      "dealValue": "قيمة الصفقة",
+      "wonTotal": "المكتسبة / الإجمالي",
+      "lastContact": "آخر اتصال",
+      "actions": "الإجراءات"
+    },
+    "empty": {
+      "title": "لم يتم العثور على جهات اتصال",
+      "desc": "ابدأ بإضافة أول جهة اتصال لديك"
+    },
+    "forms": {
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "company": "الشركة",
+      "title": "المسمى الوظيفي",
+      "status": "الحالة",
+      "tier": "الفئة",
+      "dealValue": "قيمة الصفقة",
+      "location": "الموقع",
+      "industry": "الصناعة",
+      "website": "الموقع الإلكتروني",
+      "notes": "ملاحظات",
+      "placeholder": {
+        "name": "فلان الفلاني",
+        "email": "name@company.com",
+        "phone": "+966 50 000 0000",
+        "company": "شركة النجم",
+        "title": "مدير الهندسة",
+        "status": "اختر الحالة",
+        "tier": "اختر الفئة",
+        "dealValue": "50000",
+        "location": "الرياض، السعودية",
+        "industry": "التكنولوجيا",
+        "website": "company.com",
+        "notes": "سياق إضافي..."
+      }
+    },
+    "actions": {
+      "markAs": "تحديد كـ {{status}}"
+    },
+    "bulkActions": {
+      "updateSuccess": "تم تحديث جهات الاتصال بنجاح",
+      "deleteSuccess": "تم حذف جهات الاتصال بنجاح",
+      "confirmDelete": "هل أنت متأكد أنك تريد حذف {{count}} جهات اتصال؟"
+    },
+    "detail": {
+      "updateContact": "تحديث معلومات جهة الاتصال."
+    }
+  },
+  "deals": {
+    "title": "مسار الصفقات",
+    "stats": {
+      "totalPipeline": "إجمالي المسار",
+      "won": "مكتسبة",
+      "lost": "مفقودة"
+    },
+    "toolbar": {
+      "search": "البحث في الصفقات...",
+      "viewList": "تبديل إلى عرض القائمة",
+      "viewKanban": "تبديل إلى عرض كانبان",
+      "add": "إضافة صفقة"
+    },
+    "kanban": {
+      "dropHere": "أفلت هنا"
+    },
+    "table": {
+      "name": "اسم الصفقة",
+      "company": "الشركة",
+      "value": "القيمة",
+      "stage": "المرحلة",
+      "expectedClose": "الإغلاق المتوقع",
+      "probability": "الاحتمالية"
+    },
+    "forms": {
+      "title": "إنشاء صفقة جديدة",
+      "desc": "إضافة صفقة جديدة إلى مسارك.",
+      "name": "اسم الصفقة",
+      "value": "القيمة",
+      "stage": "المرحلة",
+      "account": "الحساب",
+      "contact": "جهة الاتصال",
+      "expectedCloseDate": "تاريخ الإغلاق المتوقع",
+      "notes": "ملاحظات",
+      "placeholder": {
+        "name": "أدخل اسم الصفقة",
+        "value": "أدخل قيمة الصفقة",
+        "stage": "اختر المرحلة",
+        "account": "اختر الحساب",
+        "contact": "اختر جهة الاتصال",
+        "notes": "إضافة ملاحظات...",
+        "none": "لا يوجد"
+      },
+      "creating": "جاري الإنشاء...",
+      "errors": {
+        "nameRequired": "اسم الصفقة مطلوب"
+      }
+    },
+    "reasons": {
+      "title": "اختر السبب"
+    },
+    "loading": "جاري تحميل الصفقات..."
+  },
+  "campaigns": {
+    "title": "الحملات",
+    "desc": "إدارة وتتبع جهود التسويق الخاصة بك",
+    "toolbar": {
+      "table": "الجدول",
+      "kanban": "كانبان",
+      "add": "إضافة حملة",
+      "search": "البحث في الحملات...",
+      "status": "الحالة",
+      "allStatuses": "جميع الحالات",
+      "deleteSelected": "حذف"
+    },
+    "table": {
+      "name": "اسم الحملة",
+      "type": "النوع",
+      "status": "الحالة",
+      "budget": "الميزانية",
+      "actions": "الإجراءات"
+    },
+    "empty": "لم يتم العثور على حملات",
+    "forms": {
+      "new": "حملة جديدة",
+      "name": "اسم الحملة",
+      "type": "النوع",
+      "status": "الحالة",
+      "budget": "الميزانية",
+      "placeholder": {
+        "name": "تخفيضات الصيف 2026",
+        "type": "اختر النوع",
+        "status": "اختر الحالة",
+        "budget": "5000"
+      },
+      "creating": "جاري الإنشاء...",
+      "create": "إنشاء حملة"
+    },
+    "kanban": {
+      "noDate": "لا يوجد تاريخ"
+    },
+    "actions": {
+      "title": "الإجراءات",
+      "duplicate": "تكرار",
+      "delete": "حذف"
+    },
+    "loading": "جاري تحميل الحملات...",
+    "statusUpdates": {
+      "created": "تم إنشاء الحملة بنجاح",
+      "updated": "تم تحديث الحملة",
+      "deleted": "تم حذف الحملة",
+      "batchComplete": "اكتملت العمليات الجماعية"
+    }
+  },
+  "products": {
+    "title": "المنتجات",
+    "stats": {
+      "totalAssets": "إجمالي الأصول",
+      "activeCatalog": "الكتالوج النشط",
+      "inventory": "المخزون",
+      "unitsInStock": "الوحدات في المخزن",
+      "operational": "تشغيلي",
+      "activeProducts": "المنتجات النشطة",
+      "avgRate": "متوسط السعر",
+      "marketAverage": "متوسط السوق",
+      "categories": "الفئات",
+      "realms": "مجالات المنتجات"
+    },
+    "toolbar": {
+      "search": "البحث في المنتجات...",
+      "categories": "الفئات",
+      "allCategories": "جميع الفئات",
+      "filter": "تصفية",
+      "export": "تصدير",
+      "deploy": "نشر الأصل"
+    },
+    "table": {
+      "identity": "هوية الأصل",
+      "domain": "المجال",
+      "stock": "المخزون",
+      "unitPrice": "سعر الوحدة",
+      "status": "حالة العمليات",
+      "actions": "الإجراءات",
+      "baseRate": "السعر الأساسي",
+      "noSku": "لا يوجد رمز SKU",
+      "general": "عام",
+      "operational": "تشغيلي",
+      "offline": "غير متصل"
+    },
+    "empty": "لم يتم العثور على منتجات لهذا العرض.",
+    "pagination": {
+      "showing": "عرض {{count}} من الأصول",
+      "previous": "السابق",
+      "next": "التالي"
+    },
+    "pricingDialog": {
+      "title": "تحديث نقطة المصفوفة",
+      "label": "قيمة السعر الجديدة",
+      "apply": "تطبيق التغيير",
+      "cancel": "إلغاء"
+    },
+    "variantDialog": {
+      "title": "بناء متغير جديد",
+      "nameLabel": "اسم المتغير",
+      "namePlaceholder": "مثال: حزمة 50 مستخدم",
+      "skuLabel": "رمز SKU محدد",
+      "skuPlaceholder": "SRV-ENT-50",
+      "create": "إنشاء منطق المتغير"
+    },
+    "loading": "جاري تحميل المنتجات...",
+    "statusUpdates": {
+      "updated": "تم تحديث المنتج بنجاح",
+      "deleted": "تم حذف المنتج بنجاح",
+      "archived": "تم أرشفة المنتج بنجاح",
+      "duplicated": "تم تكرار المنتج بنجاح",
+      "variantCreated": "تم إنشاء البديل بنجاح",
+      "pricingUpdated": "تم تحديث مصفوفة التسعير",
+      "primaryRateUpdated": "تم تحديث المعدل الأساسي"
+    },
+    "actions": {
+      "deleteTitle": "حذف المنتج",
+      "deleteDesc": "هل أنت متأكد أنك تريد حذف \"{{name}}\"؟ هذا الإجراء سيؤدي لحذف المنتج وجميع بدائله نهائياً من الكتالوج."
+    }
+  },
+  "activities": {
+    "title": "الأنشطة",
+    "desc": "إدارة المهام والمكالمات والاجتماعات الخاصة بك.",
+    "toolbar": {
+      "add": "نشاط جديد",
+      "search": "البحث في الأنشطة..."
+    },
+    "table": {
+      "subject": "الموضوع",
+      "type": "النوع",
+      "dueDate": "تاريخ الاستحقاق",
+      "assignedTo": "تم التعيين إلى",
+      "relatedTo": "مرتبط بـ",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "done": "تم",
+      "inProgress": "في التنفيذ",
+      "todo": "للقيام به",
+      "cancelled": "ملغى",
+      "overdue": "متأخر"
+    },
+    "unassigned": "غير معين",
+    "empty": "لم يتم العثور على أنشطة.",
+    "loading": "جاري تحميل الأنشطة...",
+    "forms": {
+      "edit": "تعديل النشاط",
+      "new": "إنشاء نشاط جديد",
+      "subject": "الموضوع",
+      "type": "النوع",
+      "dueDate": "تاريخ الاستحقاق",
+      "relatedTo": "مرتبط بـ",
+      "searchEntity": "بحث في {{entity}}",
+      "assignedTo": "تم التعيين إلى",
+      "description": "الوصف",
+      "placeholder": {
+        "subject": "مكالمة مع العميل",
+        "type": "اختر النوع",
+        "entityType": "نوع الكيان",
+        "selectEntity": "اختر {{entity}}...",
+        "user": "اختر المستخدم",
+        "description": "تفاصيل إضافية..."
+      },
+      "submit": {
+        "update": "تحديث",
+        "create": "إنشاء"
+      },
+      "activitySuffix": "النشاط"
+    },
+    "actions": {
+      "completed": "تم إكمال النشاط بنجاح"
+    }
+  },
+  "documents": {
+    "title": "المستندات",
+    "welcome": {
+      "title": "مرحباً بك في <0>WorkDrive</0>",
+      "desc": "مساحة عمل عالية الأداء مصممة للفرق الحديثة. آمنة وموحدة ومصممة للتعاون على مستوى المؤسسات.",
+      "features": {
+        "collab": {
+          "title": "التعاون الذكي",
+          "desc": "بناء أنظمة بيئية مشتركة مع RBAC حبيبي ومزامنة في الوقت الفعلي."
+        },
+        "hubs": {
+          "title": "محاور الفريق الموحدة",
+          "desc": "مركزة أصول الأقسام في حاويات فريق آمنة وسيادية."
+        },
+        "integration": {
+          "title": "تكامل سلس",
+          "desc": "اتصال محلي عالي السرعة لإدارة علاقات العملاء وسلاسل أدوات المؤسسة."
+        }
+      },
+      "getStarted": "ابدأ الآن"
+    },
+    "sidebar": {
+      "myFolders": "مجلداتي",
+      "teamHubs": "محاور الفريق",
+      "openWorkdrive": "فتح WorkDrive"
+    },
+    "header": {
+      "allFolders": "كافة المجلدات",
+      "memberCount": "عضو واحد",
+      "memberCount_plural": "{{count}} أعضاء",
+      "manage": "إدارة",
+      "record": "تسجيل",
+      "newAction": "إجراء جديد"
+    },
+    "empty": {
+      "title": "النظام البيئي فارغ",
+      "desc": "ابدأ مساحة العمل الخاصة بك من خلال نشر أصول جديدة أو ترحيل الوثائق الموجودة إلى هذا المحور.",
+      "dragDrop": "السحب والإفلات مفعّل"
+    },
+    "actions": {
+      "create": "إنشاء",
+      "upload": "تحميل"
+    },
+    "rightBar": {
+      "details": "التفاصيل",
+      "zia": "Zia"
+    },
+    "setup": {
+      "title": "إعداد WorkDrive",
+      "desc": "يتم تشغيل كافة ملفات الخدمة الخاصة بك بواسطة WorkDrive. قم بإعداد حسابك لإنشاء الملفات والمجلدات وتخزينها ومشاركتها وإدارتها.",
+      "benefitsTitle": "عند التحويل إلى حساب فريق:",
+      "benefit1": "سيتم دمج خطة WorkDrive Essentials مع حساب الخدمة الخاص بك مجاناً.",
+      "benefit2": "سيتم إضافة كافة المستخدمين في الخدمة إلى حساب فريق WorkDrive الخاص بك تلقائياً.",
+      "benefit3": "ستكون المدير الأعلى (Super Admin) لحساب فريق WorkDrive الخاص بك.",
+      "teamNameLabel": "اسم الفريق",
+      "teamNameSub": "امنح فريقك اسماً (يمكنك تغييره لاحقاً)",
+      "teamNamePlaceholder": "مثال: فريق الهندسة",
+      "submit_pending": "جاري تهيئة المحور...",
+      "submit": "التحويل ومزامنة المحور"
+    },
+    "createFolder": {
+      "title": "إنشاء مجلد فريق",
+      "desc": "يمكن الوصول إلى مجلد الفريق من قبل أعضاء الفرق/الأقسام المعنية.",
+      "nameLabel": "الاسم",
+      "namePlaceholder": "أدخل اسم مجلد الفريق",
+      "selectUsers": "اختر المستخدمين...",
+      "submit_pending": "جاري الإنشاء...",
+      "submit": "إنشاء مجلد"
+    },
+    "userSelector": {
+      "title": "تحديد مشاركة مخصصة",
+      "available": "متاح",
+      "selected": "محدد",
+      "search": "البحث في المستخدمين...",
+      "noneSelected": "لم يتم اختيار أحد",
+      "addSelected": "إضافة المحدد"
+    }
+  },
+  "tasks": {
+    "title": "إدارة المهام",
+    "stats": {
+      "active": "نشط",
+      "priority": "أولوية",
+      "critical": "حرج",
+      "impact": "تأثير"
+    },
+    "kanban": {
+      "title": "مسار المهام",
+      "desc": "إدارة {{count}} من الأهداف الاستراتيجية",
+      "searchPlaceholder": "ابحث عن أي شيء...",
+      "viewKanban": "كانبان",
+      "viewTable": "جدول",
+      "itemsCount": "عنصر واحد",
+      "itemsCount_plural": "{{count}} عناصر",
+      "overdue": "متأخر",
+      "untitled": "مهمة بدون عنوان",
+      "unassigned": "غير محدد"
+    },
+    "table": {
+      "subject": "الموضوع",
+      "status": "الحالة",
+      "priority": "الأولوية",
+      "assignee": "المسؤول",
+      "dueDate": "تاريخ الاستحقاق",
+      "relation": "العلاقة",
+      "noRecord": "لا يوجد",
+      "noTasks": "لم يتم العثور على أهداف استراتيجية في التصفية الحالية"
+    },
+    "create": {
+      "title": "مبادرة هدف جديدة",
+      "desc": "تحديد معايير المهمة وتخصيص الموارد.",
+      "subjectLabel": "الموضوع",
+      "subjectPlaceholder": "مثال: متابعة اقتراح المشروع",
+      "statusLabel": "الحالة",
+      "statusPlaceholder": "اختر الحالة...",
+      "priorityLabel": "الأولوية",
+      "dueDateLabel": "تاريخ الاستحقاق",
+      "assigneeLabel": "المسؤول",
+      "assigneePlaceholder": "اختر المستخدم",
+      "relateToLabel": "مرتبط بـ",
+      "relateToPlaceholder": "اختر النوع",
+      "searchRecordLabel": "البحث في السجلات",
+      "searchRecordPlaceholder": "ابحث عن {{entity}}...",
+      "descLabel": "الوصف",
+      "descPlaceholder": "أدخل تفاصيل المهمة وملاحظاتها...",
+      "protocolLabel": "بروتوكول v2.4 · في انتظار الأوامر",
+      "submit_pending": "جاري المزامنة...",
+      "submit": "بدء البروتوكول",
+      "success": "تم بدء البروتوكول الاستراتيجي"
+    },
+    "detail": {
+      "title": "ذكاء المهام",
+      "protocolRef": "مرجع البروتوكول:",
+      "missionType": "مهمة {{priority}}",
+      "noDeadline": "لا يوجد موعد نهائي",
+      "selectOfficer": "اختر المسؤول..."
+    }
+  },
+  "invoices": {
+    "title": "ذكاء الفواتير",
+    "header": {
+      "title": "الفواتير",
+      "subtitle": "إدارة الإنجاز التجاري ودورات الإيرادات",
+      "exportCsv": "تصدير CSV",
+      "newInvoice": "فاتورة جديدة"
+    },
+    "stats": {
+      "totalRevenue": "إجمالي الإيرادات",
+      "accountsReceivable": "الحسابات المدينة",
+      "settledLogic": "منطق التسوية",
+      "dossierCount": "عدد الملفات"
+    },
+    "status": {
+      "paid": "مدفوعة",
+      "sent": "مرسلة",
+      "overdue": "متأخرة",
+      "draft": "مسودة"
+    },
+    "table": {
+      "searchPlaceholder": "ابحث عن رقم الفاتورة أو جهة الاتصال...",
+      "filterTime": "كل الوقت",
+      "filterStatus": "الحالة: الكل",
+      "colId": "معرف الملف",
+      "colContact": "جهة اتصال العميل",
+      "colStatus": "الحالة",
+      "colDate": "تاريخ الإصدار",
+      "colValue": "القيمة الإجمالية",
+      "viewDossier": "عرض الملف",
+      "exportPdf": "تصدير PDF",
+      "markPaid": "تعيين كمدفوعة",
+      "loading": "جاري فك تشفير السجل التجاري...",
+      "noInvoices": "لا يوجد نتائج تجارية مسجلة في التصفية الحالية."
+    },
+    "create": {
+      "title": "إنشاء فاتورة جديدة",
+      "engineTitle": "جاري بدء محرك الفواتير",
+      "engineDesc": "يتم حالياً نشر وحدة الفواتير المتقدمة. ستسمح لك هذه الميزة بتوليد فواتير احترافية من العروض أو المدخلات اليدوية قريباً.",
+      "deployEngine": "نشر المحرك"
+    }
+  },
+  "accounts": {
+    "title": "الحسابات",
+    "stats": {
+      "total": "إجمالي الحسابات",
+      "active": "الحالات النشطة",
+      "customers": "العملاء الدائمون",
+      "revenue": "إجمالي الإيرادات",
+      "pipeline": "قيمة المسار"
+    },
+    "toolbar": {
+      "search": "ابحث عن الحسابات، الصناعات...",
+      "type": "نوع الحساب",
+      "industry": "الصناعة",
+      "status": "الحالة",
+      "tier": "فئة الحساب",
+      "filter": "مزيد من التصفية",
+      "export": "تصدير",
+      "bulk": "إجراء جماعي",
+      "add": "إضافة حساب"
+    },
+    "table": {
+      "account": "الحساب",
+      "type": "النوع",
+      "tier": "الفئة",
+      "status": "الحالة",
+      "industry": "الصناعة",
+      "revenue": "الإيرادات",
+      "contacts": "جهات الاتصال",
+      "deals": "الصفقات",
+      "owner": "مالك الحساب",
+      "actions": "الإجراءات"
+    },
+    "empty": {
+      "title": "لم يتم العثور على حسابات",
+      "desc": "حاول تعديل البحث أو التصفية للعثور على ما تبحث عنه."
+    },
+    "create": {
+      "title": "حساب جديد",
+      "editTitle": "تعديل الحساب",
+      "desc": "املأ التفاصيل لإنشاء منظمة جديدة.",
+      "basicInfo": "معلومات أساسية",
+      "name": "اسم الحساب",
+      "website": "الموقع الإلكتروني",
+      "industry": "الصناعة",
+      "type": "نوع الحساب",
+      "status": "حالة الحساب",
+      "tier": "فئة الحساب",
+      "financials": "المالية والحجم",
+      "annualRevenue": "الإيرادات السنوية",
+      "employees": "عدد الموظفين",
+      "contactInfo": "معلومات الاتصال",
+      "phone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "location": "الموقع",
+      "meta": "بيانات وتصنيفات",
+      "owner": "المالك",
+      "parent": "الحساب الأب",
+      "tags": "الوسوم (مفصولة بفاصلة)",
+      "description": "الوصف",
+      "notes": "ملاحظات داخلية"
+    },
+    "actions": {
+      "statusUpdated": "تم تحديث الحالة إلى {{status}}"
+    },
+    "detail": {
+      "title": "نتائج الحساب",
+      "overview": "نظرة عامة",
+      "activities": "الأنشطة",
+      "deals": "الصفقات",
+      "contacts": "جهات الاتصال",
+      "documents": "المستندات",
+      "location": "Presence العالمي",
+      "financials": "مقاييس تجارية",
+      "metadata": "سياق النظام",
+      "created": "تم الإنشاء",
+      "lastActivity": "آخر نشاط"
+    },
+    "bulkActions": {
+      "updateSuccess": "تم تحديث الحسابات بنجاح",
+      "deleteSuccess": "تم حذف الحسابات بنجاح",
+      "confirmDelete": "هل أنت متأكد أنك تريد حذف {{count}} حسابات؟"
+    }
+  }
+}

@@ -113,6 +113,7 @@
   import { Textarea } from "@/components/ui/textarea";
   import { Switch } from "@/components/ui/switch";
   import { useConfirm } from "@/hooks/use-confirm";
+  import { useTranslation } from "react-i18next";
 
   interface SortableLeadCardProps {
     lead: Lead;
@@ -131,6 +132,7 @@
     const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
     const confirm = useConfirm();
+    const { t } = useTranslation();
     const [search, setSearch] = useState("");
     const [view, setView] = useState<"table" | "kanban">("table");
     const [filterScore, setFilterScore] = useState<string>("all");
@@ -874,7 +876,7 @@
     const handleConfirmLost = () => {
       if (!selectedLead) return;
       if (!lostFormData.lossReason) {
-        toast.error("Please select a loss reason");
+        toast.error(t('leads.statusUpdates.selectLossReason', 'Please select a loss reason'));
         return;
       }
       const lostStage = stages.find(
@@ -890,7 +892,7 @@
             reengagementDate: lostFormData.reengagementDate || undefined,
           },
         });
-        toast.success(`${selectedLead.name} marked as lost`);
+        toast.success(t('leads.statusUpdates.markedLost', { name: selectedLead.name }));
         setShowLostDialog(false);
       } else {
         toast.error("Lost/Unqualified stage not found");
@@ -905,7 +907,7 @@
       });
       setShowAssign(false);
       const user = teamMembers.find((u: any) => u.id === userId);
-      toast.success(`Lead assigned to ${user?.name || "team member"}`);
+      toast.success(t('leads.statusUpdates.assignedTo', { name: user?.name || t('leads.statusUpdates.teamMember', 'team member') }));
     };
 
     const isLeadLost = (lead: Lead | null) =>
@@ -949,7 +951,7 @@
       const diffHours = Math.floor(diffMs / 3600000);
       const diffDays = Math.floor(diffMs / 86400000);
 
-      if (diffMins < 1) return "Just now";
+      if (diffMins < 1) return t('common.time.justNow', 'Just now');
       if (diffMins < 60) return `${diffMins}m ago`;
       if (diffHours < 24) return `${diffHours}h ago`;
       if (diffDays < 7) return `${diffDays}d ago`;
@@ -958,23 +960,23 @@
 
     if (isPaginatedLoading || isAllLeadsLoading) {
       return (
-        <CRMLayout title="Leads">
+        <CRMLayout title={t('leads.title')}>
           <div className="flex items-center justify-center h-64">
-            <div className="text-muted-foreground">Loading leads...</div>
+            <div className="text-muted-foreground">{t('common.loading')}</div>
           </div>
         </CRMLayout>
       );
     }
 
     return (
-      <CRMLayout title="Leads">
+      <CRMLayout title={t('leads.title')}>
         <div className="space-y-4">
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Total Leads
+                  {t('leads.stats.total')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -982,7 +984,7 @@
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1 lowercase font-medium">
                   {stats.totalValue > 0 && (
                     <>
-                      {formatCurrency(stats.totalValue)} pipeline
+                      {formatCurrency(stats.totalValue)} {t('leads.stats.pipelineDesc', 'pipeline')}
                     </>
                   )}
                 </div>
@@ -991,7 +993,7 @@
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  New Leads
+                  {t('leads.stats.today')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -999,14 +1001,14 @@
                   {stats.newToday}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Awaiting outreach
+                  {t('leads.stats.awaitingOutreach', 'Awaiting outreach')}
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Hot Leads
+                  {t('leads.stats.hot')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -1014,14 +1016,14 @@
                   {stats.hotLeads}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  High priority
+                  {t('leads.stats.highPriority', 'High priority')}
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Conversion Rate
+                  {t('leads.stats.conversion')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -1029,14 +1031,14 @@
                   {stats.conversionRate}%
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Qualified / Total
+                  {t('leads.stats.qualifiedTotal', 'Qualified / Total')}
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Pipeline Value
+                  {t('leads.stats.value')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -1045,7 +1047,7 @@
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   <TrendingUp className="h-3 w-3 inline mr-1" />
-                  Active opportunities
+                  {t('leads.stats.activeOpps', 'Active opportunities')}
                 </p>
               </CardContent>
             </Card>
@@ -1065,10 +1067,10 @@
               </div> */}
               <Select value={filterScore} onValueChange={setFilterScore}>
                 <SelectTrigger className="h-9 w-32">
-                  <SelectValue placeholder="Score" />
+                  <SelectValue placeholder={t('leads.toolbar.score', 'Score')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Scores</SelectItem>
+                  <SelectItem value="all">{t('common.allScores', 'All Scores')}</SelectItem>
                   {scores.map((score: DynamicOption) => (
                     <SelectItem key={score.id} value={String(score.id)}>
                       {score.name}
@@ -1077,11 +1079,11 @@
                 </SelectContent>
               </Select>
               <Select value={filterSource} onValueChange={setFilterSource}>
-                <SelectTrigger className="h-9 w-36">
-                  <SelectValue placeholder="Source" />
+                <SelectTrigger className="h-9 w-32">
+                  <SelectValue placeholder={t('leads.toolbar.source', 'Source')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Sources</SelectItem>
+                  <SelectItem value="all">{t('common.allSources', 'All Sources')}</SelectItem>
                   {sources.map((source: DynamicOption) => (
                     <SelectItem key={source.id} value={String(source.id)}>
                       {source.name}
@@ -1090,7 +1092,7 @@
                 </SelectContent>
               </Select>
               <Button variant="outline" size="sm">
-                <Filter className="h-3.5 w-3.5 mr-1" /> Filter
+                <Filter className="h-3.5 w-3.5 mr-1" /> {t('common.actions.filter', 'Filter')}
               </Button>
             </div>
             <div className="flex items-center gap-2">

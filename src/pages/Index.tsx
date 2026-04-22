@@ -33,9 +33,11 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
+import { useTranslation } from "react-i18next";
 
 const Dashboard = () => {
   const { symbol: currencySymbol } = useDefaultCurrency();
+  const { t } = useTranslation();
 
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ["dashboard-stats"],
@@ -53,7 +55,7 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Dashboard Overview">
+      <CRMLayout title={t('nav.dashboard')}>
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-2xl" />)}
@@ -70,13 +72,13 @@ const Dashboard = () => {
   const { stats, charts, activities } = dashboardData || {};
 
   return (
-    <CRMLayout title="Command Center">
+    <CRMLayout title={t('dashboard.title')}>
       <div className="space-y-6 animate-in fade-in duration-500">
         
         {/* Top Tier Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard 
-            label="Total Revenue" 
+            label={t('dashboard.metrics.totalRevenue')} 
             value={stats?.totalRevenue || 0} 
             isCurrency
             change={stats?.revenueChange} 
@@ -84,7 +86,7 @@ const Dashboard = () => {
             icon={DollarSign} 
           />
           <MetricCard 
-            label="Avg. Deal Size" 
+            label={t('dashboard.metrics.avgDealSize')} 
             value={Number(stats?.totalRevenue || 0) / (stats?.activeDealsCount || 1)} 
             isCurrency
             change="+5.2%" 
@@ -92,14 +94,14 @@ const Dashboard = () => {
             icon={Target} 
           />
           <MetricCard 
-            label="Conversion Rate" 
+            label={t('dashboard.metrics.conversionRate')} 
             value={`${stats?.conversionRate || 0}%`} 
             change={stats?.conversionChange} 
             changeType="negative" 
             icon={TrendingUp} 
           />
           <MetricCard 
-            label="Active Deals" 
+            label={t('dashboard.metrics.activeDeals')} 
             value={(stats?.activeDealsCount || 0).toString()} 
             change={stats?.activeDealsChange} 
             changeType="positive" 
@@ -114,7 +116,7 @@ const Dashboard = () => {
               <Users className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Total Contacts</p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.metrics.totalContacts')}</p>
               <p className="text-xl font-bold">{stats?.totalContactsCount || 0}</p>
             </div>
           </div>
@@ -123,7 +125,7 @@ const Dashboard = () => {
               <Megaphone className="h-5 w-5 text-success" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Active Campaigns</p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.metrics.activeCampaigns')}</p>
               <p className="text-xl font-bold">{stats?.totalCampaignsCount || 0}</p>
             </div>
           </div>
@@ -132,7 +134,7 @@ const Dashboard = () => {
               <Activity className="h-5 w-5 text-warning" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Lead Velocity</p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.metrics.leadVelocity')}</p>
               <p className="text-xl font-bold">+24%</p>
             </div>
           </div>
@@ -145,14 +147,14 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-sm font-semibold flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
-                Revenue Performance
+                {t('dashboard.charts.revenuePerformance')}
               </h3>
               <div className="flex gap-2">
                 <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <span className="h-2 w-2 rounded-full bg-primary" /> Actual
+                  <span className="h-2 w-2 rounded-full bg-primary" /> {t('dashboard.charts.actual')}
                 </span>
                 <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <span className="h-2 w-2 rounded-full bg-muted" /> Target
+                  <span className="h-2 w-2 rounded-full bg-muted" /> {t('dashboard.charts.target')}
                 </span>
               </div>
             </div>
@@ -180,7 +182,7 @@ const Dashboard = () => {
           <div className="glass-card p-5">
             <h3 className="text-sm font-semibold mb-6 flex items-center gap-2">
               <PieChartIcon className="h-4 w-4 text-primary" />
-              Lead Distribution
+              {t('dashboard.charts.leadDistribution')}
             </h3>
             <div className="relative h-[240px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -203,7 +205,7 @@ const Dashboard = () => {
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-2xl font-bold">1,367</span>
-                <span className="text-[10px] text-muted-foreground uppercase">Total Leads</span>
+                <span className="text-[10px] text-muted-foreground uppercase">{t('dashboard.charts.totalLeads')}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-4">
@@ -222,7 +224,7 @@ const Dashboard = () => {
           
           {/* Sales Pipeline (Vertical Bar Chart) */}
           <div className="glass-card p-5">
-            <h3 className="text-sm font-semibold mb-6">Pipeline Velocity</h3>
+            <h3 className="text-sm font-semibold mb-6">{t('dashboard.charts.pipelineVelocity')}</h3>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={charts?.pipelineData || []} layout="vertical">
                 <XAxis type="number" hide />
@@ -235,7 +237,7 @@ const Dashboard = () => {
 
           {/* Campaign ROI (Composed Chart) */}
           <div className="glass-card p-5">
-            <h3 className="text-sm font-semibold mb-6">Campaign Performance (ROI)</h3>
+            <h3 className="text-sm font-semibold mb-6">{t('dashboard.charts.campaignROI')}</h3>
             <ResponsiveContainer width="100%" height={260}>
               <ComposedChart data={charts?.campaignPerformance || []}>
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10 }} />
@@ -243,8 +245,8 @@ const Dashboard = () => {
                 <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 10 }} />
                 <Tooltip />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 10, paddingTop: 20 }} />
-                <Bar yAxisId="left" dataKey="leads" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={30} name="Leads Generated" />
-                <Line yAxisId="right" type="monotone" dataKey="roi" stroke="hsl(var(--success))" strokeWidth={3} name="ROI (x)" />
+                <Bar yAxisId="left" dataKey="leads" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={30} name={t('dashboard.charts.leadsGenerated')} />
+                <Line yAxisId="right" type="monotone" dataKey="roi" stroke="hsl(var(--success))" strokeWidth={3} name={t('dashboard.charts.roi')} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -256,9 +258,9 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-sm font-semibold flex items-center gap-2">
               <Activity className="h-4 w-4 text-primary" />
-              Live Activity Stream
+              {t('dashboard.activity.stream')}
             </h3>
-            <button className="text-[10px] text-primary hover:underline">View All Logs</button>
+            <button className="text-[10px] text-primary hover:underline">{t('dashboard.activity.viewAll')}</button>
           </div>
           <div className="space-y-4">
             {(activities || []).map((activity: any) => {
