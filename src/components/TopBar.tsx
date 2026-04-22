@@ -108,33 +108,33 @@ export function TopBar({ title }: { title: string }) {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>Create New</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleNew("Lead", "/leads")}>
+            <DropdownMenuItem onClick={() => handleNew("Lead", "/leads?create=true")}>
               <UserPlus className="h-4 w-4 mr-2" /> Lead
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleNew("Contact", "/contacts")}>
+            <DropdownMenuItem onClick={() => handleNew("Contact", "/contacts?create=true")}>
               <Users className="h-4 w-4 mr-2" /> Contact
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleNew("Account", "/accounts")}>
+            <DropdownMenuItem onClick={() => handleNew("Account", "/accounts?create=true")}>
               <Building2 className="h-4 w-4 mr-2" /> Account
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleNew("Deal", "/deals")}>
+            <DropdownMenuItem onClick={() => handleNew("Deal", "/deals?create=true")}>
               <Handshake className="h-4 w-4 mr-2" /> Deal
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleNew("Quote", "/quotes")}>
+            <DropdownMenuItem onClick={() => handleNew("Quote", "/quotes/new")}>
               <FileText className="h-4 w-4 mr-2" /> Quote
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleNew("Order", "/orders")}>
+            <DropdownMenuItem onClick={() => handleNew("Order", "/orders?create=true")}>
               <ShoppingCart className="h-4 w-4 mr-2" /> Order
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleNew("Invoice", "/invoices")}>
+            <DropdownMenuItem onClick={() => handleNew("Invoice", "/invoices?create=true")}>
               <Receipt className="h-4 w-4 mr-2" /> Invoice
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleNew("Payment", "/payments")}>
+            <DropdownMenuItem onClick={() => handleNew("Payment", "/payments?create=true")}>
               <CreditCard className="h-4 w-4 mr-2" /> Payment
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleNew("Product", "/products")}>
+            <DropdownMenuItem onClick={() => handleNew("Product", "/products/new")}>
               <Package className="h-4 w-4 mr-2" /> Product
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -1,5 +1,6 @@
-  import { useState, useRef } from "react";
-  import { useNavigate } from "react-router-dom";
+  import { useState, useRef, useEffect } from "react";
+  import { useNavigate, useSearchParams } from "react-router-dom";
+  import { LeadForm } from "@/components/leads/LeadForm";
   import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
   import {
     DndContext,
@@ -108,6 +109,7 @@
   import { LeadCallDialog } from "@/components/leads/LeadCallDialog";
   import { LeadLogCallDialog } from "@/components/leads/LeadLogCallDialog";
   import { LeadTagsDialog } from "@/components/leads/LeadTagsDialog";
+  import { LeadDetailDialog } from "@/components/leads/LeadDetailDialog";
   import { Textarea } from "@/components/ui/textarea";
   import { Switch } from "@/components/ui/switch";
   import { useConfirm } from "@/hooks/use-confirm";
@@ -126,6 +128,7 @@
 
   const Leads = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
     const confirm = useConfirm();
     const [search, setSearch] = useState("");
@@ -134,6 +137,16 @@
     const [filterSource, setFilterSource] = useState<string>("all");
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
     const [showDetail, setShowDetail] = useState(false);
+    const [showAddLead, setShowAddLead] = useState(false);
+
+    useEffect(() => {
+        if (searchParams.get("create") === "true") {
+            setShowAddLead(true);
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("create");
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
     const [showConvert, setShowConvert] = useState(false);
     const [convertType, setConvertType] = useState<"contact" | "deal">("contact");
     const [isCreateDeal, setIsCreateDeal] = useState(false);
@@ -284,6 +297,37 @@
       },
       onError: (err: Error) => toast.error(err.message),
     });
+
+    const createLeadMutation = useMutation({
+        mutationFn: api.leads.create,
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["leads"] });
+          toast.success("Lead created successfully");
+          setShowAddLead(false);
+        },
+        onError: (err: Error) => toast.error(err.message),
+      });
+  
+      const handleCreateLead = (data: any) => {
+          const { useExistingAccount, ...rest } = data;
+  
+          const payload = {
+          ...rest,
+          emails: rest.emails.filter((e: string) => e.trim() !== ""),
+          phones: rest.phones.filter((p: string) => p.trim() !== ""),
+          company: useExistingAccount
+              ? accounts.find((a: any) => a.id === rest.accountId)?.name || ""
+              : rest.company,
+          sourceId: rest.sourceId || sources[0]?.id,
+          value: Number.parseInt(rest.value) || 0,
+          stageId: rest.stageId || stages[0]?.id,
+          scoreCategoryId: rest.scoreCategoryId || scores[0]?.id,
+          nextFollowUp: rest.nextFollowUp ? new Date(rest.nextFollowUp) : undefined,
+          accountId: useExistingAccount ? rest.accountId : undefined,
+          };
+  
+          createLeadMutation.mutate(payload);
+      };
 
     const convertMutation = useMutation({
       mutationFn: ({ id, data }: { id: number; data?: any }) => api.leads.convert(id, data),
@@ -1076,7 +1120,7 @@
                   <CheckSquare className="h-3.5 w-3.5 mr-1" /> Bulk ({selectedLeads.length})
                 </Button>
               )}
-              <Button size="sm" onClick={() => navigate("/leads/new")}>
+              <Button size="sm" onClick={() => setShowAddLead(true)}>
                 <Plus className="h-3.5 w-3.5 mr-1" /> Add Lead
               </Button>
             </div>
@@ -1128,7 +1172,8 @@
                         key={lead.id}
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => {
-                          navigate(`/leads/${lead.id}`);
+                          setSelectedLead(lead);
+                          setShowDetail(true);
                         }}
                       >
                         <TableCell>
@@ -1516,7 +1561,8 @@
                                   lead={lead}
                                   stage={stage}
                                   onClick={() => {
-                                    navigate(`/leads/${lead.id}`);
+                                    setSelectedLead(lead);
+                                    setShowDetail(true);
                                   }}
                                   onMove={(newStageId: number) =>
                                     handleStageChange(lead.id, newStageId)
@@ -1910,6 +1956,34 @@
             lead={selectedLead}
             open={showTagsDialog}
             onOpenChange={setShowTagsDialog}
+          />
+          <Dialog open={showAddLead} onOpenChange={setShowAddLead}>
+            <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add New Lead</DialogTitle>
+                <DialogDescription>
+                  Enter the details for the new commercial lead.
+                </DialogDescription>
+              </DialogHeader>
+              <LeadForm 
+                onCancel={() => setShowAddLead(false)} 
+                onSubmit={handleCreateLead}
+                isPending={createLeadMutation.isPending}
+              />
+            </DialogContent>
+          </Dialog>
+
+          <LeadDetailDialog
+            leadId={selectedLead?.id || null}
+            open={showDetail}
+            onOpenChange={setShowDetail}
+            onEdit={(lead) => {
+              handleOpenEdit(lead);
+            }}
+            onAddTask={(lead) => {
+              setSelectedLead(lead);
+              setShowTaskDialog(true);
+            }}
           />
         </div>
       </CRMLayout>

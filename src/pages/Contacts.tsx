@@ -75,7 +75,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
+import { ContactDetailDialog } from "@/components/contacts/ContactDetailDialog";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -137,7 +139,33 @@ const Contacts = () => {
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const [selectedContactId, setSelectedContactId] = useState<number | null>(id ? parseInt(id) : null);
+  const [showDetail, setShowDetail] = useState(!!id);
+
+  useEffect(() => {
+    if (id) {
+      setSelectedContactId(parseInt(id));
+      setShowDetail(true);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setShowAdd(true);
+      // Clean up the URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("create");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  const handleRowClick = (contactId: number) => {
+    navigate(`/contacts/${contactId}`);
+  };
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: ["contacts"],
     queryFn: () => api.contacts.getAll().catch(() => []),
@@ -775,10 +803,8 @@ const Contacts = () => {
               ) : filtered.map((contact) => (
                 <TableRow
                   key={contact.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => {
-                    navigate(`/contacts/${contact.id}`);
-                  }}
+                  className="hover:bg-muted/50 transition-colors cursor-pointer group"
+                  onClick={() => handleRowClick(contact.id)}
                 >
                   <TableCell>
                     <input
@@ -959,7 +985,19 @@ const Contacts = () => {
           </Table>
         </Card>
 
-        {/* Detail logic moved to ContactDetail.tsx */}
+        <ContactDetailDialog
+            contactId={selectedContactId}
+            open={showDetail}
+            onOpenChange={(open) => {
+                setShowDetail(open);
+                if (!open) {
+                    navigate("/contacts", { replace: true });
+                }
+            }}
+            onEdit={(contact) => {
+              openEdit(contact);
+            }}
+          />
 
         {/* Add Contact Drawer */}
         <Drawer open={showAdd} onOpenChange={(open) => {

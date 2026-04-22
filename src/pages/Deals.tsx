@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
 import {
   DndContext,
@@ -246,10 +246,21 @@ const Deals = () => {
   const { code: currencyCode } = useDefaultCurrency();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [showAddDeal, setShowAddDeal] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setShowAddDeal(true);
+      // Clean up the URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("create");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const [showReason, setShowReason] = useState(false);
   const [newDeal, setNewDeal] = useState({
     name: "",

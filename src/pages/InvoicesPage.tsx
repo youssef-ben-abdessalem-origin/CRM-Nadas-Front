@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { CRMLayout } from "@/components/CRMLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,11 +36,30 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter
+} from "@/components/ui/dialog";
 
 const InvoicesPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setShowAdd(true);
+      // Clean up the URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("create");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const { data: invoices = [], isLoading } = useQuery({
     queryKey: ["invoices"],
@@ -79,7 +98,10 @@ const InvoicesPage: React.FC = () => {
             <Button variant="outline" className="bg-[#151921] border-white/5 text-slate-400 hover:text-white hover:bg-white/5 font-bold text-[11px] tracking-wider h-10 px-5 rounded-lg">
               <FileDown className="h-4 w-4 mr-2" /> Export CSV
             </Button>
-            <Button className="bg-primary hover:bg-primary/90 text-white font-bold text-[11px] tracking-wider h-10 px-6 rounded-lg shadow-lg shadow-primary/20">
+            <Button 
+                className="bg-primary hover:bg-primary/90 text-white font-bold text-[11px] tracking-wider h-10 px-6 rounded-lg shadow-lg shadow-primary/20"
+                onClick={() => setShowAdd(true)}
+            >
               <Plus className="h-4 w-4 mr-2" /> New Invoice
             </Button>
           </div>
@@ -192,6 +214,27 @@ const InvoicesPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={showAdd} onOpenChange={setShowAdd}>
+            <DialogContent className="bg-[#151921] border-white/10 text-white">
+                <DialogHeader>
+                    <DialogTitle className="uppercase italic tracking-wider">Generate New Invoice</DialogTitle>
+                </DialogHeader>
+                <div className="py-6 flex flex-col items-center justify-center gap-4 text-center">
+                    <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center text-primary animate-pulse">
+                        <FileText className="h-8 w-8" />
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-lg">Invoice Engine Initializing</h4>
+                        <p className="text-slate-400 text-sm">The advanced billing module is being deployed. This feature will allow you to generate professional invoices from quotes or manual entries shortly.</p>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-white">Close</Button>
+                    <Button className="font-bold uppercase tracking-widest text-[11px]">Deploy Engine</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </CRMLayout>
   );
 };

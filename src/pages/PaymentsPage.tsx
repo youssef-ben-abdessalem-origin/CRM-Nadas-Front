@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { CRMLayout } from "@/components/CRMLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,8 @@ import {
   User,
   ExternalLink,
   ChevronRight,
-  Receipt
+  Receipt,
+  Plus
 } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -38,10 +40,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter
+} from "@/components/ui/dialog";
 
 const PaymentsPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setShowAdd(true);
+      // Clean up the URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("create");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const { data: payments = [], isLoading } = useQuery({
     queryKey: ["payments"],
@@ -66,7 +87,13 @@ const PaymentsPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
              <Button variant="outline" className="bg-[#151921] border-white/5 text-slate-400 hover:text-white hover:bg-white/5 font-bold text-[11px] tracking-wider h-10 px-5 rounded-lg">
-              <Calendar className="h-4 w-4 mr-2" /> Ledger Export
+               <Calendar className="h-4 w-4 mr-2" /> Ledger Export
+            </Button>
+            <Button 
+                className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-[11px] tracking-wider h-10 px-6 rounded-lg shadow-lg shadow-emerald-500/20"
+                onClick={() => setShowAdd(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" /> Record Payment
             </Button>
           </div>
         </div>
@@ -186,6 +213,28 @@ const PaymentsPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Creation Dialog */}
+      <Dialog open={showAdd} onOpenChange={setShowAdd}>
+            <DialogContent className="bg-[#151921] border-white/10 text-white">
+                <DialogHeader>
+                    <DialogTitle className="uppercase italic tracking-wider">Record Transaction</DialogTitle>
+                </DialogHeader>
+                <div className="py-6 flex flex-col items-center justify-center gap-4 text-center">
+                    <div className="h-16 w-16 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 animate-pulse">
+                        <CreditCard className="h-8 w-8" />
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-lg">Settlement Logic Deployment</h4>
+                        <p className="text-slate-400 text-sm">The financial recording engine is being synchronized. You will be able to record complex settlements and fund flows shortly.</p>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-white">Close</Button>
+                    <Button className="bg-emerald-500 hover:bg-emerald-600 font-bold uppercase tracking-widest text-[11px]">Sync Ledger</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </CRMLayout>
   );
 };

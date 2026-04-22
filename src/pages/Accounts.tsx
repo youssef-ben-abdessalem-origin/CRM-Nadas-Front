@@ -79,8 +79,9 @@ import {
   CheckCircle,
   CheckSquare,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { CurrencyNumbers } from "@/components/CurrencyNumbers";
@@ -182,7 +183,18 @@ const initialAccounts: Account[] = [];
 
 const Accounts = () => {
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setShowAdd(true);
+      // Clean up the URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("create");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ["accounts"],
     queryFn: () => api.accounts.getAll().catch(() => []),
@@ -442,9 +454,9 @@ const Accounts = () => {
         : null,
       tags: formData.tags
         ? formData.tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
         : [],
     });
   };
@@ -478,9 +490,9 @@ const Accounts = () => {
           : null,
         tags: formData.tags
           ? formData.tags
-              .split(",")
-              .map((t) => t.trim())
-              .filter(Boolean)
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
           : [],
       },
     });
@@ -1103,10 +1115,7 @@ const Accounts = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-semibold">Activities</h4>
-                    <Button variant="ghost" size="sm" onClick={() => toast.info("Add activity")}>
-                      <Plus className="h-4 w-4" />
-                      <span className="ml-1">Add</span>
-                    </Button>
+
                   </div>
                   {accountActivities && accountActivities.length > 0 ? (
                     <div className="space-y-2 max-h-40 overflow-y-auto">
@@ -1140,10 +1149,7 @@ const Accounts = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-semibold">Deals</h4>
-                    <Button variant="ghost" size="sm" onClick={() => toast.info("Create new deal")}>
-                      <Plus className="h-4 w-4" />
-                      <span className="ml-1">Add</span>
-                    </Button>
+
                   </div>
                   {accountDeals && accountDeals.length > 0 ? (
                     <div className="space-y-2 max-h-40 overflow-y-auto">

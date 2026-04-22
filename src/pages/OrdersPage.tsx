@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 
@@ -24,8 +25,20 @@ type LocalOrder = {
 };
 
 const OrdersPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState<LocalOrder[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("create") === "true") {
+      setOpenAdd(true);
+      // Clean up the URL
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("create");
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const [draft, setDraft] = useState({ customer: "", amount: "", notes: "" });
   const [detailOrder, setDetailOrder] = useState<LocalOrder | null>(null);
   const [openDetail, setOpenDetail] = useState(false);

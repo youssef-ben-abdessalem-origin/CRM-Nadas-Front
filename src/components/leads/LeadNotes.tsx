@@ -34,9 +34,10 @@ interface LeadNotesProps {
   lead: Lead | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  inline?: boolean;
 }
 
-export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
+export const LeadNotes = ({ lead, open, onOpenChange, inline }: LeadNotesProps) => {
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [newNote, setNewNote] = useState({ title: "", content: "" });
@@ -45,7 +46,7 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
   const { data: activityTypes = [] } = useQuery({
     queryKey: ["activity-types"],
     queryFn: () => api.activities.getTypes(),
-    enabled: open,
+    enabled: open || inline,
   });
 
   const noteTypeId = activityTypes.find((t: any) =>
@@ -68,7 +69,7 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
         createdById: a.createdById
       }));
     },
-    enabled: !!lead && open && activityTypes.length > 0,
+    enabled: !!lead && (open || inline) && activityTypes.length > 0,
   });
 
   const createMutation = useMutation({
@@ -131,24 +132,25 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
     setNewNote({ title: "", content: "" });
   };
 
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[500px] p-0 flex flex-col h-full bg-background border-l border-border">
-        <div className="p-6 border-b border-border bg-card/50">
-          <SheetHeader className="space-y-1">
-            <div className="flex items-center gap-2">
-              <SheetTitle className="text-xl font-bold">Notes</SheetTitle>
-              {notes.length > 0 && (
-                <span className="bg-muted px-2 py-0.5 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
-                  {notes.length} Total
-                </span>
-              )}
-            </div>
-            <SheetDescription className="text-xs">
-              {lead?.name} • {lead?.company || "No Company"}
-            </SheetDescription>
-          </SheetHeader>
-        </div>
+  const content = (
+    <div className={`flex flex-col h-full bg-background ${inline ? '' : 'sm:max-w-[500px] border-l border-border'}`}>
+        {!inline && (
+          <div className="p-6 border-b border-border bg-card/50">
+            <SheetHeader className="space-y-1">
+              <div className="flex items-center gap-2">
+                <SheetTitle className="text-xl font-bold">Notes</SheetTitle>
+                {notes.length > 0 && (
+                  <span className="bg-muted px-2 py-0.5 rounded-full text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
+                    {notes.length} Total
+                  </span>
+                )}
+              </div>
+              <SheetDescription className="text-xs">
+                {lead?.name} • {lead?.company || "No Company"}
+              </SheetDescription>
+            </SheetHeader>
+          </div>
+        )}
 
         <ScrollArea className="flex-1 px-6 py-4">
           <div className="space-y-6">
@@ -236,7 +238,7 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
           </div>
         </ScrollArea>
 
-        <div className="p-6 bg-card border-t border-border mt-auto">
+        <div className={`p-6 bg-card border-t border-border mt-auto ${inline ? 'rounded-b-xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]' : ''}`}>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-bold tracking-tight">
@@ -282,7 +284,17 @@ export const LeadNotes = ({ lead, open, onOpenChange }: LeadNotesProps) => {
             </Button>
           </div>
         </div>
+    </div>
+  );
+
+  if (inline) return content;
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-[500px] p-0 flex flex-col h-full bg-background border-l border-border">
+        {content}
       </SheetContent>
     </Sheet>
   );
 };
+

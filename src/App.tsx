@@ -92,14 +92,6 @@ const App = () => {
               }
             />
             <Route
-              path="/leads/:id"
-              element={
-                <ProtectedRoute>
-                  <LeadDetail />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/leads/new"
               element={
                 <ProtectedRoute>
@@ -127,7 +119,7 @@ const App = () => {
               path="/contacts/:id"
               element={
                 <ProtectedRoute>
-                  <ContactDetail />
+                  <Contacts />
                 </ProtectedRoute>
               }
             />
