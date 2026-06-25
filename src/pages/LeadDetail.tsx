@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -20,7 +20,8 @@ import {
   Share2,
   Workflow,
   Globe,
-  Settings2
+  Settings2,
+  Megaphone
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { CRMLayout } from "@/components/CRMLayout";
@@ -96,27 +97,27 @@ export default function LeadDetail() {
 
   return (
     <CRMLayout title={lead.name}>
-      <div className="flex flex-col h-screen -m-6 bg-[#f4f7f9]">
+      <div className="flex flex-col h-screen -m-6 bg-background">
         {/* Dossier Header */}
-        <header className="h-16 bg-white border-b flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
+        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100" onClick={() => navigate("/leads")}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted" onClick={() => navigate("/leads")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <Avatar className="h-10 w-10 border shadow-sm">
+            <Avatar className="h-10 w-10 border border-border shadow-sm">
               <AvatarImage src={lead.avatar} />
-              <AvatarFallback className="bg-slate-100 text-slate-600 font-bold">
+              <AvatarFallback className="bg-muted text-muted-foreground font-bold">
                 {lead.name.split(" ").map(n => n[0]).join("")}
               </AvatarFallback>
             </Avatar>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-slate-800">
-                  {lead.name} <span className="text-slate-400 font-medium">- {lead.company}</span>
+                <h1 className="text-lg font-bold text-foreground">
+                  {lead.name} <span className="text-muted-foreground font-medium">- {lead.company}</span>
                 </h1>
               </div>
               <button 
-                className="flex items-center gap-1.5 text-[11px] font-bold text-blue-600 hover:text-blue-700 transition-colors"
+                className="flex items-center gap-1.5 text-[11px] font-bold text-primary hover:opacity-90 transition-colors"
                 onClick={() => setShowTagsDialog(true)}
               >
                 <Tag className="h-3 w-3" /> Add Tags
@@ -125,23 +126,23 @@ export default function LeadDetail() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button size="sm" className="bg-[#3b82f6] hover:bg-blue-600 text-white font-bold h-8 px-4">
+            <Button size="sm" className="bg-primary hover:bg-primary/90 text-white font-bold h-8 px-4">
               Send Email
             </Button>
-            <Button variant="outline" size="sm" className="font-bold h-8 px-4">
+            <Button variant="outline" size="sm" className="font-bold h-8 px-4 border-border">
               Convert
             </Button>
-            <Button variant="outline" size="sm" className="font-bold h-8 px-4">
+            <Button variant="outline" size="sm" className="font-bold h-8 px-4 border-border">
               Edit
             </Button>
-            <Button variant="outline" size="icon" className="h-8 w-8">
+            <Button variant="outline" size="icon" className="h-8 w-8 border-border">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
-            <div className="flex items-center ml-2 border-l pl-2 gap-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600">
+            <div className="flex items-center ml-2 border-l border-border pl-2 gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                 <ChevronLeft className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
@@ -150,33 +151,33 @@ export default function LeadDetail() {
 
         <div className="flex flex-1 overflow-hidden">
           {/* Dossier Sidebar */}
-          <aside className="w-64 bg-white border-r overflow-y-auto shrink-0 py-4">
+          <aside className="w-64 bg-card border-r border-border overflow-y-auto shrink-0 py-4">
             <div className="px-4 mb-4">
-                <h3 className="text-[13px] font-bold text-slate-800 flex items-center gap-2">
+                <h3 className="text-[13px] font-bold text-foreground flex items-center gap-2">
                     Related List <Settings2 className="h-3 w-3 opacity-40 rotate-90" />
                 </h3>
             </div>
             <nav className="space-y-0.5 px-2 mb-8">
                 {relatedLists.map((item) => (
-                    <button key={item.label} className="w-full flex items-center justify-between px-3 py-2 rounded-md hover:bg-slate-50 group transition-colors text-left">
-                        <span className="text-[13px] font-medium text-slate-600 group-hover:text-slate-900">{item.label}</span>
+                    <button key={item.label} className="w-full flex items-center justify-between px-3 py-2 rounded-md hover:bg-muted/50 group transition-colors text-left">
+                        <span className="text-[13px] font-medium text-muted-foreground group-hover:text-foreground">{item.label}</span>
                         {item.count !== 0 && (
-                            <span className="text-[11px] font-bold text-slate-400 group-hover:text-slate-600 bg-slate-50 px-1.5 py-0.5 rounded">
+                            <span className="text-[11px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                                 {item.count}
                             </span>
                         )}
                     </button>
                 ))}
-                <button className="w-full text-left px-3 py-2 text-[13px] font-medium text-blue-600 hover:underline">
+                <button className="w-full text-left px-3 py-2 text-[13px] font-medium text-primary hover:underline">
                     Add Related List
                 </button>
             </nav>
 
             <div className="px-4 mb-2">
-                <h3 className="text-[13px] font-bold text-slate-800">Links</h3>
+                <h3 className="text-[13px] font-bold text-foreground">Links</h3>
             </div>
             <div className="px-2">
-                <button className="w-full text-left px-3 py-2 text-[13px] font-medium text-blue-600 hover:underline">
+                <button className="w-full text-left px-3 py-2 text-[13px] font-medium text-primary hover:underline">
                     Add Link
                 </button>
             </div>
@@ -187,85 +188,136 @@ export default function LeadDetail() {
             <Tabs defaultValue="overview" className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
+                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                             <User className="h-4 w-4" />
                         </div>
-                        <TabsList className="bg-[#e2e8f0]/40 p-1 h-9 rounded-full">
-                            <TabsTrigger value="overview" className="h-7 px-6 rounded-full text-[13px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Overview</TabsTrigger>
-                            <TabsTrigger value="timeline" className="h-7 px-6 rounded-full text-[13px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Timeline</TabsTrigger>
+                        <TabsList className="bg-muted p-1 h-9 rounded-full">
+                            <TabsTrigger value="overview" className="h-7 px-6 rounded-full text-[13px] font-bold data-[state=active]:bg-card data-[state=active]:shadow-sm text-muted-foreground data-[state=active]:text-foreground">Overview</TabsTrigger>
+                            <TabsTrigger value="timeline" className="h-7 px-6 rounded-full text-[13px] font-bold data-[state=active]:bg-card data-[state=active]:shadow-sm text-muted-foreground data-[state=active]:text-foreground">Timeline</TabsTrigger>
                         </TabsList>
                     </div>
-                    <div className="text-[12px] text-slate-400 font-medium flex items-center gap-1.5 focus:outline-none">
+                    <div className="text-[12px] text-muted-foreground font-medium flex items-center gap-1.5 focus:outline-none">
                         <Clock className="h-3.5 w-3.5" /> Last Update : 1 day(s) ago
                     </div>
                 </div>
 
                 <TabsContent value="overview" className="space-y-6 animate-in fade-in duration-300">
                     {/* Information Dossier */}
-                    <div className="bg-white rounded-xl shadow-sm border p-12 min-h-[400px]">
+                    <div className="bg-card rounded-xl shadow-sm border border-border p-12 min-h-[400px]">
                         <div className="max-w-xl space-y-6">
                             <div className="grid grid-cols-[140px_1fr] items-center gap-10">
-                                <label className="text-[13px] text-slate-400 text-right font-medium">Lead Owner</label>
-                                <span className="text-[13px] font-bold text-slate-800">{lead.owner?.name || "Unassigned"}</span>
+                                <label className="text-[13px] text-muted-foreground text-right font-medium">Lead Owner</label>
+                                <span className="text-[13px] font-bold text-foreground">{lead.owner?.name || "Unassigned"}</span>
                             </div>
                             <div className="grid grid-cols-[140px_1fr] items-center gap-10">
-                                <label className="text-[13px] text-slate-400 text-right font-medium">Email</label>
-                                <span className="text-[13px] font-bold text-blue-600 hover:underline cursor-pointer">{lead.emails?.[0] || "No Email"}</span>
+                                <label className="text-[13px] text-muted-foreground text-right font-medium">Email</label>
+                                <span className="text-[13px] font-bold text-primary hover:underline cursor-pointer">{lead.emails?.[0] || "No Email"}</span>
                             </div>
                             <div className="grid grid-cols-[140px_1fr] items-center gap-10">
-                                <label className="text-[13px] text-slate-400 text-right font-medium">Phone</label>
+                                <label className="text-[13px] text-muted-foreground text-right font-medium">Phone</label>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[13px] font-bold text-slate-800">{lead.phones?.[0] || "No Phone"}</span>
-                                    <div className="h-5 w-5 rounded-full bg-green-50 flex items-center justify-center border border-green-100">
-                                        <Phone className="h-3 w-3 text-green-600" />
+                                    <span className="text-[13px] font-bold text-foreground">{lead.phones?.[0] || "No Phone"}</span>
+                                    <div className="h-5 w-5 rounded-full bg-green-950/20 flex items-center justify-center border border-green-500/20">
+                                        <Phone className="h-3 w-3 text-green-500" />
                                     </div>
                                 </div>
                             </div>
                             <div className="grid grid-cols-[140px_1fr] items-center gap-10">
-                                <label className="text-[13px] text-slate-400 text-right font-medium">Mobile</label>
+                                <label className="text-[13px] text-muted-foreground text-right font-medium">Mobile</label>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-[13px] font-bold text-slate-800">{lead.phones?.[1] || "No Mobile"}</span>
-                                    <div className="h-5 w-5 rounded-full bg-green-50 flex items-center justify-center border border-green-100">
-                                        <Phone className="h-3 w-3 text-green-600" />
+                                    <span className="text-[13px] font-bold text-foreground">{lead.phones?.[1] || "No Mobile"}</span>
+                                    <div className="h-5 w-5 rounded-full bg-green-950/20 flex items-center justify-center border border-green-500/20">
+                                        <Phone className="h-3 w-3 text-green-500" />
                                     </div>
                                 </div>
                             </div>
                             <div className="grid grid-cols-[140px_1fr] items-center gap-10">
-                                <label className="text-[13px] text-slate-400 text-right font-medium">Lead Status</label>
-                                <span className="text-[13px] font-bold text-slate-800">{getStatusName(lead.status)}</span>
+                                <label className="text-[13px] text-muted-foreground text-right font-medium">Lead Status</label>
+                                <span className="text-[13px] font-bold text-foreground">{getStatusName(lead.status)}</span>
                             </div>
+                            <div className="grid grid-cols-[140px_1fr] items-center gap-10">
+                                <label className="text-[13px] text-muted-foreground text-right font-medium">Last Contact Date</label>
+                                <span className="text-[13px] font-bold text-foreground">{lead.lastContactDate ? formatDate(lead.lastContactDate) : "-"}</span>
+                            </div>
+                            {lead.campaign && (
+                                <div className="grid grid-cols-[140px_1fr] items-center gap-10">
+                                    <label className="text-[13px] text-muted-foreground text-right font-medium">Campaign</label>
+                                    <Link to={`/campaigns/${lead.campaign.id}`} className="text-[13px] font-bold text-primary hover:underline flex items-center gap-1.5">
+                                        <Megaphone className="h-3.5 w-3.5" />
+                                        {lead.campaign.name}
+                                    </Link>
+                                </div>
+                            )}
+                            {(lead.street || lead.city || lead.state || lead.zipCode || lead.country) && (
+                                <div className="grid grid-cols-[140px_1fr] items-start gap-10">
+                                    <label className="text-[13px] text-muted-foreground text-right font-medium mt-0.5">Address Details</label>
+                                    <div className="text-[13px] font-bold text-foreground flex flex-col gap-0.5">
+                                        {lead.street && <span>{lead.street}</span>}
+                                        {(lead.city || lead.state || lead.zipCode) && (
+                                            <span>
+                                                {[lead.city, lead.state, lead.zipCode].filter(Boolean).join(", ")}
+                                            </span>
+                                        )}
+                                        {lead.country && <span>{lead.country}</span>}
+                                    </div>
+                                </div>
+                            )}
+                            {lead.address && (
+                                <div className="grid grid-cols-[140px_1fr] items-start gap-10">
+                                    <label className="text-[13px] text-muted-foreground text-right font-medium mt-0.5">Full Address</label>
+                                    <span className="text-[13px] font-bold text-foreground whitespace-pre-wrap">{lead.address}</span>
+                                </div>
+                            )}
+                            {lead.description && (
+                                <div className="grid grid-cols-[140px_1fr] items-start gap-10">
+                                    <label className="text-[13px] text-muted-foreground text-right font-medium mt-0.5">Description</label>
+                                    <span className="text-[13px] font-bold text-foreground whitespace-pre-wrap">{lead.description}</span>
+                                </div>
+                            )}
+                            {lead.notes && (
+                                <div className="grid grid-cols-[140px_1fr] items-start gap-10">
+                                    <label className="text-[13px] text-muted-foreground text-right font-medium mt-0.5">Notes</label>
+                                    <span className="text-[13px] font-bold text-foreground whitespace-pre-wrap">{lead.notes}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     {/* Next Actions Chronicle */}
-                    <div className="bg-white rounded-xl shadow-sm border p-8 space-y-6">
-                        <h3 className="text-[15px] font-bold text-slate-800">Next Action</h3>
+                    <div className="bg-card rounded-xl shadow-sm border border-border p-8 space-y-6">
+                        <h3 className="text-[15px] font-bold text-foreground">Next Action</h3>
                         <div className="space-y-4">
-                            {[
-                                { date: "APR 11", text: "hhhh" },
-                                { date: "APR 12", text: "hhhh" },
-                                { date: "APR 13", text: "hhhh" },
-                                { date: "APR 14", text: "hhhh" },
-                                { date: "APR 15", text: "hhhh" },
-                            ].map((action, i) => (
-                                <div key={i} className="flex items-center gap-6 group">
+                            {activities.length > 0 ? (
+                              activities.slice(0, 5).map((action: any, i) => {
+                                const dueDate = action.dueDate || action.createdAt;
+                                const dateObj = new Date(dueDate);
+                                const month = dateObj.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+                                const day = dateObj.getDate();
+                                return (
+                                  <div key={i} className="flex items-center gap-6 group">
                                     <div className="flex items-center">
-                                        <div className="bg-[#10b981] text-white text-[9px] font-black h-5 px-2 flex items-center rounded-l-[2px] tracking-widest">
-                                            {action.date}
-                                        </div>
-                                        <div className="w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[8px] border-l-[#10b981]" />
+                                      <div className="bg-emerald-600 text-white text-[9px] font-black h-5 px-2 flex items-center rounded-l-[2px] tracking-widest shrink-0">
+                                        {month} {day}
+                                      </div>
+                                      <div className="w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[8px] border-l-emerald-600" />
                                     </div>
-                                    <span className="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors uppercase tracking-tight">{action.text}</span>
-                                </div>
-                            ))}
+                                    <span className="text-[13px] font-medium text-muted-foreground group-hover:text-foreground transition-colors uppercase tracking-tight truncate">
+                                      {action.subject} ({action.type?.name || "Task"})
+                                    </span>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <div className="text-sm text-muted-foreground py-2 italic">No upcoming actions</div>
+                            )}
                         </div>
                     </div>
                 </TabsContent>
 
                 <TabsContent value="timeline" className="animate-in fade-in duration-300">
-                    <div className="bg-white rounded-xl shadow-sm border p-20 flex flex-col items-center justify-center text-center opacity-40">
-                        <Clock className="h-12 w-12 text-slate-300 mb-4" />
-                        <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Timeline Active</p>
+                    <div className="bg-card rounded-xl shadow-sm border border-border p-20 flex flex-col items-center justify-center text-center opacity-40">
+                        <Clock className="h-12 w-12 text-muted-foreground/30 mb-4" />
+                        <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Timeline Active</p>
                     </div>
                 </TabsContent>
             </Tabs>

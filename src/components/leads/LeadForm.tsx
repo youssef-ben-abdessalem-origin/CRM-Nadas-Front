@@ -98,10 +98,13 @@ export const LeadForm = ({ onCancel, onSubmit, isPending, initialData }: LeadFor
     priorityId: 0,
     qualificationStageId: 0,
     notes: "",
+    description: "",
     tags: [] as string[],
     ownerId: undefined as number | undefined,
     nextFollowUp: "",
+    lastContactDate: "",
     accountId: null as number | null,
+    campaignId: 0,
   });
 
   const [initialDataProcessed, setInitialDataProcessed] = useState(false);
@@ -142,10 +145,13 @@ export const LeadForm = ({ onCancel, onSubmit, isPending, initialData }: LeadFor
         priorityId: initialData.priorityId || 0,
         qualificationStageId: initialData.qualificationStageId || 0,
         notes: initialData.notes || "",
+        description: initialData.description || "",
         tags: initialData.tags || [],
         ownerId: initialData.ownerId,
         nextFollowUp: initialData.nextFollowUp ? new Date(initialData.nextFollowUp).toISOString().split('T')[0] : "",
+        lastContactDate: initialData.lastContactDate ? new Date(initialData.lastContactDate).toISOString().split('T')[0] : "",
         accountId: initialData.accountId || null,
+        campaignId: initialData.campaignId || 0,
       });
       setInitialDataProcessed(true);
       if (initialData.name) {
@@ -157,6 +163,11 @@ export const LeadForm = ({ onCancel, onSubmit, isPending, initialData }: LeadFor
   const { data: accounts = [] } = useQuery({
     queryKey: ["accounts"],
     queryFn: () => api.accounts.getAll().catch(() => []),
+  });
+
+  const { data: campaigns = [] } = useQuery({
+    queryKey: ["campaigns"],
+    queryFn: () => api.campaigns.getAll().catch(() => []),
   });
 
   const { data: users = [] } = useQuery({
@@ -672,6 +683,66 @@ export const LeadForm = ({ onCancel, onSubmit, isPending, initialData }: LeadFor
                       onChange={(e) => setNewLead({ ...newLead, location: e.target.value })}
                     />
                   </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground">Street</Label>
+                    <Input
+                      placeholder="e.g. 123 Main St"
+                      className="h-11 bg-background border-border"
+                      value={newLead.street}
+                      onChange={(e) => setNewLead({ ...newLead, street: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground">City</Label>
+                    <Input
+                      placeholder="e.g. San Francisco"
+                      className="h-11 bg-background border-border"
+                      value={newLead.city}
+                      onChange={(e) => setNewLead({ ...newLead, city: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground">State/Region</Label>
+                    <Input
+                      placeholder="e.g. CA"
+                      className="h-11 bg-background border-border"
+                      value={newLead.state}
+                      onChange={(e) => setNewLead({ ...newLead, state: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground">Zip Code</Label>
+                    <Input
+                      placeholder="e.g. 94105"
+                      className="h-11 bg-background border-border"
+                      value={newLead.zipCode}
+                      onChange={(e) => setNewLead({ ...newLead, zipCode: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-muted-foreground">Country</Label>
+                    <Input
+                      placeholder="e.g. United States"
+                      className="h-11 bg-background border-border"
+                      value={newLead.country}
+                      onChange={(e) => setNewLead({ ...newLead, country: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label className="text-xs font-semibold text-muted-foreground">Full Address</Label>
+                    <Textarea
+                      placeholder="e.g. 123 Main St, San Francisco, CA 94105, USA"
+                      className="bg-background border-border min-h-[80px]"
+                      value={newLead.address}
+                      onChange={(e) => setNewLead({ ...newLead, address: e.target.value })}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -799,6 +870,24 @@ export const LeadForm = ({ onCancel, onSubmit, isPending, initialData }: LeadFor
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-muted-foreground">Associated Campaign</Label>
+                  <Select
+                    value={String(newLead.campaignId || 0)}
+                    onValueChange={(v) => setNewLead({ ...newLead, campaignId: Number.parseInt(v) })}
+                  >
+                    <SelectTrigger className="h-11 bg-background border-border">
+                      <SelectValue placeholder="Select campaign" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">None</SelectItem>
+                      {campaigns.map((camp: any) => (
+                        <SelectItem key={camp.id} value={String(camp.id)}>{camp.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           )}
@@ -813,6 +902,16 @@ export const LeadForm = ({ onCancel, onSubmit, isPending, initialData }: LeadFor
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-muted-foreground">Last Contact Date</Label>
+                  <Input
+                    type="date"
+                    className="h-11 bg-background border-border"
+                    value={newLead.lastContactDate}
+                    onChange={(e) => setNewLead({ ...newLead, lastContactDate: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <Label className="text-xs font-semibold text-muted-foreground">Next Follow-up Date</Label>
                   <Input
                     type="date"
@@ -822,7 +921,7 @@ export const LeadForm = ({ onCancel, onSubmit, isPending, initialData }: LeadFor
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label className="text-xs font-semibold text-muted-foreground">Tags (comma separated)</Label>
                   <Input
                     placeholder="e.g. enterprise, important, trade-fair"
@@ -838,10 +937,20 @@ export const LeadForm = ({ onCancel, onSubmit, isPending, initialData }: LeadFor
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
+                  <Label className="text-xs font-semibold text-muted-foreground">Description</Label>
+                  <Textarea
+                    placeholder="Brief description of the lead..."
+                    className="bg-background border-border min-h-[100px] resize-none"
+                    value={newLead.description}
+                    onChange={(e) => setNewLead({ ...newLead, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
                   <Label className="text-xs font-semibold text-muted-foreground">Lead Intelligence Brief (Notes)</Label>
                   <Textarea
                     placeholder="Provide detailed context..."
-                    className="bg-background border-border min-h-[150px] resize-none"
+                    className="bg-background border-border min-h-[120px] resize-none"
                     value={newLead.notes}
                     onChange={(e) => setNewLead({ ...newLead, notes: e.target.value })}
                   />

@@ -1,6 +1,5 @@
-  import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
   import { useNavigate, useSearchParams } from "react-router-dom";
-  import { LeadForm } from "@/components/leads/LeadForm";
   import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
   import {
     DndContext,
@@ -139,16 +138,11 @@
     const [filterSource, setFilterSource] = useState<string>("all");
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
     const [showDetail, setShowDetail] = useState(false);
-    const [showAddLead, setShowAddLead] = useState(false);
-
     useEffect(() => {
         if (searchParams.get("create") === "true") {
-            setShowAddLead(true);
-            const newParams = new URLSearchParams(searchParams);
-            newParams.delete("create");
-            setSearchParams(newParams, { replace: true });
+            navigate("/leads/new", { replace: true });
         }
-    }, [searchParams, setSearchParams]);
+    }, [searchParams, navigate]);
     const [showConvert, setShowConvert] = useState(false);
     const [convertType, setConvertType] = useState<"contact" | "deal">("contact");
     const [isCreateDeal, setIsCreateDeal] = useState(false);
@@ -300,36 +294,7 @@
       onError: (err: Error) => toast.error(err.message),
     });
 
-    const createLeadMutation = useMutation({
-        mutationFn: api.leads.create,
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["leads"] });
-          toast.success("Lead created successfully");
-          setShowAddLead(false);
-        },
-        onError: (err: Error) => toast.error(err.message),
-      });
-  
-      const handleCreateLead = (data: any) => {
-          const { useExistingAccount, ...rest } = data;
-  
-          const payload = {
-          ...rest,
-          emails: rest.emails.filter((e: string) => e.trim() !== ""),
-          phones: rest.phones.filter((p: string) => p.trim() !== ""),
-          company: useExistingAccount
-              ? accounts.find((a: any) => a.id === rest.accountId)?.name || ""
-              : rest.company,
-          sourceId: rest.sourceId || sources[0]?.id,
-          value: Number.parseInt(rest.value) || 0,
-          stageId: rest.stageId || stages[0]?.id,
-          scoreCategoryId: rest.scoreCategoryId || scores[0]?.id,
-          nextFollowUp: rest.nextFollowUp ? new Date(rest.nextFollowUp) : undefined,
-          accountId: useExistingAccount ? rest.accountId : undefined,
-          };
-  
-          createLeadMutation.mutate(payload);
-      };
+
 
     const convertMutation = useMutation({
       mutationFn: ({ id, data }: { id: number; data?: any }) => api.leads.convert(id, data),
@@ -444,7 +409,7 @@
         leads.length > 0
           ? Math.round(
             (leads.filter(
-              (l: Lead) => l.stage?.name?.toLowerCase() === "qualified",
+              (l: Lead) => l.stage?.name?.toLowerCase() === "converted",
             ).length /
               leads.length) *
             100,
@@ -880,7 +845,7 @@
         return;
       }
       const lostStage = stages.find(
-        (s: DynamicOption) => s.name.toLowerCase() === "unqualified" || s.name.toLowerCase() === "lost"
+        (s: DynamicOption) => s.name.toLowerCase() === "lost"
       );
       if (lostStage) {
         updateMutation.mutate({
@@ -895,7 +860,7 @@
         toast.success(t('leads.statusUpdates.markedLost', { name: selectedLead.name }));
         setShowLostDialog(false);
       } else {
-        toast.error("Lost/Unqualified stage not found");
+        toast.error("Lost stage not found");
       }
     };
 
@@ -911,17 +876,17 @@
     };
 
     const isLeadLost = (lead: Lead | null) =>
-      lead?.stage?.name?.toLowerCase() === "unqualified" ||
       lead?.stage?.name?.toLowerCase() === "lost" ||
+      lead?.stage?.name?.toLowerCase() === "converted" ||
       lead?.isConverted;
 
     const handleDisqualify = () => {
       if (!selectedLead) return;
-      const unqualifiedStage = stages.find(
-        (s: DynamicOption) => s.name.toLowerCase() === "unqualified",
+      const lostStage = stages.find(
+        (s: DynamicOption) => s.name.toLowerCase() === "lost",
       );
-      if (unqualifiedStage) {
-        handleStageChange(selectedLead.id, unqualifiedStage.id);
+      if (lostStage) {
+        handleStageChange(selectedLead.id, lostStage.id);
       }
       setShowDetail(false);
       setSelectedLead(null);
@@ -1056,7 +1021,7 @@
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
-              {/* <div className="relative">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search leads..."
@@ -1064,7 +1029,7 @@
                   onChange={(e) => setSearch(e.target.value)}
                   className="h-9 w-72 pl-9"
                 />
-              </div> */}
+              </div>
               <Select value={filterScore} onValueChange={setFilterScore}>
                 <SelectTrigger className="h-9 w-32">
                   <SelectValue placeholder={t('leads.toolbar.score', 'Score')} />
@@ -1122,7 +1087,7 @@
                   <CheckSquare className="h-3.5 w-3.5 mr-1" /> Bulk ({selectedLeads.length})
                 </Button>
               )}
-              <Button size="sm" onClick={() => setShowAddLead(true)}>
+              <Button size="sm" onClick={() => navigate("/leads/new")}>
                 <Plus className="h-3.5 w-3.5 mr-1" /> Add Lead
               </Button>
             </div>
@@ -1959,21 +1924,7 @@
             open={showTagsDialog}
             onOpenChange={setShowTagsDialog}
           />
-          <Dialog open={showAddLead} onOpenChange={setShowAddLead}>
-            <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Add New Lead</DialogTitle>
-                <DialogDescription>
-                  Enter the details for the new commercial lead.
-                </DialogDescription>
-              </DialogHeader>
-              <LeadForm 
-                onCancel={() => setShowAddLead(false)} 
-                onSubmit={handleCreateLead}
-                isPending={createLeadMutation.isPending}
-              />
-            </DialogContent>
-          </Dialog>
+
 
           <LeadDetailDialog
             leadId={selectedLead?.id || null}

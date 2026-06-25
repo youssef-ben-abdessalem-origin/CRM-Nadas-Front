@@ -105,6 +105,7 @@ const NewLead = () => {
         : rest.website,
       nextFollowUp: rest.nextFollowUp ? new Date(rest.nextFollowUp) : undefined,
       accountId: useExistingAccount ? rest.accountId : undefined,
+      campaignId: rest.campaignId && rest.campaignId !== 0 ? rest.campaignId : undefined,
     };
 
     if (isEdit) {

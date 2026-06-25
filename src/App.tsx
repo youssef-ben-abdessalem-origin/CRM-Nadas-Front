@@ -53,8 +53,45 @@ import Roles from "./pages/team/Roles.tsx";
 import RoleConfig from "./pages/team/RoleConfig.tsx";
 import Privileges from "./pages/team/Privileges.tsx";
 import Departments from "./pages/team/Departments.tsx";
+
+import Employees from "./pages/hr/Employees.tsx";
+import EmployeeDetail from "./pages/hr/EmployeeDetail.tsx";
+import EmployeeFormPage from "./pages/hr/EmployeeFormPage.tsx";
+import Positions from "./pages/hr/Positions.tsx";
+import CostCenters from "./pages/hr/CostCenters.tsx";
+import Contracts from "./pages/hr/Contracts.tsx";
+import EmployeeDocuments from "./pages/hr/EmployeeDocuments.tsx";
+import CnssProfiles from "./pages/hr/CnssProfiles.tsx";
+import IrppTaxProfiles from "./pages/hr/IrppTaxProfiles.tsx";
+import Attendance from "./pages/hr/Attendance.tsx";
+import Leaves from "./pages/hr/Leaves.tsx";
+import Shifts from "./pages/hr/Shifts.tsx";
+import ShiftAssignments from "./pages/hr/ShiftAssignments.tsx";
+import OvertimeRequests from "./pages/hr/OvertimeRequests.tsx";
+import HrSettings from "./pages/hr/HrSettings.tsx";
+import LeaveBalances from "./pages/hr/LeaveBalances.tsx";
+import VacationAccrualRules from "./pages/hr/VacationAccrualRules.tsx";
+import EmployeePortal from "./pages/hr/EmployeePortal.tsx";
+import HrReports from "./pages/hr/HrReports.tsx";
+import DocumentGeneration from "./pages/hr/DocumentGeneration.tsx";
+import SignaturesInbox from "./pages/signatures/SignaturesInbox.tsx";
+import SignatureRequestDetail from "./pages/signatures/SignatureRequestDetail.tsx";
+import SignatureWorkspace from "./pages/signatures/SignatureWorkspace.tsx";
+
+import SalaryComponents from "./pages/payroll/SalaryComponents.tsx";
+import PayrollPeriods from "./pages/payroll/PayrollPeriods.tsx";
+import PayslipDetail from "./pages/payroll/PayslipDetail.tsx";
+import LoansAdvances from "./pages/payroll/LoansAdvances.tsx";
+import PayrollSettings from "./pages/payroll/PayrollSettings.tsx";
+import CnssDeclarations from "./pages/payroll/CnssDeclarations.tsx";
+import IrppDeclarations from "./pages/payroll/IrppDeclarations.tsx";
+import BankTransfers from "./pages/payroll/BankTransfers.tsx";
+import StcSettlements from "./pages/payroll/StcSettlements.tsx";
+import ThirteenthMonth from "./pages/payroll/ThirteenthMonth.tsx";
 import Documents from "./pages/Documents.tsx";
 import CampaignsPage from "./pages/Campaigns.tsx";
+import CampaignDetail from "./pages/CampaignDetail.tsx";
+import NewCampaign from "./pages/NewCampaign.tsx";
 import NewAutomationRule from "./pages/NewAutomationRule.tsx";
 import NewVendor from "./pages/NewVendor";
 import EditProduct from "./pages/EditProduct.tsx";
@@ -147,6 +184,30 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <CampaignsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/campaigns/new"
+              element={
+                <ProtectedRoute>
+                  <NewCampaign />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/campaigns/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <NewCampaign />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/campaigns/:id"
+              element={
+                <ProtectedRoute>
+                  <CampaignDetail />
                 </ProtectedRoute>
               }
             />
@@ -383,6 +444,286 @@ const App = () => {
               }
             />
             <Route path="/team" element={<Navigate to="/team/users" replace />} />
+            <Route
+              path="/hr/employees"
+              element={
+                <ProtectedRoute>
+                  <Employees />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/employees/new"
+              element={
+                <ProtectedRoute>
+                  <EmployeeFormPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/employees/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <EmployeeFormPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/employees/:id"
+              element={
+                <ProtectedRoute>
+                  <EmployeeDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/positions"
+              element={
+                <ProtectedRoute>
+                  <Positions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/cost-centers"
+              element={
+                <ProtectedRoute>
+                  <CostCenters />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/contracts"
+              element={
+                <ProtectedRoute>
+                  <Contracts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/documents"
+              element={
+                <ProtectedRoute>
+                  <EmployeeDocuments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/cnss-profiles"
+              element={
+                <ProtectedRoute>
+                  <CnssProfiles />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/irpp-tax-profiles"
+              element={
+                <ProtectedRoute>
+                  <IrppTaxProfiles />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/attendance"
+              element={
+                <ProtectedRoute>
+                  <Attendance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/leaves"
+              element={
+                <ProtectedRoute>
+                  <Leaves />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/shifts"
+              element={
+                <ProtectedRoute>
+                  <Shifts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/shift-assignments"
+              element={
+                <ProtectedRoute>
+                  <ShiftAssignments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/overtime-requests"
+              element={
+                <ProtectedRoute>
+                  <OvertimeRequests />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/hr-settings"
+              element={
+                <ProtectedRoute>
+                  <HrSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/leave-balances"
+              element={
+                <ProtectedRoute>
+                  <LeaveBalances />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/leave-balances/:employeeId"
+              element={
+                <ProtectedRoute>
+                  <LeaveBalances />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/vacation-accrual"
+              element={
+                <ProtectedRoute>
+                  <VacationAccrualRules />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/portal"
+              element={
+                <ProtectedRoute>
+                  <EmployeePortal />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/reports"
+              element={
+                <ProtectedRoute>
+                  <HrReports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr/document-generation"
+              element={
+                <ProtectedRoute>
+                  <DocumentGeneration />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/components"
+              element={
+                <ProtectedRoute>
+                  <SalaryComponents />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/periods"
+              element={
+                <ProtectedRoute>
+                  <PayrollPeriods />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/payslips/:id"
+              element={
+                <ProtectedRoute>
+                  <PayslipDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/signatures"
+              element={
+                <ProtectedRoute>
+                  <SignaturesInbox />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/signatures/:taskId"
+              element={
+                <ProtectedRoute>
+                  <SignatureRequestDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/signatures/:taskId/sign"
+              element={
+                <ProtectedRoute>
+                  <SignatureWorkspace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/loans-advances"
+              element={
+                <ProtectedRoute>
+                  <LoansAdvances />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/settings"
+              element={
+                <ProtectedRoute>
+                  <PayrollSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/cnss-declarations"
+              element={
+                <ProtectedRoute>
+                  <CnssDeclarations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/irpp-declarations"
+              element={
+                <ProtectedRoute>
+                  <IrppDeclarations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/bank-transfers"
+              element={
+                <ProtectedRoute>
+                  <BankTransfers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/thirteenth-month"
+              element={
+                <ProtectedRoute>
+                  <ThirteenthMonth />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/stc-settlements"
+              element={
+                <ProtectedRoute>
+                  <StcSettlements />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/products"
               element={

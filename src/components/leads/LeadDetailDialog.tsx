@@ -24,6 +24,7 @@ import {
   FileText,
   Pencil,
   ArrowRight,
+  Megaphone,
 } from "lucide-react";
 import {
   Dialog,
@@ -35,6 +36,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -58,6 +60,7 @@ interface LeadDetailDialogProps {
 
 export function LeadDetailDialog({ leadId, open, onOpenChange, onEdit, onAddTask }: LeadDetailDialogProps) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
 
   const { data: lead, isLoading } = useQuery({
@@ -143,6 +146,20 @@ export function LeadDetailDialog({ leadId, open, onOpenChange, onEdit, onAddTask
                           <DetailRow icon={Mail} label="Email Address" value={lead.emails?.[0] || "No Email"} className="text-primary hover:underline cursor-pointer" />
                           <DetailRow icon={Phone} label="Primary Phone" value={lead.phones?.[0] || "No Phone"} />
                           <DetailRow icon={DollarSign} label="Lead Value" value={<CurrencyNumbers amount={lead.value || 0} />} />
+                          {lead.campaign && (
+                            <DetailRow 
+                              icon={Megaphone} 
+                              label="Campaign" 
+                              value={
+                                <span onClick={() => {
+                                  onOpenChange(false);
+                                  navigate(`/campaigns/${lead.campaign.id}`);
+                                }} className="text-primary hover:underline cursor-pointer">
+                                  {lead.campaign.name}
+                                </span>
+                              } 
+                            />
+                          )}
                         </div>
                       </section>
 

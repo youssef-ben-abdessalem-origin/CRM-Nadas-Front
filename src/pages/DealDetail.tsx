@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   ChevronLeft,
@@ -26,7 +26,8 @@ import {
   Tag,
   Zap,
   Target,
-  BarChart3
+  BarChart3,
+  Megaphone
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { CRMLayout } from "@/components/CRMLayout";
@@ -45,6 +46,7 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 
 export default function DealDetail() {
   const { id } = useParams();
@@ -74,8 +76,8 @@ export default function DealDetail() {
   if (isLoading) {
     return (
       <CRMLayout title="Deal Details">
-        <div className="flex h-full items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex h-64 items-center justify-center">
+          <div className="text-muted-foreground italic">Loading deal record...</div>
         </div>
       </CRMLayout>
     );
@@ -84,9 +86,9 @@ export default function DealDetail() {
   if (!deal) {
     return (
       <CRMLayout title="Deal Not Found">
-        <div className="flex h-full items-center justify-center flex-col gap-4 bg-background">
-          <p className="text-muted-foreground font-bold text-sm tracking-widest uppercase">Target opportunity not found</p>
-          <Button onClick={() => navigate("/deals")} className="bg-primary hover:bg-primary/90 font-black tracking-widest text-[10px]">BACK TO REPOSITORY</Button>
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <p className="text-muted-foreground">Deal record not found.</p>
+          <Button onClick={() => navigate("/deals")}>Back to Deals</Button>
         </div>
       </CRMLayout>
     );
@@ -104,67 +106,82 @@ export default function DealDetail() {
   const totalStages = 5; // Assuming 5 stages for visualization
 
   return (
-    <CRMLayout title={`${deal.name}`}>
-      <div className="flex flex-col h-full bg-background -m-6 -mt-3">
-        {/* Opportunity Context Header */}
-        <header className="h-20 shrink-0 flex items-center justify-between px-6 bg-card/40 backdrop-blur-xl border-b border-border sticky top-0 z-30">
-          <div className="flex items-center gap-5">
-            <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:bg-white/5 rounded-xl border border-transparent hover:border-white/5" onClick={() => navigate("/deals")}>
+    <CRMLayout title={deal.name}>
+      <div className="flex flex-col h-screen -m-6 bg-background">
+        {/* Header */}
+        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted" onClick={() => navigate("/deals")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            
-            <div className="flex items-center gap-4">
-              <div className="relative group">
-                <div className="h-11 w-11 border-2 border-primary/20 ring-4 ring-primary/5 shadow-2xl rounded-2xl flex items-center justify-center bg-primary/10">
-                   <Target className="h-6 w-6 text-primary" />
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 bg-yellow-500 border-2 border-background rounded-full shadow-lg" />
-              </div>
-              
-              <div className="flex flex-col justify-center">
-                <div className="flex items-center gap-3">
-                  <h1 className="text-xl font-black tracking-tight text-white leading-none capitalize">{deal.name}</h1>
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-black text-[9px] uppercase tracking-widest px-2 h-5">
-                    OPPORTUNITY #{deal.id}
+            <Avatar className="h-10 w-10 border border-border shadow-sm">
+              <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                {deal.name.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-bold text-foreground capitalize">
+                  {deal.name}
+                </h1>
+                {deal.stage && (
+                  <Badge 
+                    style={{ 
+                      backgroundColor: deal.stage.color + "15", 
+                      color: deal.stage.color,
+                      borderColor: deal.stage.color + "30" 
+                    }}
+                    variant="outline"
+                  >
+                    {deal.stage.name}
                   </Badge>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground font-bold text-[10px] uppercase tracking-wider mt-1.5 grayscale opacity-60">
-                   <Building2 className="h-3 w-3" />
-                   <span className="hover:text-primary transition-colors cursor-pointer">{deal.account?.name || "Target Account Unassigned"}</span>
-                   <span className="opacity-30">/</span>
-                   <span className="text-primary/70">{deal.type?.name || "New Business"}</span>
-                </div>
+                )}
               </div>
+              <p className="text-[11px] text-muted-foreground font-medium">
+                Opportunity #{deal.id}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <Button variant="outline" className="h-10 border-white/10 bg-white/5 text-white/50 font-black uppercase text-[10px] tracking-widest px-4 rounded-xl hover:bg-white/10 hover:text-white transition-all">
-               <DollarSign className="h-3.5 w-3.5 mr-2" /> ADJUST BUDGET
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="font-bold h-8 px-4 border-border text-foreground hover:bg-muted"
+            >
+              <DollarSign className="h-3.5 w-3.5 mr-1" /> Adjust Budget
             </Button>
             
-            <Button className="h-10 px-6 bg-primary hover:bg-primary/90 text-white font-black shadow-lg shadow-primary/20 rounded-xl gap-2 tracking-widest text-[11px] active:scale-95 transition-all">
-              <CheckCircle className="h-4 w-4" /> WON OPPORTUNITY
+            <Button 
+              size="sm" 
+              className="font-bold h-8 px-4 bg-primary hover:bg-primary/95 text-white"
+            >
+              <CheckCircle className="h-3.5 w-3.5 mr-1" /> Won Opportunity
             </Button>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:bg-white/5 border border-white/5 hover:border-white/10 transition-all rounded-xl">
-                  <MoreHorizontal className="h-5 w-5" />
+                <Button variant="outline" size="icon" className="h-8 w-8 border-border">
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-popover border-border backdrop-blur-2xl">
-                <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest opacity-40">Operational Actions</DropdownMenuLabel>
-                <DropdownMenuItem className="text-[11px] font-bold uppercase gap-2">
+              <DropdownMenuContent align="end" className="w-48 bg-card border border-border">
+                <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Actions</DropdownMenuLabel>
+                <DropdownMenuItem className="text-[12px] font-semibold gap-2 cursor-pointer text-foreground">
                   <BarChart3 className="h-3.5 w-3.5 text-blue-500" /> Forecast Update
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-[11px] font-bold uppercase gap-2">
+                <DropdownMenuItem className="text-[12px] font-semibold gap-2 cursor-pointer text-foreground">
                   <Zap className="h-3.5 w-3.5 text-yellow-500" /> Rush Operation
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-white/5" />
-                <DropdownMenuItem className="text-[11px] font-bold uppercase gap-2 text-red-500 focus:bg-red-500/10" onClick={() => {
-                   if (confirm("Permanently archive opportunity?")) deleteMutation.mutate(deal.id);
-                }}>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="text-[12px] font-semibold gap-2 cursor-pointer text-red-500 focus:bg-red-950/20 focus:text-red-500"
+                  onClick={() => {
+                    if (confirm("Are you sure you want to permanently delete this opportunity?")) {
+                      deleteMutation.mutate(deal.id);
+                    }
+                  }}
+                >
                   <Trash2 className="h-3.5 w-3.5" /> Purge Opportunity
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -173,126 +190,141 @@ export default function DealDetail() {
         </header>
 
         <div className="flex flex-1 overflow-hidden">
-          {/* Intelligence Sidebar */}
-          <aside className="w-64 shrink-0 border-r border-border bg-[hsl(var(--sidebar-background))] overflow-y-auto hidden lg:block">
-            <div className="py-6 space-y-6">
-              <div>
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-4 px-6 opacity-50">
-                   Tactical Signals
-                </h3>
-                <nav className="px-3 space-y-0.5">
-                  {relatedLists.map((item) => (
-                    <button
-                      key={item.label}
-                      className="sidebar-item w-full sidebar-item-inactive group"
-                    >
-                      <item.icon className="h-4 w-4 shrink-0 opacity-60 group-hover:opacity-100" />
-                      <span className="flex-1 text-left font-bold uppercase tracking-wider text-[11px]">{item.label}</span>
-                      {item.count > 0 && (
-                        <Badge variant="secondary" className="h-5 min-w-[20px] px-1 bg-white/5 text-white/40 border-none font-black text-[9px]">
-                          {item.count}
-                        </Badge>
-                      )}
-                    </button>
-                  ))}
-                </nav>
-              </div>
+          {/* Sidebar */}
+          <aside className="w-64 bg-card border-r border-border overflow-y-auto shrink-0 py-4">
+            <div className="px-4 mb-4">
+              <h3 className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">
+                Tactical Signals
+              </h3>
             </div>
+            <nav className="space-y-0.5 px-2">
+              {relatedLists.map((item) => (
+                <button
+                  key={item.label}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-md hover:bg-muted/50 text-muted-foreground hover:text-foreground group transition-colors text-left"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <item.icon className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <span className="text-[13px] font-medium">{item.label}</span>
+                  </div>
+                  {item.count > 0 && (
+                    <Badge variant="secondary" className="h-5 px-1.5 bg-muted text-muted-foreground font-bold border-none text-[10px]">
+                      {item.count}
+                    </Badge>
+                  )}
+                </button>
+              ))}
+            </nav>
           </aside>
 
-          {/* Master Opportunity Content */}
-          <main className="flex-1 overflow-y-auto bg-background/50 p-8 xl:p-12">
-            <div className="max-w-6xl mx-auto space-y-12">
-              <Tabs defaultValue="overview" className="space-y-10">
-                <TabsList className="bg-white/5 border border-white/5 rounded-2xl p-1 gap-1 h-12 shadow-inner">
-                  <TabsTrigger value="overview" className="px-8 h-10 data-[state=active]:bg-primary data-[state=active]:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all shadow-2xl">OVERVIEW</TabsTrigger>
-                  <TabsTrigger value="products" className="px-8 h-10 data-[state=active]:bg-primary data-[state=active]:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all shadow-2xl">SOLUTIONS</TabsTrigger>
-                  <TabsTrigger value="quotes" className="px-8 h-10 data-[state=active]:bg-primary data-[state=active]:text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-xl transition-all shadow-2xl">FINANCIALS</TabsTrigger>
-                </TabsList>
+          {/* Content Area */}
+          <main className="flex-1 overflow-y-auto p-6 space-y-6">
+            <Tabs defaultValue="overview" className="space-y-6">
+              <TabsList className="bg-card border border-border p-1 rounded-lg">
+                <TabsTrigger value="overview" className="font-bold text-xs uppercase px-6">OVERVIEW</TabsTrigger>
+                <TabsTrigger value="products" className="font-bold text-xs uppercase px-6">SOLUTIONS</TabsTrigger>
+                <TabsTrigger value="quotes" className="font-bold text-xs uppercase px-6">FINANCIALS</TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="overview" className="space-y-12 animate-in fade-in duration-500">
-                  {/* Pipeline Visualization */}
-                  <div className="p-10 bg-card/30 rounded-[3rem] border border-border shadow-2xl">
-                     <div className="flex items-center justify-between mb-8">
-                        <div>
-                           <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Current Pipeline Stage</label>
-                           <h2 className="text-2xl font-black text-primary tracking-tighter uppercase">{deal.stage?.name || "DISCOVERY"}</h2>
-                        </div>
-                        <div className="text-right">
-                           <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">Estimated Value</label>
-                           <h2 className="text-2xl font-black text-white tracking-tighter">${(deal.value || 0).toLocaleString()}</h2>
-                        </div>
-                     </div>
-                     <div className="flex gap-2 h-3">
-                        {Array.from({ length: totalStages }).map((_, i) => (
-                           <div 
-                              key={i} 
-                              className={cn(
-                                 "flex-1 rounded-full transition-all duration-700",
-                                 i < stageNumber ? "bg-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]" : "bg-white/5"
-                              )} 
-                           />
-                        ))}
-                     </div>
+              <TabsContent value="overview" className="space-y-6 animate-in fade-in duration-300">
+                {/* Pipeline Stage Visualization */}
+                <Card className="bg-card border border-border p-6 shadow-sm rounded-xl">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Current Pipeline Stage</p>
+                      <h2 className="text-xl font-bold text-primary tracking-tight uppercase mt-0.5">{deal.stage?.name || "DISCOVERY"}</h2>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Estimated Value</p>
+                      <h2 className="text-xl font-bold text-foreground tracking-tight mt-0.5">
+                        <CurrencyNumbers amount={deal.value || 0} />
+                      </h2>
+                    </div>
                   </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                     {/* Deal Intelligence Sheet */}
-                     <div className="lg:col-span-2 p-10 bg-card/30 rounded-[3rem] border border-border shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                           <Target className="h-40 w-40 -mr-16 -mt-16" />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                           <div className="space-y-8">
-                              <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Expected Close</label>
-                                 <div className="text-xl font-black text-white italic">{formatDate(deal.expectedCloseDate)}</div>
-                              </div>
-                              <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Probability Coefficient</label>
-                                 <div className="flex items-end gap-2">
-                                    <span className="text-4xl font-black text-green-500 tracking-tighter">{deal.probability || 0}%</span>
-                                    <span className="text-[10px] font-black text-white/20 uppercase pb-1.5 self-end">Win Factor</span>
-                                 </div>
-                              </div>
-                           </div>
-                           <div className="space-y-8 border-l border-white/5 md:pl-10">
-                              <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Decision Authority</label>
-                                 <div className="flex items-center gap-3 pt-1">
-                                    <Avatar className="h-8 w-8">
-                                       <AvatarFallback className="bg-primary/20 text-[10px] font-black text-primary">DP</AvatarFallback>
-                                    </Avatar>
-                                    <span className="text-sm font-black text-white/90">Director Level</span>
-                                 </div>
-                              </div>
-                              <div className="space-y-2">
-                                 <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Last Signal</label>
-                                 <p className="text-xs font-black text-white/40 uppercase tracking-tighter italic">{formatDate(deal.updatedAt)}</p>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-
-                     {/* Tactical Forecast Card */}
-                     <div className="p-10 bg-primary/[0.03] rounded-[3rem] border border-primary/10 flex flex-col justify-between shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none group-hover:scale-110 transition-transform">
-                           <Zap className="h-40 w-40 -mr-20 -mt-20 text-primary" />
-                        </div>
-                        <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Forecast Status</h3>
-                        <div className="space-y-2 py-6">
-                           <div className="text-5xl font-black tracking-tighter text-white uppercase italic">COMMIT</div>
-                           <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest leading-relaxed">High-confidence opportunity included in primary forecast.</p>
-                        </div>
-                        <Button variant="outline" className="w-full border-primary/20 bg-primary/5 text-primary font-black uppercase text-[10px] tracking-[0.2em] h-12 hover:bg-primary/20 rounded-[1.25rem] shadow-xl">
-                           <BarChart3 className="h-3.5 w-3.5 mr-2" />
-                           CALCULATE ROI
-                        </Button>
-                     </div>
+                  <div className="flex gap-2 h-2.5 bg-muted rounded-full p-0.5 overflow-hidden">
+                    {Array.from({ length: totalStages }).map((_, i) => (
+                      <div 
+                        key={i} 
+                        className={cn(
+                          "flex-1 h-1.5 rounded-full transition-all duration-500",
+                          i < stageNumber ? "bg-primary" : "bg-muted/50"
+                        )} 
+                      />
+                    ))}
                   </div>
-                </TabsContent>
-              </Tabs>
-            </div>
+                </Card>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Deal Details */}
+                  <Card className="lg:col-span-2 bg-card border border-border p-6 shadow-sm rounded-xl space-y-6">
+                    <h3 className="text-sm font-bold text-foreground border-b border-border pb-3">Deal Intelligence</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                      <div className="space-y-1">
+                        <span className="text-xs text-muted-foreground block font-medium">Expected Close</span>
+                        <span className="text-sm font-semibold text-foreground">{formatDate(deal.expectedCloseDate)}</span>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <span className="text-xs text-muted-foreground block font-medium">Probability Coefficient</span>
+                        <span className="text-sm font-bold text-green-500 block">{deal.probability || 0}% Win Factor</span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-xs text-muted-foreground block font-medium">Decision Authority</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Avatar className="h-6 w-6">
+                            <AvatarFallback className="bg-primary/10 text-[9px] font-bold text-primary">DP</AvatarFallback>
+                          </Avatar>
+                          <span className="text-xs font-semibold text-foreground">Director Level</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-xs text-muted-foreground block font-medium">Last Signal</span>
+                        <span className="text-xs font-semibold text-foreground">{formatDate(deal.updatedAt)}</span>
+                      </div>
+
+                      {deal.campaign && (
+                        <div className="space-y-1 md:col-span-2 border-t border-border pt-4 mt-2">
+                          <span className="text-xs text-muted-foreground block font-medium mb-1">Source Campaign</span>
+                          <Link 
+                            to={`/campaigns/${deal.campaign.id}`} 
+                            className="text-sm font-bold text-primary hover:underline inline-flex items-center gap-1.5"
+                          >
+                            <Megaphone className="h-4 w-4" />
+                            {deal.campaign.name}
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+
+                  {/* Forecast Card */}
+                  <Card className="bg-primary/5 border border-primary/10 p-6 shadow-sm rounded-xl flex flex-col justify-between relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:scale-105 transition-transform">
+                      <Zap className="h-32 w-32 -mr-16 -mt-16 text-primary" />
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Forecast Status</h4>
+                      <div className="text-3xl font-black tracking-tight text-foreground italic uppercase">COMMIT</div>
+                      <p className="text-[11px] font-medium text-muted-foreground mt-2 leading-relaxed">
+                        High-confidence opportunity included in primary forecast.
+                      </p>
+                    </div>
+                    
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-6 border-primary/20 bg-card hover:bg-primary/10 text-primary font-bold text-xs h-10 rounded-lg shadow-sm"
+                    >
+                      <BarChart3 className="h-3.5 w-3.5 mr-1.5" />
+                      Calculate ROI
+                    </Button>
+                  </Card>
+                </div>
+              </TabsContent>
+            </Tabs>
           </main>
         </div>
       </div>

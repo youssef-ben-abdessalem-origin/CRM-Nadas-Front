@@ -143,8 +143,8 @@ const ActivitiesPage = () => {
       case "lead":
         return leads
           .filter((l: any) => 
-            l.stage?.name?.toLowerCase() !== "unqualified" && 
             l.stage?.name?.toLowerCase() !== "lost" && 
+            l.stage?.name?.toLowerCase() !== "converted" && 
             !l.isConverted
           )
           .map((l: any) => ({ value: String(l.id), label: l.name, description: l.email }));

@@ -28,35 +28,39 @@ axiosInstance.interceptors.response.use(
     const responseData = error.response?.data;
 
     if (error.response?.status === 401) {
-      toast.info("Session expired. Attempting to refresh...");
+      const isAuthRequest = error.config?.url?.includes("/auth/login") || error.config?.url?.includes("/auth/refresh");
 
-      const refreshToken = Cookies.get("refreshToken");
-      if (refreshToken) {
-        try {
-          toast.info("Refreshing session...");
-          const resp = await axiosInstance.post("/api/v1/auth/refresh", {
-            refreshToken,
-          });
-          const data = resp.data;
-          const newToken = data?.accessToken;
-          if (newToken) {
-            Cookies.set("token", newToken, { expires: 7 });
-            if (data.refreshToken) {
-              Cookies.set("refreshToken", data.refreshToken, { expires: 14 });
+      if (!isAuthRequest) {
+        toast.info("Session expired. Attempting to refresh...");
+
+        const refreshToken = Cookies.get("refreshToken");
+        if (refreshToken) {
+          try {
+            toast.info("Refreshing session...");
+            const resp = await axiosInstance.post("/api/v1/auth/refresh", {
+              refreshToken,
+            });
+            const data = resp.data;
+            const newToken = data?.accessToken;
+            if (newToken) {
+              Cookies.set("token", newToken, { expires: 7 });
+              if (data.refreshToken) {
+                Cookies.set("refreshToken", data.refreshToken, { expires: 14 });
+              }
+              error.config.headers.Authorization = `Bearer ${newToken}`;
+              toast.success("Session refreshed");
+              return axiosInstance.request(error.config);
             }
-            error.config.headers.Authorization = `Bearer ${newToken}`;
-            toast.success("Session refreshed");
-            return axiosInstance.request(error.config);
+          } catch {
+            // fall through to logout
           }
-        } catch {
-          // fall through to logout
         }
+        Cookies.remove("token");
+        Cookies.remove("refreshToken");
+        localStorage.removeItem("user");
+        toast.info("Please log in again");
+        globalThis.location.href = "/login";
       }
-      Cookies.remove("token");
-      Cookies.remove("refreshToken");
-      localStorage.removeItem("user");
-      toast.info("Please log in again");
-      globalThis.location.href = "/login";
       throw error;
     }
 
@@ -190,6 +194,26 @@ export interface Lead {
   lossNotes?: string;
   lostAt?: string;
   reengagementDate?: string;
+  campaignId?: number;
+  campaign?: Campaign;
+  firstName?: string;
+  lastName?: string;
+  mobile?: string;
+  fax?: string;
+  skypeId?: string;
+  secondaryEmail?: string;
+  twitter?: string;
+  emailOptOut?: boolean;
+  employees?: number;
+  annualRevenue?: number | string;
+  street?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+  address?: string;
+  description?: string;
+  lastContactDate?: string;
 }
 
 export interface DynamicOption {
@@ -289,6 +313,570 @@ export interface Task {
   hasRepeat?: boolean;
   reminder?: any;
   repeat?: any;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Campaign {
+  id: number;
+  name: string;
+  campaignTypeId?: number;
+  campaignType?: { id: number; name: string };
+  statusId?: number;
+  status?: { id: number; name: string };
+  startDate?: string;
+  endDate?: string;
+  expectedRevenue?: number;
+  budgetedCost?: number;
+  actualCost?: number;
+  expectedResponse?: string;
+  numbersSent?: number;
+  description?: string;
+  ownerId?: number;
+  owner?: User;
+  createdAt: string;
+  updatedAt: string;
+  leads?: Lead[];
+  deals?: Deal[];
+  campaignCode?: string;
+  targetAudience?: string;
+  communicationChannel?: string;
+  objective?: string;
+  actualRevenue?: number;
+  actualResponse?: number;
+  leadsGenerated?: number;
+  conversionRate?: number;
+  attachments?: { url: string; name: string; type: string; uploadedAt: string }[];
+  notes?: string;
+}
+
+export interface Deal {
+  id: number;
+  name: string;
+  company?: string;
+  value?: number;
+  contact?: string;
+  probability?: number;
+  daysInStage?: number;
+  expectedCloseDate?: string;
+  stage?: { id: number; name: string; color: string };
+  dealStageId?: number;
+  reason?: { id: number; name: string; color: string };
+  dealReasonId?: number;
+  leadId?: number;
+  accountId?: number;
+  contactId?: number;
+  ownerId?: number;
+  notes?: string;
+  campaignId?: number;
+  campaign?: Campaign;
+  createdAt: string;
+}
+
+export interface Employee {
+  id: number;
+  employeeNumber: string;
+  firstName: string;
+  lastName: string;
+  cin: string;
+  dateOfBirth: string;
+  placeOfBirth?: string;
+  gender: string;
+  nationality: string;
+  maritalStatus: string;
+  childrenCount: number;
+  email?: string;
+  workEmail?: string;
+  phone: string;
+  cnssNumber?: string;
+  passportNumber?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  education?: string;
+  skills?: string[];
+  certifications?: string[];
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  hireDate: string;
+  workLocation?: string;
+  costCenter?: string;
+  employmentCategory?: string;
+  attendanceMode?: string;
+  departmentId?: number;
+  department?: Department;
+  positionId?: number;
+  position?: Position;
+  managerId?: number;
+  manager?: Employee;
+  status: string;
+  readinessStatus?: string;
+  photo?: string;
+  residenceCardNumber?: string;
+  residenceCardExpiry?: string;
+  workPermitType?: string;
+  workPermitNumber?: string;
+  workPermitStatus?: string;
+  workPermitExpiry?: string;
+  documents?: EmployeeDocument[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmployeeDocument {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  documentType: string;
+  fileName?: string;
+  fileUrl?: string;
+  expiryDate?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CnssProfile {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  cnssNumber: string;
+  registrationDate?: string;
+  regime: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IrppTaxProfile {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  maritalStatus: string;
+  childrenCount: number;
+  disabledDependents: number;
+  taxExemptions: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Position {
+  id: number;
+  code: string;
+  title: string;
+  departmentId: number;
+  department?: Department;
+  description?: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CostCenter {
+  id: number;
+  code: string;
+  name: string;
+  description?: string;
+  departmentId?: number;
+  department?: Department;
+  managerId?: number;
+  manager?: Employee;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Contract {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  contractNumber: string;
+  contractType: string;
+  startDate: string;
+  endDate?: string;
+  probationEndDate?: string;
+  baseSalary: number | string;
+  workingHoursPerWeek: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Attendance {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  workDate: string;
+  checkIn?: string;
+  checkOut?: string;
+  workedHours?: number;
+  overtimeHours?: number;
+  lateMinutes?: number;
+  earlyDepartureMinutes?: number;
+  shiftName?: string;
+  source?: string;
+  notes?: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeaveType {
+  id: number;
+  code: string;
+  name: string;
+  nameAr?: string;
+  nameFr?: string;
+  description?: string;
+  paid: boolean;
+  annualLimit?: number;
+  requiresApproval: boolean;
+  requiresSupportingDocuments: boolean;
+  maxConsecutiveDays?: number;
+  carryForwardAllowed: boolean;
+  genderRestriction?: string;
+  accrualPolicy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeaveRequest {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  leaveTypeId: number;
+  leaveType?: LeaveType;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason?: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SalaryComponent {
+  id: number;
+  code: string;
+  name: string;
+  type: string;
+  taxable: boolean;
+  subjectToCnss: boolean;
+  active: boolean;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmployeeSalaryComponent {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  componentId: number;
+  component?: SalaryComponent;
+  amount: number | string;
+  effectiveDate: string;
+  endDate?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PayrollProfile {
+  id: number;
+  employeeId: number;
+  socialRegime: string;
+  cnssNumber?: string;
+  cnrpsNumber?: string;
+  taxStatus?: string;
+  paymentMethod: string;
+  bankName?: string;
+  bankAccount?: string;
+  rib?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PayrollPeriod {
+  id: number;
+  periodName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PayslipDetail {
+  id: number;
+  payslipId: number;
+  componentId: number;
+  component?: SalaryComponent;
+  amount: number | string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Payslip {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  payrollPeriodId: number;
+  payrollPeriod?: PayrollPeriod;
+  grossSalary: number | string;
+  totalEarnings: number | string;
+  totalDeductions: number | string;
+  netSalary: number | string;
+  paymentDate?: string;
+  status: string;
+  details?: PayslipDetail[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Loan {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  loanAmount: number | string;
+  installmentAmount: number | string;
+  startDate: string;
+  endDate?: string;
+  balance: number | string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Advance {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  amount: number | string;
+  requestDate: string;
+  deductionDate: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Shift {
+  id: number;
+  code: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  breakDuration: number;
+  description?: string;
+  color?: string;
+  flexible: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShiftAssignment {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  shiftId: number;
+  shift?: Shift;
+  startDate: string;
+  endDate?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OvertimeRequest {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  category: string;
+  approvalAuthority: string;
+  assignedManagerId?: number;
+  date: string;
+  startTime: string;
+  endTime: string;
+  totalHours: number;
+  multiplier: number;
+  description?: string;
+  status: string;
+  approvedById?: number;
+  approvedBy?: Employee;
+  assignedById?: number;
+  assignedBy?: Employee;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface HrSettings {
+  id: number;
+  overtimeWeekdayRate: number;
+  overtimeNightRate: number;
+  overtimeRestDayRate: number;
+  nightStartHour: number;
+  nightEndHour: number;
+  leaveYearEndPolicy: string;
+  leaveCashOutRate: number | null;
+  maxCarryForwardDays: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MonthlyBreakdownItem {
+  month: number;
+  label: string;
+  accrued: number;
+  used: number;
+  balance: number;
+  isProjected?: boolean;
+}
+
+export interface LeaveBalance {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  year: number;
+  leaveTypeId: number;
+  leaveType?: LeaveType;
+  totalDays: number;
+  usedDays: number;
+  remainingDays: number;
+  carriedForwardDays?: number;
+  monthlyAccrualRate?: number;
+  monthlyBreakdown?: MonthlyBreakdownItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CnssDeclaration {
+  id: number;
+  payrollPeriodId: number;
+  payrollPeriod?: PayrollPeriod;
+  declarationDate: string;
+  employeeCount: number;
+  totalGrossSalary: number;
+  totalCnssEmployee: number;
+  totalCnssEmployer: number;
+  totalTfp: number;
+  totalFoprolos: number;
+  totalAccidentInsurance: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IrppDeclaration {
+  id: number;
+  taxYear: number;
+  employeeId: number;
+  employee?: Employee;
+  annualTaxableIncome: number;
+  annualTaxDeducted: number;
+  annualCnssDeducted: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Kpi {
+  id: number;
+  code: string;
+  name: string;
+  description?: string;
+  category?: string;
+  targetValue?: number;
+  unit?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface KpiAssignment {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  kpiId: number;
+  kpi?: Kpi;
+  targetValue?: number;
+  actualValue?: number;
+  period?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Goal {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  title: string;
+  description?: string;
+  category?: string;
+  targetDate?: string;
+  progress: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PerformanceReview {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  reviewerId?: number;
+  reviewer?: Employee;
+  reviewDate: string;
+  overallRating?: number;
+  strengths?: string;
+  weaknesses?: string;
+  summary?: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BankTransferFile {
+  id: number;
+  payrollPeriodId: number;
+  payrollPeriod?: PayrollPeriod;
+  fileName: string;
+  fileContent: string;
+  format: string;
+  totalEmployees: number;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VacationAccrualRule {
+  id: number;
+  employeeId: number;
+  employee?: Employee;
+  leaveTypeId: number;
+  leaveType?: LeaveType;
+  accrualRate: number;
+  maxAccrual: number;
+  effectiveDate?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PayrollSettings {
+  id: number;
+  cnssEmployeeRate: number;
+  cnssEmployerRate: number;
+  tfpRate: number;
+  foprolosRate: number;
+  accidentInsuranceRate: number;
+  cnssMaxCap: number;
+  retirementRate?: number;
+  currency: string;
+  workingDaysMonth: number;
+  overtimeMultiplier: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -1188,6 +1776,39 @@ export const api = {
       return res.data;
     },
   },
+  costCenters: {
+    getAll: async () => {
+      const res = await axiosInstance.get("/api/v1/cost-centers");
+      return normalizeResponse(res.data);
+    },
+    create: async (data: {
+      name: string;
+      description?: string;
+      departmentId?: number | null;
+      managerId?: number | null;
+      status?: string;
+    }) => {
+      const res = await axiosInstance.post("/api/v1/cost-centers", data);
+      return res.data;
+    },
+    update: async (
+      id: number,
+      data: {
+        name?: string;
+        description?: string | null;
+        departmentId?: number | null;
+        managerId?: number | null;
+        status?: string;
+      },
+    ) => {
+      const res = await axiosInstance.put(`/api/v1/cost-centers/${id}`, data);
+      return res.data;
+    },
+    delete: async (id: number) => {
+      const res = await axiosInstance.delete(`/api/v1/cost-centers/${id}`);
+      return res.data;
+    },
+  },
 
   settings: {
     getCurrencies: async () => {
@@ -1432,7 +2053,7 @@ export const api = {
     },
     uploadDocument: async (
       file: File,
-      entityType: "lead" | "contact" | "account",
+      entityType: "lead" | "contact" | "account" | "campaign",
       entityId: number,
     ) => {
       const formData = new FormData();
@@ -1641,6 +2262,43 @@ export const api = {
       const res = await axiosInstance.delete(`/api/v1/campaigns/${id}`);
       return res.data;
     },
+    addRecipients: async (id: number, leadIds: number[]) => {
+      const res = await axiosInstance.post(`/api/v1/campaigns/${id}/recipients`, { leadIds });
+      return res.data;
+    },
+    importRecipients: async (id: number, fileOrJson: File | any[]) => {
+      if (Array.isArray(fileOrJson)) {
+        const res = await axiosInstance.post(`/api/v1/campaigns/${id}/import-recipients`, { recipients: JSON.stringify(fileOrJson) });
+        return res.data;
+      } else {
+        const formData = new FormData();
+        formData.append("file", fileOrJson);
+        const res = await axiosInstance.post(`/api/v1/campaigns/${id}/import-recipients`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        return res.data;
+      }
+    },
+    sendCampaign: async (id: number) => {
+      const res = await axiosInstance.post(`/api/v1/campaigns/${id}/send`);
+      return res.data;
+    },
+    convertLeads: async (id: number, ownerId?: number) => {
+      const res = await axiosInstance.post(`/api/v1/campaigns/${id}/convert-leads`, { ownerId });
+      return res.data;
+    },
+    getAnalytics: async (id: number) => {
+      const res = await axiosInstance.get(`/api/v1/campaigns/${id}/analytics`);
+      return res.data;
+    },
+    getResponses: async (id: number) => {
+      const res = await axiosInstance.get(`/api/v1/campaigns/${id}/responses`);
+      return normalizeResponse(res.data);
+    },
+    getReport: async (id: number) => {
+      const res = await axiosInstance.get(`/api/v1/campaigns/${id}/report`);
+      return res.data;
+    },
   },
   automations: {
     getAll: async () => {
@@ -1717,6 +2375,707 @@ export const api = {
     updateLanguage: async (language: string) => {
       const res = await axiosInstance.patch("/api/v1/profile/language", { language });
       return res.data;
+    },
+  },
+  hr: {
+    employees: {
+      getAll: async (search?: string, departmentId?: number, includeDrafts?: boolean, status?: string) => {
+        const params = new URLSearchParams();
+        if (search) params.append("search", search);
+        if (departmentId) params.append("departmentId", String(departmentId));
+        if (includeDrafts) params.append("includeDrafts", "true");
+        if (status) params.append("status", status);
+        const res = await axiosInstance.get(`/api/v1/hr/employees?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/employees/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/employees", data);
+        return res.data;
+      },
+      createDraft: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/employees/draft", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/employees/${id}`, data);
+        return res.data;
+      },
+      updateDraft: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/employees/${id}/draft`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/employees/${id}`);
+        return res.data;
+      },
+    },
+    positions: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/hr/positions");
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/positions/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/positions", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/positions/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/positions/${id}`);
+        return res.data;
+      },
+    },
+    contracts: {
+      getAll: async (employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/hr/contracts?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/contracts/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/contracts", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/contracts/${id}`, data);
+        return res.data;
+      },
+      setActive: async (id: number) => {
+        const res = await axiosInstance.post(`/api/v1/hr/contracts/${id}/set-active`);
+        return res.data;
+      },
+      archive: async (id: number) => {
+        const res = await axiosInstance.post(`/api/v1/hr/contracts/${id}/archive`);
+        return res.data;
+      },
+      terminate: async (id: number, data: { endDate?: string; status?: string }) => {
+        const res = await axiosInstance.post(`/api/v1/hr/contracts/${id}/terminate`, data);
+        return res.data;
+      },
+      renew: async (id: number, data: any) => {
+        const res = await axiosInstance.post(`/api/v1/hr/contracts/${id}/renew`, data);
+        return res.data;
+      },
+      getPrintableHtml: async (id: number) => {
+        const res = await axiosInstance.get(
+          `/api/v1/hr/documents/employment-contract/${id}`,
+          { responseType: "text" },
+        );
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/contracts/${id}`);
+        return res.data;
+      },
+    },
+    attendance: {
+      getAll: async (employeeId?: number, startDate?: string, endDate?: string) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        if (startDate) params.append("startDate", startDate);
+        if (endDate) params.append("endDate", endDate);
+        const res = await axiosInstance.get(`/api/v1/hr/attendance?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      log: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/attendance", data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/attendance/${id}`);
+        return res.data;
+      },
+    },
+    leaveTypes: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/hr/leave-types");
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/leave-types/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/leave-types", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/leave-types/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/leave-types/${id}`);
+        return res.data;
+      },
+    },
+    leaveRequests: {
+      getAll: async (employeeId?: number, status?: string) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        if (status) params.append("status", status);
+        const res = await axiosInstance.get(`/api/v1/hr/leave-requests?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/leave-requests/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/leave-requests", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/leave-requests/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/leave-requests/${id}`);
+        return res.data;
+      },
+    },
+    documents: {
+      getAll: async (employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/hr/documents?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/documents/${id}`);
+        return res.data;
+      },
+      create: async (data: FormData) => {
+        const res = await axiosInstance.post("/api/v1/hr/documents", data, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/documents/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/documents/${id}`);
+        return res.data;
+      },
+    },
+    cnssProfiles: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/hr/cnss-profiles");
+        return normalizeResponse(res.data);
+      },
+      getByEmployee: async (employeeId: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/cnss-profiles/employee/${employeeId}`);
+        return res.data;
+      },
+      createOrUpdate: async (employeeId: number, data: any) => {
+        const res = await axiosInstance.post(`/api/v1/hr/cnss-profiles/employee/${employeeId}`, data);
+        return res.data;
+      },
+    },
+    irppTaxProfiles: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/hr/irpp-tax-profiles");
+        return normalizeResponse(res.data);
+      },
+      getByEmployee: async (employeeId: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/irpp-tax-profiles/employee/${employeeId}`);
+        return res.data;
+      },
+      createOrUpdate: async (employeeId: number, data: any) => {
+        const res = await axiosInstance.post(`/api/v1/hr/irpp-tax-profiles/employee/${employeeId}`, data);
+        return res.data;
+      },
+    },
+    shifts: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/hr/shifts");
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/shifts/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/shifts", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/shifts/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/shifts/${id}`);
+        return res.data;
+      },
+    },
+    shiftAssignments: {
+      getAll: async (employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/hr/shift-assignments?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/shift-assignments/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/shift-assignments", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/shift-assignments/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/shift-assignments/${id}`);
+        return res.data;
+      },
+    },
+    overtimeRequests: {
+      getAll: async (employeeId?: number, status?: string) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        if (status) params.append("status", status);
+        const res = await axiosInstance.get(`/api/v1/hr/overtime-requests?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/overtime-requests/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/overtime-requests", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/overtime-requests/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/overtime-requests/${id}`);
+        return res.data;
+      },
+      approve: async (id: number) => {
+        const res = await axiosInstance.post(`/api/v1/hr/overtime-requests/${id}/approve`);
+        return res.data;
+      },
+      reject: async (id: number) => {
+        const res = await axiosInstance.post(`/api/v1/hr/overtime-requests/${id}/reject`);
+        return res.data;
+      },
+    },
+    employeeByEmail: async (email: string) => {
+      const res = await axiosInstance.get(`/api/v1/hr/employee-by-email/${encodeURIComponent(email)}`);
+      return res.data;
+    },
+    hrSettings: {
+      get: async () => {
+        const res = await axiosInstance.get("/api/v1/hr/hr-settings");
+        return res.data;
+      },
+      update: async (data: Partial<HrSettings>) => {
+        const res = await axiosInstance.put("/api/v1/hr/hr-settings", data);
+        return res.data;
+      },
+    },
+    leaveBalances: {
+      getAll: async (employeeId?: number, year?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        if (year) params.append("year", String(year));
+        const res = await axiosInstance.get(`/api/v1/hr/leave-balances?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      rollover: async (year: number) => {
+        const res = await axiosInstance.post(`/api/v1/hr/leave-balances/rollover/${year}`);
+        return res.data;
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/leave-balances/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/leave-balances", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/leave-balances/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/leave-balances/${id}`);
+        return res.data;
+      },
+      sync: async () => {
+        const res = await axiosInstance.post("/api/v1/hr/leave-balances/sync");
+        return res.data;
+      },
+    },
+    kpis: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/hr/kpis");
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/kpis/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/kpis", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/kpis/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/kpis/${id}`);
+        return res.data;
+      },
+    },
+    kpiAssignments: {
+      getAll: async (employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/hr/kpi-assignments?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/kpi-assignments/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/kpi-assignments", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/kpi-assignments/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/kpi-assignments/${id}`);
+        return res.data;
+      },
+    },
+    goals: {
+      getAll: async (employeeId?: number, status?: string) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        if (status) params.append("status", status);
+        const res = await axiosInstance.get(`/api/v1/hr/goals?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/goals/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/goals", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/goals/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/goals/${id}`);
+        return res.data;
+      },
+    },
+    accrualRules: {
+      getAll: async (employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/hr/accrual-rules?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/accrual-rules/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/accrual-rules", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/accrual-rules/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/accrual-rules/${id}`);
+        return res.data;
+      },
+      run: async (data: { employeeId?: number; year: number; month: number }) => {
+        const res = await axiosInstance.post("/api/v1/hr/accrual-rules/run", data);
+        return res.data;
+      },
+    },
+    performanceReviews: {
+      getAll: async (employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/hr/performance-reviews?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/hr/performance-reviews/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/hr/performance-reviews", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/hr/performance-reviews/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/hr/performance-reviews/${id}`);
+        return res.data;
+      },
+    },
+  },
+  payroll: {
+    components: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/payroll/components");
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/payroll/components/${id}`);
+        return res.data;
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/payroll/components", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/payroll/components/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/payroll/components/${id}`);
+        return res.data;
+      },
+    },
+    employeeComponents: {
+      getAll: async (employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/payroll/employee-components?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/payroll/employee-components", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/payroll/employee-components/${id}`, data);
+        return res.data;
+      },
+      delete: async (id: number) => {
+        const res = await axiosInstance.delete(`/api/v1/payroll/employee-components/${id}`);
+        return res.data;
+      },
+    },
+    profiles: {
+      getOne: async (employeeId: number) => {
+        const res = await axiosInstance.get(`/api/v1/payroll/profiles/employee/${employeeId}`);
+        return res.data;
+      },
+      createOrUpdate: async (employeeId: number, data: any) => {
+        const res = await axiosInstance.post(`/api/v1/payroll/profiles/employee/${employeeId}`, data);
+        return res.data;
+      },
+    },
+    periods: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/payroll/periods");
+        return normalizeResponse(res.data);
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/payroll/periods", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/payroll/periods/${id}`, data);
+        return res.data;
+      },
+    },
+    loans: {
+      getAll: async (employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/payroll/loans?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/payroll/loans", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/payroll/loans/${id}`, data);
+        return res.data;
+      },
+    },
+    advances: {
+      getAll: async (employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/payroll/advances?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      create: async (data: any) => {
+        const res = await axiosInstance.post("/api/v1/payroll/advances", data);
+        return res.data;
+      },
+      update: async (id: number, data: any) => {
+        const res = await axiosInstance.put(`/api/v1/payroll/advances/${id}`, data);
+        return res.data;
+      },
+    },
+    settings: {
+      get: async () => {
+        const res = await axiosInstance.get("/api/v1/payroll/settings");
+        return res.data;
+      },
+      update: async (data: any) => {
+        const res = await axiosInstance.put("/api/v1/payroll/settings", data);
+        return res.data;
+      },
+    },
+    payslips: {
+      getAll: async (periodId?: number, employeeId?: number) => {
+        const params = new URLSearchParams();
+        if (periodId) params.append("periodId", String(periodId));
+        if (employeeId) params.append("employeeId", String(employeeId));
+        const res = await axiosInstance.get(`/api/v1/payroll/payslips?${params.toString()}`);
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/payroll/payslips/${id}`);
+        return res.data;
+      },
+      generate: async (periodId: number) => {
+        const res = await axiosInstance.post("/api/v1/payroll/payslips/generate", { periodId });
+        return normalizeResponse(res.data);
+      },
+      approve: async (id: number) => {
+        const res = await axiosInstance.post(`/api/v1/payroll/payslips/${id}/approve`);
+        return res.data;
+      },
+      pay: async (id: number) => {
+        const res = await axiosInstance.post(`/api/v1/payroll/payslips/${id}/pay`);
+        return res.data;
+      },
+    },
+    cnssDeclarations: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/payroll/cnss-declarations");
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/payroll/cnss-declarations/${id}`);
+        return res.data;
+      },
+      generate: async (periodId: number) => {
+        const res = await axiosInstance.post("/api/v1/payroll/cnss-declarations/generate", { periodId });
+        return res.data;
+      },
+    },
+    irppDeclarations: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/payroll/irpp-declarations");
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/payroll/irpp-declarations/${id}`);
+        return res.data;
+      },
+      generate: async (taxYear: number) => {
+        const res = await axiosInstance.post("/api/v1/payroll/irpp-declarations/generate", { taxYear });
+        return res.data;
+      },
+    },
+    bankTransfers: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/payroll/bank-transfers");
+        return normalizeResponse(res.data);
+      },
+      getOne: async (id: number) => {
+        const res = await axiosInstance.get(`/api/v1/payroll/bank-transfers/${id}`);
+        return res.data;
+      },
+      generate: async (periodId: number, format: string) => {
+        const res = await axiosInstance.post("/api/v1/payroll/bank-transfers/generate", { periodId, format });
+        return res.data;
+      },
+    },
+    stcSettlements: {
+      getAll: async () => {
+        const res = await axiosInstance.get("/api/v1/payroll/stc-settlements");
+        return normalizeResponse(res.data);
+      },
+      generate: async (periodId: number) => {
+        const res = await axiosInstance.post("/api/v1/payroll/stc-settlements/generate", { periodId });
+        return res.data;
+      },
+    },
+    thirteenthMonth: {
+      generate: async (periodId: number) => {
+        const res = await axiosInstance.post("/api/v1/payroll/thirteenth-month/generate", { periodId });
+        return res.data;
+      },
+    },
+    reports: {
+      hr: {
+        headcount: async () => {
+          const res = await axiosInstance.get("/api/v1/hr/reports/headcount");
+          return res.data;
+        },
+        turnover: async () => {
+          const res = await axiosInstance.get("/api/v1/hr/reports/turnover");
+          return res.data;
+        },
+        leaveTrends: async (year?: number) => {
+          const res = await axiosInstance.get("/api/v1/hr/reports/leave-trends", { params: { year } });
+          return res.data;
+        },
+      },
+      payroll: {
+        cost: async (periodId?: number) => {
+          const res = await axiosInstance.get("/api/v1/payroll/reports/cost", { params: { periodId } });
+          return res.data;
+        },
+        departmentCost: async (periodId?: number) => {
+          const res = await axiosInstance.get("/api/v1/payroll/reports/department-cost", { params: { periodId } });
+          return res.data;
+        },
+        periodComparison: async () => {
+          const res = await axiosInstance.get("/api/v1/payroll/reports/period-comparison");
+          return res.data;
+        },
+      },
+    },
+    documents: {
+      workCertificateUrl: (employeeId: number) => `/api/v1/hr/documents/work-certificate/${employeeId}`,
+      employmentContractUrl: (employeeId: number) => `/api/v1/hr/documents/employment-contract/${employeeId}`,
     },
   },
 };
