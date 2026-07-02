@@ -2045,7 +2045,7 @@
   },
   "auth": {
     "login": {
-      "brand": "Nexus CRM",
+      "brand": "Nadas CRM",
       "subtitle": "Connectez-vous ? votre compte",
       "welcome": "Bon retour",
       "description": "Saisissez vos identifiants pour acc?der ? votre compte",
@@ -2056,7 +2056,7 @@
       "signIn": "Se connecter",
       "signingIn": "Connexion en cours...",
       "demoCredentials": "Identifiants de d?monstration :",
-      "footer": "? 2024 Nexus CRM. Tous droits r?serv?s.",
+      "footer": "? 2024 Nadas CRM. Tous droits r?serv?s.",
       "success": "Connexion r?ussie !",
       "error": "?chec de connexion. Veuillez v?rifier vos identifiants."
     }
