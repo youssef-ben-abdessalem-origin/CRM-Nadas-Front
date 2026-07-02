@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -46,6 +47,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function AccountDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const accountId = Number(id);
@@ -71,14 +73,14 @@ export default function AccountDetail() {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.accounts.delete(id),
     onSuccess: () => {
-      toast.success("Account deleted successfully");
+      toast.success(t("accounts.statusUpdates.deleted"));
       navigate("/accounts");
     },
   });
 
   if (isLoading) {
     return (
-      <CRMLayout title="Account Details">
+      <CRMLayout title={t("accounts.detail.loading")}>
         <div className="flex h-full items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -88,22 +90,22 @@ export default function AccountDetail() {
 
   if (!account) {
     return (
-      <CRMLayout title="Account Not Found">
+      <CRMLayout title={t("accounts.detail.notFound")}>
         <div className="flex h-full items-center justify-center flex-col gap-4 bg-background">
-          <p className="text-muted-foreground font-bold text-sm tracking-widest uppercase">Target record not found</p>
-          <Button onClick={() => navigate("/accounts")} className="bg-primary hover:bg-primary/90 font-black tracking-widest text-[10px]">BACK TO REPOSITORY</Button>
+          <p className="text-muted-foreground font-bold text-sm tracking-widest uppercase">{t("accounts.detail.notFoundMessage")}</p>
+          <Button onClick={() => navigate("/accounts")} className="bg-primary hover:bg-primary/90 font-black tracking-widest text-[10px]">{t("accounts.detail.backToRepository")}</Button>
         </div>
       </CRMLayout>
     );
   }
 
   const relatedLists = [
-    { label: "Contacts", count: account.contactsCount || 0, icon: Users },
-    { label: "Deals", count: deals.length, icon: Briefcase },
-    { label: "Timeline", count: activities.length, icon: Clock },
-    { label: "Documents", count: 0, icon: FileText },
-    { label: "Projects", count: 0, icon: Layers },
-    { label: "Financials", count: 0, icon: DollarSign },
+    { label: t("accounts.detail.contacts"), count: account.contactsCount || 0, icon: Users },
+    { label: t("accounts.detail.deals"), count: deals.length, icon: Briefcase },
+    { label: t("accounts.detail.timeline"), count: activities.length, icon: Clock },
+    { label: t("accounts.detail.documents"), count: 0, icon: FileText },
+    { label: t("accounts.detail.projects"), count: 0, icon: Layers },
+    { label: t("accounts.detail.financials"), count: 0, icon: DollarSign },
   ];
 
   return (

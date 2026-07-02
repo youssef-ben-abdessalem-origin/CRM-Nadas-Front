@@ -24,6 +24,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 interface Tag {
   id: number;
@@ -33,6 +34,7 @@ interface Tag {
 }
 
 const TagsSettings = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [showDialog, setShowDialog] = useState(false);
@@ -51,7 +53,7 @@ const TagsSettings = () => {
     mutationFn: api.settings.createTag,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tags"] });
-      toast.success("Tag created successfully");
+      toast.success(t("tags.statusUpdates.created"));
       setShowDialog(false);
       resetForm();
     },
@@ -63,7 +65,7 @@ const TagsSettings = () => {
       api.settings.updateTag(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tags"] });
-      toast.success("Tag updated successfully");
+      toast.success(t("tags.statusUpdates.updated"));
       setShowDialog(false);
       setEditingTag(null);
       resetForm();
@@ -75,7 +77,7 @@ const TagsSettings = () => {
     mutationFn: api.settings.deleteTag,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tags"] });
-      toast.success("Tag deleted successfully");
+      toast.success(t("tags.statusUpdates.deleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -86,7 +88,7 @@ const TagsSettings = () => {
 
   const handleSubmit = () => {
     if (!formData.name) {
-      toast.error("Please fill in required fields");
+      toast.error(t("tags.errors.requiredFields"));
       return;
     }
     if (editingTag) {
@@ -107,10 +109,10 @@ const TagsSettings = () => {
 
   const handleDelete = async (id: number) => {
     if (await confirm({ 
-      title: "Delete Tag", 
-      description: "Are you sure you want to delete this tag? This may affect records currently using this tag.",
+      title: t("tags.deleteDialog.title"), 
+      description: t("tags.deleteDialog.description"),
       variant: "destructive",
-      confirmText: "Delete"
+      confirmText: t("common.delete")
     })) {
       deleteMutation.mutate(id);
     }
@@ -123,24 +125,24 @@ const TagsSettings = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Tags">
+      <CRMLayout title={t("tags.pageTitle")}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t("common.loading")}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Tags">
+    <CRMLayout title={t("tags.pageTitle")}>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Tags</h1>
-            <p className="text-muted-foreground">Manage custom tags</p>
+            <h1 className="text-2xl font-bold">{t("tags.pageTitle")}</h1>
+            <p className="text-muted-foreground">{t("tags.subtitle")}</p>
           </div>
           <Button onClick={() => { resetForm(); setEditingTag(null); setShowDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" /> Add Tag
+            <Plus className="h-4 w-4 mr-2" /> {t("tags.addTag")}
           </Button>
         </div>
 
@@ -148,17 +150,17 @@ const TagsSettings = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tag</TableHead>
-                <TableHead>Color</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("common.name")}</TableHead>
+                <TableHead>{t("tags.color")}</TableHead>
+                <TableHead>{t("common.status")}</TableHead>
+                <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {tags.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                    No tags found
+                    {t("tags.noResults")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -181,7 +183,7 @@ const TagsSettings = () => {
                     </TableCell>
                     <TableCell>
                       {!tag.isActive && (
-                        <Badge variant="secondary">Inactive</Badge>
+                        <Badge variant="secondary">{t("common.inactive")}</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -205,19 +207,19 @@ const TagsSettings = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingTag ? "Edit Tag" : "Add Tag"}</DialogTitle>
+            <DialogTitle>{editingTag ? t("tags.edit") : t("tags.add")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Name *</Label>
+              <Label>{t("common.name")} *</Label>
               <Input
-                placeholder="VIP"
+                placeholder={t("tags.namePlaceholder")}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("tags.color")}</Label>
               <div className="flex gap-2 flex-wrap">
                 {colorOptions.map((color) => (
                   <button
@@ -233,14 +235,14 @@ const TagsSettings = () => {
               </div>
               <Input
                 type="text"
-                placeholder="#3b82f6"
+                placeholder={t("tags.colorPlaceholder")}
                 value={formData.color}
                 onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                 className="mt-2"
               />
             </div>
             <Button onClick={handleSubmit} className="w-full">
-              {editingTag ? "Update" : "Create"}
+              {editingTag ? t("common.update") : t("common.create")}
             </Button>
           </div>
         </DialogContent>

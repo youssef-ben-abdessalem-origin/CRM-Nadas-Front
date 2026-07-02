@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { CRMLayout } from "@/components/CRMLayout";
 import { api, Department, User } from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -51,6 +52,7 @@ const emptyForm: FormState = {
 };
 
 export default function DepartmentsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [search, setSearch] = useState("");
@@ -78,7 +80,7 @@ export default function DepartmentsPage() {
     mutationFn: api.departments.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
-      toast.success("Department created");
+      toast.success(t("team.departments.status.created"));
       setOpen(false);
       setForm(emptyForm);
       setEditing(null);
@@ -90,7 +92,7 @@ export default function DepartmentsPage() {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.departments.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
-      toast.success("Department updated");
+      toast.success(t("team.departments.status.updated"));
       setOpen(false);
       setForm(emptyForm);
       setEditing(null);
@@ -102,7 +104,7 @@ export default function DepartmentsPage() {
     mutationFn: api.departments.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
-      toast.success("Department deleted");
+      toast.success(t("team.departments.status.deleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -152,7 +154,7 @@ export default function DepartmentsPage() {
     e.preventDefault();
 
     if (!form.name.trim()) {
-      toast.error("Department name is required");
+      toast.error(t("team.departments.validation.nameRequired"));
       return;
     }
 
@@ -175,18 +177,18 @@ export default function DepartmentsPage() {
   };
 
   return (
-    <CRMLayout title="Team - Departments">
+    <CRMLayout title={t("team.departments.pageTitle")}>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold tracking-tight">Departments</h2>
+            <h2 className="text-xl font-bold tracking-tight">{t("team.departments.title")}</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Create departments and assign one representative with team members.
+              {t("team.departments.description")}
             </p>
           </div>
           <div className="flex gap-2 w-full md:w-auto">
             <Input
-              placeholder="Search departments..."
+              placeholder={t("team.departments.searchPlaceholder")}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -195,7 +197,7 @@ export default function DepartmentsPage() {
               className="md:w-64"
             />
             <Button onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-2" /> New Department
+              <Plus className="h-4 w-4 mr-2" /> {t("team.departments.actions.create")}
             </Button>
           </div>
         </div>
@@ -205,7 +207,7 @@ export default function DepartmentsPage() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.totalDepartments}</div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-                Departments
+                {t("team.departments.stats.departments")}
               </p>
             </CardContent>
           </Card>
@@ -213,7 +215,7 @@ export default function DepartmentsPage() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.totalMembers}</div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-                Assigned Members
+                {t("team.departments.stats.assignedMembers")}
               </p>
             </CardContent>
           </Card>
@@ -221,7 +223,7 @@ export default function DepartmentsPage() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.withRepresentative}</div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-                With Representative
+                {t("team.departments.stats.withRepresentative")}
               </p>
             </CardContent>
           </Card>
@@ -231,24 +233,24 @@ export default function DepartmentsPage() {
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead>Department</TableHead>
-                <TableHead>Representative</TableHead>
-                <TableHead>Members</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("team.departments.table.department")}</TableHead>
+                <TableHead>{t("team.departments.table.representative")}</TableHead>
+                <TableHead>{t("team.departments.table.members")}</TableHead>
+                <TableHead>{t("team.departments.table.created")}</TableHead>
+                <TableHead className="text-right">{t("team.departments.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loadingDepartments ? (
                 <TableRow>
                   <TableCell colSpan={5} className="h-20 text-center text-muted-foreground">
-                    Loading departments...
+                    {t("team.departments.loading")}
                   </TableCell>
                 </TableRow>
               ) : departments.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="h-20 text-center text-muted-foreground">
-                    No departments yet.
+                    {t("team.departments.empty")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -260,7 +262,7 @@ export default function DepartmentsPage() {
                         <div>
                           <div className="font-medium">{department.name}</div>
                           <div className="text-xs text-muted-foreground">
-                            {department.description || "No description"}
+                            {department.description || t("team.departments.noDescription")}
                           </div>
                         </div>
                       </div>
@@ -269,7 +271,7 @@ export default function DepartmentsPage() {
                       {department.representative ? (
                         <Badge variant="outline">{department.representative.name}</Badge>
                       ) : (
-                        <span className="text-muted-foreground text-sm">Not set</span>
+                        <span className="text-muted-foreground text-sm">{t("team.departments.notSet")}</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -298,10 +300,10 @@ export default function DepartmentsPage() {
                           onClick={async () => {
                             if (
                               await confirm({
-                                title: "Delete Department",
-                                description: `Delete "${department.name}"? Members won't be deleted.`,
+                                title: t("team.departments.confirmDelete.title"),
+                                description: t("team.departments.confirmDelete.description", { name: department.name }),
                                 variant: "destructive",
-                                confirmText: "Delete",
+                                confirmText: t("team.departments.confirmDelete.confirmText"),
                               })
                             ) {
                               deleteMutation.mutate(department.id);
@@ -319,7 +321,7 @@ export default function DepartmentsPage() {
           </Table>
           <div className="flex items-center justify-between border-t px-4 py-3 text-sm text-muted-foreground">
             <span>
-              Showing {departments.length} of {totalDepartments}
+              {t("team.departments.pagination.showing", { count: departments.length, total: totalDepartments })}
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -328,10 +330,10 @@ export default function DepartmentsPage() {
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
-                Previous
+                {t("team.departments.pagination.previous")}
               </Button>
               <span>
-                Page {page} / {Math.max(1, totalPages)}
+                {t("team.departments.pagination.pageOf", { page, total: Math.max(1, totalPages) })}
               </span>
               <Button
                 variant="outline"
@@ -339,7 +341,7 @@ export default function DepartmentsPage() {
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               >
-                Next
+                {t("team.departments.pagination.next")}
               </Button>
             </div>
           </div>
@@ -349,45 +351,45 @@ export default function DepartmentsPage() {
           <DialogContent className="sm:max-w-2xl">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
-                <DialogTitle>{editing ? "Edit Department" : "Create Department"}</DialogTitle>
+                <DialogTitle>{editing ? t("team.departments.dialog.editTitle") : t("team.departments.dialog.createTitle")}</DialogTitle>
                 <DialogDescription>
-                  Select a representative and members using dropdown + checkboxes.
+                  {t("team.departments.dialog.description")}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>Department Name</Label>
+                  <Label>{t("team.departments.form.name")}</Label>
                   <Input
                     value={form.name}
                     onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                    placeholder="Sales Operations"
+                    placeholder={t("team.departments.placeholders.name")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Description</Label>
+                  <Label>{t("team.departments.form.description")}</Label>
                   <Textarea
                     rows={3}
                     value={form.description}
                     onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-                    placeholder="Optional description..."
+                    placeholder={t("team.departments.placeholders.description")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Representative</Label>
+                  <Label>{t("team.departments.form.representative")}</Label>
                   <Select
                     value={form.representativeId}
                     onValueChange={(v) => setForm((p) => ({ ...p, representativeId: v }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select representative" />
+                      <SelectValue placeholder={t("team.departments.placeholders.selectRepresentative")} />
                     </SelectTrigger>
                     <SelectContent>
                       {loadingUsers ? (
                         <SelectItem value="loading" disabled>
-                          Loading users...
+                          {t("team.departments.loading")}
                         </SelectItem>
                       ) : (
                         users.map((u: User) => (
@@ -401,12 +403,12 @@ export default function DepartmentsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Members</Label>
+                  <Label>{t("team.departments.form.members")}</Label>
                   <div className="max-h-52 overflow-y-auto rounded-md border p-3 space-y-2">
                     {loadingUsers ? (
-                      <div className="text-sm text-muted-foreground">Loading users...</div>
+                      <div className="text-sm text-muted-foreground">{t("team.departments.loading")}</div>
                     ) : users.length === 0 ? (
-                      <div className="text-sm text-muted-foreground">No users available.</div>
+                      <div className="text-sm text-muted-foreground">{t("team.departments.noUsers")}</div>
                     ) : (
                       users.map((u: User) => (
                         <div key={u.id} className="flex items-center gap-2">
@@ -423,23 +425,23 @@ export default function DepartmentsPage() {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Representative is auto-added to members if not already selected.
+                    {t("team.departments.form.autoAddHint")}
                   </p>
                 </div>
               </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
                   {editing
                     ? updateMutation.isPending
-                      ? "Saving..."
-                      : "Save Changes"
+                      ? t("common.saving")
+                      : t("team.departments.actions.saveChanges")
                     : createMutation.isPending
-                      ? "Creating..."
-                      : "Create Department"}
+                      ? t("team.departments.actions.creating")
+                      : t("team.departments.actions.create")}
                 </Button>
               </DialogFooter>
             </form>

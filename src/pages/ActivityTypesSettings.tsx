@@ -24,6 +24,7 @@ import { Plus, Pencil, Trash2, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 interface ActivityType {
   id: number;
@@ -44,6 +45,7 @@ const iconOptions = [
 ];
 
 const ActivityTypesSettings = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [showDialog, setShowDialog] = useState(false);
@@ -62,7 +64,7 @@ const ActivityTypesSettings = () => {
     mutationFn: api.settings.createActivityType,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activityTypes"] });
-      toast.success("Activity type created successfully");
+      toast.success(t("activityTypes.statusUpdates.created"));
       setShowDialog(false);
       resetForm();
     },
@@ -74,7 +76,7 @@ const ActivityTypesSettings = () => {
       api.settings.updateActivityType(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activityTypes"] });
-      toast.success("Activity type updated successfully");
+      toast.success(t("activityTypes.statusUpdates.updated"));
       setShowDialog(false);
       setEditingType(null);
       resetForm();
@@ -86,7 +88,7 @@ const ActivityTypesSettings = () => {
     mutationFn: api.settings.deleteActivityType,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activityTypes"] });
-      toast.success("Activity type deleted successfully");
+      toast.success(t("activityTypes.statusUpdates.deleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -97,7 +99,7 @@ const ActivityTypesSettings = () => {
 
   const handleSubmit = () => {
     if (!formData.name) {
-      toast.error("Please fill in required fields");
+      toast.error(t("activityTypes.errors.requiredFields"));
       return;
     }
     if (editingType) {
@@ -118,10 +120,10 @@ const ActivityTypesSettings = () => {
 
   const handleDelete = async (id: number) => {
     if (await confirm({ 
-      title: "Delete Activity Type", 
-      description: "Are you sure you want to delete this activity type? Existing activities of this type may be affected.",
+      title: t("activityTypes.deleteDialog.title"), 
+      description: t("activityTypes.deleteDialog.description"),
       variant: "destructive",
-      confirmText: "Delete"
+      confirmText: t("common.delete")
     })) {
       deleteMutation.mutate(id);
     }
@@ -133,24 +135,24 @@ const ActivityTypesSettings = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Activity Types">
+      <CRMLayout title={t("activityTypes.pageTitle")}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t("common.loading")}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Activity Types">
+    <CRMLayout title={t("activityTypes.pageTitle")}>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Activity Types</h1>
-            <p className="text-muted-foreground">Manage activity types</p>
+            <h1 className="text-2xl font-bold">{t("activityTypes.pageTitle")}</h1>
+            <p className="text-muted-foreground">{t("activityTypes.subtitle")}</p>
           </div>
           <Button onClick={() => { resetForm(); setEditingType(null); setShowDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" /> Add Activity Type
+            <Plus className="h-4 w-4 mr-2" /> {t("activityTypes.add")}
           </Button>
         </div>
 
@@ -158,17 +160,17 @@ const ActivityTypesSettings = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Icon</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("common.name")}</TableHead>
+                <TableHead>{t("activityTypes.icon")}</TableHead>
+                <TableHead>{t("common.status")}</TableHead>
+                <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {activityTypes.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                    No activity types found
+                    {t("activityTypes.noResults")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -180,7 +182,7 @@ const ActivityTypesSettings = () => {
                     </TableCell>
                     <TableCell>
                       {!type.isActive && (
-                        <Badge variant="secondary">Inactive</Badge>
+                        <Badge variant="secondary">{t("common.inactive")}</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -204,19 +206,19 @@ const ActivityTypesSettings = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingType ? "Edit Activity Type" : "Add Activity Type"}</DialogTitle>
+            <DialogTitle>{editingType ? t("activityTypes.edit") : t("activityTypes.add")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Name *</Label>
+              <Label>{t("common.name")} *</Label>
               <Input
-                placeholder="Call"
+                placeholder={t("activityTypes.namePlaceholder")}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Icon</Label>
+              <Label>{t("activityTypes.icon")}</Label>
               <select
                 className="w-full h-10 rounded-md border border-input bg-background px-3 py-2"
                 value={formData.icon}
@@ -230,7 +232,7 @@ const ActivityTypesSettings = () => {
               </select>
             </div>
             <Button onClick={handleSubmit} className="w-full">
-              {editingType ? "Update" : "Create"}
+              {editingType ? t("common.update") : t("common.create")}
             </Button>
           </div>
         </DialogContent>

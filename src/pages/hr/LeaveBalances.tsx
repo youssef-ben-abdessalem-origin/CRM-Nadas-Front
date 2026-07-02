@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { api, Employee, LeaveBalance } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 type EmployeeBalanceGroup = {
   employee: Employee;
@@ -83,6 +84,7 @@ function buildEmployeeGroups(balances: LeaveBalance[]) {
 }
 
 export default function LeaveBalances() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { employeeId: routeEmployeeId } = useParams();
   const queryClient = useQueryClient();
@@ -193,7 +195,7 @@ export default function LeaveBalances() {
     mutationFn: (data: any) => api.hr.leaveBalances.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaveBalances"] });
-      toast.success("Leave balance created");
+      toast.success(t("hr.statusUpdates.leaveBalanceCreated"));
       setIsOpen(false);
       resetForm();
     },
@@ -203,7 +205,7 @@ export default function LeaveBalances() {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.hr.leaveBalances.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaveBalances"] });
-      toast.success("Leave balance updated");
+      toast.success(t("hr.statusUpdates.leaveBalanceUpdated"));
       setIsOpen(false);
       resetForm();
     },
@@ -213,7 +215,7 @@ export default function LeaveBalances() {
     mutationFn: (id: number) => api.hr.leaveBalances.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaveBalances"] });
-      toast.success("Leave balance deleted");
+      toast.success(t("hr.statusUpdates.leaveBalanceDeleted"));
     },
   });
 
@@ -221,21 +223,21 @@ export default function LeaveBalances() {
     mutationFn: () => api.hr.leaveBalances.sync(),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["leaveBalances"] });
-      toast.success(data.message || "Synchronized");
+      toast.success(data.message || t("hr.statusUpdates.synchronized"));
     },
-    onError: () => toast.error("Sync failed"),
+    onError: () => toast.error(t("hr.statusUpdates.syncFailed")),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!employeeId || Number(employeeId) <= 0) {
-      toast.error("A valid employee is required");
+      toast.error(t("hr.statusUpdates.validEmployeeRequired"));
       return;
     }
 
     if (!leaveTypeId || Number(leaveTypeId) <= 0) {
-      toast.error("Please select a leave type");
+      toast.error(t("hr.statusUpdates.selectLeaveType"));
       return;
     }
 
@@ -259,16 +261,16 @@ export default function LeaveBalances() {
   if (isDetailView) {
     if (!selectedEmployee) {
       return (
-        <CRMLayout title="HR - Leave Balances">
+        <CRMLayout title={t("hr.leaveBalances.pageTitle")}>
           <div className="flex flex-col gap-6 p-6">
             <Button variant="outline" className="w-fit gap-2" onClick={() => navigate("/hr/leave-balances")}>
               <ArrowLeft className="h-4 w-4" />
-              Back to Employees
+              {t("hr.leaveBalances.actions.backToEmployees")}
             </Button>
             <Card className="glass-morphism">
               <CardContent className="py-10 text-center">
-                <p className="text-lg font-semibold">This employee is not usable in leave balances.</p>
-                <p className="mt-2 text-sm text-muted-foreground">Draft employees are excluded from leave balance operations until they become active.</p>
+                <p className="text-lg font-semibold">{t("hr.leaveBalances.employeeNotUsable")}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{t("hr.leaveBalances.draftExcludedHint")}</p>
               </CardContent>
             </Card>
           </div>
@@ -277,24 +279,24 @@ export default function LeaveBalances() {
     }
 
     return (
-      <CRMLayout title={`HR - Leave Balances${selectedEmployee ? ` - ${getEmployeeLabel(selectedEmployee)}` : ""}`}>
+      <CRMLayout title={`HR - ${t("hr.leaveBalances.pageTitleSimple")}${selectedEmployee ? ` - ${getEmployeeLabel(selectedEmployee)}` : ""}`}>
         <div className="flex flex-col gap-6 p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-3">
               <Button variant="outline" className="gap-2" onClick={() => navigate("/hr/leave-balances")}>
                 <ArrowLeft className="h-4 w-4" />
-                Back to Employees
+                {t("hr.leaveBalances.actions.backToEmployees")}
               </Button>
               <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">HR &gt; Leave Balances &gt; {selectedEmployee ? getEmployeeLabel(selectedEmployee) : "Employee"}</p>
-                <h1 className="text-3xl font-bold tracking-tight">{selectedEmployee ? getEmployeeLabel(selectedEmployee) : "Employee Leave Balances"}</h1>
-                <p className="text-muted-foreground">Manage all leave balance types for this employee, including annual, sick, paternity, and other policies.</p>
+                <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">HR &gt; {t("hr.leaveBalances.title")} &gt; {selectedEmployee ? getEmployeeLabel(selectedEmployee) : t("hr.leaveBalances.employee")}</p>
+                <h1 className="text-3xl font-bold tracking-tight">{selectedEmployee ? getEmployeeLabel(selectedEmployee) : t("hr.leaveBalances.employeeLeaveBalances")}</h1>
+                <p className="text-muted-foreground">{t("hr.leaveBalances.detailDescription")}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" className="gap-2" onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending}>
                 <RefreshCw className="h-4 w-4" />
-                Synchronize
+                {t("hr.leaveBalances.actions.synchronize")}
               </Button>
               <Dialog
                 open={isOpen}
@@ -306,27 +308,27 @@ export default function LeaveBalances() {
                 <DialogTrigger asChild>
                   <Button className="gap-2">
                     <Plus className="h-4 w-4" />
-                    New Leave Balance
+                    {t("hr.leaveBalances.actions.create")}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
                   <DialogHeader>
-                    <DialogTitle>{editing ? "Edit Leave Balance" : "Create Leave Balance"}</DialogTitle>
+                    <DialogTitle>{editing ? t("hr.leaveBalances.dialog.edit") : t("hr.leaveBalances.dialog.create")}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Employee *</label>
+                      <label className="text-sm font-semibold">{t("hr.leaveBalances.forms.employee")} *</label>
                       <Input value={selectedEmployee ? getEmployeeLabel(selectedEmployee) : employeeId} readOnly />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Year *</label>
+                        <label className="text-sm font-semibold">{t("hr.leaveBalances.forms.year")} *</label>
                         <Input required type="number" min={2020} max={2100} value={year} onChange={(e) => setYear(Number(e.target.value) || currentYear)} />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Leave Type *</label>
+                        <label className="text-sm font-semibold">{t("hr.leaveBalances.forms.leaveType")} *</label>
                         <Select value={leaveTypeId} onValueChange={setLeaveTypeId} disabled={!!editing}>
-                          <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder={t("hr.leaveBalances.placeholders.selectType")} /></SelectTrigger>
                           <SelectContent>
                             {leaveTypes.map((leaveType: any) => (
                               <SelectItem key={leaveType.id} value={String(leaveType.id)}>{leaveType.name}</SelectItem>
@@ -337,7 +339,7 @@ export default function LeaveBalances() {
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Total Days</label>
+                        <label className="text-sm font-semibold">{t("hr.leaveBalances.forms.totalDays")}</label>
                         <Input
                           type="number"
                           min={0}
@@ -351,16 +353,16 @@ export default function LeaveBalances() {
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Used</label>
+                        <label className="text-sm font-semibold">{t("hr.leaveBalances.forms.used")}</label>
                         <Input type="number" min={0} step={0.5} value={usedDays} className="bg-muted" readOnly />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Remaining</label>
+                        <label className="text-sm font-semibold">{t("hr.leaveBalances.forms.remaining")}</label>
                         <Input type="number" min={0} step={0.5} value={remainingDays} className="bg-muted" readOnly />
                       </div>
                     </div>
                     <div className="flex justify-end gap-2 pt-4">
-                      <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+                      <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t("common.cancel")}</Button>
                       <Button
                         type="submit"
                         disabled={
@@ -370,7 +372,7 @@ export default function LeaveBalances() {
                           !leaveTypeId
                         }
                       >
-                        Save
+                        {t("common.save")}
                       </Button>
                     </div>
                   </form>
@@ -382,23 +384,23 @@ export default function LeaveBalances() {
           <div className="grid gap-4 md:grid-cols-3">
             <Card className="glass-morphism">
               <CardContent className="pt-6">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Employee</p>
-                <p className="mt-2 text-xl font-semibold">{selectedEmployee ? getEmployeeLabel(selectedEmployee) : "Unknown employee"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{selectedEmployee?.employeeNumber || "No employee number"}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hr.leaveBalances.employee")}</p>
+                <p className="mt-2 text-xl font-semibold">{selectedEmployee ? getEmployeeLabel(selectedEmployee) : t("hr.leaveBalances.unknownEmployee")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{selectedEmployee?.employeeNumber || t("hr.leaveBalances.noEmployeeNumber")}</p>
               </CardContent>
             </Card>
             <Card className="glass-morphism">
               <CardContent className="pt-6">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Department / Position</p>
-                <p className="mt-2 text-base font-semibold">{selectedEmployee?.department?.name || "No department"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{selectedEmployee?.position?.title || "No position"}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hr.leaveBalances.departmentPosition")}</p>
+                <p className="mt-2 text-base font-semibold">{selectedEmployee?.department?.name || t("hr.leaveBalances.noDepartment")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{selectedEmployee?.position?.title || t("hr.leaveBalances.noPosition")}</p>
               </CardContent>
             </Card>
             <Card className="glass-morphism">
               <CardContent className="pt-6">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Contact</p>
-                <p className="mt-2 text-base font-semibold">{selectedEmployee?.workEmail || selectedEmployee?.email || "No email"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{selectedEmployee?.phone || "No phone number"}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hr.leaveBalances.contact")}</p>
+                <p className="mt-2 text-base font-semibold">{selectedEmployee?.workEmail || selectedEmployee?.email || t("hr.leaveBalances.noEmail")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{selectedEmployee?.phone || t("hr.leaveBalances.noPhone")}</p>
               </CardContent>
             </Card>
           </div>
@@ -406,16 +408,16 @@ export default function LeaveBalances() {
           <Card className="glass-morphism">
             <CardContent className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="font-semibold">Leave balances by type</p>
-                <p className="text-sm text-muted-foreground">Each row represents a different leave policy for this employee and year.</p>
+                <p className="font-semibold">{t("hr.leaveBalances.balancesByType")}</p>
+                <p className="text-sm text-muted-foreground">{t("hr.leaveBalances.balancesDescription")}</p>
               </div>
               <div className="w-full md:w-52">
                 <Select value={yearFilter} onValueChange={setYearFilter}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Filter Year" />
+                    <SelectValue placeholder={t("hr.leaveBalances.placeholders.filterYear")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Years</SelectItem>
+                    <SelectItem value="all">{t("hr.leaveBalances.allYears")}</SelectItem>
                     {Array.from(new Set(detailBalances.map((balance) => balance.year)))
                       .sort((a, b) => b - a)
                       .map((balanceYear) => (
@@ -433,22 +435,22 @@ export default function LeaveBalances() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Year</TableHead>
-                  <TableHead>Leave Type</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Used</TableHead>
-                  <TableHead>Remaining</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t("hr.leaveBalances.table.year")}</TableHead>
+                  <TableHead>{t("hr.leaveBalances.table.leaveType")}</TableHead>
+                  <TableHead>{t("hr.leaveBalances.table.total")}</TableHead>
+                  <TableHead>{t("hr.leaveBalances.table.used")}</TableHead>
+                  <TableHead>{t("hr.leaveBalances.table.remaining")}</TableHead>
+                  <TableHead className="text-right">{t("hr.leaveBalances.table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="py-8 text-center">Loading balances...</TableCell>
+                    <TableCell colSpan={6} className="py-8 text-center">{t("hr.leaveBalances.loading")}</TableCell>
                   </TableRow>
                 ) : detailBalances.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="py-8 text-center">No leave balances found for this employee.</TableCell>
+                    <TableCell colSpan={6} className="py-8 text-center">{t("hr.leaveBalances.emptyDetail")}</TableCell>
                   </TableRow>
                 ) : (
                   detailBalances.map((balance) => {
@@ -483,20 +485,20 @@ export default function LeaveBalances() {
                             <TableCell colSpan={6} className="bg-muted/10 p-0">
                               <div className="px-6 py-3">
                                 {balance.carriedForwardDays ? (
-                                  <p className="mb-1 text-xs text-muted-foreground">Carried forward: {balance.carriedForwardDays} days from previous year</p>
+                                  <p className="mb-1 text-xs text-muted-foreground">{t("hr.leaveBalances.carriedForward", { days: balance.carriedForwardDays })}</p>
                                 ) : null}
                                 <p className="mb-2 text-xs text-muted-foreground">
                                   {balance.leaveType?.accrualPolicy === "Monthly"
-                                    ? `Monthly accrual rate: ${balance.monthlyAccrualRate} days/month`
-                                    : `Allocation policy: ${balance.leaveType?.accrualPolicy || "Standard"}`}
+                                    ? t("hr.leaveBalances.monthlyAccrualRate", { rate: balance.monthlyAccrualRate })
+                                    : t("hr.leaveBalances.allocationPolicy", { policy: balance.leaveType?.accrualPolicy || "Standard" })}
                                 </p>
                                 <table className="w-full text-xs">
                                   <thead>
                                     <tr className="border-b text-muted-foreground">
-                                      <th className="py-1 pr-4 text-left">Month</th>
-                                      <th className="py-1 px-2 text-right">Accrued</th>
-                                      <th className="py-1 px-2 text-right">Used</th>
-                                      <th className="py-1 pl-2 text-right">Balance</th>
+                                      <th className="py-1 pr-4 text-left">{t("hr.leaveBalances.monthTable.month")}</th>
+                                      <th className="py-1 px-2 text-right">{t("hr.leaveBalances.monthTable.accrued")}</th>
+                                      <th className="py-1 px-2 text-right">{t("hr.leaveBalances.monthTable.used")}</th>
+                                      <th className="py-1 pl-2 text-right">{t("hr.leaveBalances.monthTable.balance")}</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -505,7 +507,7 @@ export default function LeaveBalances() {
                                         key={month.month}
                                         className={`border-b border-border/40 ${month.month === 0 ? "bg-muted/20 font-semibold" : ""} ${month.isProjected ? "italic text-muted-foreground/60" : ""}`}
                                       >
-                                        <td className="py-1 pr-4 font-medium">{month.label}{month.isProjected ? " (projected)" : ""}</td>
+                                        <td className="py-1 pr-4 font-medium">{month.label}{month.isProjected ? ` (${t("hr.leaveBalances.projected")})` : ""}</td>
                                         <td className="py-1 px-2 text-right">{month.month === 0 ? "-" : month.accrued}</td>
                                         <td className="py-1 px-2 text-right text-rose-500">{month.month === 0 ? "-" : month.used > 0 ? month.used : "-"}</td>
                                         <td className="py-1 pl-2 text-right font-semibold">{month.balance}{month.isProjected ? "*" : ""}</td>
@@ -530,16 +532,16 @@ export default function LeaveBalances() {
   }
 
   return (
-    <CRMLayout title="HR - Leave Balances">
+    <CRMLayout title={t("hr.leaveBalances.pageTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Leave Balances</h1>
-            <p className="text-muted-foreground">Track employee leave balances per year and type.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.leaveBalances.title")}</h1>
+            <p className="text-muted-foreground">{t("hr.leaveBalances.description")}</p>
           </div>
           <Button variant="outline" className="gap-2" onClick={() => syncMutation.mutate()} disabled={syncMutation.isPending}>
             <RefreshCw className="h-4 w-4" />
-            Synchronize Balance
+            {t("hr.leaveBalances.actions.synchronizeBalance")}
           </Button>
         </div>
 
@@ -547,19 +549,19 @@ export default function LeaveBalances() {
           <Card className="glass-morphism">
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{employeeGroups.length}</div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Employees With Balances</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hr.leaveBalances.stats.employeesWithBalances")}</p>
             </CardContent>
           </Card>
           <Card className="glass-morphism">
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{employeeGroups.reduce((sum, group) => sum + group.leaveTypeCount, 0)}</div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Leave Balance Records</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hr.leaveBalances.stats.leaveBalanceRecords")}</p>
             </CardContent>
           </Card>
           <Card className="glass-morphism">
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{employeeGroups.reduce((sum, group) => sum + group.currentYearRemainingDays, 0)}</div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current Year Remaining Days</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hr.leaveBalances.stats.currentYearRemaining")}</p>
             </CardContent>
           </Card>
         </div>
@@ -568,7 +570,7 @@ export default function LeaveBalances() {
           <CardContent className="flex flex-col gap-4 py-4 md:flex-row md:items-center">
             <div className="flex-1">
               <Input
-                placeholder="Search by employee, department, position, leave type..."
+                placeholder={t("hr.leaveBalances.placeholders.search")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -576,10 +578,10 @@ export default function LeaveBalances() {
             <div className="w-full md:w-52">
               <Select value={yearFilter} onValueChange={setYearFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter Year" />
+                  <SelectValue placeholder={t("hr.leaveBalances.placeholders.filterYear")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Years</SelectItem>
+                  <SelectItem value="all">{t("hr.leaveBalances.allYears")}</SelectItem>
                   {Array.from(new Set(usableBalances.map((balance) => balance.year)))
                     .sort((a, b) => b - a)
                     .map((balanceYear) => (
@@ -595,11 +597,11 @@ export default function LeaveBalances() {
 
         {isLoading ? (
           <Card className="glass-morphism">
-            <CardContent className="py-10 text-center text-muted-foreground">Loading employee leave balances...</CardContent>
+            <CardContent className="py-10 text-center text-muted-foreground">{t("hr.leaveBalances.loading")}</CardContent>
           </Card>
         ) : employeeGroups.length === 0 ? (
           <Card className="glass-morphism">
-            <CardContent className="py-10 text-center text-muted-foreground">No employee leave balances found.</CardContent>
+            <CardContent className="py-10 text-center text-muted-foreground">{t("hr.leaveBalances.empty")}</CardContent>
           </Card>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -617,42 +619,42 @@ export default function LeaveBalances() {
                       </div>
                       <div>
                         <CardTitle className="text-lg">{getEmployeeLabel(group.employee)}</CardTitle>
-                        <p className="text-sm text-muted-foreground">{group.employee.employeeNumber || "No employee number"}</p>
+                        <p className="text-sm text-muted-foreground">{group.employee.employeeNumber || t("hr.leaveBalances.noEmployeeNumber")}</p>
                       </div>
                     </div>
-                    <Badge variant="outline">{group.leaveTypeCount} types</Badge>
+                    <Badge variant="outline">{group.leaveTypeCount} {t("hr.leaveBalances.types")}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="grid gap-3 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <UserRound className="h-4 w-4" />
-                      <span>{group.employee.department?.name || "No department"}</span>
+                      <span>{group.employee.department?.name || t("hr.leaveBalances.noDepartment")}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CalendarDays className="h-4 w-4" />
-                      <span>{group.employee.position?.title || "No position"}</span>
+                      <span>{group.employee.position?.title || t("hr.leaveBalances.noPosition")}</span>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
                     <div className="rounded-2xl border border-border/60 bg-muted/20 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hr.leaveBalances.total")}</p>
                       <p className="mt-1 text-lg font-semibold">{group.totalDays}</p>
                     </div>
                     <div className="rounded-2xl border border-border/60 bg-muted/20 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Used</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hr.leaveBalances.used")}</p>
                       <p className="mt-1 text-lg font-semibold">{group.usedDays}</p>
                     </div>
                     <div className="rounded-2xl border border-border/60 bg-muted/20 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Remaining</p>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("hr.leaveBalances.remaining")}</p>
                       <p className="mt-1 text-lg font-semibold">{group.remainingDays}</p>
                     </div>
                   </div>
 
                   <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Current Year Remaining</p>
-                    <p className="mt-1 text-xl font-semibold text-emerald-800">{group.currentYearRemainingDays} days</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">{t("hr.leaveBalances.currentYearRemaining")}</p>
+                    <p className="mt-1 text-xl font-semibold text-emerald-800">{group.currentYearRemainingDays} {t("hr.leaveBalances.days")}</p>
                   </div>
                 </CardContent>
               </Card>

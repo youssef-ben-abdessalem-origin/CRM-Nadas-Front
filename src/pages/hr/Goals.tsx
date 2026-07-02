@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api, Goal } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ const statusColors: Record<string, "default" | "secondary" | "destructive" | "ou
 };
 
 export default function Goals() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState<Goal | null>(null);
@@ -34,9 +36,9 @@ export default function Goals() {
   const { data: items = [], isLoading } = useQuery({ queryKey: ["goals"], queryFn: () => api.hr.goals.getAll() });
   const { data: employees = [] } = useQuery({ queryKey: ["employees"], queryFn: () => api.hr.employees.getAll() });
 
-  const createMut = useMutation({ mutationFn: (d: any) => api.hr.goals.create(d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["goals"] }); toast.success("Goal created"); setIsOpen(false); resetForm(); } });
-  const updateMut = useMutation({ mutationFn: ({ id, d }: any) => api.hr.goals.update(id, d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["goals"] }); toast.success("Goal updated"); setIsOpen(false); resetForm(); } });
-  const deleteMut = useMutation({ mutationFn: (id: number) => api.hr.goals.delete(id), onSuccess: () => { qc.invalidateQueries({ queryKey: ["goals"] }); toast.success("Goal deleted"); } });
+  const createMut = useMutation({ mutationFn: (d: any) => api.hr.goals.create(d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["goals"] }); toast.success(t("hr.statusUpdates.goalCreated")); setIsOpen(false); resetForm(); } });
+  const updateMut = useMutation({ mutationFn: ({ id, d }: any) => api.hr.goals.update(id, d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["goals"] }); toast.success(t("hr.statusUpdates.goalUpdated")); setIsOpen(false); resetForm(); } });
+  const deleteMut = useMutation({ mutationFn: (id: number) => api.hr.goals.delete(id), onSuccess: () => { qc.invalidateQueries({ queryKey: ["goals"] }); toast.success(t("hr.statusUpdates.goalDeleted")); } });
 
   const resetForm = () => { setEditing(null); setEmployeeId(""); setTitle(""); setDescription(""); setCategory(""); setTargetDate(""); setProgress(0); setStatus("Not Started"); };
 
@@ -51,64 +53,64 @@ export default function Goals() {
   };
 
   return (
-    <CRMLayout title="HR - Goals">
+    <CRMLayout title={t("hr.goals.title")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Employee Goals</h1>
-            <p className="text-muted-foreground">Track employee objectives and progress.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.goals.title")}</h1>
+            <p className="text-muted-foreground">{t("hr.goals.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) resetForm(); }}>
-            <DialogTrigger asChild><Button className="gap-2"><Flag className="h-4 w-4" /> New Goal</Button></DialogTrigger>
+            <DialogTrigger asChild><Button className="gap-2"><Flag className="h-4 w-4" /> {t("hr.goals.actions.newGoal")}</Button></DialogTrigger>
             <DialogContent className="max-w-lg">
-              <DialogHeader><DialogTitle>{editing ? "Edit Goal" : "Create Goal"}</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{editing ? t("hr.goals.actions.editGoal") : t("hr.goals.actions.createGoal")}</DialogTitle></DialogHeader>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Employee *</label>
+                  <label className="text-sm font-semibold">{t("hr.goals.forms.employee")}</label>
                   <Select value={employeeId} onValueChange={setEmployeeId}>
-                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("hr.goals.placeholders.selectEmployee")} /></SelectTrigger>
                     <SelectContent>{employees.map((e: any) => (<SelectItem key={e.id} value={String(e.id)}>{e.firstName} {e.lastName}</SelectItem>))}</SelectContent>
                   </Select>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Title *</label>
-                  <Input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Close 10 deals this quarter" />
+                  <label className="text-sm font-semibold">{t("hr.goals.forms.title")}</label>
+                  <Input required value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("hr.goals.placeholders.title")} />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Description</label>
+                  <label className="text-sm font-semibold">{t("hr.goals.forms.description")}</label>
                   <Input value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Category</label>
-                    <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Sales, Dev..." />
+                    <label className="text-sm font-semibold">{t("hr.goals.forms.category")}</label>
+                    <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder={t("hr.goals.placeholders.category")} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Target Date</label>
+                    <label className="text-sm font-semibold">{t("hr.goals.forms.targetDate")}</label>
                     <Input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Progress (%)</label>
+                    <label className="text-sm font-semibold">{t("hr.goals.forms.progress")}</label>
                     <Input type="number" min={0} max={100} value={progress} onChange={(e) => setProgress(+e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Status</label>
+                    <label className="text-sm font-semibold">{t("hr.goals.forms.status")}</label>
                     <Select value={status} onValueChange={setStatus}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Not Started">Not Started</SelectItem>
-                        <SelectItem value="In Progress">In Progress</SelectItem>
-                        <SelectItem value="Completed">Completed</SelectItem>
-                        <SelectItem value="Cancelled">Cancelled</SelectItem>
+                        <SelectItem value="Not Started">{t("hr.goals.options.notStarted")}</SelectItem>
+                        <SelectItem value="In Progress">{t("hr.goals.options.inProgress")}</SelectItem>
+                        <SelectItem value="Completed">{t("hr.goals.options.completed")}</SelectItem>
+                        <SelectItem value="Cancelled">{t("hr.goals.options.cancelled")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                  <Button type="submit">Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit">{t("common.save")}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -118,18 +120,18 @@ export default function Goals() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Target Date</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("hr.goals.table.employee")}</TableHead>
+                <TableHead>{t("hr.goals.table.title")}</TableHead>
+                <TableHead>{t("hr.goals.table.category")}</TableHead>
+                <TableHead>{t("hr.goals.table.targetDate")}</TableHead>
+                <TableHead>{t("hr.goals.table.progress")}</TableHead>
+                <TableHead>{t("hr.goals.table.status")}</TableHead>
+                <TableHead className="text-right">{t("hr.goals.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? <TableRow><TableCell colSpan={7} className="text-center py-8">Loading...</TableCell></TableRow>
-              : items.length === 0 ? <TableRow><TableCell colSpan={7} className="text-center py-8">No goals.</TableCell></TableRow>
+              {isLoading ? <TableRow><TableCell colSpan={7} className="text-center py-8">{t("common.loading")}</TableCell></TableRow>
+              : items.length === 0 ? <TableRow><TableCell colSpan={7} className="text-center py-8">{t("hr.goals.noResults")}</TableCell></TableRow>
               : items.map((g) => (
                 <TableRow key={g.id}>
                   <TableCell className="font-semibold">{g.employee ? `${g.employee.firstName} ${g.employee.lastName}` : "-"}</TableCell>

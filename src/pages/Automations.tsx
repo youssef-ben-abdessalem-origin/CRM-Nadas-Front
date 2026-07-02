@@ -27,6 +27,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import api, { AutomationRule } from "@/lib/api";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type ConditionField = {
   value: string;
@@ -52,6 +53,7 @@ const conditionFields: Record<"lead" | "deal", ConditionField[]> = {
 };
 
 export default function AutomationsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [entityType, setEntityType] = useState<"lead" | "deal">("lead");
@@ -96,7 +98,7 @@ export default function AutomationsPage() {
     mutationFn: api.automations.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["automation-rules"] });
-      toast.success("Automation rule created");
+      toast.success(t("automations.statusUpdates.ruleCreated"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -113,7 +115,7 @@ export default function AutomationsPage() {
     mutationFn: api.automations.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["automation-rules"] });
-      toast.success("Rule deleted");
+      toast.success(t("automations.statusUpdates.ruleDeleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -185,40 +187,40 @@ export default function AutomationsPage() {
 
   const onCreate = () => {
     if (!name.trim()) {
-      toast.error("Rule name is required");
+      toast.error(t("automations.errors.nameRequired"));
       return;
     }
 
     if (actionType === "assign_owner" && !assignOwnerId) {
-      toast.error("Please select an owner");
+      toast.error(t("automations.errors.selectOwner"));
       return;
     }
     if (actionType === "create_task" && !taskSubject.trim()) {
-      toast.error("Task subject is required");
+      toast.error(t("automations.errors.taskSubjectRequired"));
       return;
     }
     if (actionType === "send_notification" && !notificationTitle.trim()) {
-      toast.error("Notification title is required");
+      toast.error(t("automations.errors.notificationTitleRequired"));
       return;
     }
     if (actionType === "send_email" && !emailSubject.trim()) {
-      toast.error("Email subject is required");
+      toast.error(t("automations.errors.emailSubjectRequired"));
       return;
     }
     if (actionType === "send_email" && !emailToEntityContact && !emailTo.trim()) {
-      toast.error("Please provide recipient email");
+      toast.error(t("automations.errors.provideRecipientEmail"));
       return;
     }
     if (actionType === "send_email" && emailSenderMode === "specific" && !emailSenderUserId) {
-      toast.error("Please select sender");
+      toast.error(t("automations.errors.selectSender"));
       return;
     }
     if (useCondition && !conditionField) {
-      toast.error("Please select a condition field");
+      toast.error(t("automations.errors.selectConditionField"));
       return;
     }
     if (useCondition && requiresConditionValue && !conditionValue.trim()) {
-      toast.error("Please provide condition value");
+      toast.error(t("automations.errors.provideConditionValue"));
       return;
     }
 
@@ -242,7 +244,7 @@ export default function AutomationsPage() {
 
     if (useCondition && conditionField === "ownerId" && !["is_empty", "is_not_empty"].includes(conditionOperator)) {
       if (!conditionValue) {
-        toast.error("Please choose owner value");
+        toast.error(t("automations.errors.chooseOwnerValue"));
         return;
       }
     }
@@ -262,44 +264,44 @@ export default function AutomationsPage() {
   };
 
   return (
-    <CRMLayout title="Automations">
+    <CRMLayout title={t("automations.pageTitle")}>
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Create Rule</CardTitle>
+            <CardTitle>{t("automations.createRule")}</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
-              <Label>Name</Label>
+              <Label>{t("automations.name")}</Label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Assign enterprise leads to owner"
+                placeholder={t("automations.placeholders.ruleName")}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Entity</Label>
+              <Label>{t("automations.entity")}</Label>
               <Select value={entityType} onValueChange={(v: "lead" | "deal") => setEntityType(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="lead">Lead</SelectItem>
-                  <SelectItem value="deal">Deal</SelectItem>
+                  <SelectItem value="lead">{t("automations.lead")}</SelectItem>
+                  <SelectItem value="deal">{t("automations.deal")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>Event</Label>
+              <Label>{t("automations.event")}</Label>
               <Select value={eventType} onValueChange={(v: "created" | "updated") => setEventType(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="created">Created</SelectItem>
-                  <SelectItem value="updated">Updated</SelectItem>
+                  <SelectItem value="created">{t("automations.created")}</SelectItem>
+                  <SelectItem value="updated">{t("automations.updated")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -310,13 +312,13 @@ export default function AutomationsPage() {
                 onCheckedChange={(v) => setUseCondition(Boolean(v))}
                 id="use-condition"
               />
-              <Label htmlFor="use-condition">Add Condition</Label>
+              <Label htmlFor="use-condition">{t("automations.addCondition")}</Label>
             </div>
 
             {useCondition && (
               <>
                 <div className="space-y-2">
-                  <Label>Condition Field</Label>
+                  <Label>{t("automations.conditionField")}</Label>
                   <Select
                     value={conditionField}
                     onValueChange={setConditionField}
@@ -335,7 +337,7 @@ export default function AutomationsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Condition Operator</Label>
+                  <Label>{t("automations.conditionOperator")}</Label>
                   <Select
                     value={conditionOperator}
                     onValueChange={setConditionOperator}
@@ -344,26 +346,26 @@ export default function AutomationsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="equals">equals</SelectItem>
-                      <SelectItem value="not_equals">not equals</SelectItem>
-                      <SelectItem value="contains">contains</SelectItem>
-                      <SelectItem value="gt">greater than</SelectItem>
-                      <SelectItem value="gte">greater or equal</SelectItem>
-                      <SelectItem value="lt">less than</SelectItem>
-                      <SelectItem value="lte">less or equal</SelectItem>
-                      <SelectItem value="is_empty">is empty</SelectItem>
-                      <SelectItem value="is_not_empty">is not empty</SelectItem>
+                      <SelectItem value="equals">{t("automations.operators.equals")}</SelectItem>
+                      <SelectItem value="not_equals">{t("automations.operators.notEquals")}</SelectItem>
+                      <SelectItem value="contains">{t("automations.operators.contains")}</SelectItem>
+                      <SelectItem value="gt">{t("automations.operators.greaterThan")}</SelectItem>
+                      <SelectItem value="gte">{t("automations.operators.greaterOrEqual")}</SelectItem>
+                      <SelectItem value="lt">{t("automations.operators.lessThan")}</SelectItem>
+                      <SelectItem value="lte">{t("automations.operators.lessOrEqual")}</SelectItem>
+                      <SelectItem value="is_empty">{t("automations.operators.isEmpty")}</SelectItem>
+                      <SelectItem value="is_not_empty">{t("automations.operators.isNotEmpty")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {requiresConditionValue && (
                   <div className="space-y-2 md:col-span-2">
-                    <Label>Condition Value</Label>
+                    <Label>{t("automations.conditionValue")}</Label>
                     {conditionField === "ownerId" ? (
                       <Select value={conditionValue} onValueChange={setConditionValue}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select owner" />
+                          <SelectValue placeholder={t("automations.placeholders.selectOwner")} />
                         </SelectTrigger>
                         <SelectContent>
                           {users.map((u: any) => (
@@ -377,7 +379,7 @@ export default function AutomationsPage() {
                       <Input
                         value={conditionValue}
                         onChange={(e) => setConditionValue(e.target.value)}
-                        placeholder="Condition value"
+                        placeholder={t("automations.placeholders.conditionValue")}
                       />
                     )}
                   </div>
@@ -386,26 +388,26 @@ export default function AutomationsPage() {
             )}
 
             <div className="space-y-2">
-              <Label>Action</Label>
+              <Label>{t("automations.action")}</Label>
               <Select value={actionType} onValueChange={(v: AutomationRule["actionType"]) => setActionType(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="assign_owner">Assign Owner</SelectItem>
-                  <SelectItem value="create_task">Create Task</SelectItem>
-                  <SelectItem value="send_notification">Send Notification</SelectItem>
-                  <SelectItem value="send_email">Send Email</SelectItem>
+                  <SelectItem value="assign_owner">{t("automations.assignOwner")}</SelectItem>
+                  <SelectItem value="create_task">{t("automations.createTask")}</SelectItem>
+                  <SelectItem value="send_notification">{t("automations.sendNotification")}</SelectItem>
+                  <SelectItem value="send_email">{t("automations.sendEmail")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {actionType === "assign_owner" && (
               <div className="space-y-2 md:col-span-2">
-                <Label>Owner</Label>
+                <Label>{t("automations.owner")}</Label>
                 <Select value={assignOwnerId} onValueChange={setAssignOwnerId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select owner" />
+                    <SelectValue placeholder={t("automations.placeholders.selectOwner")} />
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((u: any) => (
@@ -421,35 +423,35 @@ export default function AutomationsPage() {
             {actionType === "create_task" && (
               <>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Task Subject</Label>
+                  <Label>{t("automations.taskSubject")}</Label>
                   <Input value={taskSubject} onChange={(e) => setTaskSubject(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Due In</Label>
+                  <Label>{t("automations.dueIn")}</Label>
                   <Select value={taskDueInDays} onValueChange={setTaskDueInDays}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1 day</SelectItem>
-                      <SelectItem value="2">2 days</SelectItem>
-                      <SelectItem value="3">3 days</SelectItem>
-                      <SelectItem value="7">7 days</SelectItem>
-                      <SelectItem value="14">14 days</SelectItem>
+                      <SelectItem value="1">{t("automations.dueInOptions.1day")}</SelectItem>
+                      <SelectItem value="2">{t("automations.dueInOptions.2days")}</SelectItem>
+                      <SelectItem value="3">{t("automations.dueInOptions.3days")}</SelectItem>
+                      <SelectItem value="7">{t("automations.dueInOptions.7days")}</SelectItem>
+                      <SelectItem value="14">{t("automations.dueInOptions.14days")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Priority</Label>
+                  <Label>{t("automations.priority")}</Label>
                   <Select value={taskPriority} onValueChange={setTaskPriority}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Low">Low</SelectItem>
-                      <SelectItem value="Normal">Normal</SelectItem>
-                      <SelectItem value="High">High</SelectItem>
-                      <SelectItem value="Urgent">Urgent</SelectItem>
+                      <SelectItem value="Low">{t("automations.priorityOptions.low")}</SelectItem>
+                      <SelectItem value="Normal">{t("automations.priorityOptions.normal")}</SelectItem>
+                      <SelectItem value="High">{t("automations.priorityOptions.high")}</SelectItem>
+                      <SelectItem value="Urgent">{t("automations.priorityOptions.urgent")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -459,14 +461,14 @@ export default function AutomationsPage() {
                     onCheckedChange={(v) => setTaskAssignToEntityOwner(Boolean(v))}
                     id="task-entity-owner"
                   />
-                  <Label htmlFor="task-entity-owner">Assign to record owner</Label>
+                  <Label htmlFor="task-entity-owner">{t("automations.assignToRecordOwner")}</Label>
                 </div>
                 {!taskAssignToEntityOwner && (
                   <div className="space-y-2 md:col-span-2">
-                    <Label>Specific Task Owner</Label>
+                    <Label>{t("automations.specificTaskOwner")}</Label>
                     <Select value={taskOwnerId} onValueChange={setTaskOwnerId}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select user" />
+                        <SelectValue placeholder={t("automations.placeholders.selectUser")} />
                       </SelectTrigger>
                       <SelectContent>
                         {users.map((u: any) => (
@@ -484,14 +486,14 @@ export default function AutomationsPage() {
             {actionType === "send_notification" && (
               <>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Notification Title</Label>
+                  <Label>{t("automations.notificationTitle")}</Label>
                   <Input
                     value={notificationTitle}
                     onChange={(e) => setNotificationTitle(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Message</Label>
+                  <Label>{t("automations.message")}</Label>
                   <Textarea
                     value={notificationMessage}
                     onChange={(e) => setNotificationMessage(e.target.value)}
@@ -504,14 +506,14 @@ export default function AutomationsPage() {
                     onCheckedChange={(v) => setNotifyEntityOwner(Boolean(v))}
                     id="notify-entity-owner"
                   />
-                  <Label htmlFor="notify-entity-owner">Notify record owner</Label>
+                  <Label htmlFor="notify-entity-owner">{t("automations.notifyRecordOwner")}</Label>
                 </div>
                 {!notifyEntityOwner && (
                   <div className="space-y-2 md:col-span-2">
-                    <Label>Recipient User</Label>
+                    <Label>{t("automations.recipientUser")}</Label>
                     <Select value={notificationUserId} onValueChange={setNotificationUserId}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select user" />
+                        <SelectValue placeholder={t("automations.placeholders.selectUser")} />
                       </SelectTrigger>
                       <SelectContent>
                         {users.map((u: any) => (
@@ -529,11 +531,11 @@ export default function AutomationsPage() {
             {actionType === "send_email" && (
               <>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Email Subject</Label>
+                  <Label>{t("automations.emailSubject")}</Label>
                   <Input value={emailSubject} onChange={(e) => setEmailSubject(e.target.value)} />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Email Body</Label>
+                  <Label>{t("automations.emailBody")}</Label>
                   <Textarea value={emailBody} onChange={(e) => setEmailBody(e.target.value)} rows={5} />
                 </div>
                 <div className="md:col-span-2 flex items-center gap-3 rounded-md border p-3">
@@ -542,37 +544,37 @@ export default function AutomationsPage() {
                     onCheckedChange={(v) => setEmailToEntityContact(Boolean(v))}
                     id="email-entity-contact"
                   />
-                  <Label htmlFor="email-entity-contact">Send to record email/contact</Label>
+                  <Label htmlFor="email-entity-contact">{t("automations.sendToRecordEmail")}</Label>
                 </div>
                 {!emailToEntityContact && (
                   <div className="space-y-2 md:col-span-2">
-                    <Label>Recipient Email</Label>
+                    <Label>{t("automations.recipientEmail")}</Label>
                     <Input
                       value={emailTo}
                       onChange={(e) => setEmailTo(e.target.value)}
-                      placeholder="name@company.com"
+                      placeholder={t("automations.placeholders.recipientEmail")}
                     />
                   </div>
                 )}
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Sender</Label>
+                  <Label>{t("automations.sender")}</Label>
                   <Select value={emailSenderMode} onValueChange={(v: "actor" | "owner" | "specific") => setEmailSenderMode(v)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="actor">User who triggered the event</SelectItem>
-                      <SelectItem value="owner">Record owner</SelectItem>
-                      <SelectItem value="specific">Specific user</SelectItem>
+                      <SelectItem value="actor">{t("automations.senderOptions.actor")}</SelectItem>
+                      <SelectItem value="owner">{t("automations.senderOptions.owner")}</SelectItem>
+                      <SelectItem value="specific">{t("automations.senderOptions.specific")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 {emailSenderMode === "specific" && (
                   <div className="space-y-2 md:col-span-2">
-                    <Label>Specific Sender</Label>
+                    <Label>{t("automations.specificSender")}</Label>
                     <Select value={emailSenderUserId} onValueChange={setEmailSenderUserId}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select sender" />
+                        <SelectValue placeholder={t("automations.placeholders.selectSender")} />
                       </SelectTrigger>
                       <SelectContent>
                         {users.map((u: any) => (
@@ -589,7 +591,7 @@ export default function AutomationsPage() {
 
             <div className="md:col-span-2">
               <Button onClick={onCreate} disabled={createMutation.isPending}>
-                {createMutation.isPending ? "Creating..." : "Create Rule"}
+                {createMutation.isPending ? t("common.creating") : t("automations.createRuleButton")}
               </Button>
             </div>
           </CardContent>
@@ -597,31 +599,31 @@ export default function AutomationsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Rules</CardTitle>
+            <CardTitle>{t("automations.existingRules")}</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Trigger</TableHead>
-                  <TableHead>Condition</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Controls</TableHead>
+                  <TableHead>{t("common.name")}</TableHead>
+                  <TableHead>{t("automations.table.trigger")}</TableHead>
+                  <TableHead>{t("automations.table.condition")}</TableHead>
+                  <TableHead>{t("automations.table.action")}</TableHead>
+                  <TableHead>{t("automations.table.status")}</TableHead>
+                  <TableHead className="text-right">{t("automations.table.controls")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-muted-foreground">
-                      Loading rules...
+                      {t("common.loading")}
                     </TableCell>
                   </TableRow>
                 ) : sortedRules.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-muted-foreground">
-                      No automation rules yet.
+                      {t("automations.noResults")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -634,7 +636,7 @@ export default function AutomationsPage() {
                       <TableCell className="text-sm text-muted-foreground">
                         {rule.conditionField
                           ? `${rule.conditionField} ${rule.conditionOperator} ${rule.conditionValue ?? ""}`
-                          : "Always"}
+                          : t("automations.always")}
                       </TableCell>
                       <TableCell>
                         <Badge>{rule.actionType}</Badge>
@@ -654,7 +656,7 @@ export default function AutomationsPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant={rule.isActive ? "default" : "secondary"}>
-                          {rule.isActive ? "Active" : "Paused"}
+                          {rule.isActive ? t("automations.active") : t("automations.paused")}
                         </Badge>
                       </TableCell>
                       <TableCell>

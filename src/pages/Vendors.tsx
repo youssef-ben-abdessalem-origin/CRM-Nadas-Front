@@ -48,9 +48,11 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useTranslation } from "react-i18next";
 
 // Kanban Droppable Column
 const DroppableColumn = ({ id, children }: { id: string; children: (props: { setNodeRef: (node: HTMLElement | null) => void }) => React.ReactNode }) => {
+  const { t } = useTranslation();
   const { setNodeRef } = useDroppable({ id });
   return children({ setNodeRef });
 };

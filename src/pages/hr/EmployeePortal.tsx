@@ -9,8 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { User, Calendar, FileText, Target, ClipboardCheck, PenLine } from "lucide-react";
 import { listSignatureTasks } from "@/lib/signatures";
+import { useTranslation } from "react-i18next";
 
 export default function EmployeePortal() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedEmpId, setSelectedEmpId] = useState("");
   const [pendingSignatureCount, setPendingSignatureCount] = useState(0);
@@ -64,16 +66,16 @@ export default function EmployeePortal() {
   });
 
   return (
-    <CRMLayout title="Employee Portal">
+    <CRMLayout title={t("hr.employeePortal.pageTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Employee Portal</h1>
-            <p className="text-muted-foreground">Self-service dashboard for employees to view their HR and payroll data.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.employeePortal.title")}</h1>
+            <p className="text-muted-foreground">{t("hr.employeePortal.description")}</p>
           </div>
           <div className="w-64">
             <Select value={selectedEmpId} onValueChange={setSelectedEmpId}>
-              <SelectTrigger><SelectValue placeholder="Select Employee..." /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t("hr.employeePortal.placeholders.selectEmployee")} /></SelectTrigger>
               <SelectContent>
                 {employees.map((e: any) => (
                   <SelectItem key={e.id} value={String(e.id)}>
@@ -89,28 +91,27 @@ export default function EmployeePortal() {
           <Card className="glass-morphism">
             <CardContent className="flex flex-col items-center justify-center py-16 gap-4">
               <User className="h-16 w-16 text-muted-foreground/40" />
-              <p className="text-lg text-muted-foreground">Select an employee to view their portal</p>
+              <p className="text-lg text-muted-foreground">{t("hr.employeePortal.selectPrompt")}</p>
             </CardContent>
           </Card>
         ) : (
           <>
-            {/* Profile Card */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
               <Card className="glass-morphism col-span-1">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <User className="h-5 w-5" /> Profile
+                    <User className="h-5 w-5" /> {t("hr.employeePortal.cards.profile")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {employee && (
                     <div className="space-y-2 text-sm">
-                      <div><span className="font-semibold">Name:</span> {employee.firstName} {employee.lastName}</div>
-                      <div><span className="font-semibold">Employee #:</span> {employee.employeeNumber}</div>
-                      <div><span className="font-semibold">Department:</span> {employee.department?.name || "-"}</div>
-                      <div><span className="font-semibold">Position:</span> {employee.position?.title || "-"}</div>
-                      <div><span className="font-semibold">CIN:</span> {employee.cin}</div>
-                      <div><span className="font-semibold">Status:</span> <Badge variant={employee.status === "Active" ? "default" : "secondary"}>{employee.status}</Badge></div>
+                      <div><span className="font-semibold">{t("hr.employeePortal.fields.name")}:</span> {employee.firstName} {employee.lastName}</div>
+                      <div><span className="font-semibold">{t("hr.employeePortal.fields.employeeNumber")}:</span> {employee.employeeNumber}</div>
+                      <div><span className="font-semibold">{t("hr.employeePortal.fields.department")}:</span> {employee.department?.name || "-"}</div>
+                      <div><span className="font-semibold">{t("hr.employeePortal.fields.position")}:</span> {employee.position?.title || "-"}</div>
+                      <div><span className="font-semibold">{t("hr.employeePortal.fields.cin")}:</span> {employee.cin}</div>
+                      <div><span className="font-semibold">{t("hr.employeePortal.fields.status")}:</span> <Badge variant={employee.status === "Active" ? "default" : "secondary"}>{employee.status}</Badge></div>
                     </div>
                   )}
                 </CardContent>
@@ -119,18 +120,18 @@ export default function EmployeePortal() {
               <Card className="glass-morphism">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <Calendar className="h-5 w-5" /> Leave Balances
+                    <Calendar className="h-5 w-5" /> {t("hr.employeePortal.cards.leaveBalances")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {leaveBalances.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No leave balances</p>
+                    <p className="text-sm text-muted-foreground">{t("hr.employeePortal.noLeaveBalances")}</p>
                   ) : (
                     <div className="space-y-2">
                       {leaveBalances.map((lb: any) => (
                         <div key={lb.id} className="flex justify-between items-center text-sm">
                           <span>{lb.leaveType?.name}</span>
-                          <span className="font-semibold">{lb.usedDays}/{lb.totalDays} days used</span>
+                          <span className="font-semibold">{lb.usedDays}/{lb.totalDays} {t("hr.employeePortal.daysUsed")}</span>
                         </div>
                       ))}
                     </div>
@@ -141,12 +142,12 @@ export default function EmployeePortal() {
               <Card className="glass-morphism">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <Target className="h-5 w-5" /> Goals Progress
+                    <Target className="h-5 w-5" /> {t("hr.employeePortal.cards.goalsProgress")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {goals.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No goals assigned</p>
+                    <p className="text-sm text-muted-foreground">{t("hr.employeePortal.noGoals")}</p>
                   ) : (
                     <div className="space-y-2">
                       {goals.slice(0, 5).map((g: any) => (
@@ -168,41 +169,40 @@ export default function EmployeePortal() {
               <Card className="glass-morphism cursor-pointer transition hover:-translate-y-0.5 hover:shadow-md" onClick={() => navigate("/signatures")}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <PenLine className="h-5 w-5" /> Signatures
+                    <PenLine className="h-5 w-5" /> {t("hr.employeePortal.cards.signatures")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">Open the signing queue and complete pending document signatures.</p>
+                  <p className="text-sm text-muted-foreground">{t("hr.employeePortal.signaturesDescription")}</p>
                   <div className="mt-4">
                     <Badge variant={pendingSignatureCount > 0 ? "secondary" : "outline"}>
-                      {pendingSignatureCount} pending
+                      {pendingSignatureCount} {t("hr.employeePortal.pending")}
                     </Badge>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Recent Attendance */}
             <Card className="glass-morphism">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Calendar className="h-5 w-5" /> Recent Attendance
+                  <Calendar className="h-5 w-5" /> {t("hr.employeePortal.cards.recentAttendance")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Check In</TableHead>
-                      <TableHead>Check Out</TableHead>
-                      <TableHead>Hours</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.date")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.checkIn")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.checkOut")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.hours")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {attendance.length === 0 ? (
-                      <TableRow><TableCell colSpan={5} className="text-center py-4">No attendance records</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={5} className="text-center py-4">{t("hr.employeePortal.noAttendance")}</TableCell></TableRow>
                     ) : (
                       attendance.slice(0, 10).map((a: any) => (
                         <TableRow key={a.id}>
@@ -219,27 +219,26 @@ export default function EmployeePortal() {
               </CardContent>
             </Card>
 
-            {/* Recent Leave Requests */}
             <Card className="glass-morphism">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <FileText className="h-5 w-5" /> Recent Leave Requests
+                  <FileText className="h-5 w-5" /> {t("hr.employeePortal.cards.recentLeaveRequests")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Start</TableHead>
-                      <TableHead>End</TableHead>
-                      <TableHead>Days</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.type")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.start")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.end")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.days")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {leaves.length === 0 ? (
-                      <TableRow><TableCell colSpan={5} className="text-center py-4">No leave requests</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={5} className="text-center py-4">{t("hr.employeePortal.noLeaveRequests")}</TableCell></TableRow>
                     ) : (
                       leaves.slice(0, 10).map((l: any) => (
                         <TableRow key={l.id}>
@@ -256,27 +255,26 @@ export default function EmployeePortal() {
               </CardContent>
             </Card>
 
-            {/* Recent Payslips */}
             <Card className="glass-morphism">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <ClipboardCheck className="h-5 w-5" /> Recent Payslips
+                  <ClipboardCheck className="h-5 w-5" /> {t("hr.employeePortal.cards.recentPayslips")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Period</TableHead>
-                      <TableHead>Gross</TableHead>
-                      <TableHead>Deductions</TableHead>
-                      <TableHead>Net</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.period")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.gross")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.deductions")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.net")}</TableHead>
+                      <TableHead>{t("hr.employeePortal.table.status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {payslips.length === 0 ? (
-                      <TableRow><TableCell colSpan={5} className="text-center py-4">No payslips</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={5} className="text-center py-4">{t("hr.employeePortal.noPayslips")}</TableCell></TableRow>
                     ) : (
                       payslips.slice(0, 10).map((p: any) => (
                         <TableRow key={p.id}>

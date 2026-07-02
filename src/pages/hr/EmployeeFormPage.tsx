@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { api, CostCenter, Employee } from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 type StepId = "identity" | "employment" | "contract" | "payroll" | "compliance" | "review";
 
@@ -174,26 +175,26 @@ const INITIAL_FORM: EmployeeFormState = {
 };
 
 const STEPS: { id: StepId; title: string; description: string; icon: typeof Users }[] = [
-  { id: "identity", title: "Identity", description: "Civil identity and personal contact", icon: Users },
-  { id: "employment", title: "Employment", description: "Department, manager, and work setup", icon: Briefcase },
-  { id: "contract", title: "Contract", description: "Employment contract and salary basis", icon: FileBadge2 },
-  { id: "payroll", title: "Payroll", description: "CNSS, IRPP, payment, and bank data", icon: CreditCard },
-  { id: "compliance", title: "Compliance", description: "Foreign-worker and regulatory fields", icon: ShieldCheck },
-  { id: "review", title: "Review", description: "Save the full Tunisia onboarding pack", icon: CheckCircle2 },
+  { id: "identity", title: "hr.employeeForm.steps.identity", description: "hr.employeeForm.steps.identityDesc", icon: Users },
+  { id: "employment", title: "hr.employeeForm.steps.employment", description: "hr.employeeForm.steps.employmentDesc", icon: Briefcase },
+  { id: "contract", title: "hr.employeeForm.steps.contract", description: "hr.employeeForm.steps.contractDesc", icon: FileBadge2 },
+  { id: "payroll", title: "hr.employeeForm.steps.payroll", description: "hr.employeeForm.steps.payrollDesc", icon: CreditCard },
+  { id: "compliance", title: "hr.employeeForm.steps.compliance", description: "hr.employeeForm.steps.complianceDesc", icon: ShieldCheck },
+  { id: "review", title: "hr.employeeForm.steps.review", description: "hr.employeeForm.steps.reviewDesc", icon: CheckCircle2 },
 ];
 
 function buildDocumentUploads(isForeignEmployee: boolean): DocumentUploadState[] {
   const base: DocumentUploadState[] = [
-    { key: "cin", label: "CIN Copy", documentType: "CIN", required: true, file: null, expiryDate: "", notes: "" },
-    { key: "contract", label: "Signed Contract", documentType: "Contract", required: true, file: null, expiryDate: "", notes: "" },
-    { key: "rib", label: "RIB Proof", documentType: "Other", required: true, file: null, expiryDate: "", notes: "RIB proof" },
-    { key: "diploma", label: "Diploma Copy", documentType: "Diploma", required: false, file: null, expiryDate: "", notes: "" },
+    { key: "cin", label: "hr.employeeForm.documents.cin", documentType: "CIN", required: true, file: null, expiryDate: "", notes: "" },
+    { key: "contract", label: "hr.employeeForm.documents.contract", documentType: "Contract", required: true, file: null, expiryDate: "", notes: "" },
+    { key: "rib", label: "hr.employeeForm.documents.rib", documentType: "Other", required: true, file: null, expiryDate: "", notes: "RIB proof" },
+    { key: "diploma", label: "hr.employeeForm.documents.diploma", documentType: "Diploma", required: false, file: null, expiryDate: "", notes: "" },
   ];
 
   if (isForeignEmployee) {
     base.push(
-      { key: "passport", label: "Passport Copy", documentType: "Passport", required: true, file: null, expiryDate: "", notes: "" },
-      { key: "permit", label: "Work Permit", documentType: "Work Permit", required: true, file: null, expiryDate: "", notes: "" },
+      { key: "passport", label: "hr.employeeForm.documents.passport", documentType: "Passport", required: true, file: null, expiryDate: "", notes: "" },
+      { key: "permit", label: "hr.employeeForm.documents.permit", documentType: "Work Permit", required: true, file: null, expiryDate: "", notes: "" },
     );
   }
 
@@ -327,6 +328,7 @@ function buildEmployeeFormState(employee?: Employee | null): EmployeeFormState {
 }
 
 export default function EmployeeFormPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const queryClient = useQueryClient();
@@ -683,10 +685,10 @@ export default function EmployeeFormPage() {
       navigate(`/hr/employees/edit/${employee.id}`, { replace: true });
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       if (!silent) {
-        toast.success("Employee draft created");
+        toast.success(t("hr.statusUpdates.draftCreated"));
       }
     } else if (!silent) {
-      toast.success("Employee draft updated");
+      toast.success(t("hr.statusUpdates.draftUpdated"));
     }
 
     return employee.id as number;
@@ -988,28 +990,28 @@ export default function EmployeeFormPage() {
 
       const missingItems: string[] = [];
 
-      if (!form.cnssNumber) missingItems.push("Add CNSS number");
-      if (!form.rib) missingItems.push("Add employee RIB");
-      if (!form.bankName) missingItems.push("Add bank name");
-      if (!form.bankAccount) missingItems.push("Add bank account");
-      if (!form.workEmail) missingItems.push("Add work email");
-      if (!form.address || !form.city) missingItems.push("Complete home address");
-      if (!form.emergencyContactName || !form.emergencyContactPhone) missingItems.push("Complete emergency contact");
-      if (!form.education) missingItems.push("Add education background");
-      if (!form.skills) missingItems.push("Add skills");
+      if (!form.cnssNumber) missingItems.push(t("hr.statusUpdates.missingCnss"));
+      if (!form.rib) missingItems.push(t("hr.statusUpdates.missingRib"));
+      if (!form.bankName) missingItems.push(t("hr.statusUpdates.missingBankName"));
+      if (!form.bankAccount) missingItems.push(t("hr.statusUpdates.missingBankAccount"));
+      if (!form.workEmail) missingItems.push(t("hr.statusUpdates.missingWorkEmail"));
+      if (!form.address || !form.city) missingItems.push(t("hr.statusUpdates.missingAddress"));
+      if (!form.emergencyContactName || !form.emergencyContactPhone) missingItems.push(t("hr.statusUpdates.missingEmergencyContact"));
+      if (!form.education) missingItems.push(t("hr.statusUpdates.missingEducation"));
+      if (!form.skills) missingItems.push(t("hr.statusUpdates.missingSkills"));
       if (isForeignEmployee && !form.passportNumber && !form.residenceCardNumber) {
-        missingItems.push("Add passport or residence card details");
+        missingItems.push(t("hr.statusUpdates.missingPassportOrResidence"));
       }
       if (isForeignEmployee && !form.workPermitNumber) {
-        missingItems.push("Add work permit number");
+        missingItems.push(t("hr.statusUpdates.missingWorkPermit"));
       }
-      if (!form.shiftId) missingItems.push("Assign a work shift");
-      if (!form.leaveTypeId) missingItems.push("Initialize leave policy");
+      if (!form.shiftId) missingItems.push(t("hr.statusUpdates.missingShift"));
+      if (!form.leaveTypeId) missingItems.push(t("hr.statusUpdates.missingLeavePolicy"));
       if (componentAssignments.filter((assignment) => assignment.componentId && assignment.amount && assignment.effectiveDate).length === 0) {
-        missingItems.push("Assign payroll components");
+        missingItems.push(t("hr.statusUpdates.missingComponents"));
       }
       documentUploads.filter((document) => document.required && !document.file).forEach((document) => {
-        missingItems.push(`Upload ${document.label}`);
+        missingItems.push(t("hr.statusUpdates.missingUpload", { label: t(document.label) }));
       });
 
       return {
@@ -1026,7 +1028,7 @@ export default function EmployeeFormPage() {
       queryClient.invalidateQueries({ queryKey: ["payrollProfile", employee.id] });
       queryClient.invalidateQueries({ queryKey: ["cnssProfile", employee.id] });
       queryClient.invalidateQueries({ queryKey: ["irppProfile", employee.id] });
-      toast.success(isEdit ? "Employee HR onboarding updated successfully" : "Employee created with HR onboarding successfully");
+      toast.success(isEdit ? t("hr.statusUpdates.onboardingUpdated") : t("hr.statusUpdates.onboardingCreated"));
       navigate(`/hr/employees/${employee.id}`, {
         state: {
             onboardingResult: {
@@ -1039,7 +1041,7 @@ export default function EmployeeFormPage() {
         });
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Unable to save employee onboarding");
+      toast.error(error.message || t("hr.statusUpdates.saveError"));
     },
   });
 
@@ -1106,27 +1108,27 @@ export default function EmployeeFormPage() {
   const currentStepMeta = STEPS[currentStep];
 
   const summaryItems = [
-    { label: "Employee", value: `${form.firstName} ${form.lastName}`.trim() || "-" },
-    { label: "Department", value: selectedDepartment?.name || "-" },
-    { label: "Position", value: selectedPosition?.title || "-" },
-      { label: "Manager", value: selectedManager ? `${selectedManager.firstName} ${selectedManager.lastName}` : "-" },
-      { label: "Contract", value: `${form.contractType === "CDD" && form.cddReason ? `CDD (${form.cddReason})` : form.contractType || "-"} / ${form.contractNumber || "Auto-generated"}` },
-      { label: "Base Salary", value: form.baseSalary ? `${form.baseSalary} TND` : "-" },
-      { label: "CNSS", value: form.cnssNumber || "-" },
-      { label: "Payment", value: `${form.paymentMethod || "-"}${form.rib ? ` / ${form.rib}` : ""}` },
-      { label: "Shift", value: selectedShift ? `${selectedShift.name} (${selectedShift.startTime}-${selectedShift.endTime})` : "-" },
-      { label: "Leave Policy", value: selectedLeaveType ? `${selectedLeaveType.name} / ${form.leaveTotalDays || 0} days` : "-" },
-      { label: "Payroll Components", value: `${componentAssignments.filter((assignment) => assignment.componentId && assignment.amount).length} configured` },
-      { label: "Documents", value: `${documentUploads.filter((document) => document.file).length} uploaded` },
-    ];
+    { label: t("hr.employeeForm.summary.employee"), value: `${form.firstName} ${form.lastName}`.trim() || "-" },
+    { label: t("hr.employeeForm.summary.department"), value: selectedDepartment?.name || "-" },
+    { label: t("hr.employeeForm.summary.position"), value: selectedPosition?.title || "-" },
+    { label: t("hr.employeeForm.summary.manager"), value: selectedManager ? `${selectedManager.firstName} ${selectedManager.lastName}` : "-" },
+    { label: t("hr.employeeForm.summary.contract"), value: `${form.contractType === "CDD" && form.cddReason ? `CDD (${form.cddReason})` : form.contractType || "-"} / ${form.contractNumber || t("hr.employeeForm.summary.autoGenerated")}` },
+    { label: t("hr.employeeForm.summary.baseSalary"), value: form.baseSalary ? `${form.baseSalary} ${t("hr.employeeForm.summary.tnd")}` : "-" },
+    { label: t("hr.employeeForm.summary.cnss"), value: form.cnssNumber || "-" },
+    { label: t("hr.employeeForm.summary.payment"), value: `${form.paymentMethod || "-"}${form.rib ? ` / ${form.rib}` : ""}` },
+    { label: t("hr.employeeForm.summary.shift"), value: selectedShift ? `${selectedShift.name} (${selectedShift.startTime}-${selectedShift.endTime})` : "-" },
+    { label: t("hr.employeeForm.summary.leavePolicy"), value: selectedLeaveType ? `${selectedLeaveType.name} / ${form.leaveTotalDays || 0} ${t("hr.employeeForm.summary.days")}` : "-" },
+    { label: t("hr.employeeForm.summary.payrollComponents"), value: `${componentAssignments.filter((assignment) => assignment.componentId && assignment.amount).length} ${t("hr.employeeForm.summary.configured")}` },
+    { label: t("hr.employeeForm.summary.documents"), value: `${documentUploads.filter((document) => document.file).length} ${t("hr.employeeForm.summary.uploaded")}` },
+  ];
 
   if (isEdit && isEmployeeLoading) {
     return (
-      <CRMLayout title="HR - Edit Employee">
+      <CRMLayout title={t("hr.employeeForm.loadingTitle")}>
         <div className="flex min-h-[50vh] items-center justify-center p-6">
           <div className="flex flex-col items-center gap-3 text-center">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/15 border-t-primary" />
-            <p className="text-sm text-muted-foreground">Loading Tunisia HR onboarding profile...</p>
+            <p className="text-sm text-muted-foreground">{t("hr.employeeForm.loadingText")}</p>
           </div>
         </div>
       </CRMLayout>
@@ -1134,7 +1136,7 @@ export default function EmployeeFormPage() {
   }
 
   return (
-    <CRMLayout title={isEdit ? "HR - Edit Employee" : "HR - New Employee"}>
+    <CRMLayout title={isEdit ? t("hr.employeeForm.editTitle") : t("hr.employeeForm.newTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
@@ -1147,11 +1149,11 @@ export default function EmployeeFormPage() {
               }}
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to employees
+              {t("hr.employeeForm.actions.backToEmployees")}
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">{isEdit ? "Edit Employee" : "Create New Employee"}</h1>
-              <p className="text-muted-foreground">Tunisia-ready HR onboarding with employee, contract, payroll, CNSS, and IRPP setup in one flow.</p>
+              <h1 className="text-3xl font-bold tracking-tight">{isEdit ? t("hr.employeeForm.editEmployee") : t("hr.employeeForm.createEmployee")}</h1>
+              <p className="text-muted-foreground">{t("hr.employeeForm.description")}</p>
             </div>
           </div>
           <Card className="w-full max-w-sm border-primary/20 bg-primary/5 lg:w-auto">
@@ -1160,8 +1162,8 @@ export default function EmployeeFormPage() {
                 <UserPlus className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-semibold">{isEdit ? "Updating Tunisia HR dossier" : "New Tunisia HR dossier"}</p>
-                <p className="text-xs text-muted-foreground">Step {currentStep + 1} of {STEPS.length}</p>
+                <p className="text-sm font-semibold">{isEdit ? t("hr.employeeForm.updatingDossier") : t("hr.employeeForm.newDossier")}</p>
+                <p className="text-xs text-muted-foreground">{t("hr.employeeForm.stepOf", { current: currentStep + 1, total: STEPS.length })}</p>
               </div>
             </CardContent>
           </Card>
@@ -1171,7 +1173,7 @@ export default function EmployeeFormPage() {
           <CardContent className="space-y-6 p-6">
             <div className="space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">Progress</span>
+                <span className="font-medium">{t("hr.employeeForm.progress")}</span>
                 <span className="text-muted-foreground">{Math.round(progressValue)}%</span>
               </div>
               <Progress value={progressValue} className="h-2" />
@@ -1204,8 +1206,8 @@ export default function EmployeeFormPage() {
                       </div>
                       <span className="text-xs font-semibold text-muted-foreground">0{index + 1}</span>
                     </div>
-                    <p className="font-semibold">{step.title}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{step.description}</p>
+                    <p className="font-semibold">{t(step.title)}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t(step.description)}</p>
                   </button>
                 );
               })}
@@ -1216,109 +1218,109 @@ export default function EmployeeFormPage() {
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
           <Card className="border-border/60">
             <CardHeader>
-              <CardTitle>{currentStepMeta.title}</CardTitle>
+              <CardTitle>{t(currentStepMeta.title)}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {currentStep === 0 && (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Employee ID</label>
-                    <Input readOnly disabled value={isEdit ? form.employeeNumber : "Auto-generated"} className="cursor-not-allowed bg-muted text-muted-foreground" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.employeeId")}</label>
+                    <Input readOnly disabled value={isEdit ? form.employeeNumber : t("hr.employeeForm.autoGenerated")} className="cursor-not-allowed bg-muted text-muted-foreground" />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">CIN *</label>
-                    <Input value={form.cin} onChange={(e) => setField("cin", e.target.value)} placeholder="09876543" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.cin")} *</label>
+                    <Input value={form.cin} onChange={(e) => setField("cin", e.target.value)} placeholder={t("hr.employeeForm.placeholders.cin")} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">First Name *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.firstName")} *</label>
                     <Input value={form.firstName} onChange={(e) => setField("firstName", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Last Name *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.lastName")} *</label>
                     <Input value={form.lastName} onChange={(e) => setField("lastName", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Date of Birth *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.dateOfBirth")} *</label>
                     <Input type="date" value={form.dateOfBirth} onChange={(e) => setField("dateOfBirth", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Place of Birth</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.placeOfBirth")}</label>
                     <Input value={form.placeOfBirth} onChange={(e) => setField("placeOfBirth", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Gender *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.gender")} *</label>
                     <Select value={form.gender} onValueChange={(value) => setField("gender", value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Male">Male</SelectItem>
-                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Male">{t("hr.employeeForm.options.male")}</SelectItem>
+                        <SelectItem value="Female">{t("hr.employeeForm.options.female")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Nationality *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.nationality")} *</label>
                     <Select value={form.nationality} onValueChange={(value) => setField("nationality", value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Tunisian">Tunisian</SelectItem>
-                        <SelectItem value="Non Tunisian">Non Tunisian</SelectItem>
+                        <SelectItem value="Tunisian">{t("hr.employeeForm.options.tunisian")}</SelectItem>
+                        <SelectItem value="Non Tunisian">{t("hr.employeeForm.options.nonTunisian")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Marital Status *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.maritalStatus")} *</label>
                     <Select value={form.maritalStatus} onValueChange={(value) => setField("maritalStatus", value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Single">Single</SelectItem>
-                        <SelectItem value="Married">Married</SelectItem>
-                        <SelectItem value="Divorced">Divorced</SelectItem>
-                        <SelectItem value="Widowed">Widowed</SelectItem>
+                        <SelectItem value="Single">{t("hr.employeeForm.options.single")}</SelectItem>
+                        <SelectItem value="Married">{t("hr.employeeForm.options.married")}</SelectItem>
+                        <SelectItem value="Divorced">{t("hr.employeeForm.options.divorced")}</SelectItem>
+                        <SelectItem value="Widowed">{t("hr.employeeForm.options.widowed")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Children Count</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.childrenCount")}</label>
                     <Input type="number" min={0} value={form.childrenCount} onChange={(e) => setField("childrenCount", Number(e.target.value) || 0)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Disabled Dependents</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.disabledDependents")}</label>
                     <Input type="number" min={0} value={form.disabledDependents} onChange={(e) => setField("disabledDependents", Number(e.target.value) || 0)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Phone *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.phone")} *</label>
                     <Input value={form.phone} onChange={(e) => setField("phone", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Personal Email</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.personalEmail")}</label>
                     <Input type="email" value={form.email} onChange={(e) => setField("email", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Work Email</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.workEmail")}</label>
                     <Input type="email" value={form.workEmail} onChange={(e) => setField("workEmail", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Passport Number</label>
-                    <Input value={form.passportNumber} onChange={(e) => setField("passportNumber", e.target.value)} placeholder="AB123456" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.passportNumber")}</label>
+                    <Input value={form.passportNumber} onChange={(e) => setField("passportNumber", e.target.value)} placeholder={t("hr.employeeForm.placeholders.passportNumber")} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Emergency Contact Name</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.emergencyContactName")}</label>
                     <Input value={form.emergencyContactName} onChange={(e) => setField("emergencyContactName", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Emergency Contact Phone</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.emergencyContactPhone")}</label>
                     <Input value={form.emergencyContactPhone} onChange={(e) => setField("emergencyContactPhone", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Address</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.address")}</label>
                     <Input value={form.address} onChange={(e) => setField("address", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">City</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.city")}</label>
                     <Input value={form.city} onChange={(e) => setField("city", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Postal Code</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.postalCode")}</label>
                     <Input value={form.postalCode} onChange={(e) => setField("postalCode", e.target.value)} />
                   </div>
                 </div>
@@ -1327,18 +1329,18 @@ export default function EmployeeFormPage() {
               {currentStep === 1 && (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Hire Date *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.hireDate")} *</label>
                     <Input type="date" value={form.hireDate} onChange={(e) => setField("hireDate", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Employee Status *</label>
-                    <Input value={employeeStatus} readOnly />
-                    <p className="text-xs text-muted-foreground">System-managed. It becomes `Active` only when all required fields are completed. Otherwise it stays `Draft`.</p>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.employeeStatus")} *</label>
+                    <Input value={t("common.status." + employeeStatus.toLowerCase())} readOnly />
+                    <p className="text-xs text-muted-foreground">{t("hr.employeeForm.hints.employeeStatus")}</p>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Department *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.department")} *</label>
                     <Select value={form.departmentId} onValueChange={(value) => setField("departmentId", value)}>
-                      <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("hr.employeeForm.placeholders.selectDepartment")} /></SelectTrigger>
                       <SelectContent>
                         {departments.map((department: any) => (
                           <SelectItem key={department.id} value={String(department.id)}>{department.name}</SelectItem>
@@ -1347,9 +1349,9 @@ export default function EmployeeFormPage() {
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Position *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.position")} *</label>
                     <Select value={form.positionId} onValueChange={(value) => setField("positionId", value)}>
-                      <SelectTrigger><SelectValue placeholder="Select Position" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("hr.employeeForm.placeholders.selectPosition")} /></SelectTrigger>
                       <SelectContent>
                         {positions.map((position: any) => (
                           <SelectItem key={position.id} value={String(position.id)}>{position.title}</SelectItem>
@@ -1358,11 +1360,11 @@ export default function EmployeeFormPage() {
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Manager</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.manager")}</label>
                     <Select value={form.managerId || "__none__"} onValueChange={(value) => setField("managerId", value === "__none__" ? "" : value)}>
-                      <SelectTrigger><SelectValue placeholder="Select Manager" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("hr.employeeForm.placeholders.selectManager")} /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="__none__">No manager</SelectItem>
+                        <SelectItem value="__none__">{t("hr.employeeForm.options.noManager")}</SelectItem>
                         {filteredManagers.map((employee) => (
                           <SelectItem key={employee.id} value={String(employee.id)}>{employee.firstName} {employee.lastName}</SelectItem>
                         ))}
@@ -1370,15 +1372,15 @@ export default function EmployeeFormPage() {
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Work Location</label>
-                    <Input value={form.workLocation} onChange={(e) => setField("workLocation", e.target.value)} placeholder="Tunis HQ" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.workLocation")}</label>
+                    <Input value={form.workLocation} onChange={(e) => setField("workLocation", e.target.value)} placeholder={t("hr.employeeForm.placeholders.workLocation")} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Cost Center</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.costCenter")}</label>
                     <Select value={form.costCenter || "none"} onValueChange={(value) => setField("costCenter", value === "none" ? "" : value)}>
-                      <SelectTrigger><SelectValue placeholder="Select Cost Center" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("hr.employeeForm.placeholders.selectCostCenter")} /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">No cost center</SelectItem>
+                        <SelectItem value="none">{t("hr.employeeForm.options.noCostCenter")}</SelectItem>
                         {costCenters.map((costCenter: CostCenter) => (
                           <SelectItem key={costCenter.id} value={costCenter.code}>
                             {costCenter.code} - {costCenter.name}
@@ -1386,48 +1388,48 @@ export default function EmployeeFormPage() {
                         ))}
                         {form.costCenter && !costCenters.some((costCenter: CostCenter) => costCenter.code === form.costCenter) ? (
                           <SelectItem value={form.costCenter}>
-                            {form.costCenter} (legacy)
+                            {form.costCenter} {t("hr.employeeForm.options.legacy")}
                           </SelectItem>
                         ) : null}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Employment Category</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.employmentCategory")}</label>
                     <Select value={form.employmentCategory} onValueChange={(value) => setField("employmentCategory", value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Employee">Employee</SelectItem>
-                        <SelectItem value="Cadre">Cadre</SelectItem>
-                        <SelectItem value="Agent de maitrise">Agent de maitrise</SelectItem>
-                        <SelectItem value="Ouvrier">Ouvrier</SelectItem>
-                        <SelectItem value="Intern">Intern</SelectItem>
+                        <SelectItem value="Employee">{t("hr.employeeForm.options.employeeCategory")}</SelectItem>
+                        <SelectItem value="Cadre">{t("hr.employeeForm.options.cadre")}</SelectItem>
+                        <SelectItem value="Agent de maitrise">{t("hr.employeeForm.options.agentDeMaitrise")}</SelectItem>
+                        <SelectItem value="Ouvrier">{t("hr.employeeForm.options.ouvrier")}</SelectItem>
+                        <SelectItem value="Intern">{t("hr.employeeForm.options.intern")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Attendance Mode</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.attendanceMode")}</label>
                     <Select value={form.attendanceMode} onValueChange={(value) => setField("attendanceMode", value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="On Site">On Site</SelectItem>
-                        <SelectItem value="Hybrid">Hybrid</SelectItem>
-                        <SelectItem value="Remote">Remote</SelectItem>
-                        <SelectItem value="Shift Based">Shift Based</SelectItem>
+                        <SelectItem value="On Site">{t("hr.employeeForm.options.onSite")}</SelectItem>
+                        <SelectItem value="Hybrid">{t("hr.employeeForm.options.hybrid")}</SelectItem>
+                        <SelectItem value="Remote">{t("hr.employeeForm.options.remote")}</SelectItem>
+                        <SelectItem value="Shift Based">{t("hr.employeeForm.options.shiftBased")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Education</label>
-                    <Input value={form.education} onChange={(e) => setField("education", e.target.value)} placeholder="Bachelor in Computer Science" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.education")}</label>
+                    <Input value={form.education} onChange={(e) => setField("education", e.target.value)} placeholder={t("hr.employeeForm.placeholders.education")} />
                   </div>
                   <div className="flex flex-col gap-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Skills</label>
-                    <Input value={form.skills} onChange={(e) => setField("skills", e.target.value)} placeholder="Excel, Payroll, Recruitment" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.skills")}</label>
+                    <Input value={form.skills} onChange={(e) => setField("skills", e.target.value)} placeholder={t("hr.employeeForm.placeholders.skills")} />
                   </div>
                   <div className="flex flex-col gap-2 md:col-span-2">
-                    <label className="text-sm font-semibold">Certifications</label>
-                    <Input value={form.certifications} onChange={(e) => setField("certifications", e.target.value)} placeholder="PMP, HR Analytics" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.certifications")}</label>
+                    <Input value={form.certifications} onChange={(e) => setField("certifications", e.target.value)} placeholder={t("hr.employeeForm.placeholders.certifications")} />
                   </div>
                 </div>
               )}
@@ -1435,74 +1437,74 @@ export default function EmployeeFormPage() {
               {currentStep === 2 && (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Contract Number</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.contractNumber")}</label>
                     <Input
-                      value={form.contractNumber || "Auto-generated by the system"}
+                      value={form.contractNumber || t("hr.employeeForm.autoGeneratedBySystem")}
                       readOnly
                       disabled
                       className="bg-muted text-muted-foreground cursor-not-allowed"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Contract Type *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.contractType")} *</label>
                     <Select value={form.contractType} onValueChange={(value) => setField("contractType", value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="CDI">CDI</SelectItem>
-                        <SelectItem value="CDD">CDD</SelectItem>
-                        <SelectItem value="SIVP">SIVP</SelectItem>
-                        <SelectItem value="Stage">Stage</SelectItem>
-                        <SelectItem value="Part Time">Part Time</SelectItem>
-                        <SelectItem value="Freelance">Freelance</SelectItem>
+                        <SelectItem value="CDI">{t("hr.employeeForm.options.cdi")}</SelectItem>
+                        <SelectItem value="CDD">{t("hr.employeeForm.options.cdd")}</SelectItem>
+                        <SelectItem value="SIVP">{t("hr.employeeForm.options.sivp")}</SelectItem>
+                        <SelectItem value="Stage">{t("hr.employeeForm.options.stage")}</SelectItem>
+                        <SelectItem value="Part Time">{t("hr.employeeForm.options.partTime")}</SelectItem>
+                        <SelectItem value="Freelance">{t("hr.employeeForm.options.freelance")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   {form.contractType === "CDD" && (
                     <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm md:col-span-2">
-                      <p className="font-semibold text-foreground">CDD is restricted under Tunisia’s 2025 labor reform</p>
+                      <p className="font-semibold text-foreground">{t("hr.employeeForm.validation.cddRestrictedTitle")}</p>
                       <p className="mt-1 text-muted-foreground">
-                        Use `CDD` only for legally allowed exceptions such as replacement, temporary increase in activity, or seasonal work.
+                        {t("hr.employeeForm.validation.cddRestrictedDesc")}
                       </p>
                     </div>
                   )}
                   {form.contractType === "CDD" && (
                     <div className="flex flex-col gap-2 md:col-span-2">
-                      <label className="text-sm font-semibold">CDD Legal Reason *</label>
+                      <label className="text-sm font-semibold">{t("hr.employeeForm.forms.cddLegalReason")} *</label>
                       <Select value={form.cddReason} onValueChange={(value) => setField("cddReason", value)}>
-                        <SelectTrigger><SelectValue placeholder="Select legal reason" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t("hr.employeeForm.placeholders.selectLegalReason")} /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Replacement of absent employee">Replacement of absent employee</SelectItem>
-                          <SelectItem value="Temporary increase in activity">Temporary increase in activity</SelectItem>
-                          <SelectItem value="Seasonal work">Seasonal work</SelectItem>
+                        <SelectItem value="Replacement of absent employee">{t("hr.employeeForm.options.replacement")}</SelectItem>
+                        <SelectItem value="Temporary increase in activity">{t("hr.employeeForm.options.temporaryIncrease")}</SelectItem>
+                        <SelectItem value="Seasonal work">{t("hr.employeeForm.options.seasonalWork")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   )}
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Contract Start Date *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.contractStartDate")} *</label>
                     <Input type="date" value={form.contractStartDate} onChange={(e) => setField("contractStartDate", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Contract End Date{form.contractType === "CDD" ? " *" : ""}</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.contractEndDate")}{form.contractType === "CDD" ? " *" : ""}</label>
                     <Input type="date" value={form.contractEndDate} onChange={(e) => setField("contractEndDate", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Probation End Date</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.probationEndDate")}</label>
                     <Input type="date" value={form.probationEndDate} onChange={(e) => setField("probationEndDate", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Contract Status</label>
-                    <Input value={contractStatus} readOnly />
-                    <p className="text-xs text-muted-foreground">System-managed from contract completeness and contract end date.</p>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.contractStatus")}</label>
+                    <Input value={t("common.status." + contractStatus.toLowerCase())} readOnly />
+                    <p className="text-xs text-muted-foreground">{t("hr.employeeForm.hints.contractStatus")}</p>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Base Salary (TND) *</label>
-                    <Input type="number" step="0.001" value={form.baseSalary} onChange={(e) => setField("baseSalary", e.target.value)} placeholder="1500.000" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.baseSalary")} *</label>
+                    <Input type="number" step="0.001" value={form.baseSalary} onChange={(e) => setField("baseSalary", e.target.value)} placeholder={t("hr.employeeForm.placeholders.baseSalary")} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Working Hours / Week *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.workingHours")} *</label>
                     <Input type="number" min={1} step="0.5" value={form.workingHoursPerWeek} readOnly />
-                    <p className="text-xs text-muted-foreground">Auto-filled from the selected default shift on a standard 5-day work week.</p>
+                    <p className="text-xs text-muted-foreground">{t("hr.employeeForm.hints.workingHours")}</p>
                   </div>
                 </div>
               )}
@@ -1510,63 +1512,63 @@ export default function EmployeeFormPage() {
               {currentStep === 3 && (
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Social Regime *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.socialRegime")} *</label>
                     <Select value={form.socialRegime} onValueChange={(value) => setField("socialRegime", value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="CNSS">CNSS</SelectItem>
-                        <SelectItem value="CNRPS">CNRPS</SelectItem>
+                        <SelectItem value="CNSS">{t("hr.employeeForm.options.cnss")}</SelectItem>
+                        <SelectItem value="CNRPS">{t("hr.employeeForm.options.cnrps")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">CNSS Number</label>
-                    <Input value={form.cnssNumber} onChange={(e) => setField("cnssNumber", e.target.value)} placeholder="123456789" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.cnssNumber")}</label>
+                    <Input value={form.cnssNumber} onChange={(e) => setField("cnssNumber", e.target.value)} placeholder={t("hr.employeeForm.placeholders.cnssNumber")} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">CNSS Registration Date</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.cnssRegistrationDate")}</label>
                     <Input type="date" value={form.cnssRegistrationDate} onChange={(e) => setField("cnssRegistrationDate", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">CNSS Status</label>
-                    <Input value={cnssStatus} readOnly />
-                    <p className="text-xs text-muted-foreground">System-managed from social regime and CNSS number availability.</p>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.cnssStatus")}</label>
+                    <Input value={t("common.status." + cnssStatus.toLowerCase())} readOnly />
+                    <p className="text-xs text-muted-foreground">{t("hr.employeeForm.hints.cnssStatus")}</p>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">CNRPS Number</label>
-                    <Input value={form.cnrpsNumber} onChange={(e) => setField("cnrpsNumber", e.target.value)} placeholder="Optional public-sector ref" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.cnrpsNumber")}</label>
+                    <Input value={form.cnrpsNumber} onChange={(e) => setField("cnrpsNumber", e.target.value)} placeholder={t("hr.employeeForm.placeholders.cnrpsNumber")} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Tax Status *</label>
-                    <Input value={taxStatus} readOnly />
-                    <p className="text-xs text-muted-foreground">System-managed from marital status and number of children.</p>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.taxStatus")} *</label>
+                    <Input value={taxStatus === "Married + Children" ? t("hr.employeeForm.options.marriedWithChildren") : t("hr.employeeForm.options." + taxStatus.toLowerCase())} readOnly />
+                    <p className="text-xs text-muted-foreground">{t("hr.employeeForm.hints.taxStatus")}</p>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Tax Exemptions</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.taxExemptions")}</label>
                     <Input type="number" min={0} step="0.001" value={form.taxExemptions} readOnly />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Payment Method *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.paymentMethod")} *</label>
                     <Select value={form.paymentMethod} onValueChange={(value) => setField("paymentMethod", value)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                        <SelectItem value="Cash">Cash</SelectItem>
-                        <SelectItem value="Check">Check</SelectItem>
+                        <SelectItem value="Bank Transfer">{t("hr.employeeForm.options.bankTransfer")}</SelectItem>
+                        <SelectItem value="Cash">{t("hr.employeeForm.options.cash")}</SelectItem>
+                        <SelectItem value="Check">{t("hr.employeeForm.options.check")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Bank Name</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.bankName")}</label>
                     <Input value={form.bankName} onChange={(e) => setField("bankName", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Bank Account</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.bankAccount")}</label>
                     <Input value={form.bankAccount} onChange={(e) => setField("bankAccount", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">RIB</label>
-                    <Input value={form.rib} onChange={(e) => setField("rib", e.target.value)} placeholder="20 digits" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.rib")}</label>
+                    <Input value={form.rib} onChange={(e) => setField("rib", e.target.value)} placeholder={t("hr.employeeForm.placeholders.rib")} />
                   </div>
 
                   <div className="md:col-span-2">
@@ -1574,14 +1576,14 @@ export default function EmployeeFormPage() {
                   </div>
 
                   <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 md:col-span-2">
-                    <p className="font-semibold">Attendance and leave initialization</p>
-                    <p className="mt-1 text-sm text-muted-foreground">Assign the default shift and initialize the employee leave policy before payroll starts.</p>
+                    <p className="font-semibold">{t("hr.employeeForm.forms.attendanceLeaveInit")}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{t("hr.employeeForm.hints.attendanceLeaveInit")}</p>
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Default Shift *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.defaultShift")} *</label>
                     <Select value={form.shiftId} onValueChange={(value) => setField("shiftId", value)}>
-                      <SelectTrigger><SelectValue placeholder="Select Shift" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("hr.employeeForm.placeholders.selectShift")} /></SelectTrigger>
                       <SelectContent>
                         {shifts.map((shift: any) => (
                           <SelectItem key={shift.id} value={String(shift.id)}>{shift.name} ({shift.startTime} - {shift.endTime})</SelectItem>
@@ -1590,19 +1592,19 @@ export default function EmployeeFormPage() {
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Shift Start Date *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.shiftStartDate")} *</label>
                     <Input type="date" value={form.shiftAssignmentStartDate} onChange={(e) => setField("shiftAssignmentStartDate", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Shift End Date</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.shiftEndDate")}</label>
                     <Input type="date" value={form.shiftAssignmentEndDate} onChange={(e) => setField("shiftAssignmentEndDate", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Shift Notes</label>
-                    <Input value={form.shiftNotes} onChange={(e) => setField("shiftNotes", e.target.value)} placeholder="Optional assignment note" />
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.shiftNotes")}</label>
+                    <Input value={form.shiftNotes} onChange={(e) => setField("shiftNotes", e.target.value)} placeholder={t("hr.employeeForm.placeholders.shiftNotes")} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Leave Type *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.leaveType")} *</label>
                     <Select
                       value={form.leaveTypeId}
                       onValueChange={(value) => {
@@ -1613,7 +1615,7 @@ export default function EmployeeFormPage() {
                         }
                       }}
                     >
-                      <SelectTrigger><SelectValue placeholder="Select Leave Policy" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("hr.employeeForm.placeholders.selectLeavePolicy")} /></SelectTrigger>
                       <SelectContent>
                         {leaveTypes.map((leaveType: any) => (
                           <SelectItem key={leaveType.id} value={String(leaveType.id)}>{leaveType.name}</SelectItem>
@@ -1622,23 +1624,23 @@ export default function EmployeeFormPage() {
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Leave Balance Year *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.leaveBalanceYear")} *</label>
                     <Input type="number" min={2020} value={form.leaveBalanceYear} readOnly />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Initial Leave Days *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.initialLeaveDays")} *</label>
                     <Input type="number" min={0} step="0.5" value={form.leaveTotalDays} onChange={(e) => setField("leaveTotalDays", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Accrual Rate / Month *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.accrualRate")} *</label>
                     <Input type="number" min={0} step="0.1" value={form.accrualRate} onChange={(e) => setField("accrualRate", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Maximum Accrual *</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.maxAccrual")} *</label>
                     <Input type="number" min={0} step="0.5" value={form.maxAccrual} onChange={(e) => setField("maxAccrual", e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Accrual Effective Date</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.accrualEffectiveDate")}</label>
                     <Input type="date" value={form.accrualEffectiveDate} onChange={(e) => setField("accrualEffectiveDate", e.target.value)} />
                   </div>
 
@@ -1649,12 +1651,12 @@ export default function EmployeeFormPage() {
                   <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 md:col-span-2">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-semibold">Payroll components initialization</p>
-                        <p className="mt-1 text-sm text-muted-foreground">Assign recurring earnings or deductions like transport allowance, meal allowance, or fixed deductions.</p>
+                        <p className="font-semibold">{t("hr.employeeForm.forms.payrollComponentsInit")}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{t("hr.employeeForm.hints.payrollComponentsInit")}</p>
                       </div>
                       <Button type="button" variant="outline" size="sm" className="gap-2" onClick={addComponentAssignment}>
                         <Plus className="h-4 w-4" />
-                        Add Component
+                        {t("hr.employeeForm.actions.addComponent")}
                       </Button>
                     </div>
                   </div>
@@ -1662,15 +1664,15 @@ export default function EmployeeFormPage() {
                   <div className="space-y-3 md:col-span-2">
                     {componentAssignments.length === 0 ? (
                       <div className="rounded-2xl border border-dashed border-border/60 p-4 text-sm text-muted-foreground">
-                        No payroll components yet. Add at least one recurring component for a payroll-ready employee.
+                        {t("hr.employeeForm.hints.noComponents")}
                       </div>
                     ) : (
                       componentAssignments.map((assignment) => (
                         <div key={assignment.localId} className="grid gap-3 rounded-2xl border border-border/60 p-4 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
                           <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold">Component</label>
+                            <label className="text-sm font-semibold">{t("hr.employeeForm.forms.component")}</label>
                             <Select value={assignment.componentId} onValueChange={(value) => updateComponentAssignment(assignment.localId, "componentId", value)}>
-                              <SelectTrigger><SelectValue placeholder="Select Component" /></SelectTrigger>
+                              <SelectTrigger><SelectValue placeholder={t("hr.employeeForm.placeholders.selectComponent")} /></SelectTrigger>
                               <SelectContent>
                                 {allSalaryComponents
                                   .filter((component: any) => !NON_ASSIGNABLE_COMPONENT_CODES.has(component.code))
@@ -1681,11 +1683,11 @@ export default function EmployeeFormPage() {
                             </Select>
                           </div>
                           <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold">Amount</label>
+                            <label className="text-sm font-semibold">{t("hr.employeeForm.forms.amount")}</label>
                             <Input type="number" step="0.001" value={assignment.amount} onChange={(e) => updateComponentAssignment(assignment.localId, "amount", e.target.value)} />
                           </div>
                           <div className="flex flex-col gap-2">
-                            <label className="text-sm font-semibold">Effective Date</label>
+                            <label className="text-sm font-semibold">{t("hr.employeeForm.forms.effectiveDate")}</label>
                             <Input type="date" value={assignment.effectiveDate} onChange={(e) => updateComponentAssignment(assignment.localId, "effectiveDate", e.target.value)} />
                           </div>
                           <div className="flex items-end">
@@ -1706,51 +1708,51 @@ export default function EmployeeFormPage() {
                     <div className="flex items-start gap-3">
                       <Globe2 className="mt-0.5 h-4 w-4 text-primary" />
                       <div>
-                        <p className="font-semibold">Foreign employee compliance</p>
+                        <p className="font-semibold">{t("hr.employeeForm.forms.foreignCompliance")}</p>
                         <p className="text-sm text-muted-foreground">
-                          These fields are especially relevant when the employee is not Tunisian. The Ministry of Employment has dedicated foreign-worker procedures and work authorization categories.
+                          {t("hr.employeeForm.hints.foreignCompliance")}
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Residence Card Number</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.residenceCardNumber")}</label>
                     <Input value={form.residenceCardNumber} onChange={(e) => setField("residenceCardNumber", e.target.value)} disabled={!isForeignEmployee} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Residence Card Expiry</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.residenceCardExpiry")}</label>
                     <Input type="date" value={form.residenceCardExpiry} onChange={(e) => setField("residenceCardExpiry", e.target.value)} disabled={!isForeignEmployee} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Work Permit Type</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.workPermitType")}</label>
                     <Select value={form.workPermitType} onValueChange={(value) => setField("workPermitType", value)} disabled={!isForeignEmployee}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Contract Visa">Contract Visa</SelectItem>
-                        <SelectItem value="Detachment">Detachment</SelectItem>
-                        <SelectItem value="Investment Exemption">Investment Exemption</SelectItem>
-                        <SelectItem value="Seasonal">Seasonal</SelectItem>
+                        <SelectItem value="Contract Visa">{t("hr.employeeForm.options.contractVisa")}</SelectItem>
+                        <SelectItem value="Detachment">{t("hr.employeeForm.options.detachment")}</SelectItem>
+                        <SelectItem value="Investment Exemption">{t("hr.employeeForm.options.investmentExemption")}</SelectItem>
+                        <SelectItem value="Seasonal">{t("hr.employeeForm.options.seasonalPermit")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Work Permit Number</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.workPermitNumber")}</label>
                     <Input value={form.workPermitNumber} onChange={(e) => setField("workPermitNumber", e.target.value)} disabled={!isForeignEmployee} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Work Permit Status</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.workPermitStatus")}</label>
                     <Select value={form.workPermitStatus} onValueChange={(value) => setField("workPermitStatus", value)} disabled={!isForeignEmployee}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="Approved">Approved</SelectItem>
-                        <SelectItem value="Renewal Needed">Renewal Needed</SelectItem>
-                        <SelectItem value="Expired">Expired</SelectItem>
+                        <SelectItem value="Pending">{t("hr.employeeForm.options.pending")}</SelectItem>
+                        <SelectItem value="Approved">{t("hr.employeeForm.options.approved")}</SelectItem>
+                        <SelectItem value="Renewal Needed">{t("hr.employeeForm.options.renewalNeeded")}</SelectItem>
+                        <SelectItem value="Expired">{t("hr.employeeForm.options.expired")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Work Permit Expiry</label>
+                    <label className="text-sm font-semibold">{t("hr.employeeForm.forms.workPermitExpiry")}</label>
                     <Input type="date" value={form.workPermitExpiry} onChange={(e) => setField("workPermitExpiry", e.target.value)} disabled={!isForeignEmployee} />
                   </div>
 
@@ -1762,8 +1764,8 @@ export default function EmployeeFormPage() {
                     <div className="flex items-start gap-3">
                       <Upload className="mt-0.5 h-4 w-4 text-primary" />
                       <div>
-                        <p className="font-semibold">Mandatory onboarding documents</p>
-                        <p className="text-sm text-muted-foreground">Upload the minimum HR/payroll documents before finishing onboarding.</p>
+                        <p className="font-semibold">{t("hr.employeeForm.forms.mandatoryDocuments")}</p>
+                        <p className="text-sm text-muted-foreground">{t("hr.employeeForm.hints.mandatoryDocuments")}</p>
                       </div>
                     </div>
                   </div>
@@ -1773,7 +1775,7 @@ export default function EmployeeFormPage() {
                       <div key={document.key} className="grid gap-3 rounded-2xl border border-border/60 p-4 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)]">
                         <div className="space-y-2">
                           <p className="text-sm font-semibold">
-                            {document.label}
+                            {t(document.label)}
                             {document.required ? " *" : ""}
                           </p>
                           <Input
@@ -1784,16 +1786,16 @@ export default function EmployeeFormPage() {
                           {document.file ? (
                             <p className="text-xs text-muted-foreground">{document.file.name}</p>
                           ) : (
-                            <p className="text-xs text-muted-foreground">No file selected</p>
+                            <p className="text-xs text-muted-foreground">{t("hr.employeeForm.documents.noFile")}</p>
                           )}
                         </div>
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-semibold">Expiry Date</label>
+                          <label className="text-sm font-semibold">{t("hr.employeeForm.forms.expiryDate")}</label>
                           <Input type="date" value={document.expiryDate} onChange={(e) => updateDocumentUpload(document.key, { expiryDate: e.target.value })} />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-semibold">Notes</label>
-                          <Input value={document.notes} onChange={(e) => updateDocumentUpload(document.key, { notes: e.target.value })} placeholder="Optional note" />
+                          <label className="text-sm font-semibold">{t("hr.employeeForm.forms.notes")}</label>
+                          <Input value={document.notes} onChange={(e) => updateDocumentUpload(document.key, { notes: e.target.value })} placeholder={t("hr.employeeForm.placeholders.optionalNote")} />
                         </div>
                       </div>
                     ))}
@@ -1804,9 +1806,9 @@ export default function EmployeeFormPage() {
               {currentStep === 5 && (
                 <div className="space-y-6">
                   <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">
-                    <p className="font-semibold text-foreground">Ready to save the full HR package</p>
+                    <p className="font-semibold text-foreground">{t("hr.employeeForm.review.readyTitle")}</p>
                     <p className="text-muted-foreground">
-                      This will create or update the employee record, the primary contract, the payroll profile, the CNSS profile when available, and the IRPP tax profile.
+                      {t("hr.employeeForm.review.readyDesc")}
                     </p>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -1825,7 +1827,7 @@ export default function EmployeeFormPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Button type="button" variant="outline" onClick={() => setCurrentStep((step) => Math.max(0, step - 1))} disabled={currentStep === 0} className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
-                  Previous
+                  {t("hr.employeeForm.actions.previous")}
                 </Button>
 
                 <div className="flex gap-2">
@@ -1837,17 +1839,17 @@ export default function EmployeeFormPage() {
                       navigate("/hr/employees");
                     }}
                   >
-                    Cancel
+                    {t("hr.employeeForm.actions.cancel")}
                   </Button>
                   {currentStep < STEPS.length - 1 ? (
                     <Button type="button" onClick={() => setCurrentStep((step) => Math.min(STEPS.length - 1, step + 1))} disabled={!canGoNext} className="gap-2">
-                      Next
+                      {t("hr.employeeForm.actions.next")}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   ) : (
                     <Button type="button" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="gap-2">
                       <Save className="h-4 w-4" />
-                      {isEdit ? "Save HR Onboarding" : "Create HR Onboarding"}
+                      {isEdit ? t("hr.employeeForm.actions.save") : t("hr.employeeForm.actions.create")}
                     </Button>
                   )}
                 </div>
@@ -1857,24 +1859,24 @@ export default function EmployeeFormPage() {
 
           <Card className="h-fit border-border/60">
             <CardHeader>
-              <CardTitle className="text-base">Tunisia HR Coverage</CardTitle>
+              <CardTitle className="text-base">{t("hr.employeeForm.sidebar.title")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground">
               <div>
-                <p className="font-semibold text-foreground">Employee master</p>
-                <p>Identity, civil status, contacts, work organization.</p>
+                <p className="font-semibold text-foreground">{t("hr.employeeForm.sidebar.employeeMaster")}</p>
+                <p>{t("hr.employeeForm.sidebar.employeeMasterDesc")}</p>
               </div>
               <div>
-                <p className="font-semibold text-foreground">Employment contract</p>
-                <p>Contract number, type, salary basis, hours, and probation.</p>
+                <p className="font-semibold text-foreground">{t("hr.employeeForm.sidebar.employmentContract")}</p>
+                <p>{t("hr.employeeForm.sidebar.employmentContractDesc")}</p>
               </div>
               <div>
-                <p className="font-semibold text-foreground">Payroll and tax</p>
-                <p>CNSS/CNRPS, IRPP family situation, bank transfer details, and exemptions.</p>
+                <p className="font-semibold text-foreground">{t("hr.employeeForm.sidebar.payrollAndTax")}</p>
+                <p>{t("hr.employeeForm.sidebar.payrollAndTaxDesc")}</p>
               </div>
               <div>
-                <p className="font-semibold text-foreground">Foreign worker fields</p>
-                <p>Residence card and work permit tracking for non-Tunisian hires.</p>
+                <p className="font-semibold text-foreground">{t("hr.employeeForm.sidebar.foreignWorker")}</p>
+                <p>{t("hr.employeeForm.sidebar.foreignWorkerDesc")}</p>
               </div>
             </CardContent>
           </Card>

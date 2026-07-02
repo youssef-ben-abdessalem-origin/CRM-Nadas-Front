@@ -1,850 +1,1568 @@
 {
-  "common": {
-    "search": "Search",
-    "searchPlaceholder": "Search...",
-    "new": "New",
-    "profile": "Profile",
-    "settings": "Settings",
+  "appName": "NADAS CRM",
+  "auth": {
+    "login": "Login",
     "logout": "Logout",
-    "language": "Language",
-    "english": "English",
-    "french": "French",
-    "arabic": "Arabic",
-    "save": "Save",
-    "cancel": "Cancel",
-    "edit": "Edit",
-    "delete": "Delete",
-    "actions": "Actions",
-    "allStatuses": "All Statuses",
-    "allTiers": "All Tiers",
-    "allScores": "All Scores",
-    "allSources": "All Sources",
-    "loading": "Loading...",
-    "noResults": "No results found",
-    "success": "Success",
-    "error": "Error",
-    "errors": {
-      "fillRequired": "Please fill in all required fields"
-    },
-    "unknown": "Unknown",
-    "stats": {
-      "inDatabase": "In database",
-      "engaged": "Engaged items",
-      "paying": "Paying customers",
-      "wonDeals": "Won deals",
-      "openOpps": "Open opportunities"
-    },
-    "actions": {
-      "create_success": "Record created successfully",
-      "update_success": "Record updated successfully",
-      "delete_success": "Record deleted successfully",
-      "cancel": "Cancel",
-      "edit": "Edit",
-      "delete": "Delete",
-      "save": "Save",
-      "saving": "Saving...",
-      "creating": "Creating...",
-      "bulkActions": "Bulk Actions",
-      "bulkDesc": "Apply actions to {{count}} selected items",
-      "deleteSelected": "Delete Selected"
-    },
-    "address": {
-      "title": "Address",
-      "street": "Street Address",
-      "city": "City",
-      "state": "State / Province",
-      "country": "Country",
-      "zip": "ZIP / Postal Code"
-    },
-    "time": {
-      "justNow": "Just now"
-    }
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign In",
+    "invalidCredentials": "Invalid email or password"
   },
   "nav": {
     "dashboard": "Dashboard",
-    "leads": "Leads",
-    "contacts": "Contacts",
-    "accounts": "Accounts",
-    "deals": "Deals",
-    "campaigns": "Campaigns",
-    "quotes": "Quotes",
-    "orders": "Orders",
-    "invoices": "Invoices",
-    "payments": "Payments",
-    "products": "Products",
-    "vendors": "Vendors",
-    "forecast": "Forecast",
+    "crm": "CRM",
+    "hr": "HR",
+    "payroll": "Payroll",
+    "settings": "Settings",
+    "employees": "Employees",
+    "attendance": "Attendance",
+    "contracts": "Contracts",
+    "goals": "Goals",
     "documents": "Documents",
-    "tasks": "Tasks",
-    "activities": "Activities",
-    "team": "Team",
-    "users": "Users",
-    "roles": "Roles",
-    "departments": "Departments",
-    "privileges": "Privileges",
-    "sections": {
-      "sales": "Sales",
-      "salesDocuments": "Sales Documents",
-      "catalog": "Catalog",
-      "communication": "Communication",
-      "productivity": "Productivity",
-      "hrPayroll": "HR & Payroll",
-      "admin": "Admin"
-    },
-    "hr": {
-      "title": "HR Management",
-      "employees": "Employees",
-      "positions": "Positions",
-      "contracts": "Contracts",
-      "documents": "Documents",
-      "signatures": "Signatures",
-      "cnssProfiles": "CNSS Profiles",
-      "irppTaxProfiles": "IRPP Tax",
-      "attendance": "Attendance",
-      "leaves": "Leaves",
-      "shifts": "Shifts",
-      "shiftAssignments": "Shift Assignments",
-      "overtimeRequests": "Overtime Assignments",
-      "hrSettings": "HR Settings",
-      "leaveBalances": "Leave Balances",
-      "vacationAccrual": "Vacation Accrual",
-      "employeePortal": "Employee Portal",
-      "reports": "HR Reports",
-      "documentsGeneration": "Documents"
-    },
-    "reports": {
-      "title": "HR & Payroll Reports",
-      "description": "Consolidated reports for HR analytics and payroll costs.",
-      "totalEmployees": "Total Employees",
-      "activeEmployees": "Active",
-      "turnoverRate": "Turnover Rate",
-      "leftThisYear": "Left This Year",
-      "hiredThisYear": "New Hires",
-      "byDepartment": "By Department",
-      "byStatus": "By Status",
-      "byGender": "By Gender",
-      "department": "Department",
-      "status": "Status",
-      "gender": "Gender",
-      "count": "Count",
-      "yes": "Yes",
-      "no": "No",
-      "unassigned": "Unassigned",
-      "notAvailable": "N/A",
-      "leaveTrends": "Leave Trends",
-      "leaveType": "Leave Type",
-      "paid": "Paid",
-      "approved": "Approved",
-      "pending": "Pending",
-      "totalDays": "Total Days",
-      "payrollCost": "Payroll Cost",
-      "grossSalary": "Gross Salary",
-      "netSalary": "Net Salary",
-      "deductions": "Deductions",
-      "employerContributions": "Employer Contrib.",
-      "avgNetSalary": "Avg Net Salary",
-      "employees": "Employees",
-      "deptCost": "Cost by Department",
-      "periodComparison": "Period Comparison",
-      "period": "Period"
-    },
-    "documents": {
-      "title": "Document Generation",
-      "description": "Generate work certificates and employment contracts.",
-      "selectEmployee": "Select Employee",
-      "selectEmployeePlaceholder": "Choose an employee...",
-      "workCertificate": "Work Certificate",
-      "workCertificateDesc": "Attestation de travail — official proof of employment with position, salary, and hire date.",
-      "employmentContract": "Employment Contract",
-      "employmentContractDesc": "Contrat de travail — detailed employment agreement with clauses, salary, and terms.",
-      "download": "Download"
-    },
-    "payroll": {
-      "title": "Payroll Management",
-      "components": "Salary Components",
-      "periods": "Periods & Payslips",
-      "loansAdvances": "Loans & Advances",
-      "settings": "Settings",
-      "cnssDeclarations": "CNSS Declarations",
-      "irppDeclarations": "IRPP Declarations",
-      "bankTransfers": "Bank Transfers",
-      "stcSettlements": "STC Settlements",
-      "thirteenthMonth": "13th Month"
-    },
-    "labels": {
-      "table": "Table",
-      "settings": "Settings",
-      "companyProfile": "Company Profile",
-      "auditLogs": "Audit Logs",
-      "notifications": "Notifications",
-      "automations": "Automations"
-    }
+    "costCenters": "Cost Centers",
+    "cnssProfiles": "CNSS Profiles",
+    "emails": "Emails",
+    "calendar": "Calendar"
   },
-  "dashboard": {
-    "title": "Command Center",
-    "metrics": {
-      "totalRevenue": "Total Revenue",
-      "avgDealSize": "Avg. Deal Size",
-      "conversionRate": "Conversion Rate",
-      "activeDeals": "Active Deals",
-      "totalContacts": "Total Contacts",
-      "activeCampaigns": "Active Campaigns",
-      "leadVelocity": "Lead Velocity"
-    },
-    "charts": {
-      "revenuePerformance": "Revenue Performance",
-      "actual": "Actual",
-      "target": "Target",
-      "leadDistribution": "Lead Distribution",
-      "totalLeads": "Total Leads",
-      "pipelineVelocity": "Pipeline Velocity",
-      "campaignROI": "Campaign Performance (ROI)",
-      "leadsGenerated": "Leads Generated",
-      "roi": "ROI (x)"
-    },
-    "activity": {
-      "stream": "Live Activity Stream",
-      "viewAll": "View All Logs"
-    }
-  },
-  "leads": {
-    "title": "Leads",
-    "stats": {
-      "total": "Total Leads",
-      "today": "New Today",
-      "hot": "Hot Leads",
-      "conversion": "Conversion Rate",
-      "value": "Total Value",
-      "pipelineDesc": "pipeline",
-      "awaitingOutreach": "Awaiting outreach",
-      "highPriority": "High priority",
-      "qualifiedTotal": "Qualified / Total",
-      "activeOpps": "Active opportunities"
-    },
-    "toolbar": {
-      "search": "Search leads...",
-      "score": "Score",
-      "source": "Source",
-      "viewKanban": "Kanban View",
-      "viewList": "List View",
-      "filter": "Filter",
-      "export": "Export",
-      "bulk": "Bulk",
-      "add": "Add Lead"
-    },
-    "table": {
-      "lead": "Lead",
-      "company": "Company",
-      "stage": "Stage",
-      "score": "Score",
-      "value": "Value",
-      "owner": "Owner",
-      "source": "Source",
-      "actions": "Actions"
-    },
-    "kanban": {
-      "empty": "No leads in this stage"
-    },
-    "actions": {
-      "edit": "Edit",
-      "sendEmail": "Send Email",
-      "createTask": "Create Task",
-      "createMeeting": "Create Meeting",
-      "createCall": "Create Call",
-      "scheduleCall": "Schedule Call",
-      "logCall": "Log Call",
-      "addTags": "Add Tags",
-      "convert": "Convert",
-      "delete": "Delete",
-      "copyUrl": "Copy URL",
-      "more": "More",
-      "markLost": "Mark as Lost"
-    },
-    "statusUpdates": {
-      "selectLossReason": "Please select a loss reason",
-      "markedLost": "{{name}} marked as lost",
-      "assignedTo": "Lead assigned to {{name}}",
-      "teamMember": "team member"
-    }
-  },
-  "contacts": {
-    "title": "Contacts",
-    "stats": {
-      "total": "Total Contacts",
-      "active": "Active",
-      "revenue": "Total Revenue",
-      "avgDealSize": "Avg Deal Size",
-      "churnRate": "Churn Rate",
-      "perClosedDeal": "Per closed deal",
-      "churnDesc": "Lost contacts"
-    },
-    "toolbar": {
-      "search": "Search contacts...",
-      "status": "Status",
-      "tier": "Tier",
-      "filter": "Filter",
-      "export": "Export",
-      "bulk": "Bulk",
-      "bulkUpdate": "Update Status",
-      "add": "Add Contact"
-    },
-    "table": {
-      "contact": "Contact",
-      "company": "Company",
-      "tier": "Tier",
-      "status": "Status",
-      "dealValue": "Deal Value",
-      "wonTotal": "Won / Total",
-      "lastContact": "Last Contact",
-      "actions": "Actions"
-    },
-    "empty": {
-      "title": "No contacts found",
-      "desc": "Get started by adding your first contact"
-    },
-    "forms": {
-      "name": "Name",
-      "email": "Email",
-      "phone": "Phone",
-      "company": "Company",
-      "title": "Title",
-      "status": "Status",
-      "tier": "Tier",
-      "dealValue": "Deal Value",
-      "location": "Location",
-      "industry": "Industry",
-      "website": "Website",
-      "notes": "Notes",
-      "placeholder": {
-        "name": "John Doe",
-        "email": "john@company.com",
-        "phone": "+1 (555) 000-0000",
-        "company": "Acme Corp",
-        "title": "VP of Engineering",
-        "status": "Select status",
-        "tier": "Select tier",
-        "dealValue": "50000",
-        "location": "San Francisco, CA",
-        "industry": "Technology",
-        "website": "company.com",
-        "notes": "Additional context..."
-      }
-    },
-    "actions": {
-      "markAs": "Mark as {{status}}"
-    },
-    "bulkActions": {
-      "updateSuccess": "Contacts updated successfully",
-      "deleteSuccess": "Contacts deleted successfully",
-      "confirmDelete": "Are you sure you want to delete {{count}} contacts?"
-    },
-    "detail": {
-      "updateContact": "Update contact information."
-    }
-  },
-  "deals": {
-    "title": "Deals Pipeline",
-    "stats": {
-      "totalPipeline": "Total pipeline",
-      "won": "Won",
-      "lost": "Lost"
-    },
-    "toolbar": {
-      "search": "Search deals...",
-      "viewList": "Switch to list view",
-      "viewKanban": "Switch to kanban view",
-      "add": "Add Deal"
-    },
-    "kanban": {
-      "dropHere": "Drop Here"
-    },
-    "table": {
-      "name": "Deal Name",
-      "company": "Company",
-      "value": "Value",
-      "stage": "Stage",
-      "expectedClose": "Expected Close",
-      "probability": "Probability"
-    },
-    "forms": {
-      "title": "Create New Deal",
-      "desc": "Add a new deal to your pipeline.",
-      "name": "Deal Name",
-      "value": "Value",
-      "stage": "Stage",
-      "account": "Account",
-      "contact": "Contact",
-      "expectedCloseDate": "Expected Close Date",
-      "notes": "Notes",
-      "placeholder": {
-        "name": "Enter deal name",
-        "value": "Enter deal value",
-        "stage": "Select stage",
-        "account": "Select account",
-        "contact": "Select contact",
-        "notes": "Add notes...",
-        "none": "None"
-      },
-      "creating": "Creating...",
-      "errors": {
-        "nameRequired": "Deal name is required"
-      }
-    },
-    "reasons": {
-      "title": "Select Reason"
-    },
-    "loading": "Loading deals..."
-  },
-  "campaigns": {
-    "title": "Campaigns",
-    "desc": "Manage and track your marketing efforts",
-    "toolbar": {
-      "table": "Table",
-      "kanban": "Kanban",
-      "add": "Add Campaign",
-      "search": "Search campaigns...",
-      "status": "Status",
-      "allStatuses": "All Statuses",
-      "deleteSelected": "Delete"
-    },
-    "table": {
-      "name": "Campaign Name",
-      "type": "Type",
-      "status": "Status",
-      "budget": "Budget",
-      "actions": "Actions"
-    },
-    "empty": "No campaigns found",
-    "forms": {
-      "new": "New Campaign",
-      "name": "Campaign Name",
-      "type": "Type",
-      "status": "Status",
-      "budget": "Budget",
-      "placeholder": {
-        "name": "Summer Sale 2026",
-        "type": "Select type",
-        "status": "Select status",
-        "budget": "5000"
-      },
-      "creating": "Creating...",
-      "create": "Create Campaign"
-    },
-    "kanban": {
-      "noDate": "No date"
-    },
-    "actions": {
-      "title": "Actions",
-      "duplicate": "Duplicate",
-      "delete": "Delete"
-    },
-    "loading": "Loading campaigns...",
-    "statusUpdates": {
-      "created": "Campaign created successfully",
-      "updated": "Campaign updated",
-      "deleted": "Campaign deleted",
-      "batchComplete": "Batch operations complete"
-    }
-  },
-  "products": {
-    "title": "Products",
-    "stats": {
-      "totalAssets": "Total Assets",
-      "activeCatalog": "Active catalog",
-      "inventory": "Inventory",
-      "unitsInStock": "Units in stock",
-      "operational": "Operational",
-      "activeProducts": "Active products",
-      "avgRate": "Avg. Rate",
-      "marketAverage": "Market average",
-      "categories": "Categories",
-      "realms": "Product realms"
-    },
-    "toolbar": {
-      "search": "Search products...",
-      "categories": "Categories",
-      "allCategories": "All Categories",
-      "filter": "Filter",
-      "export": "Export",
-      "deploy": "Deploy Asset"
-    },
-    "table": {
-      "identity": "Asset Identity",
-      "domain": "Domain",
-      "stock": "Stock",
-      "unitPrice": "Unit Price",
-      "status": "Ops Status",
-      "actions": "Actions",
-      "baseRate": "Base Rate",
-      "noSku": "NO_SKU",
-      "general": "General",
-      "operational": "Operational",
-      "offline": "Offline"
-    },
-    "empty": "No products found for this view.",
-    "pagination": {
-      "showing": "Showing {{count}} assets",
-      "previous": "Previous",
-      "next": "Next"
-    },
-    "pricingDialog": {
-      "title": "Update Matrix Point",
-      "label": "New Price Value",
-      "apply": "Apply Change",
-      "cancel": "Cancel"
-    },
-    "variantDialog": {
-      "title": "Forge New Variant",
-      "nameLabel": "Variant Alias",
-      "namePlaceholder": "e.g. 50 User Bundle",
-      "skuLabel": "Specific SKU Code",
-      "skuPlaceholder": "SRV-ENT-50",
-      "create": "Create Variant Logic"
-    },
-    "loading": "Loading products...",
-    "statusUpdates": {
-      "updated": "Product updated successfully",
-      "deleted": "Product deleted successfully",
-      "archived": "Product archived successfully",
-      "duplicated": "Product duplicated successfully",
-      "variantCreated": "Variant created successfully",
-      "pricingUpdated": "Pricing matrix updated",
-      "primaryRateUpdated": "Primary rate updated"
-    },
-    "actions": {
-      "deleteTitle": "Delete Product",
-      "deleteDesc": "Are you sure you want to delete \"{{name}}\"? This action will permanently remove the product and all its variants from the catalog."
-    }
-  },
-  "activities": {
-    "title": "Activities",
-    "desc": "Manage your tasks, calls, and meetings.",
-    "toolbar": {
-      "add": "New Activity",
-      "search": "Search activities..."
-    },
-    "table": {
-      "subject": "Subject",
-      "type": "Type",
-      "dueDate": "Due Date",
-      "assignedTo": "Assigned To",
-      "relatedTo": "Related To",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "status": {
-      "done": "Done",
-      "inProgress": "In Progress",
-      "todo": "To Do",
-      "cancelled": "Cancelled",
-      "overdue": "Overdue"
-    },
-    "unassigned": "Unassigned",
-    "empty": "No activities found.",
-    "loading": "Loading activities...",
-    "forms": {
-      "edit": "Edit Activity",
-      "new": "Create New Activity",
-      "subject": "Subject",
-      "type": "Type",
-      "dueDate": "Due Date",
-      "relatedTo": "Related To",
-      "searchEntity": "Search {{entity}}",
-      "assignedTo": "Assigned To",
-      "description": "Description",
-      "placeholder": {
-        "subject": "Call with Client",
-        "type": "Select type",
-        "entityType": "Entity Type",
-        "selectEntity": "Select {{entity}}...",
-        "user": "Select user",
-        "description": "Additional details..."
-      },
-      "submit": {
-        "update": "Update",
-        "create": "Create"
-      },
-      "activitySuffix": "Activity"
-    },
-    "actions": {
-      "completed": "Activity completed successfully"
-    },
-    "statusUpdates": {
-      "created": "Activity created successfully",
-      "updated": "Activity updated successfully",
-      "deleted": "Activity deleted successfully",
-      "markedComplete": "Activity marked as complete",
-      "createFailed": "Failed to create activity",
-      "updateFailed": "Failed to update activity",
-      "deleteFailed": "Failed to delete activity",
-      "completeFailed": "Failed to complete activity"
-    }
-  },
-  "documents": {
-    "title": "Documents",
-    "welcome": {
-      "title": "Welcome to <0>WorkDrive</0>",
-      "desc": "A high-performance workspace designed for modern teams. Secure, unified, and built for enterprise-scale collaboration.",
-      "features": {
-        "collab": {
-          "title": "Intelligent Collaboration",
-          "desc": "Build shared ecosystems with granular RBAC and real-time synchronization."
-        },
-        "hubs": {
-          "title": "Unified Team Hubs",
-          "desc": "Centralize departmental assets in secure, sovereign team containers."
-        },
-        "integration": {
-          "title": "Seamless Integration",
-          "desc": "Native high-speed connectivity for CRM and enterprise toolchains."
-        }
-      },
-      "getStarted": "Get Started"
-    },
-    "sidebar": {
-      "myFolders": "My Folders",
-      "teamHubs": "Team Hubs",
-      "openWorkdrive": "Open WorkDrive"
-    },
-    "header": {
-      "allFolders": "All Folders",
-      "memberCount": "{{count}} Member",
-      "memberCount_plural": "{{count}} Members",
-      "manage": "Manage",
-      "record": "Record",
-      "newAction": "New Action"
-    },
-    "empty": {
-      "title": "Ecosystem is Empty",
-      "desc": "Initiate your workspace by deploying new assets or migrating existing documentation into this hub.",
-      "dragDrop": "Drag & Drop Enabled"
-    },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "close": "Close",
+    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "noResults": "No results found",
     "actions": {
       "create": "Create",
-      "upload": "Upload"
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "search": "Search",
+      "filter": "Filter",
+      "view": "View"
     },
-    "rightBar": {
-      "details": "Details",
-      "zia": "Zia"
-    },
-    "setup": {
-      "title": "Set up WorkDrive",
-      "desc": "All your service files are powered by WorkDrive. Set up your account to create, store, share, and manage files and folders in service.",
-      "benefitsTitle": "When you convert to a team account:",
-      "benefit1": "The WorkDrive Essentials plan will be bundled with your service account for free.",
-      "benefit2": "All users in service will be added to your WorkDrive team account automatically.",
-      "benefit3": "You will be the Super Admin of your WorkDrive team account.",
-      "teamNameLabel": "Team Name",
-      "teamNameSub": "Give your team a name (You can change this later)",
-      "teamNamePlaceholder": "E.g. Engineering Team",
-      "submit_pending": "Configuring Hub...",
-      "submit": "Convert and Hub Sync"
-    },
-    "createFolder": {
-      "title": "Create Team Folder",
-      "desc": "Team Folder can be accessed by member of their respective Teams/Departments.",
-      "nameLabel": "Name",
-      "namePlaceholder": "Enter Team Folder Name",
-      "selectUsers": "Select users...",
-      "submit_pending": "Creating...",
-      "submit": "Create Folder"
-    },
-    "userSelector": {
-      "title": "Select Custom Share",
-      "available": "Available",
-      "selected": "Selected",
-      "search": "Search users...",
-      "noneSelected": "No one selected",
-      "addSelected": "Add Selected"
-    }
-  },
-  "tasks": {
-    "title": "Task Management",
-    "stats": {
-      "active": "Active",
-      "priority": "Priority",
-      "critical": "Critical",
-      "impact": "Impact"
-    },
-    "kanban": {
-      "title": "Task Pipeline",
-      "desc": "Managing {{count}} strategic objectives",
-      "searchPlaceholder": "Find anything...",
-      "viewKanban": "Kanban",
-      "viewTable": "Table",
-      "itemsCount": "{{count}} Items",
-      "itemsCount_plural": "{{count}} Items",
-      "overdue": "Overdue",
-      "untitled": "Untitled Task",
-      "unassigned": "Unassigned",
-      "view_todo": "Objectif : À faire",
-      "view_in_progress": "Objectif : En cours",
-      "view_done": "Objectif : Terminé",
-      "view_cancelled": "Objectif : Annulé"
-    },
-    "table": {
-      "subject": "Subject",
-      "status": "Status",
-      "priority": "Priority",
-      "assignee": "Assignee",
-      "dueDate": "Due Date",
-      "relation": "Relation",
-      "noRecord": "None",
-      "noTasks": "No strategic objectives found in current filter"
-    },
-    "create": {
-      "title": "New Objective Initiative",
-      "desc": "Define mission parameters and allocate resources.",
-      "subjectLabel": "Subject",
-      "subjectPlaceholder": "e.g., Follow-up on project proposal",
-      "statusLabel": "Status",
-      "statusPlaceholder": "Select status...",
-      "priorityLabel": "Priority",
-      "dueDateLabel": "Due Date",
-      "assigneeLabel": "Assignee",
-      "assigneePlaceholder": "Select user",
-      "relateToLabel": "Relate To",
-      "relateToPlaceholder": "Select type",
-      "searchRecordLabel": "Search Record",
-      "searchRecordPlaceholder": "Find {{entity}}...",
-      "descLabel": "Description",
-      "descPlaceholder": "Enter task details and notes...",
-      "protocolLabel": "Protocol v2.4 · Awaiting command",
-      "submit_pending": "Syncing...",
-      "submit": "Initialize Protocol",
-      "success": "Strategic Protocol Initialized"
-    },
-    "detail": {
-      "title": "Task Intelligence",
-      "protocolRef": "Protocol REF:",
-      "missionType": "{{priority}} Mission",
-      "noDeadline": "No deadline",
-      "selectOfficer": "Select officer..."
-    }
-  },
-  "invoices": {
-    "title": "Invoice Intelligence",
-    "header": {
-      "title": "Invoices",
-      "subtitle": "Manage commercial fulfillment and revenue cycles",
-      "exportCsv": "Export CSV",
-      "newInvoice": "New Invoice"
-    },
-    "stats": {
-      "totalRevenue": "Total Revenue",
-      "accountsReceivable": "Accounts Receivable",
-      "settledLogic": "Settled Logic",
-      "dossierCount": "Dossier Count"
+    "placeholders": {
+      "search": "Search...",
+      "select": "Select..."
     },
     "status": {
-      "paid": "Paid",
-      "sent": "Sent",
-      "overdue": "Overdue",
-      "draft": "Draft"
+      "active": "Active",
+      "inactive": "Inactive",
+      "draft": "Draft",
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "archived": "Archived",
+      "Draft": "Draft"
+    },
+    "confirmations": {
+      "delete": "Are you sure you want to delete this item? This action cannot be undone."
     },
     "table": {
-      "searchPlaceholder": "Search invoice number or contact...",
-      "filterTime": "All Time",
-      "filterStatus": "Status: All",
-      "colId": "Dossier ID",
-      "colContact": "Client Contact",
-      "colStatus": "Status",
-      "colDate": "Issue Date",
-      "colValue": "Aggregate Val",
-      "viewDossier": "View Dossier",
-      "exportPdf": "Export PDF",
-      "markPaid": "Mark as Paid",
-      "loading": "Decrypting Commercial Ledger...",
-      "noInvoices": "Zero recorded commercial outcomes in filtered range."
-    },
-    "create": {
-      "title": "Generate New Invoice",
-      "engineTitle": "Invoice Engine Initializing",
-      "engineDesc": "The advanced billing module is being deployed. This feature will allow you to generate professional invoices from quotes or manual entries shortly.",
-      "deployEngine": "Deploy Engine"
+      "noData": "No data available"
     }
   },
-  "accounts": {
-    "title": "Accounts",
-    "stats": {
-      "total": "Total Accounts",
-      "active": "Active Status",
-      "customers": "Paying Customers",
-      "revenue": "Total Revenue",
-      "pipeline": "Pipeline Value"
+  "hr": {
+    "documents": {
+      "title": "Documents",
+      "description": "Manage employee documents and files",
+      "table": {
+        "name": "Name",
+        "type": "Type",
+        "employee": "Employee",
+        "uploadedAt": "Uploaded At",
+        "actions": "Actions"
+      },
+      "forms": {
+        "name": "Document Name",
+        "type": "Document Type",
+        "file": "File",
+        "employee": "Employee"
+      },
+      "placeholders": {
+        "name": "Enter document name",
+        "type": "Select document type"
+      },
+      "actions": {
+        "upload": "Upload",
+        "delete": "Delete"
+      },
+      "empty": "No documents uploaded yet",
+      "deleteConfirmation": "Are you sure you want to delete this document?"
     },
-    "toolbar": {
-      "search": "Search accounts, industries...",
-      "type": "Account Type",
-      "industry": "Industry",
-      "status": "Status",
-      "tier": "Account Tier",
-      "filter": "More Filters",
-      "export": "Export",
-      "bulk": "Bulk Action",
-      "add": "Add Account"
+    "goals": {
+      "title": "Goals & Objectives",
+      "description": "Define and track employee goals and performance objectives",
+      "createTitle": "Create Goal",
+      "editTitle": "Edit Goal",
+      "stats": {
+        "total": "Total Goals",
+        "active": "Active",
+        "completed": "Completed",
+        "notStarted": "Not Started"
+      },
+      "table": {
+        "title": "Title",
+        "description": "Description",
+        "assignedTo": "Assigned To",
+        "dueDate": "Due Date",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "forms": {
+        "title": "Title",
+        "description": "Description",
+        "assignedTo": "Assigned To",
+        "dueDate": "Due Date",
+        "status": "Status"
+      },
+      "placeholders": {
+        "title": "Enter goal title",
+        "description": "Enter goal description",
+        "assignedTo": "Select employee",
+        "dueDate": "Select due date",
+        "status": "Select status"
+      },
+      "options": {
+        "notStarted": "Not Started",
+        "inProgress": "In Progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "actions": {
+        "create": "New Goal",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "empty": "No goals defined yet"
     },
-    "table": {
-      "account": "Account",
-      "type": "Type",
-      "tier": "Tier",
-      "status": "Status",
-      "industry": "Industry",
-      "revenue": "Revenue",
-      "contacts": "Contacts",
-      "deals": "Deals",
-      "owner": "Account Owner",
-      "actions": "Actions"
+    "employees": {
+      "pageTitle": "HR - Employees",
+      "title": "Employees",
+      "description": "Manage employee records, active staff, and draft onboarding files.",
+      "stats": {
+        "total": "Total Employees",
+        "active": "Active",
+        "drafts": "Drafts"
+      },
+      "placeholders": {
+        "search": "Search by employee, email, department, or position...",
+        "filterDepartment": "Filter by department"
+      },
+      "options": {
+        "allDepartments": "All Departments"
+      },
+      "actions": {
+        "newEmployee": "New Employee",
+        "view": "View",
+        "resume": "Resume Draft",
+        "edit": "Edit"
+      },
+      "table": {
+        "employee": "Employee",
+        "department": "Department",
+        "position": "Position",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "badges": {
+        "active": "Active",
+        "onLeave": "On Leave",
+        "terminated": "Terminated",
+        "inactive": "Inactive"
+      },
+      "draftNotice": "This employee record is still in draft. Complete the missing required fields to activate it.",
+      "noDepartment": "No Department",
+      "noPosition": "No Position",
+      "noHireDate": "No Hire Date",
+      "noEmail": "No Email",
+      "noPhone": "No Phone",
+      "costCenter": "Cost Center",
+      "notAssigned": "Not Assigned",
+      "noResults": "No employees found."
     },
-    "empty": {
-      "title": "No accounts found",
-      "desc": "Try adjusting your search or filters to find what you're looking for."
+    "cnssProfiles": {
+      "title": "CNSS Profiles",
+      "description": "Manage CNSS social security profiles for employees",
+      "createTitle": "Create CNSS Profile",
+      "editTitle": "Edit CNSS Profile",
+      "table": {
+        "employee": "Employee",
+        "cnssNumber": "CNSS Number",
+        "registrationDate": "Registration Date",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "forms": {
+        "employee": "Employee",
+        "cnssNumber": "CNSS Number",
+        "registrationDate": "Registration Date",
+        "status": "Status"
+      },
+      "placeholders": {
+        "cnssNumber": "Enter CNSS number",
+        "registrationDate": "Select registration date",
+        "status": "Select status"
+      },
+      "options": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "suspended": "Suspended"
+      },
+      "actions": {
+        "create": "New CNSS Profile",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "empty": "No CNSS profiles found"
     },
-    "create": {
-      "title": "New Account",
-      "editTitle": "Edit Account",
-      "desc": "Fill in the details to create a new organization.",
-      "basicInfo": "Basic Information",
-      "name": "Account Name",
-      "website": "Website",
-      "industry": "Industry",
-      "type": "Account Type",
-      "status": "Account Status",
-      "tier": "Account Tier",
-      "financials": "Financials & Size",
-      "annualRevenue": "Annual Revenue",
-      "employees": "Employee Count",
-      "contactInfo": "Contact Information",
-      "phone": "Phone",
-      "email": "Email",
-      "location": "Location",
-      "meta": "Metadata & Labels",
-      "owner": "Owner",
-      "parent": "Parent Account",
-      "tags": "Tags (comma separated)",
-      "description": "Description",
-      "notes": "Internal Notes"
+    "settings": {
+      "title": "HR Settings",
+      "description": "Configure HR parameters and leave policies",
+      "cards": {
+        "leaveRequests": "Leave Requests",
+        "cnssSettings": "CNSS Settings",
+        "irppSettings": "IRPP Settings",
+        "companyInfo": "Company Info"
+      },
+      "forms": {
+        "annualLeaveDays": "Annual Leave Days",
+        "sickLeaveDays": "Sick Leave Days",
+        "personalLeaveDays": "Personal Leave Days",
+        "cnssEmployeeRate": "CNSS Employee Rate (%)",
+        "cnssEmployerRate": "CNSS Employer Rate (%)",
+        "cnssCeiling": "CNSS Ceiling (TND)",
+        "irppThreshold": "IRPP Threshold (TND)",
+        "irppRate": "IRPP Rate (%)",
+        "companyName": "Company Name",
+        "companyAddress": "Company Address",
+        "companyRegistrationNumber": "Registration Number",
+        "carryForward": "Carry Forward Policy",
+        "cashOut": "Cash Out Policy"
+      },
+      "hints": {
+        "carryForward": "Allow unused leave days to be carried forward to the next year",
+        "cashOut": "Allow employees to cash out unused leave days"
+      },
+      "options": {
+        "carryForward": {
+          "none": "No Carry Forward",
+          "limited": "Limited Carry Forward",
+          "unlimited": "Unlimited Carry Forward"
+        },
+        "cashOut": {
+          "allowed": "Allowed",
+          "notAllowed": "Not Allowed"
+        }
+      },
+      "placeholders": {
+        "companyName": "Enter company name",
+        "companyAddress": "Enter company address",
+        "companyRegistrationNumber": "Enter registration number"
+      },
+      "actions": {
+        "save": "Save Settings"
+      }
     },
-    "actions": {
-      "statusUpdated": "Status updated to {{status}}"
+    "costCenters": {
+      "title": "Cost Centers",
+      "description": "Manage cost centers, ownership, and employee allocation.",
+      "stats": {
+        "total": "Total Centers",
+        "active": "Active",
+        "assigned": "Assigned"
+      },
+      "table": {
+        "code": "Code",
+        "name": "Name",
+        "department": "Department",
+        "manager": "Manager",
+        "employees": "Employees",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "noDescription": "No description",
+      "notLinked": "Not linked",
+      "notSet": "Not set",
+      "createTitle": "Create Cost Center",
+      "editTitle": "Edit Cost Center",
+      "createDescription": "Fill in the details to create a new cost center",
+      "editDescription": "Update the cost center details",
+      "forms": {
+        "code": "Code",
+        "name": "Name",
+        "description": "Description",
+        "department": "Department",
+        "manager": "Manager",
+        "status": "Status"
+      },
+      "placeholders": {
+        "autoGenerated": "Auto-generated",
+        "name": "Enter cost center name",
+        "description": "Add a short description",
+        "selectDepartment": "Select department",
+        "selectManager": "Select manager"
+      },
+      "options": {
+        "noDepartment": "No department",
+        "noManager": "No manager",
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "actions": {
+        "new": "New Cost Center",
+        "create": "Create Cost Center",
+        "edit": "Edit Cost Center",
+        "saveChanges": "Save Changes"
+      },
+      "confirmDelete": "Are you sure you want to delete this cost center?",
+      "noResults": "No cost centers found.",
+      "deleteTitle": "Delete cost center",
+      "deleteDescription": "Are you sure you want to delete {{name}}?",
+      "formDescription": "Configure the cost center details, ownership, and status."
     },
-    "detail": {
-      "title": "Account Insights",
-      "overview": "Overview",
-      "activities": "Activities",
-      "deals": "Deals",
-      "contacts": "Contacts",
-      "documents": "Documents",
-      "location": "Global Presence",
-      "financials": "Commercial Metrics",
-      "metadata": "System Context",
-      "created": "System Created",
-      "lastActivity": "Last Pulse"
+    "attendance": {
+      "title": "Attendance",
+      "description": "Track employee attendance and working hours",
+      "tabs": {
+        "daily": "Daily View",
+        "monthly": "Monthly View"
+      },
+      "table": {
+        "employee": "Employee",
+        "date": "Date",
+        "checkIn": "Check In",
+        "checkOut": "Check Out",
+        "status": "Status",
+        "workingHours": "Working Hours",
+        "overtime": "Overtime",
+        "lateMinutes": "Late (min)",
+        "shift": "Shift",
+        "notes": "Notes",
+        "actions": "Actions"
+      },
+      "monthly": {
+        "employee": "Employee",
+        "present": "Present",
+        "absent": "Absent",
+        "late": "Late",
+        "leave": "Leave",
+        "total": "Total",
+        "workingDays": "Working Days",
+        "totalHours": "Total Hours"
+      },
+      "shift": "Shift",
+      "late": "Late",
+      "overtime": "Overtime",
+      "notesPlaceholder": "Add notes...",
+      "createTitle": "Record Attendance",
+      "editTitle": "Edit Attendance",
+      "createDescription": "Record daily attendance for an employee",
+      "editDescription": "Update attendance record",
+      "forms": {
+        "employee": "Employee",
+        "date": "Date",
+        "checkIn": "Check In",
+        "checkOut": "Check Out",
+        "status": "Status",
+        "shift": "Shift",
+        "notes": "Notes"
+      },
+      "info": {
+        "workingHours": "Working Hours",
+        "overtime": "Overtime",
+        "late": "Late"
+      }
     },
-    "bulkActions": {
-      "updateSuccess": "Accounts updated successfully",
-      "deleteSuccess": "Accounts deleted successfully",
-      "confirmDelete": "Are you sure you want to delete {{count}} accounts?"
+    "contracts": {
+      "title": "Contracts",
+      "description": "Manage employee contracts and agreements",
+      "createTitle": "Create Contract",
+      "editTitle": "Edit Contract",
+      "table": {
+        "contractNumber": "Contract Number",
+        "employee": "Employee",
+        "type": "Type",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "salary": "Salary",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "forms": {
+        "contractNumber": "Contract Number",
+        "employee": "Employee",
+        "type": "Type",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "salary": "Salary",
+        "status": "Status",
+        "probationEndDate": "Probation End Date",
+        "workingHours": "Working Hours / Week"
+      },
+      "placeholders": {
+        "contractNumber": "Enter contract number",
+        "employee": "Select employee",
+        "type": "Select type",
+        "startDate": "Select start date",
+        "endDate": "Select end date",
+        "salary": "Enter salary amount",
+        "status": "Select status"
+      },
+      "options": {
+        "cdi": "CDI (Permanent)",
+        "cdd": "CDD (Temporary)",
+        "sivp": "SIVP",
+        "internship": "Internship",
+        "freelance": "Freelance",
+        "partTime": "Part Time",
+        "active": "Active",
+        "terminated": "Terminated",
+        "archived": "Archived",
+        "renewed": "Renewed"
+      },
+      "actions": {
+        "create": "New Contract",
+        "view": "View",
+        "download": "Download",
+        "terminate": "Terminate",
+        "renew": "Renew",
+        "setActive": "Set Active",
+        "archive": "Archive",
+        "confirmEnd": "Confirm End"
+      },
+      "viewTitle": "Contract Details",
+      "terminateTitle": "Terminate Contract",
+      "renewTitle": "Renew Contract",
+      "terminateDescription": "Are you sure you want to terminate this contract?",
+      "renewDescription": "Enter the new end date for the renewed contract",
+      "empty": "No contracts found",
+      "confirmDelete": "Are you sure you want to delete this contract?"
+    },
+    "employeeDetail": {
+      "pageTitle": "Employee",
+      "loadingProfile": "Loading employee profile...",
+      "notFound": "Employee not found.",
+      "idLabel": "ID",
+      "fullName": "Full Name",
+      "cin": "CIN (Card ID)",
+      "dateOfBirth": "Date of Birth",
+      "placeOfBirth": "Place of Birth",
+      "phone": "Phone Number",
+      "email": "Email Address",
+      "genderNationality": "Gender & Nationality",
+      "readinessStatus": "Readiness Status",
+      "maritalStatusChildren": "Marital Status & Children",
+      "children": "children",
+      "fullAddress": "Full Address",
+      "personalDetails": "Personal Details",
+      "employmentAgreements": "Employment Agreements",
+      "socialRegimePayments": "Social Regime & Payments",
+      "assignedAllowances": "Assigned Allowances & Deductions",
+      "onboardingCreated": "Employee onboarding completed",
+      "onboardingUpdated": "Employee onboarding updated",
+      "configured": "Configured",
+      "pending": "Pending",
+      "remainingChecklist": "Remaining onboarding checklist",
+      "noRemainingItems": "No remaining checklist items.",
+      "to": "to",
+      "indefinite": "Indefinite",
+      "noContracts": "No contracts registered.",
+      "noComponents": "No custom allowances or deductions assigned.",
+      "confirmDeleteContract": "Delete contract?",
+      "confirmRemoveComponent": "Remove component assignment?",
+      "tabs": {
+        "profile": "Profile",
+        "contracts": "Contracts",
+        "payroll": "Payroll Profile"
+      },
+      "steps": {
+        "employee": "Employee",
+        "contract": "Contract",
+        "payroll": "Payroll",
+        "cnss": "CNSS",
+        "irpp": "IRPP",
+        "components": "Components",
+        "attendance": "Shift & Leave",
+        "documents": "Documents"
+      },
+      "table": {
+        "contractNumber": "Contract Number",
+        "type": "Type",
+        "baseSalary": "Base Salary (TND)",
+        "duration": "Duration",
+        "status": "Status",
+        "actions": "Actions",
+        "component": "Component",
+        "amount": "Amount"
+      },
+      "forms": {
+        "contractNumber": "Contract Number *",
+        "contractType": "Contract Type *",
+        "baseSalary": "Base Salary (Monthly TND) *",
+        "startDate": "Start Date *",
+        "endDate": "End Date",
+        "probationEndDate": "Probation End Date",
+        "workingHours": "Working Hours / Week *",
+        "socialRegime": "Social Regime *",
+        "cnssNumber": "CNSS Number",
+        "cnrpsNumber": "CNRPS Number",
+        "paymentMethod": "Payment Method *",
+        "bankName": "Bank Name",
+        "bankAccount": "Bank Account",
+        "rib": "RIB (24 digits)",
+        "component": "Component *",
+        "amount": "Amount (Monthly TND) *",
+        "effectiveDate": "Effective Date *"
+      },
+      "placeholders": {
+        "cnssNumber": "e.g. 12345678-90",
+        "cnrpsNumber": "e.g. 987654",
+        "bankName": "BIAT, Attijari...",
+        "bankAccount": "Account Number",
+        "selectComponent": "Select Component"
+      },
+      "options": {
+        "cdiPermanent": "CDI (Permanent)",
+        "cddTemporary": "CDD (Temporary)",
+        "internship": "Internship",
+        "freelance": "Freelance",
+        "partTime": "Part Time",
+        "cnss": "CNSS",
+        "cnrps": "CNRPS",
+        "bankTransfer": "Bank Transfer",
+        "cash": "Cash",
+        "check": "Check"
+      },
+      "actions": {
+        "newContract": "New Contract",
+        "assign": "Assign",
+        "saveProfile": "Save Profile"
+      }
+    },
+    "positions": {
+      "pageTitle": "HR - Positions",
+      "title": "Positions",
+      "description": "Define roles, titles, and department alignments.",
+      "actions": {
+        "create": "New Position"
+      },
+      "dialog": {
+        "create": "Create Position",
+        "edit": "Edit Position"
+      },
+      "forms": {
+        "code": "Code",
+        "title": "Title",
+        "department": "Department",
+        "description": "Description",
+        "status": "Status"
+      },
+      "placeholders": {
+        "autoGenerated": "Auto-generated",
+        "title": "e.g. Senior Engineer",
+        "selectDepartment": "Select Department",
+        "description": "Brief description of the role"
+      },
+      "table": {
+        "code": "Code",
+        "title": "Title",
+        "department": "Department",
+        "description": "Description",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "loading": "Loading positions...",
+      "empty": "No positions defined yet.",
+      "confirmDelete": "Delete position?"
+    },
+    "leaveBalances": {
+      "pageTitle": "HR - Leave Balances",
+      "title": "Leave Balances",
+      "description": "Track employee leave balances per year and type.",
+      "detailDescription": "Manage all leave balance types for this employee, including annual, sick, paternity, and other policies.",
+      "actions": {
+        "backToEmployees": "Back to Employees",
+        "synchronize": "Synchronize",
+        "synchronizeBalance": "Synchronize Balance",
+        "create": "New Leave Balance"
+      },
+      "dialog": {
+        "create": "Create Leave Balance",
+        "edit": "Edit Leave Balance"
+      },
+      "forms": {
+        "employee": "Employee",
+        "year": "Year",
+        "leaveType": "Leave Type",
+        "totalDays": "Total Days",
+        "used": "Used",
+        "remaining": "Remaining"
+      },
+      "placeholders": {
+        "selectType": "Select Type",
+        "filterYear": "Filter Year",
+        "search": "Search by employee, department, position, leave type..."
+      },
+      "table": {
+        "year": "Year",
+        "leaveType": "Leave Type",
+        "total": "Total",
+        "used": "Used",
+        "remaining": "Remaining",
+        "actions": "Actions"
+      },
+      "employee": "Employee",
+      "unknownEmployee": "Unknown employee",
+      "noEmployeeNumber": "No employee number",
+      "departmentPosition": "Department / Position",
+      "noDepartment": "No department",
+      "noPosition": "No position",
+      "contact": "Contact",
+      "noEmail": "No email",
+      "noPhone": "No phone number",
+      "balancesByType": "Leave balances by type",
+      "balancesDescription": "Each row represents a different leave policy for this employee and year.",
+      "allYears": "All Years",
+      "loading": "Loading balances...",
+      "emptyDetail": "No leave balances found for this employee.",
+      "empty": "No employee leave balances found.",
+      "employeeNotUsable": "This employee is not usable in leave balances.",
+      "draftExcludedHint": "Draft employees are excluded from leave balance operations until they become active.",
+      "employeeLeaveBalances": "Employee Leave Balances",
+      "carriedForward": "Carried forward: {{days}} days from previous year",
+      "monthlyAccrualRate": "Monthly accrual rate: {{rate}} days/month",
+      "allocationPolicy": "Allocation policy: {{policy}}",
+      "monthTable": {
+        "month": "Month",
+        "accrued": "Accrued",
+        "used": "Used",
+        "balance": "Balance"
+      },
+      "projected": "projected",
+      "stats": {
+        "employeesWithBalances": "Employees With Balances",
+        "leaveBalanceRecords": "Leave Balance Records",
+        "currentYearRemaining": "Current Year Remaining Days"
+      },
+      "total": "Total",
+      "used": "Used",
+      "remaining": "Remaining",
+      "currentYearRemaining": "Current Year Remaining",
+      "types": "types",
+      "days": "days"
+    },
+    "leaves": {
+      "pageTitle": "HR - Leaves",
+      "title": "Leaves & Absences",
+      "description": "Manage employee time-off, leave requests, and configurations.",
+      "tabs": {
+        "requests": "Requests",
+        "types": "Config Types"
+      },
+      "actions": {
+        "requestLeave": "Request Leave",
+        "newLeaveType": "New Leave Type",
+        "submit": "Submit"
+      },
+      "dialog": {
+        "requestLeave": "Submit Leave Request",
+        "createType": "Create Leave Type"
+      },
+      "forms": {
+        "employee": "Employee",
+        "leaveType": "Leave Type",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "daysCount": "Days Count",
+        "reason": "Reason",
+        "code": "Code",
+        "nameEn": "Name (EN)",
+        "nameFr": "Name (FR)",
+        "nameAr": "Name (AR)",
+        "description": "Description",
+        "paidStatus": "Paid Status",
+        "requiresApproval": "Requires Approval",
+        "annualLimit": "Annual Limit (days)",
+        "maxConsecutiveDays": "Max Consecutive Days",
+        "requiresDocs": "Requires Documents",
+        "carryForward": "Carry Forward Allowed"
+      },
+      "placeholders": {
+        "selectEmployee": "Select Employee",
+        "selectLeaveType": "Select Leave Type",
+        "reason": "Reason for time off",
+        "code": "e.g. AL",
+        "nameEn": "Annual Leave",
+        "nameFr": "Congé annuel",
+        "nameAr": "إجازة سنوية",
+        "description": "Brief description",
+        "optional": "Optional"
+      },
+      "table": {
+        "employee": "Employee",
+        "type": "Type",
+        "duration": "Duration",
+        "days": "Days",
+        "reason": "Reason",
+        "status": "Status",
+        "actions": "Actions",
+        "code": "Code",
+        "name": "Name",
+        "paid": "Paid",
+        "annualLimit": "Annual Limit",
+        "maxDays": "Max Days",
+        "approval": "Approval",
+        "carryFwd": "Carry Fwd"
+      },
+      "loadingRequests": "Loading requests...",
+      "emptyRequests": "No leave requests logged.",
+      "loadingTypes": "Loading types...",
+      "emptyTypes": "No leave types defined.",
+      "unknownLeaveType": "Unknown Leave Type",
+      "noBalances": "This employee has no leave balances for the current year.",
+      "remaining": "Remaining",
+      "days": "days",
+      "exceedsBalance": "Exceeds remaining balance ({{remaining}} days)",
+      "confirmDeleteType": "Delete leave type?"
+    },
+    "shifts": {
+      "pageTitle": "HR - Shifts",
+      "title": "Shifts",
+      "description": "Define work shift templates (Morning, Afternoon, Night).",
+      "actions": {
+        "create": "New Shift"
+      },
+      "dialog": {
+        "create": "Create Shift",
+        "edit": "Edit Shift"
+      },
+      "forms": {
+        "code": "Code",
+        "name": "Name",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "breakDuration": "Break (hours)",
+        "color": "Color",
+        "description": "Description",
+        "flexible": "Flexible shift"
+      },
+      "placeholders": {
+        "autoGenerated": "Auto-generated if empty",
+        "name": "Morning Shift",
+        "description": "Optional shift notes"
+      },
+      "table": {
+        "code": "Code",
+        "name": "Name",
+        "hours": "Hours",
+        "break": "Break",
+        "flexible": "Flexible",
+        "actions": "Actions"
+      },
+      "loading": "Loading shifts...",
+      "empty": "No shifts defined yet."
+    },
+    "shiftAssignments": {
+      "pageTitle": "HR - Shift Assignments",
+      "title": "Shift Assignments",
+      "description": "Assign work shifts to employees for specific date ranges.",
+      "actions": {
+        "create": "New Assignment"
+      },
+      "dialog": {
+        "create": "New Shift Assignment",
+        "edit": "Edit Assignment"
+      },
+      "forms": {
+        "employee": "Employee",
+        "shift": "Shift",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "notes": "Notes"
+      },
+      "placeholders": {
+        "selectEmployee": "Select Employee",
+        "selectShift": "Select Shift",
+        "notes": "Optional notes"
+      },
+      "table": {
+        "employee": "Employee",
+        "shift": "Shift",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "actions": "Actions"
+      },
+      "loading": "Loading assignments...",
+      "empty": "No shift assignments found.",
+      "ongoing": "Ongoing"
+    },
+    "overtimeRequests": {
+      "pageTitle": "HR - Overtime Assignments",
+      "title": "Overtime Assignments",
+      "description": "Assign and manage employee overtime (company-initiated).",
+      "actions": {
+        "create": "New Overtime Assignment",
+        "approve": "Approve",
+        "reject": "Reject"
+      },
+      "dialog": {
+        "create": "New Overtime Assignment",
+        "edit": "Edit Overtime Assignment"
+      },
+      "forms": {
+        "employee": "Employee",
+        "category": "Category",
+        "approvalAuthority": "Approval Required By",
+        "date": "Date",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "totalHours": "Total Hours",
+        "multiplier": "Multiplier",
+        "description": "Description",
+        "status": "Status"
+      },
+      "placeholders": {
+        "selectEmployee": "Select Employee",
+        "description": "Reason for overtime"
+      },
+      "categoryLabels": {
+        "weekday": "Weekday (125%)",
+        "night": "Night (150%)",
+        "restDay": "Rest Day / Holiday (200%)"
+      },
+      "options": {
+        "manager": "Employee's Manager",
+        "ceo": "CEO",
+        "hr": "HR",
+        "mgr": "Mgr",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "approvalDescriptions": {
+        "manager": "The employee's direct manager can approve",
+        "ceo": "Only the CEO can approve",
+        "hr": "Only an HR role can approve"
+      },
+      "hints": {
+        "weekday": "Before/after normal work hours",
+        "nightTime": "Night hours: {{nightStart}}:00 - {{nightEnd}}:00",
+        "restDay": "Any time on rest day / public holiday"
+      },
+      "restDaySelected": "Rest day / public holiday selected",
+      "validation": {
+        "startMustBe": "Start must be ≥ {{nightStart}}:00 for night shift",
+        "endMustBe": "End must be ≤ {{nightEnd}}:00 for night shift"
+      },
+      "autoFromSettings": "Auto from HR Settings",
+      "table": {
+        "employee": "Employee",
+        "date": "Date",
+        "category": "Category",
+        "hours": "Hours",
+        "rate": "Rate",
+        "approval": "Approval",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "loading": "Loading assignments...",
+      "empty": "No overtime assignments found."
+    },
+    "performanceReviews": {
+      "pageTitle": "HR - Performance Reviews",
+      "title": "Performance Reviews",
+      "description": "Conduct and manage employee performance evaluations.",
+      "actions": {
+        "create": "New Review"
+      },
+      "dialog": {
+        "create": "New Review",
+        "edit": "Edit Review"
+      },
+      "forms": {
+        "employee": "Employee",
+        "reviewer": "Reviewer",
+        "reviewDate": "Review Date",
+        "rating": "Rating (0-10)",
+        "status": "Status",
+        "strengths": "Strengths",
+        "weaknesses": "Weaknesses",
+        "summary": "Summary"
+      },
+      "placeholders": {
+        "select": "Select"
+      },
+      "table": {
+        "employee": "Employee",
+        "reviewer": "Reviewer",
+        "date": "Date",
+        "rating": "Rating",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "empty": "No reviews."
+    },
+    "kpis": {
+      "pageTitle": "HR - KPIs",
+      "title": "Key Performance Indicators",
+      "description": "Define KPIs for employee performance measurement.",
+      "actions": {
+        "create": "New KPI"
+      },
+      "dialog": {
+        "create": "Create KPI",
+        "edit": "Edit KPI"
+      },
+      "forms": {
+        "code": "Code",
+        "name": "Name",
+        "description": "Description",
+        "category": "Category",
+        "unit": "Unit",
+        "targetValue": "Target Value"
+      },
+      "placeholders": {
+        "autoGenerated": "Auto-generated",
+        "name": "Customer Satisfaction",
+        "category": "Sales, Support...",
+        "unit": "%, count, TND..."
+      },
+      "table": {
+        "code": "Code",
+        "name": "Name",
+        "category": "Category",
+        "target": "Target",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "empty": "No KPIs defined."
+    },
+    "kpiAssignments": {
+      "pageTitle": "HR - KPI Assignments",
+      "title": "KPI Assignments",
+      "description": "Assign KPIs to employees and track actual results.",
+      "actions": {
+        "create": "Assign KPI"
+      },
+      "dialog": {
+        "create": "Assign KPI",
+        "edit": "Edit Assignment"
+      },
+      "forms": {
+        "employee": "Employee",
+        "kpi": "KPI",
+        "targetValue": "Target Value",
+        "actualValue": "Actual Value",
+        "period": "Period",
+        "notes": "Notes"
+      },
+      "placeholders": {
+        "select": "Select",
+        "period": "e.g. 2025-Q1"
+      },
+      "table": {
+        "employee": "Employee",
+        "kpi": "KPI",
+        "period": "Period",
+        "target": "Target",
+        "actual": "Actual",
+        "actions": "Actions"
+      },
+      "empty": "No assignments."
+    },
+    "irppTaxProfiles": {
+      "pageTitle": "HR - IRPP Tax Profiles",
+      "title": "IRPP Tax Profiles",
+      "description": "Configure employee tax status for IRPP calculation (marital status, dependents, exemptions).",
+      "actions": {
+        "create": "New Tax Profile"
+      },
+      "dialog": {
+        "create": "Create Tax Profile",
+        "edit": "Edit Tax Profile"
+      },
+      "forms": {
+        "employee": "Employee",
+        "maritalStatus": "Marital Status",
+        "children": "Children",
+        "disabledDependents": "Disabled Dependents",
+        "taxExemptions": "Tax Exemptions (TND)"
+      },
+      "placeholders": {
+        "selectEmployee": "Select Employee"
+      },
+      "options": {
+        "single": "Single",
+        "married": "Married",
+        "divorced": "Divorced",
+        "widowed": "Widowed"
+      },
+      "hints": {
+        "autoCalculated": "Auto-calculated:"
+      },
+      "table": {
+        "employee": "Employee",
+        "maritalStatus": "Marital Status",
+        "children": "Children",
+        "disabled": "Disabled",
+        "exemptions": "Exemptions",
+        "actions": "Actions"
+      },
+      "loading": "Loading profiles...",
+      "empty": "No tax profiles found."
+    },
+    "vacationAccrualRules": {
+      "pageTitle": "HR - Vacation Accrual Rules",
+      "title": "Vacation Accrual Rules",
+      "description": "Define automatic vacation day accrual rates per employee.",
+      "actions": {
+        "runAccrual": "Run Accrual",
+        "create": "New Rule"
+      },
+      "dialog": {
+        "create": "New Accrual Rule",
+        "edit": "Edit Accrual Rule",
+        "runAccrual": "Run Vacation Accrual"
+      },
+      "forms": {
+        "employee": "Employee",
+        "leaveType": "Leave Type",
+        "accrualRate": "Accrual Rate (days/month)",
+        "maxAccrual": "Max Accrual (days)",
+        "employeeOptional": "Employee (optional - leave empty for all)",
+        "year": "Year",
+        "month": "Month"
+      },
+      "placeholders": {
+        "selectEmployee": "Select Employee",
+        "selectLeaveType": "Select Leave Type",
+        "allEmployees": "All Employees"
+      },
+      "allEmployees": "All Employees",
+      "table": {
+        "employee": "Employee",
+        "leaveType": "Leave Type",
+        "rate": "Rate (days/month)",
+        "maxAccrual": "Max Accrual",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "empty": "No accrual rules defined",
+      "results": "Results"
+    },
+    "employeePortal": {
+      "pageTitle": "Employee Portal",
+      "title": "Employee Portal",
+      "description": "Self-service dashboard for employees to view their HR and payroll data.",
+      "placeholders": {
+        "selectEmployee": "Select Employee..."
+      },
+      "selectPrompt": "Select an employee to view their portal",
+      "cards": {
+        "profile": "Profile",
+        "leaveBalances": "Leave Balances",
+        "goalsProgress": "Goals Progress",
+        "signatures": "Signatures",
+        "recentAttendance": "Recent Attendance",
+        "recentLeaveRequests": "Recent Leave Requests",
+        "recentPayslips": "Recent Payslips"
+      },
+      "fields": {
+        "name": "Name",
+        "employeeNumber": "Employee #",
+        "department": "Department",
+        "position": "Position",
+        "cin": "CIN",
+        "status": "Status"
+      },
+      "noLeaveBalances": "No leave balances",
+      "daysUsed": "days used",
+      "noGoals": "No goals assigned",
+      "signaturesDescription": "Open the signing queue and complete pending document signatures.",
+      "pending": "pending",
+      "table": {
+        "date": "Date",
+        "checkIn": "Check In",
+        "checkOut": "Check Out",
+        "hours": "Hours",
+        "status": "Status",
+        "type": "Type",
+        "start": "Start",
+        "end": "End",
+        "days": "Days",
+        "period": "Period",
+        "gross": "Gross",
+        "deductions": "Deductions",
+        "net": "Net"
+      },
+      "noAttendance": "No attendance records",
+      "noLeaveRequests": "No leave requests",
+      "noPayslips": "No payslips"
+    },
+    "employeeForm": {
+      "title": "HR - New Employee",
+      "editTitle": "HR - Edit Employee",
+      "description": "Tunisia-ready HR onboarding with employee, contract, payroll, CNSS, and IRPP setup in one flow.",
+      "loadingTitle": "HR - Edit Employee",
+      "loadingText": "Loading Tunisia HR onboarding profile...",
+      "editEmployee": "Edit Employee",
+      "createEmployee": "Create New Employee",
+      "updatingDossier": "Updating Tunisia HR dossier",
+      "newDossier": "New Tunisia HR dossier",
+      "stepOf": "Step {{current}} of {{total}}",
+      "progress": "Progress",
+      "autoGenerated": "Auto-generated",
+      "autoGeneratedBySystem": "Auto-generated by the system",
+      "steps": {
+        "identity": "Identity",
+        "identityDesc": "Civil identity and personal contact",
+        "employment": "Employment",
+        "employmentDesc": "Department, manager, and work setup",
+        "contract": "Contract",
+        "contractDesc": "Employment contract and salary basis",
+        "payroll": "Payroll",
+        "payrollDesc": "CNSS, IRPP, payment, and bank data",
+        "compliance": "Compliance",
+        "complianceDesc": "Foreign-worker and regulatory fields",
+        "review": "Review",
+        "reviewDesc": "Save the full Tunisia onboarding pack"
+      },
+      "actions": {
+        "backToEmployees": "Back to employees",
+        "previous": "Previous",
+        "next": "Next",
+        "cancel": "Cancel",
+        "save": "Save HR Onboarding",
+        "create": "Create HR Onboarding",
+        "addComponent": "Add Component"
+      },
+      "forms": {
+        "employeeId": "Employee ID",
+        "cin": "CIN",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "dateOfBirth": "Date of Birth",
+        "placeOfBirth": "Place of Birth",
+        "gender": "Gender",
+        "nationality": "Nationality",
+        "maritalStatus": "Marital Status",
+        "childrenCount": "Children Count",
+        "disabledDependents": "Disabled Dependents",
+        "phone": "Phone",
+        "personalEmail": "Personal Email",
+        "workEmail": "Work Email",
+        "passportNumber": "Passport Number",
+        "emergencyContactName": "Emergency Contact Name",
+        "emergencyContactPhone": "Emergency Contact Phone",
+        "address": "Address",
+        "city": "City",
+        "postalCode": "Postal Code",
+        "hireDate": "Hire Date",
+        "employeeStatus": "Employee Status",
+        "department": "Department",
+        "position": "Position",
+        "manager": "Manager",
+        "workLocation": "Work Location",
+        "costCenter": "Cost Center",
+        "employmentCategory": "Employment Category",
+        "attendanceMode": "Attendance Mode",
+        "education": "Education",
+        "skills": "Skills",
+        "certifications": "Certifications",
+        "contractNumber": "Contract Number",
+        "contractType": "Contract Type",
+        "cddLegalReason": "CDD Legal Reason",
+        "contractStartDate": "Contract Start Date",
+        "contractEndDate": "Contract End Date",
+        "probationEndDate": "Probation End Date",
+        "contractStatus": "Contract Status",
+        "baseSalary": "Base Salary (TND)",
+        "workingHours": "Working Hours / Week",
+        "socialRegime": "Social Regime",
+        "cnssNumber": "CNSS Number",
+        "cnssRegistrationDate": "CNSS Registration Date",
+        "cnssStatus": "CNSS Status",
+        "cnrpsNumber": "CNRPS Number",
+        "taxStatus": "Tax Status",
+        "taxExemptions": "Tax Exemptions",
+        "paymentMethod": "Payment Method",
+        "bankName": "Bank Name",
+        "bankAccount": "Bank Account",
+        "rib": "RIB",
+        "defaultShift": "Default Shift",
+        "shiftStartDate": "Shift Start Date",
+        "shiftEndDate": "Shift End Date",
+        "shiftNotes": "Shift Notes",
+        "leaveType": "Leave Type",
+        "leaveBalanceYear": "Leave Balance Year",
+        "initialLeaveDays": "Initial Leave Days",
+        "accrualRate": "Accrual Rate / Month",
+        "maxAccrual": "Maximum Accrual",
+        "accrualEffectiveDate": "Accrual Effective Date",
+        "attendanceLeaveInit": "Attendance and leave initialization",
+        "payrollComponentsInit": "Payroll components initialization",
+        "component": "Component",
+        "amount": "Amount",
+        "effectiveDate": "Effective Date",
+        "foreignCompliance": "Foreign employee compliance",
+        "residenceCardNumber": "Residence Card Number",
+        "residenceCardExpiry": "Residence Card Expiry",
+        "workPermitType": "Work Permit Type",
+        "workPermitNumber": "Work Permit Number",
+        "workPermitStatus": "Work Permit Status",
+        "workPermitExpiry": "Work Permit Expiry",
+        "mandatoryDocuments": "Mandatory onboarding documents",
+        "expiryDate": "Expiry Date",
+        "notes": "Notes"
+      },
+      "placeholders": {
+        "cin": "09876543",
+        "passportNumber": "AB123456",
+        "selectDepartment": "Select Department",
+        "selectPosition": "Select Position",
+        "selectManager": "Select Manager",
+        "selectCostCenter": "Select Cost Center",
+        "workLocation": "Tunis HQ",
+        "education": "Bachelor in Computer Science",
+        "skills": "Excel, Payroll, Recruitment",
+        "certifications": "PMP, HR Analytics",
+        "selectLegalReason": "Select legal reason",
+        "baseSalary": "1500.000",
+        "cnssNumber": "123456789",
+        "cnrpsNumber": "Optional public-sector ref",
+        "rib": "20 digits",
+        "selectShift": "Select Shift",
+        "selectLeavePolicy": "Select Leave Policy",
+        "shiftNotes": "Optional assignment note",
+        "selectComponent": "Select Component",
+        "optionalNote": "Optional note"
+      },
+      "options": {
+        "male": "Male",
+        "female": "Female",
+        "tunisian": "Tunisian",
+        "nonTunisian": "Non Tunisian",
+        "single": "Single",
+        "married": "Married",
+        "divorced": "Divorced",
+        "widowed": "Widowed",
+        "marriedWithChildren": "Married + Children",
+        "noManager": "No manager",
+        "noCostCenter": "No cost center",
+        "legacy": "(legacy)",
+        "employeeCategory": "Employee",
+        "cadre": "Cadre",
+        "agentDeMaitrise": "Agent de maitrise",
+        "ouvrier": "Ouvrier",
+        "intern": "Intern",
+        "onSite": "On Site",
+        "hybrid": "Hybrid",
+        "remote": "Remote",
+        "shiftBased": "Shift Based",
+        "cdi": "CDI",
+        "cdd": "CDD",
+        "sivp": "SIVP",
+        "stage": "Stage",
+        "partTime": "Part Time",
+        "freelance": "Freelance",
+        "replacement": "Replacement of absent employee",
+        "temporaryIncrease": "Temporary increase in activity",
+        "seasonalWork": "Seasonal work",
+        "cnss": "CNSS",
+        "cnrps": "CNRPS",
+        "bankTransfer": "Bank Transfer",
+        "cash": "Cash",
+        "check": "Check",
+        "contractVisa": "Contract Visa",
+        "detachment": "Detachment",
+        "investmentExemption": "Investment Exemption",
+        "seasonalPermit": "Seasonal",
+        "pending": "Pending",
+        "approved": "Approved",
+        "renewalNeeded": "Renewal Needed",
+        "expired": "Expired"
+      },
+      "documents": {
+        "cin": "CIN Copy",
+        "contract": "Signed Contract",
+        "rib": "RIB Proof",
+        "diploma": "Diploma Copy",
+        "passport": "Passport Copy",
+        "permit": "Work Permit",
+        "noFile": "No file selected"
+      },
+      "hints": {
+        "employeeStatus": "System-managed. It becomes `Active` only when all required fields are completed. Otherwise it stays `Draft`.",
+        "contractStatus": "System-managed from contract completeness and contract end date.",
+        "workingHours": "Auto-filled from the selected default shift on a standard 5-day work week.",
+        "cnssStatus": "System-managed from social regime and CNSS number availability.",
+        "taxStatus": "System-managed from marital status and number of children.",
+        "attendanceLeaveInit": "Assign the default shift and initialize the employee leave policy before payroll starts.",
+        "payrollComponentsInit": "Assign recurring earnings or deductions like transport allowance, meal allowance, or fixed deductions.",
+        "noComponents": "No payroll components yet. Add at least one recurring component for a payroll-ready employee.",
+        "foreignCompliance": "These fields are especially relevant when the employee is not Tunisian. The Ministry of Employment has dedicated foreign-worker procedures and work authorization categories.",
+        "mandatoryDocuments": "Upload the minimum HR/payroll documents before finishing onboarding."
+      },
+      "validation": {
+        "cddRestrictedTitle": "CDD is restricted under Tunisia's 2025 labor reform",
+        "cddRestrictedDesc": "Use `CDD` only for legally allowed exceptions such as replacement, temporary increase in activity, or seasonal work."
+      },
+      "review": {
+        "readyTitle": "Ready to save the full HR package",
+        "readyDesc": "This will create or update the employee record, the primary contract, the payroll profile, the CNSS profile when available, and the IRPP tax profile."
+      },
+      "sidebar": {
+        "title": "Tunisia HR Coverage",
+        "employeeMaster": "Employee master",
+        "employeeMasterDesc": "Identity, civil status, contacts, work organization.",
+        "employmentContract": "Employment contract",
+        "employmentContractDesc": "Contract number, type, salary basis, hours, and probation.",
+        "payrollAndTax": "Payroll and tax",
+        "payrollAndTaxDesc": "CNSS/CNRPS, IRPP family situation, bank transfer details, and exemptions.",
+        "foreignWorker": "Foreign worker fields",
+        "foreignWorkerDesc": "Residence card and work permit tracking for non-Tunisian hires."
+      },
+      "readiness": {
+        "hrComplete": "HR profile filled",
+        "contractComplete": "Employment contract saved",
+        "payrollReady": "Payroll profile configured",
+        "documentsComplete": "HR documents uploaded",
+        "attendanceReady": "Shift assigned and leave initialized",
+        "legallyActive": "Regulatory compliance (work permit)"
+      },
+      "summary": {
+        "employee": "Employee",
+        "department": "Department",
+        "position": "Position",
+        "manager": "Manager",
+        "contract": "Contract",
+        "baseSalary": "Base Salary",
+        "cnss": "CNSS",
+        "payment": "Payment",
+        "shift": "Shift",
+        "leavePolicy": "Leave Policy",
+        "payrollComponents": "Payroll Components",
+        "documents": "Documents",
+        "autoGenerated": "Auto-generated",
+        "tnd": "TND",
+        "days": "days",
+        "configured": "configured",
+        "uploaded": "uploaded"
+      }
+    },
+    "statusUpdates": {
+      "goalCreated": "Goal created successfully",
+      "goalUpdated": "Goal updated successfully",
+      "goalDeleted": "Goal deleted successfully",
+      "employeeCreated": "Employee created successfully",
+      "employeeUpdated": "Employee updated successfully",
+      "employeeDeleted": "Employee deleted successfully",
+      "employeeArchived": "Employee archived successfully",
+      "cnssProfileCreated": "CNSS profile created successfully",
+      "cnssProfileUpdated": "CNSS profile updated successfully",
+      "cnssProfileDeleted": "CNSS profile deleted successfully",
+      "documentUploaded": "Document uploaded successfully",
+      "documentDeleted": "Document deleted successfully",
+      "settingsSaved": "Settings saved successfully",
+      "costCenterCreated": "Cost center created successfully",
+      "costCenterUpdated": "Cost center updated successfully",
+      "costCenterDeleted": "Cost center deleted successfully",
+      "attendanceRecorded": "Attendance recorded successfully",
+      "attendanceUpdated": "Attendance updated successfully",
+      "attendanceSaved": "Attendance saved successfully",
+      "contractCreated": "Contract created successfully",
+      "contractDeleted": "Contract deleted successfully",
+      "contractTerminated": "Contract terminated successfully",
+      "contractRenewed": "Contract renewed successfully",
+      "contractArchived": "Contract archived successfully",
+      "payrollProfileUpdated": "Payroll profile updated successfully",
+      "componentAssigned": "Component assigned successfully",
+      "componentUnassigned": "Component unassigned successfully",
+      "positionCreated": "Position created successfully",
+      "positionUpdated": "Position updated successfully",
+      "positionDeleted": "Position deleted successfully",
+      "leaveBalanceCreated": "Leave balance created",
+      "leaveBalanceUpdated": "Leave balance updated",
+      "leaveBalanceDeleted": "Leave balance deleted",
+      "synchronized": "Synchronized",
+      "syncFailed": "Sync failed",
+      "validEmployeeRequired": "A valid employee is required",
+      "selectLeaveType": "Please select a leave type",
+      "leaveRequestSubmitted": "Leave request submitted successfully",
+      "leaveRequestUpdated": "Leave request updated",
+      "leaveTypeCreated": "Leave type created successfully",
+      "leaveTypeDeleted": "Leave type deleted",
+      "shiftCreated": "Shift created successfully",
+      "shiftUpdated": "Shift updated successfully",
+      "shiftDeleted": "Shift deleted",
+      "shiftAssignmentCreated": "Shift assignment created",
+      "shiftAssignmentUpdated": "Shift assignment updated",
+      "shiftAssignmentDeleted": "Shift assignment deleted",
+      "overtimeCreated": "Overtime assignment created",
+      "overtimeUpdated": "Overtime assignment updated",
+      "overtimeDeleted": "Overtime assignment deleted",
+      "overtimeApproved": "Overtime approved",
+      "overtimeRejected": "Overtime rejected",
+      "reviewCreated": "Review created",
+      "reviewUpdated": "Review updated",
+      "reviewDeleted": "Review deleted",
+      "kpiCreated": "KPI created",
+      "kpiUpdated": "KPI updated",
+      "kpiDeleted": "KPI deleted",
+      "kpiAssigned": "KPI assigned",
+      "assignmentUpdated": "Assignment updated",
+      "assignmentDeleted": "Assignment deleted",
+      "irppTaxProfileSaved": "IRPP tax profile saved successfully",
+      "accrualRuleCreated": "Accrual rule created",
+      "accrualRuleUpdated": "Accrual rule updated",
+      "accrualRuleDeleted": "Accrual rule deleted",
+      "accrualRunCompleted": "Accrual run completed",
+      "draftCreated": "Employee draft created",
+      "draftUpdated": "Employee draft updated",
+      "onboardingUpdated": "Employee HR onboarding updated successfully",
+      "onboardingCreated": "Employee created with HR onboarding successfully",
+      "saveError": "Unable to save employee onboarding",
+      "missingCnss": "Add CNSS number",
+      "missingRib": "Add employee RIB",
+      "missingBankName": "Add bank name",
+      "missingBankAccount": "Add bank account",
+      "missingWorkEmail": "Add work email",
+      "missingAddress": "Complete home address",
+      "missingEmergencyContact": "Complete emergency contact",
+      "missingEducation": "Add education background",
+      "missingSkills": "Add skills",
+      "missingPassportOrResidence": "Add passport or residence card details",
+      "missingWorkPermit": "Add work permit number",
+      "missingShift": "Assign a work shift",
+      "missingLeavePolicy": "Initialize leave policy",
+      "missingComponents": "Assign payroll components",
+      "missingUpload": "Upload {{label}}"
+    }
+  },
+  "payroll": {
+    "title": "Payroll",
+    "description": "Manage payroll processing and salary calculations"
+  },
+  "payrollPages": {
+    "periods": {
+      "layoutTitle": "Payroll - Periods & Payslips",
+      "title": "Payroll Runs",
+      "description": "Manage periodic salary runs and issue payslips.",
+      "actions": { "newPeriod": "New Period", "openPeriod": "Open Period", "generateRecalculate": "Generate / Recalculate" },
+      "dialogs": { "openTitle": "Open New Payroll Period" },
+      "fields": { "periodName": "Period Name *", "startDate": "Start Date *", "endDate": "End Date *" },
+      "placeholders": { "periodName": "e.g. June 2026" },
+      "sections": { "periods": "Periods", "payslipsFor": "Payslips for {{period}}" },
+      "table": { "employee": "Employee", "gross": "Gross (TND)", "deductions": "Deductions (TND)", "netSalary": "Net Salary (TND)", "status": "Status", "actions": "Actions" },
+      "states": { "loadingRuns": "Loading runs...", "noPeriods": "No payroll periods opened yet.", "loadingPayslips": "Loading payslips...", "noPayslips": "No payslips generated. Click Generate above.", "selectPeriod": "Select a payroll period on the left to manage payslips." },
+      "statuses": { "draft": "Draft", "approved": "Approved", "paid": "Paid", "closed": "Closed", "open": "Open" },
+      "toasts": { "periodCreated": "Payroll period created", "payslipsGenerated": "Payslips generated/updated for this period", "payslipApproved": "Payslip approved", "payslipPaid": "Payslip marked as paid" }
+    },
+    "settings": {
+      "layoutTitle": "Payroll - Settings",
+      "title": "Payroll Settings",
+      "description": "Configure social security rates, tax variables, and calculation constants.",
+      "sections": { "rulesRates": "Rules & Rates", "thirteenthMonth": "13th Month Salary", "seniorityBonus": "Seniority Bonus", "absenceDeduction": "Absence Deduction" },
+      "toggles": { "enableThirteenthMonth": "Enable 13th Month Salary", "enableSeniorityBonus": "Enable Seniority Bonus", "enableAbsenceDeduction": "Enable Absence Deduction" },
+      "actions": { "saveAll": "Save All Settings" },
+      "states": { "loading": "Loading settings..." },
+      "toasts": { "updated": "Payroll settings updated" }
+    },
+    "bankTransfers": {
+      "layoutTitle": "Payroll - Bank Transfers",
+      "title": "Bank Transfers",
+      "description": "Generate SEPA XML or CSV bank transfer files for payroll payments.",
+      "actions": { "generateFile": "Generate Transfer File" },
+      "dialogs": { "generateTitle": "Generate Bank Transfer File" },
+      "fields": { "payrollPeriod": "Payroll Period *", "format": "Format" },
+      "placeholders": { "selectPeriod": "Select Period" },
+      "formats": { "sepa": "SEPA XML (PAIN.001)", "csv": "CSV File" },
+      "table": { "fileName": "File Name", "period": "Period", "format": "Format", "employees": "Employees", "totalAmount": "Total Amount", "status": "Status", "created": "Created", "actions": "Actions" },
+      "states": { "empty": "No bank transfer files generated yet" },
+      "statuses": { "generated": "Generated" },
+      "toasts": { "generated": "Bank transfer file generated" }
+    },
+    "cnss": {
+      "layoutTitle": "Payroll - CNSS Declarations",
+      "title": "CNSS Declarations",
+      "description": "Generate and view monthly CNSS social security declarations.",
+      "actions": { "generateDeclaration": "Generate Declaration" },
+      "dialogs": { "generateTitle": "Generate CNSS Declaration", "detailsTitle": "CNSS Declaration Details" },
+      "fields": { "payrollPeriod": "Payroll Period *", "accidentInsurance": "Accident Insurance", "totalEmployer": "Total Employer" },
+      "placeholders": { "selectPeriod": "Select Period" },
+      "table": { "period": "Period", "date": "Date", "employees": "Employees", "grossSalary": "Gross Salary", "cnssEmployee": "CNSS Employee", "cnssEmployer": "CNSS Employer", "status": "Status", "actions": "Actions" },
+      "sections": { "financialSummary": "Financial Summary" },
+      "states": { "loading": "Loading declarations...", "empty": "No declarations generated yet." },
+      "statuses": { "generated": "Generated" },
+      "toasts": { "generated": "CNSS declaration generated" }
+    },
+    "irpp": {
+      "layoutTitle": "Payroll - IRPP Declarations",
+      "title": "IRPP Declarations",
+      "description": "Annual income tax declarations per employee.",
+      "actions": { "generateAnnual": "Generate Annual IRPP" },
+      "dialogs": { "generateTitle": "Generate IRPP Declaration", "detailsTitle": "IRPP Declaration Details" },
+      "fields": { "taxYear": "Tax Year *" },
+      "table": { "employee": "Employee", "taxYear": "Tax Year", "taxableIncome": "Taxable Income", "taxDeducted": "Tax Deducted", "cnssDeducted": "CNSS Deducted", "status": "Status", "actions": "Actions" },
+      "states": { "loading": "Loading declarations...", "empty": "No declarations generated yet." },
+      "statuses": { "generated": "Generated" },
+      "toasts": { "generated": "IRPP declarations generated" }
+    },
+    "loans": {
+      "layoutTitle": "Payroll - Loans & Advances",
+      "title": "Loans & Advances",
+      "description": "Manage and track employee financial assistance programs.",
+      "tabs": { "loans": "Employee Loans", "advances": "Salary Advances" },
+      "actions": { "recordLoan": "Record Loan", "requestAdvance": "Request Advance" },
+      "dialogs": { "loanTitle": "Record Employee Loan", "advanceTitle": "Record Salary Advance" },
+      "fields": { "employee": "Employee *", "loanAmount": "Total Loan Amount (TND) *", "installmentAmount": "Monthly Repayment Installment (TND) *", "startDate": "Start Date *", "advanceAmount": "Amount (TND) *", "requestDate": "Request Date *", "deductionDate": "Deduction Date *" },
+      "placeholders": { "selectEmployee": "Select Employee" },
+      "table": { "employee": "Employee", "totalAmount": "Total Amount", "monthlyInstallment": "Monthly Installment", "remainingBalance": "Remaining Balance", "startDate": "Start Date", "status": "Status", "amount": "Amount", "requestDate": "Request Date", "scheduledDeduction": "Scheduled Deduction" },
+      "states": { "loadingLoans": "Loading loans...", "noLoans": "No employee loans registered.", "loadingAdvances": "Loading advances...", "noAdvances": "No salary advances registered." },
+      "statuses": { "active": "Active", "approved": "Approved", "deducted": "Deducted" },
+      "toasts": { "loanRecorded": "Loan recorded successfully", "advanceRecorded": "Salary advance recorded successfully" }
+    },
+    "components": {
+      "layoutTitle": "Payroll - Components",
+      "title": "Salary Components",
+      "description": "Manage base components, allowances, bonuses, and social/tax rules.",
+      "actions": { "newComponent": "New Component" },
+      "dialogs": { "createTitle": "Create Component", "editTitle": "Edit Component" },
+      "fields": { "code": "Code *", "name": "Name *", "type": "Type *", "taxable": "Taxable *", "subjectToCnss": "Subject to CNSS *", "status": "Status *", "description": "Description" },
+      "placeholders": { "code": "e.g. TRANSPORT_ALLOWANCE", "name": "e.g. Transport Allowance" },
+      "options": { "earning": "EARNING (E.g. Allowance, Bonus)", "deduction": "DEDUCTION (E.g. Taxes, Loan repayment)", "employerContribution": "EMPLOYER CONTRIBUTION", "yes": "Yes", "no": "No", "active": "Active", "inactive": "Inactive" },
+      "table": { "code": "Code", "name": "Name", "type": "Type", "taxable": "Taxable", "cnss": "CNSS", "status": "Status", "actions": "Actions" },
+      "states": { "loading": "Loading components...", "empty": "No salary components found." },
+      "confirmations": { "delete": "Delete component?" },
+      "toasts": { "created": "Salary component created", "updated": "Salary component updated", "deleted": "Salary component deleted" }
+    },
+    "thirteenthMonth": {
+      "layoutTitle": "Payroll - 13th Month",
+      "title": "13th Month Salary",
+      "description": "Generate 13th month payslips for a payroll period.",
+      "actions": { "generate": "Generate 13th Month" },
+      "dialogs": { "generateTitle": "Generate 13th Month Payslips" },
+      "fields": { "payrollPeriod": "Payroll Period" },
+      "placeholders": { "selectPeriod": "Select period..." },
+      "cards": { "generatedPayslips": "Generated Payslips", "grossTotal": "Gross Total (TND)", "netTotal": "Net Total (TND)" },
+      "states": { "enabledAt": "Enabled at {{rate}}% of base salary", "disabled": "13th month is currently disabled in payroll settings." },
+      "toasts": { "generated": "13th month payslips generated", "failed": "Failed to generate 13th month" }
+    },
+    "stc": {
+      "layoutTitle": "Payroll - STC Settlements",
+      "title": "STC Settlements",
+      "description": "Generate STC settlement files for salary transfers.",
+      "actions": { "generateFile": "Generate STC File" },
+      "toasts": { "generated": "STC settlement generated", "popupBlocked": "Popup blocked. Please allow popups to export the settlement PDF." }
     }
   }
 }

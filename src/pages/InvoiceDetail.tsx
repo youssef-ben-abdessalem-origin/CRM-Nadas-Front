@@ -31,8 +31,10 @@ import api from "@/lib/api";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { CurrencyNumbers } from "@/components/CurrencyNumbers";
+import { useTranslation } from "react-i18next";
 
 const InvoicePrintTemplate = ({ invoice, company }: { invoice: any, company: any }) => {
+  const { t } = useTranslation();
     return (
         <div className="hidden print:block bg-white text-black p-[35px] min-h-[297mm] w-[210mm] mx-auto font-sans leading-tight [print-color-adjust:exact]">
             <div className="flex justify-between items-start mb-6">

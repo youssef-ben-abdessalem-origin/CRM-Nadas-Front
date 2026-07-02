@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api, CnssDeclaration } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { toast } from "sonner";
 import { FileSpreadsheet, Eye } from "lucide-react";
 
 export default function CnssDeclarations() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPeriodId, setSelectedPeriodId] = useState("");
@@ -31,32 +33,32 @@ export default function CnssDeclarations() {
     mutationFn: (periodId: number) => api.payroll.cnssDeclarations.generate(periodId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cnssDeclarations"] });
-      toast.success("CNSS declaration generated");
+      toast.success(t("payrollPages.cnss.toasts.generated"));
       setIsOpen(false);
     },
   });
 
   return (
-    <CRMLayout title="Payroll - CNSS Declarations">
+    <CRMLayout title={t("payrollPages.cnss.layoutTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">CNSS Declarations</h1>
-            <p className="text-muted-foreground">Generate and view monthly CNSS social security declarations.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("payrollPages.cnss.title")}</h1>
+            <p className="text-muted-foreground">{t("payrollPages.cnss.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) setSelectedPeriodId(""); }}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><FileSpreadsheet className="h-4 w-4" /> Generate Declaration</Button>
+              <Button className="gap-2"><FileSpreadsheet className="h-4 w-4" /> {t("payrollPages.cnss.actions.generateDeclaration")}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Generate CNSS Declaration</DialogTitle>
+                <DialogTitle>{t("payrollPages.cnss.dialogs.generateTitle")}</DialogTitle>
               </DialogHeader>
               <div className="flex flex-col gap-4 py-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Payroll Period *</label>
+                  <label className="text-sm font-semibold">{t("payrollPages.cnss.fields.payrollPeriod")}</label>
                   <Select value={selectedPeriodId} onValueChange={setSelectedPeriodId}>
-                    <SelectTrigger><SelectValue placeholder="Select Period" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("payrollPages.cnss.placeholders.selectPeriod")} /></SelectTrigger>
                     <SelectContent>
                       {periods.map((p: any) => (
                         <SelectItem key={p.id} value={String(p.id)}>{p.periodName}</SelectItem>
@@ -65,7 +67,7 @@ export default function CnssDeclarations() {
                   </Select>
                 </div>
                 <Button onClick={() => generateMutation.mutate(+selectedPeriodId)} disabled={!selectedPeriodId || generateMutation.isPending}>
-                  Generate
+                  {t("common.actions.create")}
                 </Button>
               </div>
             </DialogContent>
@@ -76,24 +78,24 @@ export default function CnssDeclarations() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Period</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Employees</TableHead>
-                <TableHead>Gross Salary</TableHead>
-                <TableHead>CNSS Employee</TableHead>
-                <TableHead>CNSS Employer</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("payrollPages.cnss.table.period")}</TableHead>
+                <TableHead>{t("payrollPages.cnss.table.date")}</TableHead>
+                <TableHead>{t("payrollPages.cnss.table.employees")}</TableHead>
+                <TableHead>{t("payrollPages.cnss.table.grossSalary")}</TableHead>
+                <TableHead>{t("payrollPages.cnss.table.cnssEmployee")}</TableHead>
+                <TableHead>{t("payrollPages.cnss.table.cnssEmployer")}</TableHead>
+                <TableHead>{t("payrollPages.cnss.table.status")}</TableHead>
+                <TableHead className="text-right">{t("payrollPages.cnss.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">Loading declarations...</TableCell>
+                  <TableCell colSpan={8} className="text-center py-8">{t("payrollPages.cnss.states.loading")}</TableCell>
                 </TableRow>
               ) : declarations.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">No declarations generated yet.</TableCell>
+                  <TableCell colSpan={8} className="text-center py-8">{t("payrollPages.cnss.states.empty")}</TableCell>
                 </TableRow>
               ) : (
                 declarations.map((d) => (
@@ -104,7 +106,7 @@ export default function CnssDeclarations() {
                     <TableCell>{Number(d.totalGrossSalary).toFixed(3)} TND</TableCell>
                     <TableCell>{Number(d.totalCnssEmployee).toFixed(3)} TND</TableCell>
                     <TableCell>{Number(d.totalCnssEmployer).toFixed(3)} TND</TableCell>
-                    <TableCell><Badge variant={d.status === "Generated" ? "default" : "outline"}>{d.status}</Badge></TableCell>
+                    <TableCell><Badge variant={d.status === "Generated" ? "default" : "outline"}>{t(`payrollPages.cnss.statuses.${String(d.status).toLowerCase()}`, { defaultValue: d.status })}</Badge></TableCell>
                     <TableCell className="text-right">
                       <Button size="icon" variant="ghost" onClick={() => setViewing(d)}>
                         <Eye className="h-4 w-4" />
@@ -120,7 +122,7 @@ export default function CnssDeclarations() {
         <Dialog open={!!viewing} onOpenChange={(open) => { if (!open) setViewing(null); }}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>CNSS Declaration Details</DialogTitle>
+              <DialogTitle>{t("payrollPages.cnss.dialogs.detailsTitle")}</DialogTitle>
             </DialogHeader>
             {viewing && (
               <div className="grid grid-cols-2 gap-4 py-4">

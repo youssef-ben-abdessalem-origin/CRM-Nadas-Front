@@ -25,6 +25,7 @@ import { Plus, Pencil, Trash2, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 interface Currency {
   id: number;
@@ -38,6 +39,7 @@ interface Currency {
 }
 
 const CurrenciesSettings = () => {
+  const { t } = useTranslation();
   const { symbol: currencySymbol } = useDefaultCurrency();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
@@ -61,7 +63,7 @@ const CurrenciesSettings = () => {
     mutationFn: api.settings.createCurrency,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currencies"] });
-      toast.success("Currency created successfully");
+      toast.success(t("currencies.statusUpdates.created"));
       setShowDialog(false);
       resetForm();
     },
@@ -73,7 +75,7 @@ const CurrenciesSettings = () => {
       api.settings.updateCurrency(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currencies"] });
-      toast.success("Currency updated successfully");
+      toast.success(t("currencies.statusUpdates.updated"));
       setShowDialog(false);
       setEditingCurrency(null);
       resetForm();
@@ -85,7 +87,7 @@ const CurrenciesSettings = () => {
     mutationFn: api.settings.deleteCurrency,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currencies"] });
-      toast.success("Currency deleted successfully");
+      toast.success(t("currencies.statusUpdates.deleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -103,7 +105,7 @@ const CurrenciesSettings = () => {
 
   const handleSubmit = () => {
     if (!formData.name || !formData.code) {
-      toast.error("Please fill in required fields");
+      toast.error(t("currencies.errors.requiredFields"));
       return;
     }
     if (editingCurrency) {
@@ -128,10 +130,10 @@ const CurrenciesSettings = () => {
 
   const handleDelete = async (id: number) => {
     if (await confirm({ 
-      title: "Delete Currency", 
-      description: "Are you sure you want to delete this currency? This may affect pricing and financial records across the system.",
+      title: t("currencies.deleteDialog.title"), 
+      description: t("currencies.deleteDialog.description"),
       variant: "destructive",
-      confirmText: "Delete"
+      confirmText: t("currencies.deleteDialog.confirmText")
     })) {
       deleteMutation.mutate(id);
     }
@@ -139,24 +141,24 @@ const CurrenciesSettings = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Currencies">
+      <CRMLayout title={t("currencies.pageTitle")}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t("common.loading")}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Currencies">
+    <CRMLayout title={t("currencies.pageTitle")}>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Currencies</h1>
-            <p className="text-muted-foreground">Manage currency types</p>
+            <h1 className="text-2xl font-bold">{t("currencies.pageTitle")}</h1>
+            <p className="text-muted-foreground">{t("currencies.subtitle")}</p>
           </div>
           <Button onClick={() => { resetForm(); setEditingCurrency(null); setShowDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" /> Add Currency
+            <Plus className="h-4 w-4 mr-2" /> {t("currencies.addCurrency")}
           </Button>
         </div>
 
@@ -164,18 +166,18 @@ const CurrenciesSettings = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead>Symbols (Ar/En)</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("common.name")}</TableHead>
+                <TableHead>{t("currencies.code")}</TableHead>
+                <TableHead>{t("currencies.symbols")}</TableHead>
+                <TableHead>{t("common.status")}</TableHead>
+                <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currencies.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No currencies found
+                    {t("currencies.noResults")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -192,10 +194,10 @@ const CurrenciesSettings = () => {
                     </TableCell>
                     <TableCell>
                       {currency.isDefault && (
-                        <Badge className="bg-green-500">Default</Badge>
+                        <Badge className="bg-green-500">{t("common.default")}</Badge>
                       )}
                       {!currency.isActive && (
-                        <Badge variant="secondary">Inactive</Badge>
+                        <Badge variant="secondary">{t("common.inactive")}</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -221,12 +223,12 @@ const CurrenciesSettings = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingCurrency ? "Edit Currency" : "Add Currency"}</DialogTitle>
+            <DialogTitle>{editingCurrency ? t("currencies.edit") : t("currencies.add")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Name *</Label>
+                <Label>{t("common.name")} *</Label>
                 <Input
                   placeholder="US Dollar"
                   value={formData.name}
@@ -234,9 +236,9 @@ const CurrenciesSettings = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Code *</Label>
+                <Label>{t("currencies.code")} *</Label>
                 <Input
-                  placeholder="USD"
+                  placeholder={t("currencies.codePlaceholder")}
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                 />
@@ -245,7 +247,7 @@ const CurrenciesSettings = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Arabic Symbol</Label>
+                <Label>{t("currencies.arabicSymbol")}</Label>
                 <Input
                   placeholder="د.ت"
                   value={formData.symbolArabic}
@@ -253,9 +255,9 @@ const CurrenciesSettings = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>English Symbol</Label>
+                <Label>{t("currencies.englishSymbol")}</Label>
                 <Input
-                  placeholder="$"
+                  placeholder={t("currencies.symbolPlaceholder")}
                   value={formData.symbolEnglish}
                   onChange={(e) => setFormData({ ...formData, symbolEnglish: e.target.value })}
                 />
@@ -263,13 +265,13 @@ const CurrenciesSettings = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Default Symbol (Legacy)</Label>
+              <Label>{t("currencies.defaultSymbol")}</Label>
               <Input
                 placeholder={currencySymbol}
                 value={formData.symbol}
                 onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
               />
-              <p className="text-[10px] text-muted-foreground">Used as fallback if Ar/En symbols are empty.</p>
+              <p className="text-[10px] text-muted-foreground">{t("currencies.symbolFallbackHint")}</p>
             </div>
 
             <div className="flex items-center gap-2 pt-2">
@@ -280,10 +282,10 @@ const CurrenciesSettings = () => {
                 className="h-4 w-4"
                 onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
               />
-              <Label htmlFor="isDefault">Set as default currency</Label>
+              <Label htmlFor="isDefault">{t("currencies.setDefault")}</Label>
             </div>
             <Button onClick={handleSubmit} className="w-full mt-2">
-              {editingCurrency ? "Update Currency" : "Create Currency"}
+              {editingCurrency ? t("currencies.update") : t("currencies.create")}
             </Button>
           </div>
         </DialogContent>

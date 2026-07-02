@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 import { Settings, Save, Gift, Clock, UserX } from "lucide-react";
 
 export default function PayrollSettings() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [cnssEmployeeRate, setCnssEmployeeRate] = useState("");
@@ -69,7 +71,7 @@ export default function PayrollSettings() {
     mutationFn: api.payroll.settings.update,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payrollSettings"] });
-      toast.success("Payroll settings updated");
+      toast.success(t("payrollPages.settings.toasts.updated"));
     },
   });
 
@@ -100,7 +102,7 @@ export default function PayrollSettings() {
     });
   };
 
-  if (isLoading) return <div className="p-8 text-center">Loading settings...</div>;
+  if (isLoading) return <div className="p-8 text-center">{t("payrollPages.settings.states.loading")}</div>;
 
   const switchInput = (label: string, checked: boolean, onChange: (v: boolean) => void) => (
     <label className="flex items-center gap-3 cursor-pointer">
@@ -110,16 +112,16 @@ export default function PayrollSettings() {
   );
 
   return (
-    <CRMLayout title="Payroll - Settings">
+    <CRMLayout title={t("payrollPages.settings.layoutTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Payroll Settings</h1>
-          <p className="text-muted-foreground">Configure social security rates, tax variables, and calculation constants.</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("payrollPages.settings.title")}</h1>
+          <p className="text-muted-foreground">{t("payrollPages.settings.description")}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5" /> Rules & Rates</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5" /> {t("payrollPages.settings.sections.rulesRates")}</CardTitle></CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="flex flex-col gap-2">
@@ -167,9 +169,9 @@ export default function PayrollSettings() {
           </Card>
 
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5" /> 13th Month Salary</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5" /> {t("payrollPages.settings.sections.thirteenthMonth")}</CardTitle></CardHeader>
             <CardContent className="flex flex-col gap-4">
-              {switchInput("Enable 13th Month Salary", thirteenthMonthEnabled, setThirteenthMonthEnabled)}
+              {switchInput(t("payrollPages.settings.toggles.enableThirteenthMonth"), thirteenthMonthEnabled, setThirteenthMonthEnabled)}
               {thirteenthMonthEnabled && (
                 <div className="grid grid-cols-2 gap-4 ms-6">
                   <div className="flex flex-col gap-2">
@@ -188,7 +190,7 @@ export default function PayrollSettings() {
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" /> Seniority Bonus (Prime d'Ancienneté)</CardTitle></CardHeader>
             <CardContent className="flex flex-col gap-4">
-              {switchInput("Enable Seniority Bonus", seniorityBonusEnabled, setSeniorityBonusEnabled)}
+              {switchInput(t("payrollPages.settings.toggles.enableSeniorityBonus"), seniorityBonusEnabled, setSeniorityBonusEnabled)}
               {seniorityBonusEnabled && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 ms-6">
                   <div className="flex flex-col gap-2">
@@ -215,7 +217,7 @@ export default function PayrollSettings() {
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><UserX className="h-5 w-5" /> Absence Deduction</CardTitle></CardHeader>
             <CardContent className="flex flex-col gap-4">
-              {switchInput("Enable Absence Deduction", absenceDeductionEnabled, setAbsenceDeductionEnabled)}
+              {switchInput(t("payrollPages.settings.toggles.enableAbsenceDeduction"), absenceDeductionEnabled, setAbsenceDeductionEnabled)}
               {absenceDeductionEnabled && (
                 <div className="grid grid-cols-2 gap-4 ms-6">
                   <div className="flex flex-col gap-2">
@@ -232,7 +234,7 @@ export default function PayrollSettings() {
           </Card>
 
           <Button type="submit" className="self-end gap-2" disabled={updateMutation.isPending}>
-            <Save className="h-4 w-4" /> Save All Settings
+            <Save className="h-4 w-4" /> {t("payrollPages.settings.actions.saveAll")}
           </Button>
         </form>
       </div>

@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api, EmployeeDocument } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import { Plus, Edit, Trash, FileText, Upload } from "lucide-react";
 const DOCUMENT_TYPES = ["CIN", "Passport", "Diploma", "Work Permit", "Medical Certificate", "Contract", "Other"];
 
 export default function EmployeeDocuments() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +43,7 @@ export default function EmployeeDocuments() {
     mutationFn: api.hr.documents.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employeeDocuments"] });
-      toast.success("Document added successfully");
+      toast.success(t("hr.statusUpdates.documentAdded"));
       setIsOpen(false);
       resetForm();
     },
@@ -51,7 +53,7 @@ export default function EmployeeDocuments() {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.hr.documents.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employeeDocuments"] });
-      toast.success("Document updated successfully");
+      toast.success(t("hr.statusUpdates.documentUpdated"));
       setIsOpen(false);
       resetForm();
     },
@@ -61,7 +63,7 @@ export default function EmployeeDocuments() {
     mutationFn: api.hr.documents.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employeeDocuments"] });
-      toast.success("Document deleted successfully");
+      toast.success(t("hr.statusUpdates.documentDeleted"));
     },
   });
 
@@ -108,26 +110,26 @@ export default function EmployeeDocuments() {
   };
 
   return (
-    <CRMLayout title="HR - Documents">
+    <CRMLayout title={t("hr.documents.title")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Employee Documents</h1>
-            <p className="text-muted-foreground">Manage CIN, passports, diplomas, certificates, and other employee documents.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.employeeDocuments.title")}</h1>
+            <p className="text-muted-foreground">{t("hr.employeeDocuments.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><Plus className="h-4 w-4" /> Add Document</Button>
+              <Button className="gap-2"><Plus className="h-4 w-4" /> {t("hr.employeeDocuments.actions.addDocument")}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>{editing ? "Edit Document" : "Add Document"}</DialogTitle>
+                <DialogTitle>{editing ? t("hr.employeeDocuments.actions.editDocument") : t("hr.employeeDocuments.actions.addDocument")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 py-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Employee *</label>
+                  <label className="text-sm font-semibold">{t("hr.employeeDocuments.forms.employee")}</label>
                   <Select value={employeeId} onValueChange={setEmployeeId}>
-                    <SelectTrigger><SelectValue placeholder="Select Employee" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("hr.employeeDocuments.placeholders.selectEmployee")} /></SelectTrigger>
                     <SelectContent>
                       {employees.map((emp: any) => (
                         <SelectItem key={emp.id} value={String(emp.id)}>
@@ -138,7 +140,7 @@ export default function EmployeeDocuments() {
                   </Select>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Document Type *</label>
+                  <label className="text-sm font-semibold">{t("hr.employeeDocuments.forms.documentType")}</label>
                   <Select value={documentType} onValueChange={setDocumentType}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -149,35 +151,34 @@ export default function EmployeeDocuments() {
                   </Select>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Upload File {!editing && "*"}</label>
+                  <label className="text-sm font-semibold">{t("hr.employeeDocuments.forms.uploadFile")}{!editing && " *"}</label>
                   <Input type="file" ref={fileInputRef} onChange={(e) => setFile(e.target.files?.[0] || null)} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
                   {file && <p className="text-xs text-muted-foreground">{file.name}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Expiry Date</label>
+                  <label className="text-sm font-semibold">{t("hr.employeeDocuments.forms.expiryDate")}</label>
                   <Input type="date" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Notes</label>
+                  <label className="text-sm font-semibold">{t("hr.employeeDocuments.forms.notes")}</label>
                   <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
                 </div>
                 <div className="col-span-2 flex justify-end gap-2 mt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>{t("common.save")}</Button>
                 </div>
               </form>
             </DialogContent>
           </Dialog>
         </div>
 
-        {/* Filter */}
         <Card className="glass-morphism">
           <CardContent className="flex items-center gap-4 py-4">
             <div className="w-56">
               <Select value={empFilter} onValueChange={setEmpFilter}>
-                <SelectTrigger><SelectValue placeholder="Filter Employee" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("hr.employeeDocuments.placeholders.filterEmployee")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Employees</SelectItem>
+                  <SelectItem value="all">{t("hr.employeeDocuments.options.allEmployees")}</SelectItem>
                   {employees.map((emp: any) => (
                     <SelectItem key={emp.id} value={String(emp.id)}>
                       {emp.firstName} {emp.lastName}
@@ -189,27 +190,26 @@ export default function EmployeeDocuments() {
           </CardContent>
         </Card>
 
-        {/* Documents Table */}
         <Card className="glass-morphism">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>File</TableHead>
-                <TableHead>Expiry Date</TableHead>
-                <TableHead>Notes</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("hr.employeeDocuments.table.employee")}</TableHead>
+                <TableHead>{t("hr.employeeDocuments.table.type")}</TableHead>
+                <TableHead>{t("hr.employeeDocuments.table.file")}</TableHead>
+                <TableHead>{t("hr.employeeDocuments.table.expiryDate")}</TableHead>
+                <TableHead>{t("hr.employeeDocuments.table.notes")}</TableHead>
+                <TableHead className="text-right">{t("hr.employeeDocuments.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">Loading documents...</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8">{t("common.loading")}</TableCell>
                 </TableRow>
               ) : documents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">No documents found.</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8">{t("hr.employeeDocuments.noResults")}</TableCell>
                 </TableRow>
               ) : (
                 documents.map((doc) => (
@@ -225,7 +225,7 @@ export default function EmployeeDocuments() {
                       <Button size="icon" variant="ghost" onClick={() => handleEdit(doc)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button size="icon" variant="ghost" onClick={() => { if (confirm("Delete document?")) deleteMutation.mutate(doc.id); }}>
+                      <Button size="icon" variant="ghost" onClick={() => { if (confirm(t("hr.employeeDocuments.confirmDelete"))) deleteMutation.mutate(doc.id); }}>
                         <Trash className="h-4 w-4 text-red-500" />
                       </Button>
                     </TableCell>

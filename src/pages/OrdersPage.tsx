@@ -14,6 +14,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, Dr
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { CurrencyNumbers } from "@/components/CurrencyNumbers";
+import { useTranslation } from "react-i18next";
 
 type LocalOrder = {
   id: string;
@@ -49,6 +50,7 @@ const OrdersPage: React.FC = () => {
   }, []);
 
   const save = (list: LocalOrder[]) => {
+  const { t } = useTranslation();
     localStorage.setItem("orders", JSON.stringify(list));
     setOrders(list);
   };
@@ -65,7 +67,7 @@ const OrdersPage: React.FC = () => {
       customer: draft.customer,
       amount: Number(draft.amount),
       date: new Date().toISOString(),
-      status: "New",
+      status: t("orders.statusNew"),
       notes: draft.notes,
     };
     save([newOrder, ...orders]);
@@ -74,23 +76,23 @@ const OrdersPage: React.FC = () => {
   };
 
   return (
-    <CRMLayout title="Orders">
+    <CRMLayout title={t("orders.pageTitle")}>
       <Card>
         <CardHeader className="flex items-center justify-between">
-          <CardTitle>Orders</CardTitle>
+          <CardTitle>{t("orders.title")}</CardTitle>
           <button onClick={() => setOpenAdd(true)} className="inline-flex items-center px-3 py-2 rounded bg-primary text-white">
-            <Plus className="mr-2" /> New Order
+            <Plus className="mr-2" /> {t("orders.newOrder")}
           </button>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t("orders.orderId")}</TableHead>
+                <TableHead>{t("orders.customer")}</TableHead>
+                <TableHead>{t("orders.amount")}</TableHead>
+                <TableHead>{t("orders.date")}</TableHead>
+                <TableHead>{t("orders.status")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -123,11 +125,11 @@ const OrdersPage: React.FC = () => {
           </DrawerHeader>
           <div className="grid gap-4 w-full max-w-md">
             <div>
-              <Label>Customer</Label>
-              <Input value={draft.customer} onChange={(e) => setDraft((d) => ({ ...d, customer: e.target.value }))} placeholder="Customer name" />
+              <Label>{t("orders.customer")}</Label>
+              <Input value={draft.customer} onChange={(e) => setDraft((d) => ({ ...d, customer: e.target.value }))} placeholder={t("orders.placeholders.customer")} />
             </div>
             <div>
-              <Label>Amount</Label>
+              <Label>{t("orders.amount")}</Label>
               <Input type="number" value={draft.amount} onChange={(e) => setDraft((d) => ({ ...d, amount: e.target.value }))} placeholder="0.00" />
             </div>
             <div>
@@ -144,7 +146,7 @@ const OrdersPage: React.FC = () => {
       <Drawer open={openDetail} onOpenChange={setOpenDetail}>
         <DrawerContent className="h-screen w-full md:w-[720px] md:max-w-[720px] lg:w-[860px] lg:max-w-[860px] xl:w-[1000px] xl:max-w-[1000px] p-6 overflow-y-auto">
           <DrawerHeader>
-            <DrawerTitle>Order Details</DrawerTitle>
+            <DrawerTitle>{t("orders.orderDetails")}</DrawerTitle>
             <DrawerDescription>Overview of the selected order.</DrawerDescription>
           </DrawerHeader>
           <div className="space-y-2 p-2">

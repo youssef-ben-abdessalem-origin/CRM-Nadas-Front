@@ -17,6 +17,7 @@ import {
 import { Mail, MailOpen, RefreshCw, Link2, Unlink, Inbox, Send, Plus } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 interface EmailMessage {
   id: string;
@@ -32,6 +33,7 @@ interface EmailMessage {
 }
 
 const EmailsPage = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [activeFolder, setActiveFolder] = useState<"INBOX" | "SENT">("INBOX");
@@ -73,7 +75,7 @@ const EmailsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gmail-status"] });
       queryClient.invalidateQueries({ queryKey: ["gmail-messages"] });
-      toast.success("Gmail disconnected");
+      toast.success(t("emails.statusUpdates.disconnected"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -82,7 +84,7 @@ const EmailsPage = () => {
     mutationFn: ({ to, subject, body, threadId }: { to: string; subject: string; body: string; threadId?: string }) =>
       api.gmail.send(to, subject, body, threadId),
     onSuccess: () => {
-      toast.success("Email sent successfully!");
+      toast.success(t("emails.statusUpdates.emailSent"));
       setShowCompose(false);
       setComposeTo("");
       setComposeSubject("");
@@ -117,7 +119,7 @@ const EmailsPage = () => {
     const subjectParam = params.get("subject");
 
     if (gmailConnected === "true") {
-      toast.success("Gmail connected successfully!");
+      toast.success(t("emails.statusUpdates.gmailConnected"));
       queryClient.invalidateQueries({ queryKey: ["gmail-status"] });
       queryClient.invalidateQueries({ queryKey: ["gmail-messages"] });
       globalThis.history.replaceState({}, document.title, globalThis.location.pathname);
@@ -216,7 +218,7 @@ const EmailsPage = () => {
 
   if (!status?.connected) {
     return (
-      <CRMLayout title="Emails">
+      <CRMLayout title={t("emails.pageTitle")}>
         <div className="flex items-center justify-center h-[60vh]">
           <Card className="max-w-md w-full text-center">
             <CardHeader>
@@ -225,11 +227,11 @@ const EmailsPage = () => {
                   <Mail className="h-8 w-8 text-primary" />
                 </div>
               </div>
-              <CardTitle className="text-xl">Connect Your Gmail</CardTitle>
+              <CardTitle className="text-xl">{t("emails.connectTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                Connect your Gmail account to view and manage your emails directly from Nexus CRM.
+                {t("emails.connectDescription")}
               </p>
               <Button
                 onClick={() => connectMutation.mutate()}
@@ -237,7 +239,7 @@ const EmailsPage = () => {
                 className="w-full"
               >
                 <Link2 className="h-4 w-4 mr-2" />
-                {connectMutation.isPending ? "Connecting..." : "Connect Gmail"}
+                {connectMutation.isPending ? t("common.connecting") : t("emails.connectGmail")}
               </Button>
             </CardContent>
           </Card>
@@ -247,7 +249,7 @@ const EmailsPage = () => {
   }
 
   return (
-    <CRMLayout title="Emails">
+    <CRMLayout title={t("emails.pageTitle")}>
       <div className="h-[calc(100vh-8rem)]">
         <div className="flex h-full gap-4">
           <div className="w-2/3 flex flex-col">
@@ -316,7 +318,7 @@ const EmailsPage = () => {
                 ) : emailsData?.messages?.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
                     <Mail className="h-8 w-8 mb-2" />
-                    <p>No emails found</p>
+                    <p>{t("emails.noEmails")}</p>
                   </div>
                 ) : (
                   <div className="divide-y">
@@ -345,11 +347,11 @@ const EmailsPage = () => {
                               <div className="flex items-center gap-2">
                                 <MailOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                                 <p className="font-medium truncate text-sm">
-                                  {activeFolder === "SENT" ? `To: ${displayContact}` : displayContact}
+                                  {activeFolder === "SENT" ? t("emails.toPrefix", { contact: displayContact }) : displayContact}
                                 </p>
                               </div>
                               <p className="text-sm font-medium truncate mt-1">
-                                {subject || "(No Subject)"}
+                                {subject || t("emails.noSubject")}
                               </p>
                               <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
                                 {email.snippet}
@@ -375,7 +377,7 @@ const EmailsPage = () => {
                   <CardHeader className="border-b px-4 py-3 shrink-0">
                     <div className="flex items-center justify-between gap-2">
                       <CardTitle className="text-base truncate">
-                        {getHeaderValue(threadData?.messages?.[0]?.payload.headers || [], "Subject") || "(No Subject)"}
+                        {getHeaderValue(threadData?.messages?.[0]?.payload.headers || [], "Subject") || t("emails.noSubject")}
                       </CardTitle>
                       <Button size="sm" onClick={() => handleReply(threadData?.messages?.[threadData.messages.length - 1] || selectedEmail)}>
                         <Send className="h-4 w-4 mr-1" />
@@ -413,7 +415,7 @@ const EmailsPage = () => {
                 <div className="flex flex-1 items-center justify-center text-muted-foreground">
                   <div className="text-center">
                     <Mail className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                    <p className="text-sm">Select a conversation to view</p>
+                    <p className="text-sm">{t("emails.selectConversation")}</p>
                   </div>
                 </div>
               )}
@@ -425,29 +427,29 @@ const EmailsPage = () => {
       <Dialog open={showCompose} onOpenChange={setShowCompose}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{replyToThreadId ? "Reply to Thread" : "Compose Email"}</DialogTitle>
+            <DialogTitle>{replyToThreadId ? t("emails.replyToThread") : t("emails.composeEmail")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>To</Label>
+              <Label>{t("emails.toLabel")}</Label>
               <Input
-                placeholder="recipient@example.com"
+                placeholder={t("emails.placeholders.recipient")}
                 value={composeTo}
                 onChange={(e) => setComposeTo(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label>Subject</Label>
+              <Label>{t("emails.subjectLabel")}</Label>
               <Input
-                placeholder="Email subject"
+                placeholder={t("emails.placeholders.subject")}
                 value={composeSubject}
                 onChange={(e) => setComposeSubject(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label>Body</Label>
+              <Label>{t("emails.bodyLabel")}</Label>
               <Textarea
-                placeholder="Write your message..."
+                placeholder={t("emails.placeholders.body")}
                 value={composeBody}
                 onChange={(e) => setComposeBody(e.target.value)}
                 rows={8}
@@ -461,7 +463,7 @@ const EmailsPage = () => {
             <Button
               onClick={() => {
                 if (!composeTo || !composeSubject) {
-                  toast.error("Please fill in recipient and subject");
+                  toast.error(t("emails.errors.recipientAndSubject"));
                   return;
                 }
                 sendMutation.mutate({
@@ -474,7 +476,7 @@ const EmailsPage = () => {
               disabled={sendMutation.isPending}
             >
               <Send className="h-4 w-4 mr-2" />
-              {sendMutation.isPending ? "Sending..." : "Send Reply"}
+              {sendMutation.isPending ? t("common.sending") : t("emails.sendReply")}
             </Button>
           </DialogFooter>
         </DialogContent>

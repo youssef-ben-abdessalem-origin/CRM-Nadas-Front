@@ -14,24 +14,6 @@
     "cancel": "إلغاء",
     "edit": "تعديل",
     "delete": "حذف",
-    "actions": "إجراءات",
-    "allStatuses": "جميع الحالات",
-    "allTiers": "جميع الفئات",
-    "loading": "جاري التحميل...",
-    "noResults": "لم يتم العثور على نتائج",
-    "success": "نجاح",
-    "error": "خطأ",
-    "errors": {
-      "fillRequired": "يرجى ملء جميع الحقول المطلوبة"
-    },
-    "unknown": "غير معروف",
-    "stats": {
-      "inDatabase": "في قاعدة البيانات",
-      "engaged": "عناصر متفاعلة",
-      "paying": "عملاء دافعون",
-      "wonDeals": "صفقات رابحة",
-      "openOpps": "فرص مفتوحة"
-    },
     "actions": {
       "create_success": "تم إنشاء السجل بنجاح",
       "update_success": "تم تحديث السجل بنجاح",
@@ -44,7 +26,30 @@
       "creating": "جاري الإنشاء...",
       "bulkActions": "إجراءات جماعية",
       "bulkDesc": "تطبيق الإجراءات على {{count}} عناصر مختارة",
-      "deleteSelected": "حذف المختارة"
+      "deleteSelected": "حذف المختارة",
+      "close": "?????",
+      "confirm_delete": "?? ??? ????? ?? ??? ??? ??????",
+      "filter": "?????",
+      "moved_to": "?? ???? ???"
+    },
+    "allStatuses": "جميع الحالات",
+    "allTiers": "جميع الفئات",
+    "loading": "جاري التحميل...",
+    "noResults": "لم يتم العثور على نتائج",
+    "success": "نجاح",
+    "error": "خطأ",
+    "errors": {
+      "fillRequired": "يرجى ملء جميع الحقول المطلوبة",
+      "create_failed": "??? ?? ????? ?????",
+      "update_failed": "??? ?? ????? ?????"
+    },
+    "unknown": "غير معروف",
+    "stats": {
+      "inDatabase": "في قاعدة البيانات",
+      "engaged": "عناصر متفاعلة",
+      "paying": "عملاء دافعون",
+      "wonDeals": "صفقات رابحة",
+      "openOpps": "فرص مفتوحة"
     },
     "address": {
       "title": "العنوان",
@@ -56,6 +61,21 @@
     },
     "time": {
       "justNow": "الآن"
+    },
+    "allScores": "?? ???????",
+    "allSources": "?? ???????",
+    "entities": {
+      "account": "????",
+      "company": "????",
+      "contact": "??? ?????",
+      "deal": "????",
+      "lead": "???? ?????"
+    },
+    "priorities": {
+      "high": "?????",
+      "low": "??????",
+      "medium": "??????",
+      "urgent": "?????"
     }
   },
   "nav": {
@@ -72,7 +92,17 @@
     "products": "المنتجات",
     "vendors": "الموردين",
     "forecast": "التوقعات",
-    "documents": "المستندات",
+    "documents": {
+      "title": "إنشاء المستندات",
+      "description": "إنشاء شهادات العمل وعقود العمل.",
+      "selectEmployee": "اختيار موظف",
+      "selectEmployeePlaceholder": "اختر موظفاً...",
+      "workCertificate": "شهادة عمل",
+      "workCertificateDesc": "شهادة عمل — إثبات رسمي للوظيفة مع المنصب والراتب وتاريخ التوظيف.",
+      "employmentContract": "عقد عمل",
+      "employmentContractDesc": "عقد عمل — اتفاقية توظيف مفصلة مع البنود والراتب والشروط.",
+      "download": "تحميل"
+    },
     "tasks": "المهام",
     "activities": "الأنشطة",
     "team": "الفريق",
@@ -146,17 +176,6 @@
       "periodComparison": "مقارنة الفترات",
       "period": "الفترة"
     },
-    "documents": {
-      "title": "إنشاء المستندات",
-      "description": "إنشاء شهادات العمل وعقود العمل.",
-      "selectEmployee": "اختيار موظف",
-      "selectEmployeePlaceholder": "اختر موظفاً...",
-      "workCertificate": "شهادة عمل",
-      "workCertificateDesc": "شهادة عمل — إثبات رسمي للوظيفة مع المنصب والراتب وتاريخ التوظيف.",
-      "employmentContract": "عقد عمل",
-      "employmentContractDesc": "عقد عمل — اتفاقية توظيف مفصلة مع البنود والراتب والشروط.",
-      "download": "تحميل"
-    },
     "payroll": {
       "title": "إدارة الرواتب",
       "components": "مكونات الراتب",
@@ -176,7 +195,9 @@
       "auditLogs": "سجلات التدقيق",
       "notifications": "التنبيهات",
       "automations": "الأتمتة"
-    }
+    },
+    "emails": "?????? ??????????",
+    "calendar": "???????"
   },
   "dashboard": {
     "title": "مركز القيادة",
@@ -566,6 +587,16 @@
     },
     "actions": {
       "completed": "تم إكمال النشاط بنجاح"
+    },
+    "statusUpdates": {
+      "completeFailed": "???? ????? ??????",
+      "createFailed": "???? ????? ??????",
+      "created": "?? ????? ?????? ?????",
+      "deleteFailed": "???? ??? ??????",
+      "deleted": "?? ??? ?????? ?????",
+      "markedComplete": "?? ??? ????? ????? ??? ??????",
+      "updateFailed": "???? ????? ??????",
+      "updated": "?? ????? ?????? ?????"
     }
   },
   "documents": {
@@ -626,7 +657,8 @@
       "teamNameSub": "امنح فريقك اسماً (يمكنك تغييره لاحقاً)",
       "teamNamePlaceholder": "مثال: فريق الهندسة",
       "submit_pending": "جاري تهيئة المحور...",
-      "submit": "التحويل ومزامنة المحور"
+      "submit": "التحويل ومزامنة المحور",
+      "success": "?? ????? ????? ????????? ?????"
     },
     "createFolder": {
       "title": "إنشاء مجلد فريق",
@@ -635,7 +667,8 @@
       "namePlaceholder": "أدخل اسم مجلد الفريق",
       "selectUsers": "اختر المستخدمين...",
       "submit_pending": "جاري الإنشاء...",
-      "submit": "إنشاء مجلد"
+      "submit": "إنشاء مجلد",
+      "success": "?? ????? ?????? ?????"
     },
     "userSelector": {
       "title": "تحديد مشاركة مخصصة",
@@ -807,7 +840,9 @@
       "parent": "الحساب الأب",
       "tags": "الوسوم (مفصولة بفاصلة)",
       "description": "الوصف",
-      "notes": "ملاحظات داخلية"
+      "notes": "ملاحظات داخلية",
+      "submit": "????? ??????",
+      "submitEdit": "????? ??????"
     },
     "actions": {
       "statusUpdated": "تم تحديث الحالة إلى {{status}}"
@@ -829,6 +864,1658 @@
       "updateSuccess": "تم تحديث الحسابات بنجاح",
       "deleteSuccess": "تم حذف الحسابات بنجاح",
       "confirmDelete": "هل أنت متأكد أنك تريد حذف {{count}} حسابات؟"
+    }
+  },
+  "reports": {
+    "title": "تقارير الموارد البشرية والرواتب",
+    "description": "تقارير موحدة لتحليل الموارد البشرية وتكاليف الرواتب.",
+    "totalEmployees": "إجمالي الموظفين",
+    "activeEmployees": "النشطاء",
+    "turnoverRate": "معدل الدوران",
+    "leftThisYear": "المغادرون هذا العام",
+    "hiredThisYear": "التوظيف الجديد",
+    "byDepartment": "حسب القسم",
+    "byStatus": "حسب الحالة",
+    "byGender": "حسب الجنس",
+    "department": "القسم",
+    "status": "الحالة",
+    "gender": "الجنس",
+    "count": "العدد",
+    "yes": "نعم",
+    "no": "لا",
+    "unassigned": "غير معيّن",
+    "notAvailable": "غير متوفر",
+    "leaveTrends": "اتجاهات الإجازات",
+    "leaveType": "نوع الإجازة",
+    "paid": "مدفوع",
+    "approved": "تمت الموافقة",
+    "pending": "قيد الانتظار",
+    "totalDays": "إجمالي الأيام",
+    "payrollCost": "تكلفة الرواتب",
+    "grossSalary": "الراتب الإجمالي",
+    "netSalary": "صافي الراتب",
+    "deductions": "الخصومات",
+    "employerContributions": "مساهمات صاحب العمل",
+    "avgNetSalary": "متوسط صافي الراتب",
+    "employees": "الموظفين",
+    "deptCost": "التكلفة حسب القسم",
+    "periodComparison": "مقارنة الفترات",
+    "period": "الفترة"
+  },
+  "hr": {
+    "documents": {
+      "title": "إدارة المستندات",
+      "description": "إدارة مستندات وملفات الموظفين",
+      "table": {
+        "name": "الاسم",
+        "type": "النوع",
+        "employee": "الموظف",
+        "uploadedAt": "تاريخ الرفع",
+        "actions": "إجراءات"
+      },
+      "forms": {
+        "name": "اسم المستند",
+        "type": "نوع المستند",
+        "file": "الملف",
+        "employee": "الموظف"
+      },
+      "placeholders": {
+        "name": "أدخل اسم المستند",
+        "type": "اختر نوع المستند"
+      },
+      "actions": {
+        "upload": "رفع",
+        "delete": "حذف"
+      },
+      "empty": "لم يتم رفع أي مستندات بعد",
+      "deleteConfirmation": "هل أنت متأكد من حذف هذا المستند؟"
+    },
+    "goals": {
+      "title": "الأهداف",
+      "description": "تحديد وتتبع أهداف الموظفين",
+      "createTitle": "إنشاء هدف",
+      "editTitle": "تعديل الهدف",
+      "stats": {
+        "total": "إجمالي الأهداف",
+        "active": "نشط",
+        "completed": "مكتمل",
+        "notStarted": "لم يبدأ"
+      },
+      "table": {
+        "title": "العنوان",
+        "description": "الوصف",
+        "assignedTo": "مسند إلى",
+        "dueDate": "تاريخ الاستحقاق",
+        "status": "الحالة",
+        "actions": "إجراءات"
+      },
+      "forms": {
+        "title": "العنوان",
+        "description": "الوصف",
+        "assignedTo": "مسند إلى",
+        "dueDate": "تاريخ الاستحقاق",
+        "status": "الحالة"
+      },
+      "placeholders": {
+        "title": "أدخل عنوان الهدف",
+        "description": "أدخل وصف الهدف",
+        "assignedTo": "اختر موظفاً",
+        "dueDate": "اختر تاريخ الاستحقاق",
+        "status": "اختر الحالة"
+      },
+      "options": {
+        "notStarted": "لم يبدأ",
+        "inProgress": "قيد التنفيذ",
+        "completed": "مكتمل",
+        "cancelled": "ملغي"
+      },
+      "actions": {
+        "create": "هدف جديد",
+        "edit": "تعديل",
+        "delete": "حذف"
+      },
+      "empty": "لم يتم تحديد أهداف بعد"
+    },
+    "employees": {
+      "title": "????????",
+      "description": "????? ????? ???????? ????????? ??????? ?????? ???????? ???????.",
+      "stats": {
+        "total": "?????? ????????",
+        "active": "???",
+        "drafts": "??????"
+      },
+      "table": {
+        "employee": "??????",
+        "department": "?????",
+        "position": "??????",
+        "status": "??????",
+        "actions": "???????"
+      },
+      "badges": {
+        "active": "???",
+        "onLeave": "?? ?????",
+        "terminated": "?????",
+        "inactive": "??? ???"
+      },
+      "noDepartment": "?? ???? ???",
+      "noPosition": "?? ???? ????",
+      "draftNotice": "??? ????? ?? ???? ?? ???? ?????. ???? ?????? ????????? ??????? ???????.",
+      "actions": {
+        "newEmployee": "???? ????",
+        "view": "???",
+        "resume": "??????? ???????",
+        "edit": "?????"
+      },
+      "confirmDelete": "هل أنت متأكد من حذف هذا الموظف؟",
+      "confirmArchive": "هل أنت متأكد من أرشفة هذا الموظف؟",
+      "pageTitle": "??????? ??????? - ????????",
+      "placeholders": {
+        "search": "???? ???? ?????? ?? ?????? ?? ????? ?? ??????...",
+        "filterDepartment": "????? ??? ?????"
+      },
+      "options": {
+        "allDepartments": "???? ???????"
+      },
+      "noHireDate": "?? ???? ????? ?????",
+      "noEmail": "?? ???? ???? ????????",
+      "noPhone": "?? ???? ??? ????",
+      "costCenter": "???? ???????",
+      "notAssigned": "??? ????",
+      "noResults": "?? ??? ?????? ??? ??????."
+    },
+    "cnssProfiles": {
+      "title": "ملفات CNSS",
+      "description": "إدارة ملفات الضمان الاجتماعي للموظفين",
+      "createTitle": "إنشاء ملف CNSS",
+      "editTitle": "تعديل ملف CNSS",
+      "table": {
+        "employee": "الموظف",
+        "cnssNumber": "رقم CNSS",
+        "registrationDate": "تاريخ التسجيل",
+        "status": "الحالة",
+        "actions": "إجراءات"
+      },
+      "forms": {
+        "employee": "الموظف",
+        "cnssNumber": "رقم CNSS",
+        "registrationDate": "تاريخ التسجيل",
+        "status": "الحالة"
+      },
+      "placeholders": {
+        "cnssNumber": "أدخل رقم CNSS",
+        "registrationDate": "اختر تاريخ التسجيل",
+        "status": "اختر الحالة"
+      },
+      "options": {
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "suspended": "معلق"
+      },
+      "actions": {
+        "create": "ملف CNSS جديد",
+        "edit": "تعديل",
+        "delete": "حذف"
+      },
+      "empty": "لا توجد ملفات CNSS"
+    },
+    "settings": {
+      "title": "إعدادات الموارد البشرية",
+      "description": "تكوين معايير الموارد البشرية وسياسات الإجازات",
+      "cards": {
+        "leaveRequests": "طلبات الإجازة",
+        "cnssSettings": "إعدادات CNSS",
+        "irppSettings": "إعدادات IRPP",
+        "companyInfo": "معلومات الشركة"
+      },
+      "forms": {
+        "annualLeaveDays": "أيام الإجازة السنوية",
+        "sickLeaveDays": "أيام الإجازة المرضية",
+        "personalLeaveDays": "أيام الإجازة الشخصية",
+        "cnssEmployeeRate": "نسبة CNSS للموظف (%)",
+        "cnssEmployerRate": "نسبة CNSS لصاحب العمل (%)",
+        "cnssCeiling": "سقف CNSS (TND)",
+        "irppThreshold": "حد IRPP (TND)",
+        "irppRate": "نسبة IRPP (%)",
+        "companyName": "اسم الشركة",
+        "companyAddress": "عنوان الشركة",
+        "companyRegistrationNumber": "رقم التسجيل",
+        "carryForward": "سياسة الترحيل",
+        "cashOut": "سياسة الصرف النقدي"
+      },
+      "hints": {
+        "carryForward": "السماح بترحيل أيام الإجازة غير المستخدمة إلى العام التالي",
+        "cashOut": "السماح للموظفين بصرف أيام الإجازة غير المستخدمة نقداً"
+      },
+      "options": {
+        "carryForward": {
+          "none": "لا ترحيل",
+          "limited": "ترحيل محدود",
+          "unlimited": "ترحيل غير محدود"
+        },
+        "cashOut": {
+          "allowed": "مسموح",
+          "notAllowed": "غير مسموح"
+        }
+      },
+      "placeholders": {
+        "companyName": "أدخل اسم الشركة",
+        "companyAddress": "أدخل عنوان الشركة",
+        "companyRegistrationNumber": "أدخل رقم التسجيل"
+      },
+      "actions": {
+        "save": "حفظ الإعدادات"
+      }
+    },
+    "costCenters": {
+      "title": "????? ???????",
+      "description": "????? ????? ??????? ?????????? ?????? ????????.",
+      "stats": {
+        "total": "?????? ???????",
+        "active": "???",
+        "assigned": "?????"
+      },
+      "table": {
+        "code": "?????",
+        "name": "?????",
+        "department": "?????",
+        "manager": "???????",
+        "employees": "????????",
+        "status": "??????",
+        "actions": "???????"
+      },
+      "noDescription": "?? ???? ???",
+      "notLinked": "??? ?????",
+      "notSet": "??? ????",
+      "createTitle": "إنشاء مركز تكلفة",
+      "editTitle": "تعديل مركز التكلفة",
+      "createDescription": "املأ التفاصيل لإنشاء مركز تكلفة جديد",
+      "editDescription": "تحديث تفاصيل مركز التكلفة",
+      "forms": {
+        "code": "?????",
+        "name": "?????",
+        "description": "?????",
+        "department": "?????",
+        "manager": "???????",
+        "status": "??????"
+      },
+      "placeholders": {
+        "autoGenerated": "??? ?????? ????????",
+        "name": "???? ??? ???? ???????",
+        "description": "??? ????? ???????",
+        "selectDepartment": "???? ?????",
+        "selectManager": "???? ???????"
+      },
+      "options": {
+        "noDepartment": "???? ???",
+        "noManager": "???? ?????",
+        "active": "???",
+        "inactive": "??? ???"
+      },
+      "actions": {
+        "new": "???? ????? ????",
+        "create": "????? ???? ???????",
+        "edit": "????? ???? ???????",
+        "saveChanges": "??? ?????????"
+      },
+      "confirmDelete": "هل أنت متأكد من حذف مركز التكلفة هذا؟",
+      "noResults": "?? ??? ?????? ??? ????? ?????.",
+      "deleteTitle": "??? ???? ???????",
+      "deleteDescription": "?? ??? ????? ?? ??? {{name}}?",
+      "formDescription": "?? ?????? ?????? ???? ??????? ???????? ???????."
+    },
+    "attendance": {
+      "title": "الحضور",
+      "description": "تتبع حضور الموظفين وساعات العمل",
+      "tabs": {
+        "daily": "عرض يومي",
+        "monthly": "عرض شهري"
+      },
+      "table": {
+        "employee": "الموظف",
+        "date": "التاريخ",
+        "checkIn": "وقت الحضور",
+        "checkOut": "وقت الانصراف",
+        "status": "الحالة",
+        "workingHours": "ساعات العمل",
+        "overtime": "العمل الإضافي",
+        "lateMinutes": "التأخير (دقيقة)",
+        "shift": "الوردية",
+        "notes": "ملاحظات",
+        "actions": "إجراءات"
+      },
+      "monthly": {
+        "employee": "الموظف",
+        "present": "حاضر",
+        "absent": "غائب",
+        "late": "متأخر",
+        "leave": "إجازة",
+        "total": "الإجمالي",
+        "workingDays": "أيام العمل",
+        "totalHours": "إجمالي الساعات"
+      },
+      "shift": "الوردية",
+      "late": "متأخر",
+      "overtime": "عمل إضافي",
+      "notesPlaceholder": "أضف ملاحظات...",
+      "createTitle": "تسجيل الحضور",
+      "editTitle": "تعديل الحضور",
+      "createDescription": "تسجيل الحضور اليومي لموظف",
+      "editDescription": "تحديث سجل الحضور",
+      "forms": {
+        "employee": "الموظف",
+        "date": "التاريخ",
+        "checkIn": "وقت الحضور",
+        "checkOut": "وقت الانصراف",
+        "status": "الحالة",
+        "shift": "الوردية",
+        "notes": "ملاحظات"
+      },
+      "info": {
+        "workingHours": "ساعات العمل",
+        "overtime": "العمل الإضافي",
+        "late": "التأخير"
+      }
+    },
+    "contracts": {
+      "title": "العقود",
+      "description": "إدارة عقود واتفاقيات الموظفين",
+      "createTitle": "إنشاء عقد",
+      "editTitle": "تعديل العقد",
+      "table": {
+        "contractNumber": "رقم العقد",
+        "employee": "الموظف",
+        "type": "النوع",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية",
+        "salary": "الراتب",
+        "status": "الحالة",
+        "actions": "إجراءات"
+      },
+      "forms": {
+        "contractNumber": "رقم العقد",
+        "employee": "الموظف",
+        "type": "النوع",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية",
+        "salary": "الراتب",
+        "status": "الحالة",
+        "probationEndDate": "تاريخ نهاية الفترة التجريبية",
+        "workingHours": "ساعات العمل / الأسبوع"
+      },
+      "placeholders": {
+        "contractNumber": "أدخل رقم العقد",
+        "employee": "اختر الموظف",
+        "type": "اختر النوع",
+        "startDate": "اختر تاريخ البداية",
+        "endDate": "اختر تاريخ النهاية",
+        "salary": "أدخل مبلغ الراتب",
+        "status": "اختر الحالة"
+      },
+      "options": {
+        "cdi": "CDI (دائم)",
+        "cdd": "CDD (مؤقت)",
+        "sivp": "SIVP",
+        "internship": "تدريب",
+        "freelance": "حر",
+        "partTime": "دوام جزئي",
+        "active": "نشط",
+        "terminated": "منتهي",
+        "archived": "مؤرشف",
+        "renewed": "مجدد"
+      },
+      "actions": {
+        "create": "عقد جديد",
+        "view": "عرض",
+        "download": "تحميل",
+        "terminate": "إنهاء",
+        "renew": "تجديد",
+        "setActive": "تعيين نشط",
+        "archive": "أرشفة",
+        "confirmEnd": "تأكيد النهاية"
+      },
+      "viewTitle": "تفاصيل العقد",
+      "terminateTitle": "إنهاء العقد",
+      "renewTitle": "تجديد العقد",
+      "terminateDescription": "هل أنت متأكد من إنهاء هذا العقد؟",
+      "renewDescription": "أدخل تاريخ النهاية الجديد للعقد المجدد",
+      "empty": "لا توجد عقود",
+      "confirmDelete": "هل أنت متأكد من حذف هذا العقد؟"
+    },
+    "employeeDetail": {
+      "pageTitle": "الموظف",
+      "loadingProfile": "جاري تحميل ملف الموظف...",
+      "notFound": "الموظف غير موجود.",
+      "idLabel": "المعرف",
+      "fullName": "الاسم الكامل",
+      "cin": "بطاقة التعريف",
+      "dateOfBirth": "تاريخ الميلاد",
+      "placeOfBirth": "مكان الميلاد",
+      "phone": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "genderNationality": "الجنس والجنسية",
+      "readinessStatus": "حالة الجاهزية",
+      "maritalStatusChildren": "الحالة الاجتماعية والأطفال",
+      "children": "أطفال",
+      "fullAddress": "العنوان الكامل",
+      "personalDetails": "التفاصيل الشخصية",
+      "employmentAgreements": "اتفاقيات التوظيف",
+      "socialRegimePayments": "النظام الاجتماعي والمدفوعات",
+      "assignedAllowances": "البدلات والخصومات المخصصة",
+      "onboardingCreated": "تم إكمال تسجيل الموظف",
+      "onboardingUpdated": "تم تحديث تسجيل الموظف",
+      "configured": "مكون",
+      "pending": "قيد الانتظار",
+      "remainingChecklist": "قائمة المهام المتبقية",
+      "noRemainingItems": "لا توجد عناصر متبقية.",
+      "to": "إلى",
+      "indefinite": "غير محدد",
+      "noContracts": "لا توجد عقود مسجلة.",
+      "noComponents": "لا توجد بدلات أو خصومات مخصصة.",
+      "confirmDeleteContract": "حذف العقد؟",
+      "confirmRemoveComponent": "إزالة تعيين المكون؟",
+      "tabs": {
+        "profile": "الملف الشخصي",
+        "contracts": "العقود",
+        "payroll": "ملف الراتب"
+      },
+      "steps": {
+        "employee": "الموظف",
+        "contract": "العقد",
+        "payroll": "الراتب",
+        "cnss": "CNSS",
+        "irpp": "IRPP",
+        "components": "المكونات",
+        "attendance": "الوردية والإجازة",
+        "documents": "المستندات"
+      },
+      "table": {
+        "contractNumber": "رقم العقد",
+        "type": "النوع",
+        "baseSalary": "الراتب الأساسي (TND)",
+        "duration": "المدة",
+        "status": "الحالة",
+        "actions": "إجراءات",
+        "component": "المكون",
+        "amount": "المبلغ"
+      },
+      "forms": {
+        "contractNumber": "رقم العقد *",
+        "contractType": "نوع العقد *",
+        "baseSalary": "الراتب الأساسي (شهري TND) *",
+        "startDate": "تاريخ البداية *",
+        "endDate": "تاريخ النهاية",
+        "probationEndDate": "تاريخ نهاية الفترة التجريبية",
+        "workingHours": "ساعات العمل / الأسبوع *",
+        "socialRegime": "النظام الاجتماعي *",
+        "cnssNumber": "رقم CNSS",
+        "cnrpsNumber": "رقم CNRPS",
+        "paymentMethod": "طريقة الدفع *",
+        "bankName": "اسم البنك",
+        "bankAccount": "رقم الحساب البنكي",
+        "rib": "RIB (24 رقم)",
+        "component": "المكون *",
+        "amount": "المبلغ (شهري TND) *",
+        "effectiveDate": "تاريخ السريان *"
+      },
+      "placeholders": {
+        "cnssNumber": "مثال 12345678-90",
+        "cnrpsNumber": "مثال 987654",
+        "bankName": "BIAT, Attijari...",
+        "bankAccount": "رقم الحساب",
+        "selectComponent": "اختر المكون"
+      },
+      "options": {
+        "cdiPermanent": "CDI (دائم)",
+        "cddTemporary": "CDD (مؤقت)",
+        "internship": "تدريب",
+        "freelance": "حر",
+        "partTime": "دوام جزئي",
+        "cnss": "CNSS",
+        "cnrps": "CNRPS",
+        "bankTransfer": "تحويل بنكي",
+        "cash": "نقداً",
+        "check": "شيك"
+      },
+      "actions": {
+        "newContract": "عقد جديد",
+        "assign": "تعيين",
+        "saveProfile": "حفظ الملف"
+      }
+    },
+    "positions": {
+      "pageTitle": "الموارد البشرية - المناصب",
+      "title": "المناصب",
+      "description": "تحديد الأدوار والمسميات والتوافق مع الأقسام.",
+      "actions": {
+        "create": "منصب جديد"
+      },
+      "dialog": {
+        "create": "إنشاء منصب",
+        "edit": "تعديل المنصب"
+      },
+      "forms": {
+        "code": "الكود",
+        "title": "المسمى",
+        "department": "القسم",
+        "description": "الوصف",
+        "status": "الحالة"
+      },
+      "placeholders": {
+        "autoGenerated": "تلقائي",
+        "title": "مثال: مهندس أول",
+        "selectDepartment": "اختر القسم",
+        "description": "وصف مختصر للدور"
+      },
+      "table": {
+        "code": "الكود",
+        "title": "المسمى",
+        "department": "القسم",
+        "description": "الوصف",
+        "status": "الحالة",
+        "actions": "إجراءات"
+      },
+      "loading": "جاري تحميل المناصب...",
+      "empty": "لم يتم تعريف أي مناصب بعد.",
+      "confirmDelete": "حذف المنصب؟"
+    },
+    "leaveBalances": {
+      "pageTitle": "الموارد البشرية - أرصدة الإجازات",
+      "title": "أرصدة الإجازات",
+      "description": "تتبع أرصدة إجازات الموظفين حسب السنة والنوع.",
+      "detailDescription": "إدارة جميع أنواع أرصدة الإجازات لهذا الموظف.",
+      "actions": {
+        "backToEmployees": "العودة إلى الموظفين",
+        "synchronize": "مزامنة",
+        "synchronizeBalance": "مزامنة الرصيد",
+        "create": "رصيد جديد"
+      },
+      "dialog": {
+        "create": "إنشاء رصيد",
+        "edit": "تعديل الرصيد"
+      },
+      "forms": {
+        "employee": "الموظف",
+        "year": "السنة",
+        "leaveType": "نوع الإجازة",
+        "totalDays": "إجمالي الأيام",
+        "used": "مستخدم",
+        "remaining": "متبقي"
+      },
+      "placeholders": {
+        "selectType": "اختر النوع",
+        "filterYear": "تصفية السنة",
+        "search": "البحث حسب الموظف أو القسم أو المنصب..."
+      },
+      "table": {
+        "year": "السنة",
+        "leaveType": "نوع الإجازة",
+        "total": "الإجمالي",
+        "used": "مستخدم",
+        "remaining": "متبقي",
+        "actions": "إجراءات"
+      },
+      "employee": "الموظف",
+      "unknownEmployee": "موظف غير معروف",
+      "noEmployeeNumber": "لا يوجد رقم موظف",
+      "departmentPosition": "القسم / المنصب",
+      "noDepartment": "لا يوجد قسم",
+      "noPosition": "لا يوجد منصب",
+      "contact": "جهة الاتصال",
+      "noEmail": "لا يوجد بريد إلكتروني",
+      "noPhone": "لا يوجد رقم هاتف",
+      "balancesByType": "الأرصدة حسب نوع الإجازة",
+      "balancesDescription": "كل صف يمثل سياسة إجازة مختلفة لهذا الموظف والسنة.",
+      "allYears": "جميع السنوات",
+      "loading": "جاري تحميل الأرصدة...",
+      "emptyDetail": "لا توجد أرصدة إجازة لهذا الموظف.",
+      "empty": "لم يتم العثور على أرصدة إجازة.",
+      "employeeNotUsable": "هذا الموظف غير قابل للاستخدام في أرصدة الإجازات.",
+      "draftExcludedHint": "يتم استبعاد الموظفين المسودة من عمليات رصيد الإجازة حتى يتم تفعيلهم.",
+      "employeeLeaveBalances": "أرصدة إجازات الموظف",
+      "carriedForward": "مرحل: {{days}} يوم من العام السابق",
+      "monthlyAccrualRate": "معدل الاستحقاق الشهري: {{rate}} يوم/شهر",
+      "allocationPolicy": "سياسة التخصيص: {{policy}}",
+      "monthTable": {
+        "month": "الشهر",
+        "accrued": "مستحق",
+        "used": "مستخدم",
+        "balance": "الرصيد"
+      },
+      "projected": "متوقع",
+      "stats": {
+        "employeesWithBalances": "موظفون بأرصدة",
+        "leaveBalanceRecords": "سجلات أرصدة الإجازات",
+        "currentYearRemaining": "الأيام المتبقية هذا العام"
+      },
+      "total": "الإجمالي",
+      "used": "مستخدم",
+      "remaining": "متبقي",
+      "currentYearRemaining": "المتبقي هذا العام",
+      "types": "أنواع",
+      "days": "أيام"
+    },
+    "leaves": {
+      "pageTitle": "الموارد البشرية - الإجازات",
+      "title": "الإجازات والغيابات",
+      "description": "إدارة إجازات الموظفين وطلبات الغياب.",
+      "tabs": {
+        "requests": "الطلبات",
+        "types": "أنواع الإجازات"
+      },
+      "actions": {
+        "requestLeave": "طلب إجازة",
+        "newLeaveType": "نوع إجازة جديد",
+        "submit": "إرسال"
+      },
+      "dialog": {
+        "requestLeave": "تقديم طلب إجازة",
+        "createType": "إنشاء نوع إجازة"
+      },
+      "forms": {
+        "employee": "الموظف",
+        "leaveType": "نوع الإجازة",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية",
+        "daysCount": "عدد الأيام",
+        "reason": "السبب",
+        "code": "الكود",
+        "nameEn": "الاسم (EN)",
+        "nameFr": "الاسم (FR)",
+        "nameAr": "الاسم (AR)",
+        "description": "الوصف",
+        "paidStatus": "الحالة المدفوعة",
+        "requiresApproval": "يتطلب الموافقة",
+        "annualLimit": "الحد السنوي (أيام)",
+        "maxConsecutiveDays": "الحد الأقصى للأيام المتتالية",
+        "requiresDocs": "يتطلب مستندات",
+        "carryForward": "الترحيل مسموح"
+      },
+      "placeholders": {
+        "selectEmployee": "اختر الموظف",
+        "selectLeaveType": "اختر نوع الإجازة",
+        "reason": "سبب الإجازة",
+        "code": "مثال: AL",
+        "nameEn": "إجازة سنوية",
+        "nameFr": "Congé annuel",
+        "nameAr": "إجازة سنوية",
+        "description": "وصف مختصر",
+        "optional": "اختياري"
+      },
+      "table": {
+        "employee": "الموظف",
+        "type": "النوع",
+        "duration": "المدة",
+        "days": "الأيام",
+        "reason": "السبب",
+        "status": "الحالة",
+        "actions": "إجراءات",
+        "code": "الكود",
+        "name": "الاسم",
+        "paid": "مدفوع",
+        "annualLimit": "الحد السنوي",
+        "maxDays": "الحد الأقصى",
+        "approval": "الموافقة",
+        "carryFwd": "الترحيل"
+      },
+      "loadingRequests": "جاري تحميل الطلبات...",
+      "emptyRequests": "لا توجد طلبات إجازة.",
+      "loadingTypes": "جاري تحميل الأنواع...",
+      "emptyTypes": "لم يتم تعريف أنواع الإجازات.",
+      "unknownLeaveType": "نوع إجازة غير معروف",
+      "noBalances": "ليس لدى هذا الموظف أرصدة إجازة للسنة الحالية.",
+      "remaining": "متبقي",
+      "days": "أيام",
+      "exceedsBalance": "يتجاوز الرصيد المتبقي ({{remaining}} يوم)",
+      "confirmDeleteType": "حذف نوع الإجازة؟"
+    },
+    "shifts": {
+      "pageTitle": "الموارد البشرية - الورديات",
+      "title": "الورديات",
+      "description": "تحديد قوالب الورديات (صباحية، مسائية، ليلية).",
+      "actions": {
+        "create": "وردية جديدة"
+      },
+      "dialog": {
+        "create": "إنشاء وردية",
+        "edit": "تعديل الوردية"
+      },
+      "forms": {
+        "code": "الكود",
+        "name": "الاسم",
+        "startTime": "وقت البداية",
+        "endTime": "وقت النهاية",
+        "breakDuration": "الاستراحة (ساعات)",
+        "color": "اللون",
+        "description": "الوصف",
+        "flexible": "وردية مرنة"
+      },
+      "placeholders": {
+        "autoGenerated": "تلقائي إذا كان فارغاً",
+        "name": "الوردية الصباحية",
+        "description": "ملاحظات اختيارية عن الوردية"
+      },
+      "table": {
+        "code": "الكود",
+        "name": "الاسم",
+        "hours": "الساعات",
+        "break": "الاستراحة",
+        "flexible": "مرن",
+        "actions": "إجراءات"
+      },
+      "loading": "جاري تحميل الورديات...",
+      "empty": "لم يتم تعريف أي ورديات بعد."
+    },
+    "shiftAssignments": {
+      "pageTitle": "الموارد البشرية - تعيينات الورديات",
+      "title": "تعيينات الورديات",
+      "description": "تعيين الورديات للموظفين لفترات زمنية محددة.",
+      "actions": {
+        "create": "تعيين جديد"
+      },
+      "dialog": {
+        "create": "تعيين وردية جديد",
+        "edit": "تعديل التعيين"
+      },
+      "forms": {
+        "employee": "الموظف",
+        "shift": "الوردية",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية",
+        "notes": "ملاحظات"
+      },
+      "placeholders": {
+        "selectEmployee": "اختر الموظف",
+        "selectShift": "اختر الوردية",
+        "notes": "ملاحظات اختيارية"
+      },
+      "table": {
+        "employee": "الموظف",
+        "shift": "الوردية",
+        "startDate": "تاريخ البداية",
+        "endDate": "تاريخ النهاية",
+        "actions": "إجراءات"
+      },
+      "loading": "جاري تحميل التعيينات...",
+      "empty": "لم يتم العثور على تعيينات.",
+      "ongoing": "جاري"
+    },
+    "overtimeRequests": {
+      "pageTitle": "الموارد البشرية - طلبات العمل الإضافي",
+      "title": "العمل الإضافي",
+      "description": "إدارة ساعات العمل الإضافي للموظفين.",
+      "actions": {
+        "create": "طلب جديد",
+        "approve": "موافقة",
+        "reject": "رفض"
+      },
+      "dialog": {
+        "create": "طلب عمل إضافي جديد",
+        "edit": "تعديل الطلب"
+      },
+      "forms": {
+        "employee": "الموظف",
+        "category": "الفئة",
+        "approvalAuthority": "جهة الموافقة",
+        "date": "التاريخ",
+        "startTime": "وقت البداية",
+        "endTime": "وقت النهاية",
+        "totalHours": "إجمالي الساعات",
+        "multiplier": "المضاعف",
+        "description": "الوصف",
+        "status": "الحالة"
+      },
+      "placeholders": {
+        "selectEmployee": "اختر الموظف",
+        "description": "سبب العمل الإضافي"
+      },
+      "categoryLabels": {
+        "weekday": "أيام الأسبوع (125%)",
+        "night": "ليلي (150%)",
+        "restDay": "يوم راحة / عطلة (200%)"
+      },
+      "options": {
+        "manager": "مدير الموظف",
+        "ceo": "الرئيس التنفيذي",
+        "hr": "الموارد البشرية",
+        "mgr": "مدير",
+        "approved": "موافق",
+        "rejected": "مرفوض"
+      },
+      "approvalDescriptions": {
+        "manager": "يمكن لمدير الموظف المباشر الموافقة",
+        "ceo": "يمكن للرئيس التنفيذي فقط الموافقة",
+        "hr": "يمكن لدور الموارد البشرية فقط الموافقة"
+      },
+      "hints": {
+        "weekday": "قبل/بعد ساعات العمل العادية",
+        "nightTime": "ساعات الليل: {{nightStart}}:00 - {{nightEnd}}:00",
+        "restDay": "في أي وقت في يوم الراحة/العطلة"
+      },
+      "restDaySelected": "تم اختيار يوم راحة / عطلة",
+      "validation": {
+        "startMustBe": "يجب أن تكون البداية ≥ {{nightStart}}:00 للوردية الليلية",
+        "endMustBe": "يجب أن تكون النهاية ≤ {{nightEnd}}:00 للوردية الليلية"
+      },
+      "autoFromSettings": "تلقائي من إعدادات الموارد البشرية",
+      "table": {
+        "employee": "الموظف",
+        "date": "التاريخ",
+        "category": "الفئة",
+        "hours": "الساعات",
+        "rate": "المعدل",
+        "approval": "الموافقة",
+        "status": "الحالة",
+        "actions": "إجراءات"
+      },
+      "loading": "جاري تحميل الطلبات...",
+      "empty": "لم يتم العثور على طلبات عمل إضافي."
+    },
+    "performanceReviews": {
+      "pageTitle": "الموارد البشرية - تقييمات الأداء",
+      "title": "تقييمات الأداء",
+      "description": "إجراء وإدارة تقييمات أداء الموظفين.",
+      "actions": {
+        "create": "تقييم جديد"
+      },
+      "dialog": {
+        "create": "تقييم جديد",
+        "edit": "تعديل التقييم"
+      },
+      "forms": {
+        "employee": "الموظف",
+        "reviewer": "المقيم",
+        "reviewDate": "تاريخ التقييم",
+        "rating": "التقييم (0-10)",
+        "status": "الحالة",
+        "strengths": "نقاط القوة",
+        "weaknesses": "نقاط الضعف",
+        "summary": "الملخص"
+      },
+      "placeholders": {
+        "select": "اختر"
+      },
+      "table": {
+        "employee": "الموظف",
+        "reviewer": "المقيم",
+        "date": "التاريخ",
+        "rating": "التقييم",
+        "status": "الحالة",
+        "actions": "إجراءات"
+      },
+      "empty": "لا توجد تقييمات."
+    },
+    "kpis": {
+      "pageTitle": "الموارد البشرية - مؤشرات الأداء",
+      "title": "مؤشرات الأداء الرئيسية",
+      "description": "تحديد مؤشرات الأداء لقياس أداء الموظفين.",
+      "actions": {
+        "create": "مؤشر جديد"
+      },
+      "dialog": {
+        "create": "إنشاء مؤشر",
+        "edit": "تعديل المؤشر"
+      },
+      "forms": {
+        "code": "الكود",
+        "name": "الاسم",
+        "description": "الوصف",
+        "category": "الفئة",
+        "unit": "الوحدة",
+        "targetValue": "القيمة المستهدفة"
+      },
+      "placeholders": {
+        "autoGenerated": "تلقائي",
+        "name": "رضا العملاء",
+        "category": "المبيعات، الدعم...",
+        "unit": "%, عدد, TND..."
+      },
+      "table": {
+        "code": "الكود",
+        "name": "الاسم",
+        "category": "الفئة",
+        "target": "الهدف",
+        "active": "نشط",
+        "actions": "إجراءات"
+      },
+      "empty": "لم يتم تعريف أي مؤشرات أداء."
+    },
+    "kpiAssignments": {
+      "pageTitle": "الموارد البشرية - تعيينات المؤشرات",
+      "title": "تعيينات مؤشرات الأداء",
+      "description": "تعيين مؤشرات الأداء للموظفين وتتبع النتائج الفعلية.",
+      "actions": {
+        "create": "تعيين مؤشر"
+      },
+      "dialog": {
+        "create": "تعيين مؤشر أداء",
+        "edit": "تعديل التعيين"
+      },
+      "forms": {
+        "employee": "الموظف",
+        "kpi": "مؤشر الأداء",
+        "targetValue": "القيمة المستهدفة",
+        "actualValue": "القيمة الفعلية",
+        "period": "الفترة",
+        "notes": "ملاحظات"
+      },
+      "placeholders": {
+        "select": "اختر",
+        "period": "مثال: 2025-الربع الأول"
+      },
+      "table": {
+        "employee": "الموظف",
+        "kpi": "مؤشر الأداء",
+        "period": "الفترة",
+        "target": "الهدف",
+        "actual": "الفعلي",
+        "actions": "إجراءات"
+      },
+      "empty": "لا توجد تعيينات."
+    },
+    "irppTaxProfiles": {
+      "pageTitle": "الموارد البشرية - ملفات IRPP",
+      "title": "ملفات IRPP الضريبية",
+      "description": "تكوين الوضع الضريبي للموظفين لحساب IRPP.",
+      "actions": {
+        "create": "ملف ضريبي جديد"
+      },
+      "dialog": {
+        "create": "إنشاء ملف IRPP",
+        "edit": "تعديل الملف"
+      },
+      "forms": {
+        "employee": "الموظف",
+        "maritalStatus": "الحالة الاجتماعية",
+        "children": "الأطفال",
+        "disabledDependents": "المعالون من ذوي الإعاقة",
+        "taxExemptions": "الإعفاءات الضريبية (TND)"
+      },
+      "placeholders": {
+        "selectEmployee": "اختر الموظف"
+      },
+      "options": {
+        "single": "أعزب",
+        "married": "متزوج",
+        "divorced": "مطلق",
+        "widowed": "أرمل"
+      },
+      "hints": {
+        "autoCalculated": "محسوب تلقائياً:"
+      },
+      "table": {
+        "employee": "الموظف",
+        "maritalStatus": "الحالة الاجتماعية",
+        "children": "الأطفال",
+        "disabled": "ذوي الإعاقة",
+        "exemptions": "الإعفاءات",
+        "actions": "إجراءات"
+      },
+      "loading": "جاري تحميل الملفات...",
+      "empty": "لم يتم العثور على ملفات ضريبية."
+    },
+    "vacationAccrualRules": {
+      "pageTitle": "الموارد البشرية - قواعد استحقاق الإجازات",
+      "title": "قواعد استحقاق الإجازات",
+      "description": "تحديد معدلات الاستحقاق التلقائي لأيام الإجازة لكل موظف.",
+      "actions": {
+        "runAccrual": "تشغيل الاستحقاق",
+        "create": "قاعدة جديدة"
+      },
+      "dialog": {
+        "create": "قاعدة استحقاق جديدة",
+        "edit": "تعديل القاعدة",
+        "runAccrual": "تشغيل استحقاق الإجازات"
+      },
+      "forms": {
+        "employee": "الموظف",
+        "leaveType": "نوع الإجازة",
+        "accrualRate": "معدل الاستحقاق (يوم/شهر)",
+        "maxAccrual": "الحد الأقصى للاستحقاق (أيام)",
+        "employeeOptional": "الموظف (اختياري - اترك فارغاً للجميع)",
+        "year": "السنة",
+        "month": "الشهر"
+      },
+      "placeholders": {
+        "selectEmployee": "اختر الموظف",
+        "selectLeaveType": "اختر نوع الإجازة",
+        "allEmployees": "جميع الموظفين"
+      },
+      "allEmployees": "جميع الموظفين",
+      "table": {
+        "employee": "الموظف",
+        "leaveType": "نوع الإجازة",
+        "rate": "المعدل (يوم/شهر)",
+        "maxAccrual": "الحد الأقصى",
+        "active": "نشط",
+        "actions": "إجراءات"
+      },
+      "empty": "لم يتم تعريف قواعد الاستحقاق",
+      "results": "النتائج"
+    },
+    "employeePortal": {
+      "pageTitle": "بوابة الموظف",
+      "title": "بوابة الموظف",
+      "description": "لوحة تحكم الخدمة الذاتية للموظفين.",
+      "placeholders": {
+        "selectEmployee": "اختر الموظف..."
+      },
+      "selectPrompt": "اختر موظفاً لعرض بوابته",
+      "cards": {
+        "profile": "الملف الشخصي",
+        "leaveBalances": "أرصدة الإجازات",
+        "goalsProgress": "تقدم الأهداف",
+        "signatures": "التوقيعات",
+        "recentAttendance": "الحضور الأخير",
+        "recentLeaveRequests": "طلبات الإجازة الأخيرة",
+        "recentPayslips": "كشوف الرواتب الأخيرة"
+      },
+      "fields": {
+        "name": "الاسم",
+        "employeeNumber": "رقم الموظف",
+        "department": "القسم",
+        "position": "المنصب",
+        "cin": "بطاقة التعريف",
+        "status": "الحالة"
+      },
+      "noLeaveBalances": "لا توجد أرصدة إجازة",
+      "daysUsed": "أيام مستخدمة",
+      "noGoals": "لا توجد أهداف مسندة",
+      "signaturesDescription": "افتح قائمة التوقيعات وأكمل التوقيعات المعلقة.",
+      "pending": "معلقة",
+      "table": {
+        "date": "التاريخ",
+        "checkIn": "الحضور",
+        "checkOut": "الانصراف",
+        "hours": "الساعات",
+        "status": "الحالة",
+        "type": "النوع",
+        "start": "البداية",
+        "end": "النهاية",
+        "days": "الأيام",
+        "period": "الفترة",
+        "gross": "الإجمالي",
+        "deductions": "الخصومات",
+        "net": "الصافي"
+      },
+      "noAttendance": "لا توجد سجلات حضور",
+      "noLeaveRequests": "لا توجد طلبات إجازة",
+      "noPayslips": "لا توجد كشوف رواتب"
+    },
+    "employeeForm": {
+      "title": "الموارد البشرية - موظف جديد",
+      "editTitle": "الموارد البشرية - تعديل الموظف",
+      "description": "إعداد الموظف الكامل مع العقد والراتب و CNSS و IRPP.",
+      "loadingTitle": "الموارد البشرية - تعديل الموظف",
+      "loadingText": "جاري تحميل ملف إعداد الموظف...",
+      "editEmployee": "تعديل الموظف",
+      "createEmployee": "إنشاء موظف جديد",
+      "updatingDossier": "تحديث ملف الموظف",
+      "newDossier": "ملف موظف جديد",
+      "stepOf": "الخطوة {{current}} من {{total}}",
+      "progress": "التقدم",
+      "autoGenerated": "تلقائي",
+      "autoGeneratedBySystem": "تلقائي من النظام",
+      "steps": {
+        "identity": "الهوية",
+        "identityDesc": "الهوية المدنية والاتصال الشخصي",
+        "employment": "التوظيف",
+        "employmentDesc": "القسم والمدير وإعدادات العمل",
+        "contract": "العقد",
+        "contractDesc": "عقد العمل والراتب الأساسي",
+        "payroll": "الراتب",
+        "payrollDesc": "CNSS و IRPP والدفع والبيانات المصرفية",
+        "compliance": "الامتثال",
+        "complianceDesc": "حقول العامل الأجنبي والتنظيمية",
+        "review": "المراجعة",
+        "reviewDesc": "حفظ حزمة الإعداد الكاملة"
+      },
+      "actions": {
+        "backToEmployees": "العودة إلى الموظفين",
+        "previous": "السابق",
+        "next": "التالي",
+        "cancel": "إلغاء",
+        "save": "حفظ",
+        "create": "إنشاء",
+        "addComponent": "إضافة مكون"
+      },
+      "forms": {
+        "employeeId": "رقم الموظف",
+        "cin": "بطاقة التعريف",
+        "firstName": "الاسم الأول",
+        "lastName": "اسم العائلة",
+        "dateOfBirth": "تاريخ الميلاد",
+        "placeOfBirth": "مكان الميلاد",
+        "gender": "الجنس",
+        "nationality": "الجنسية",
+        "maritalStatus": "الحالة الاجتماعية",
+        "childrenCount": "عدد الأطفال",
+        "disabledDependents": "المعالون من ذوي الإعاقة",
+        "phone": "الهاتف",
+        "personalEmail": "البريد الإلكتروني الشخصي",
+        "workEmail": "البريد الإلكتروني الوظيفي",
+        "passportNumber": "رقم جواز السفر",
+        "emergencyContactName": "اسم جهة الاتصال في الطوارئ",
+        "emergencyContactPhone": "هاتف جهة اتصال الطوارئ",
+        "address": "العنوان",
+        "city": "المدينة",
+        "postalCode": "الرمز البريدي",
+        "hireDate": "تاريخ التوظيف",
+        "employeeStatus": "حالة الموظف",
+        "department": "القسم",
+        "position": "المنصب",
+        "manager": "المدير",
+        "workLocation": "موقع العمل",
+        "costCenter": "مركز التكلفة",
+        "employmentCategory": "فئة التوظيف",
+        "attendanceMode": "نمط الحضور",
+        "education": "التعليم",
+        "skills": "المهارات",
+        "certifications": "الشهادات",
+        "contractNumber": "رقم العقد",
+        "contractType": "نوع العقد",
+        "cddLegalReason": "السبب القانوني لعقد CDD",
+        "contractStartDate": "تاريخ بدء العقد",
+        "contractEndDate": "تاريخ انتهاء العقد",
+        "probationEndDate": "تاريخ نهاية الفترة التجريبية",
+        "contractStatus": "حالة العقد",
+        "baseSalary": "الراتب الأساسي (TND)",
+        "workingHours": "ساعات العمل / الأسبوع",
+        "socialRegime": "النظام الاجتماعي",
+        "cnssNumber": "رقم CNSS",
+        "cnssRegistrationDate": "تاريخ تسجيل CNSS",
+        "cnssStatus": "حالة CNSS",
+        "cnrpsNumber": "رقم CNRPS",
+        "taxStatus": "الحالة الضريبية",
+        "taxExemptions": "الإعفاءات الضريبية",
+        "paymentMethod": "طريقة الدفع",
+        "bankName": "اسم البنك",
+        "bankAccount": "الحساب البنكي",
+        "rib": "RIB",
+        "defaultShift": "الوردية الافتراضية",
+        "shiftStartDate": "تاريخ بدء الوردية",
+        "shiftEndDate": "تاريخ انتهاء الوردية",
+        "shiftNotes": "ملاحظات الوردية",
+        "leaveType": "نوع الإجازة",
+        "leaveBalanceYear": "سنة رصيد الإجازة",
+        "initialLeaveDays": "أيام الإجازة الأولية",
+        "accrualRate": "معدل الاستحقاق / الشهر",
+        "maxAccrual": "الحد الأقصى للاستحقاق",
+        "accrualEffectiveDate": "تاريخ سريان الاستحقاق",
+        "attendanceLeaveInit": "تهيئة الحضور والإجازات",
+        "payrollComponentsInit": "تهيئة مكونات الراتب",
+        "component": "المكون",
+        "amount": "المبلغ",
+        "effectiveDate": "تاريخ السريان",
+        "foreignCompliance": "امتثال الموظف الأجنبي",
+        "residenceCardNumber": "رقم بطاقة الإقامة",
+        "residenceCardExpiry": "انتهاء بطاقة الإقامة",
+        "workPermitType": "نوع تصريح العمل",
+        "workPermitNumber": "رقم تصريح العمل",
+        "workPermitStatus": "حالة تصريح العمل",
+        "workPermitExpiry": "انتهاء تصريح العمل",
+        "mandatoryDocuments": "المستندات الإلزامية",
+        "expiryDate": "تاريخ الانتهاء",
+        "notes": "ملاحظات"
+      },
+      "placeholders": {
+        "cin": "09876543",
+        "passportNumber": "AB123456",
+        "selectDepartment": "اختر القسم",
+        "selectPosition": "اختر المنصب",
+        "selectManager": "اختر المدير",
+        "selectCostCenter": "اختر مركز التكلفة",
+        "workLocation": "المقر الرئيسي تونس",
+        "education": "بكالوريوس في علوم الكمبيوتر",
+        "skills": "Excel, الرواتب, التوظيف",
+        "certifications": "PMP, تحليلات الموارد البشرية",
+        "selectLegalReason": "اختر السبب القانوني",
+        "baseSalary": "1500.000",
+        "cnssNumber": "123456789",
+        "cnrpsNumber": "مرجع القطاع العام (اختياري)",
+        "rib": "20 رقم",
+        "selectShift": "اختر الوردية",
+        "selectLeavePolicy": "اختر سياسة الإجازة",
+        "shiftNotes": "ملاحظة اختيارية",
+        "selectComponent": "اختر المكون",
+        "optionalNote": "ملاحظة اختيارية"
+      },
+      "options": {
+        "male": "ذكر",
+        "female": "أنثى",
+        "tunisian": "تونسي",
+        "nonTunisian": "غير تونسي",
+        "single": "أعزب",
+        "married": "متزوج",
+        "divorced": "مطلق",
+        "widowed": "أرمل",
+        "marriedWithChildren": "متزوج + أطفال",
+        "noManager": "لا يوجد مدير",
+        "noCostCenter": "لا يوجد مركز تكلفة",
+        "legacy": "(قديم)",
+        "employeeCategory": "موظف",
+        "cadre": "إطار",
+        "agentDeMaitrise": "وكيل إشراف",
+        "ouvrier": "عامل",
+        "intern": "متدرب",
+        "onSite": "في الموقع",
+        "hybrid": "هجين",
+        "remote": "عن بعد",
+        "shiftBased": "على أساس الوردية",
+        "cdi": "CDI",
+        "cdd": "CDD",
+        "sivp": "SIVP",
+        "stage": "تدريب",
+        "partTime": "دوام جزئي",
+        "freelance": "حر",
+        "replacement": "استبدال موظف غائب",
+        "temporaryIncrease": "زيادة مؤقتة في النشاط",
+        "seasonalWork": "عمل موسمي",
+        "cnss": "CNSS",
+        "cnrps": "CNRPS",
+        "bankTransfer": "تحويل بنكي",
+        "cash": "نقداً",
+        "check": "شيك",
+        "contractVisa": "تأشيرة العقد",
+        "detachment": "انتداب",
+        "investmentExemption": "إعفاء استثماري",
+        "seasonalPermit": "موسمي",
+        "pending": "معلق",
+        "approved": "موافق",
+        "renewalNeeded": "بحاجة للتجديد",
+        "expired": "منتهي"
+      },
+      "documents": {
+        "cin": "نسخة بطاقة التعريف",
+        "contract": "العقد الموقع",
+        "rib": "إثبات RIB",
+        "diploma": "نسخة الشهادة",
+        "passport": "نسخة جواز السفر",
+        "permit": "تصريح العمل",
+        "noFile": "لم يتم اختيار ملف"
+      },
+      "hints": {
+        "employeeStatus": "يتم إدارته بواسطة النظام. يصبح نشطاً فقط عند اكتمال جميع الحقول.",
+        "contractStatus": "تتم إدارته بواسطة النظام حسب اكتمال العقد.",
+        "workingHours": "يتم ملؤه تلقائياً من الوردية الافتراضية.",
+        "cnssStatus": "تتم إدارته بواسطة النظام حسب النظام الاجتماعي.",
+        "taxStatus": "تتم إدارته بواسطة النظام حسب الحالة الاجتماعية.",
+        "attendanceLeaveInit": "تعيين الوردية الافتراضية وتهيئة سياسة الإجازة.",
+        "payrollComponentsInit": "تعيين المكونات المتكررة للراتب.",
+        "noComponents": "لم يتم إضافة مكونات راتب بعد. أضف مكوناً واحداً على الأقل.",
+        "foreignCompliance": "هذه الحقول خاصة بالموظفين غير التونسيين.",
+        "mandatoryDocuments": "قم برفع مستندات الموارد البشرية/الراتب قبل إنهاء الإعداد."
+      },
+      "validation": {
+        "cddRestrictedTitle": "عقد CDD مقيد بموجب إصلاح العمل 2025",
+        "cddRestrictedDesc": "استخدم CDD فقط للاستثناءات القانونية المسموح بها."
+      },
+      "review": {
+        "readyTitle": "جاهز لحفظ حزمة الموارد البشرية الكاملة",
+        "readyDesc": "سيؤدي هذا إلى إنشاء أو تحديث سجل الموظف والعقد وملف الراتب و CNSS و IRPP."
+      },
+      "sidebar": {
+        "title": "تغطية الموارد البشرية في تونس",
+        "employeeMaster": "الملف الرئيسي للموظف",
+        "employeeMasterDesc": "الهوية والحالة المدنية والاتصالات وتنظيم العمل.",
+        "employmentContract": "عقد العمل",
+        "employmentContractDesc": "رقم العقد والنوع والراتب الأساسي والساعات.",
+        "payrollAndTax": "الراتب والضرائب",
+        "payrollAndTaxDesc": "CNSS/CNRPS و IRPP والتحويل البنكي والإعفاءات.",
+        "foreignWorker": "حقول العامل الأجنبي",
+        "foreignWorkerDesc": "بطاقة الإقامة وتصريح العمل للموظفين غير التونسيين."
+      },
+      "readiness": {
+        "hrComplete": "تم ملء ملف الموارد البشرية",
+        "contractComplete": "تم حفظ عقد العمل",
+        "payrollReady": "تم تكوين ملف الراتب",
+        "documentsComplete": "تم رفع مستندات الموارد البشرية",
+        "attendanceReady": "تم تعيين الوردية وتهيئة الإجازة",
+        "legallyActive": "الامتثال التنظيمي (تصريح العمل)"
+      },
+      "summary": {
+        "employee": "الموظف",
+        "department": "القسم",
+        "position": "المنصب",
+        "manager": "المدير",
+        "contract": "العقد",
+        "baseSalary": "الراتب الأساسي",
+        "cnss": "CNSS",
+        "payment": "الدفع",
+        "shift": "الوردية",
+        "leavePolicy": "سياسة الإجازة",
+        "payrollComponents": "مكونات الراتب",
+        "documents": "المستندات",
+        "autoGenerated": "تلقائي",
+        "tnd": "TND",
+        "days": "أيام",
+        "configured": "تم التكوين",
+        "uploaded": "تم الرفع"
+      }
+    },
+    "statusUpdates": {
+      "goalCreated": "تم إنشاء الهدف بنجاح",
+      "goalUpdated": "تم تحديث الهدف",
+      "goalDeleted": "تم حذف الهدف",
+      "employeeCreated": "تم إنشاء الموظف بنجاح",
+      "employeeUpdated": "تم تحديث الموظف",
+      "employeeDeleted": "تم حذف الموظف",
+      "employeeArchived": "تم أرشفة الموظف",
+      "cnssProfileCreated": "تم إنشاء ملف CNSS",
+      "cnssProfileUpdated": "تم تحديث ملف CNSS",
+      "cnssProfileDeleted": "تم حذف ملف CNSS",
+      "documentUploaded": "تم رفع المستند",
+      "documentDeleted": "تم حذف المستند",
+      "settingsSaved": "تم حفظ الإعدادات",
+      "costCenterCreated": "تم إنشاء مركز التكلفة",
+      "costCenterUpdated": "تم تحديث مركز التكلفة",
+      "costCenterDeleted": "تم حذف مركز التكلفة",
+      "attendanceRecorded": "تم تسجيل الحضور",
+      "attendanceUpdated": "تم تحديث الحضور",
+      "attendanceSaved": "تم حفظ الحضور",
+      "contractCreated": "تم إنشاء العقد",
+      "contractDeleted": "تم حذف العقد",
+      "contractTerminated": "تم إنهاء العقد",
+      "contractRenewed": "تم تجديد العقد",
+      "contractArchived": "تم أرشفة العقد",
+      "payrollProfileUpdated": "تم تحديث ملف الراتب",
+      "componentAssigned": "تم تعيين المكون",
+      "componentUnassigned": "تم إلغاء تعيين المكون",
+      "positionCreated": "تم إنشاء المنصب",
+      "positionUpdated": "تم تحديث المنصب",
+      "positionDeleted": "تم حذف المنصب",
+      "leaveBalanceCreated": "تم إنشاء رصيد الإجازة",
+      "leaveBalanceUpdated": "تم تحديث رصيد الإجازة",
+      "leaveBalanceDeleted": "تم حذف رصيد الإجازة",
+      "synchronized": "تمت المزامنة",
+      "syncFailed": "فشلت المزامنة",
+      "validEmployeeRequired": "مطلوب موظف صالح",
+      "selectLeaveType": "يرجى اختيار نوع الإجازة",
+      "leaveRequestSubmitted": "تم تقديم طلب الإجازة",
+      "leaveRequestUpdated": "تم تحديث الطلب",
+      "leaveTypeCreated": "تم إنشاء نوع الإجازة",
+      "leaveTypeDeleted": "تم حذف نوع الإجازة",
+      "shiftCreated": "تم إنشاء الوردية",
+      "shiftUpdated": "تم تحديث الوردية",
+      "shiftDeleted": "تم حذف الوردية",
+      "shiftAssignmentCreated": "تم إنشاء تعيين الوردية",
+      "shiftAssignmentUpdated": "تم تحديث تعيين الوردية",
+      "shiftAssignmentDeleted": "تم حذف تعيين الوردية",
+      "overtimeCreated": "تم إنشاء طلب العمل الإضافي",
+      "overtimeUpdated": "تم تحديث طلب العمل الإضافي",
+      "overtimeDeleted": "تم حذف طلب العمل الإضافي",
+      "overtimeApproved": "تمت الموافقة على العمل الإضافي",
+      "overtimeRejected": "تم رفض العمل الإضافي",
+      "reviewCreated": "تم إنشاء التقييم",
+      "reviewUpdated": "تم تحديث التقييم",
+      "reviewDeleted": "تم حذف التقييم",
+      "kpiCreated": "تم إنشاء مؤشر الأداء",
+      "kpiUpdated": "تم تحديث مؤشر الأداء",
+      "kpiDeleted": "تم حذف مؤشر الأداء",
+      "kpiAssigned": "تم تعيين مؤشر الأداء",
+      "assignmentUpdated": "تم تحديث التعيين",
+      "assignmentDeleted": "تم حذف التعيين",
+      "irppTaxProfileSaved": "تم حفظ ملف IRPP",
+      "accrualRuleCreated": "تم إنشاء قاعدة الاستحقاق",
+      "accrualRuleUpdated": "تم تحديث قاعدة الاستحقاق",
+      "accrualRuleDeleted": "تم حذف قاعدة الاستحقاق",
+      "accrualRunCompleted": "اكتمل تشغيل الاستحقاق",
+      "draftCreated": "تم إنشاء مسودة الموظف",
+      "draftUpdated": "تم تحديث مسودة الموظف",
+      "onboardingUpdated": "تم تحديث إعداد الموظف",
+      "onboardingCreated": "تم إنشاء الموظف مع الإعداد الكامل",
+      "saveError": "تعذر حفظ إعداد الموظف",
+      "missingCnss": "أضف رقم CNSS",
+      "missingRib": "أضف RIB الموظف",
+      "missingBankName": "أضف اسم البنك",
+      "missingBankAccount": "أضف الحساب البنكي",
+      "missingWorkEmail": "أضف البريد الإلكتروني الوظيفي",
+      "missingAddress": "أكمل العنوان",
+      "missingEmergencyContact": "أكمل جهة اتصال الطوارئ",
+      "missingEducation": "أضف الخلفية التعليمية",
+      "missingSkills": "أضف المهارات",
+      "missingPassportOrResidence": "أضف جواز السفر أو بطاقة الإقامة",
+      "missingWorkPermit": "أضف تصريح العمل",
+      "missingShift": "تعيين وردية عمل",
+      "missingLeavePolicy": "تهيئة سياسة الإجازة",
+      "missingComponents": "تعيين مكونات الراتب",
+      "missingUpload": "رفع {{label}}"
+    }
+  },
+  "auth": {
+    "login": {
+      "brand": "Nexus CRM",
+      "subtitle": "???? ?????? ??? ?????",
+      "welcome": "?????? ??????",
+      "description": "???? ??????? ?????? ??? ?????",
+      "email": "?????? ??????????",
+      "emailPlaceholder": "name@company.com",
+      "password": "???? ??????",
+      "passwordPlaceholder": "????????",
+      "signIn": "????? ??????",
+      "signingIn": "???? ????? ??????...",
+      "demoCredentials": "?????? ???????:",
+      "footer": "? 2024 Nexus CRM. ???? ?????? ??????.",
+      "success": "?? ????? ?????? ?????!",
+      "error": "??? ????? ??????. ???? ?????? ?? ???????."
+    }
+  },
+  "errors": {
+    "notFound": {
+      "title": "?????! ?????? ??? ??????",
+      "backHome": "?????? ??? ????????"
+    }
+  },
+  "signatures": {
+    "status": {
+      "all": "????",
+      "pending": "??? ????????",
+      "signed": "?????",
+      "toSign": "??????? ???????",
+      "waiting": "??????? ???????"
+    },
+    "inbox": {
+      "account": "?????",
+      "title": "?????????",
+      "description": "???? ????? ??????? ???????? ???? ?? ???? ??????? ???????.",
+      "documentsToSign": "??????? ???????",
+      "filter": "?????",
+      "queue": "????? ???????",
+      "documents": "?????????",
+      "empty": "?? ???? ??????? ?? ??? ????????? ??? ??????.",
+      "cards": {
+        "signatureAccess": "?????? ??? ????????? ???? ????? ???????.",
+        "signedFiles": "??????? ???????",
+        "signedFilesDesc": "???? ????????? ??????? ??????? ??????? ????????.",
+        "documents": "?????????",
+        "documentsDesc": "???? ??????? ??????? ??????? ???????? ??????? ??????? ?? ???? ????."
+      }
+    },
+    "detail": {
+      "pageTitle": "?????? ???????",
+      "notFound": "???? ??????? ??? ??????.",
+      "breadcrumb": "???????? / ????????? / {{title}}",
+      "summary": "??????",
+      "creationDate": "????? ???????",
+      "employee": "??????",
+      "viewSignedFile": "??? ????? ???????",
+      "sign": "?????",
+      "history": "??? ???????",
+      "historyDescription": "??? ?????? ??? ??????? ???? ???? ???????. ??? ??????? ??? ??? ?????? ??????? ?????? ???? ????? ?????? ????????.",
+      "yourInformation": "????????"
+    },
+    "workspace": {
+      "pageTitle": "????? ???????",
+      "titleWithDocument": "????? - {{title}}",
+      "description": "?? ?????? ?? ????? ?????? ?? ?? ??????? ?? ??? PDF ???????.",
+      "move": "???",
+      "clickToAdd": "???? ?????? {{label}}",
+      "saved": "?? ??? ??? PDF ???????",
+      "loading": "???? ????? ??????? ?????? ???????...",
+      "nextField": "??? ??????? ??????",
+      "validate": "????",
+      "zoneStatus": "{{label}} {{status}}"
+    },
+    "dialog": {
+      "title": "?????? ??????",
+      "fullName": "????? ??????",
+      "signatureSize": "??? ???????",
+      "scale": "???????: {{value}}%",
+      "color": "?????",
+      "selectColor": "???? ??? ??????? {{color}}",
+      "auto": "??????",
+      "draw": "???",
+      "clear": "???",
+      "signedWith": "?? ??????? ?????? Nadas Sign",
+      "legal": "???????? ??? ???? ?? ??? ??????? ?????????? ???? ???? ???????."
+    }
+  },
+  "payroll": {
+    "payslip": {
+      "loading": "???? ????? ??? ??????...",
+      "notFound": "??? ?????? ??? ?????.",
+      "titleWithEmployee": "??? ?????? - {{name}}",
+      "detailTitle": "?????? ??? ??????",
+      "detailDescription": "???? ????? ??? ?????? ?????? ??????.",
+      "print": "????? ??? ??????",
+      "sign": "?????"
+    },
+    "document": {
+      "moduleSubtitle": "???? ERP ????? ???????",
+      "payslip": "??? ??????",
+      "payrollPeriod": "???? ???????",
+      "generatedOn": "?? ??????? ?? {{date}}",
+      "monthTitle": "??? ???? ??? {{period}}",
+      "employeePaySummary": "???? ???? ??????",
+      "employeeName": "??? ??????",
+      "designation": "??????",
+      "dateOfJoining": "????? ????????",
+      "payPeriod": "???? ?????",
+      "payDate": "????? ?????",
+      "department": "?????",
+      "cinCnss": "????? ??????? / CNSS",
+      "employeeNetPay": "???? ??? ??????",
+      "grossEarnings": "?????? ?????????",
+      "totalDeductions": "?????? ????????",
+      "earnings": "?????????",
+      "amount": "??????",
+      "deductions": "????????",
+      "netPay": "??????",
+      "totalNetPayable": "?????? ?????? ???????",
+      "footerNote": "???? ??? ??????? ????? ?????? ??????? ??????? ?? NADAS ERP Suite.",
+      "employeeSignature": "????? ??????"
+    }
+  },
+  "payrollPages": {
+    "periods": {
+      "layoutTitle": "Payroll - Periods & Payslips",
+      "title": "Payroll Runs",
+      "description": "Manage periodic salary runs and issue payslips.",
+      "actions": { "newPeriod": "New Period", "openPeriod": "Open Period", "generateRecalculate": "Generate / Recalculate" },
+      "dialogs": { "openTitle": "Open New Payroll Period" },
+      "fields": { "periodName": "Period Name *", "startDate": "Start Date *", "endDate": "End Date *" },
+      "placeholders": { "periodName": "e.g. June 2026" },
+      "sections": { "periods": "Periods", "payslipsFor": "Payslips for {{period}}" },
+      "table": { "employee": "Employee", "gross": "Gross (TND)", "deductions": "Deductions (TND)", "netSalary": "Net Salary (TND)", "status": "Status", "actions": "Actions" },
+      "states": { "loadingRuns": "Loading runs...", "noPeriods": "No payroll periods opened yet.", "loadingPayslips": "Loading payslips...", "noPayslips": "No payslips generated. Click Generate above.", "selectPeriod": "Select a payroll period on the left to manage payslips." },
+      "statuses": { "draft": "Draft", "approved": "Approved", "paid": "Paid", "closed": "Closed", "open": "Open" },
+      "toasts": { "periodCreated": "Payroll period created", "payslipsGenerated": "Payslips generated/updated for this period", "payslipApproved": "Payslip approved", "payslipPaid": "Payslip marked as paid" }
+    },
+    "settings": {
+      "layoutTitle": "Payroll - Settings",
+      "title": "Payroll Settings",
+      "description": "Configure social security rates, tax variables, and calculation constants.",
+      "sections": { "rulesRates": "Rules & Rates", "thirteenthMonth": "13th Month Salary", "seniorityBonus": "Seniority Bonus", "absenceDeduction": "Absence Deduction" },
+      "toggles": { "enableThirteenthMonth": "Enable 13th Month Salary", "enableSeniorityBonus": "Enable Seniority Bonus", "enableAbsenceDeduction": "Enable Absence Deduction" },
+      "actions": { "saveAll": "Save All Settings" },
+      "states": { "loading": "Loading settings..." },
+      "toasts": { "updated": "Payroll settings updated" }
+    },
+    "bankTransfers": {
+      "layoutTitle": "Payroll - Bank Transfers",
+      "title": "Bank Transfers",
+      "description": "Generate SEPA XML or CSV bank transfer files for payroll payments.",
+      "actions": { "generateFile": "Generate Transfer File" },
+      "dialogs": { "generateTitle": "Generate Bank Transfer File" },
+      "fields": { "payrollPeriod": "Payroll Period *", "format": "Format" },
+      "placeholders": { "selectPeriod": "Select Period" },
+      "formats": { "sepa": "SEPA XML (PAIN.001)", "csv": "CSV File" },
+      "table": { "fileName": "File Name", "period": "Period", "format": "Format", "employees": "Employees", "totalAmount": "Total Amount", "status": "Status", "created": "Created", "actions": "Actions" },
+      "states": { "empty": "No bank transfer files generated yet" },
+      "statuses": { "generated": "Generated" },
+      "toasts": { "generated": "Bank transfer file generated" }
+    },
+    "cnss": {
+      "layoutTitle": "Payroll - CNSS Declarations",
+      "title": "CNSS Declarations",
+      "description": "Generate and view monthly CNSS social security declarations.",
+      "actions": { "generateDeclaration": "Generate Declaration" },
+      "dialogs": { "generateTitle": "Generate CNSS Declaration", "detailsTitle": "CNSS Declaration Details" },
+      "fields": { "payrollPeriod": "Payroll Period *", "accidentInsurance": "Accident Insurance", "totalEmployer": "Total Employer" },
+      "placeholders": { "selectPeriod": "Select Period" },
+      "table": { "period": "Period", "date": "Date", "employees": "Employees", "grossSalary": "Gross Salary", "cnssEmployee": "CNSS Employee", "cnssEmployer": "CNSS Employer", "status": "Status", "actions": "Actions" },
+      "sections": { "financialSummary": "Financial Summary" },
+      "states": { "loading": "Loading declarations...", "empty": "No declarations generated yet." },
+      "statuses": { "generated": "Generated" },
+      "toasts": { "generated": "CNSS declaration generated" }
+    },
+    "irpp": {
+      "layoutTitle": "Payroll - IRPP Declarations",
+      "title": "IRPP Declarations",
+      "description": "Annual income tax declarations per employee.",
+      "actions": { "generateAnnual": "Generate Annual IRPP" },
+      "dialogs": { "generateTitle": "Generate IRPP Declaration", "detailsTitle": "IRPP Declaration Details" },
+      "fields": { "taxYear": "Tax Year *" },
+      "table": { "employee": "Employee", "taxYear": "Tax Year", "taxableIncome": "Taxable Income", "taxDeducted": "Tax Deducted", "cnssDeducted": "CNSS Deducted", "status": "Status", "actions": "Actions" },
+      "states": { "loading": "Loading declarations...", "empty": "No declarations generated yet." },
+      "statuses": { "generated": "Generated" },
+      "toasts": { "generated": "IRPP declarations generated" }
+    },
+    "loans": {
+      "layoutTitle": "Payroll - Loans & Advances",
+      "title": "Loans & Advances",
+      "description": "Manage and track employee financial assistance programs.",
+      "tabs": { "loans": "Employee Loans", "advances": "Salary Advances" },
+      "actions": { "recordLoan": "Record Loan", "requestAdvance": "Request Advance" },
+      "dialogs": { "loanTitle": "Record Employee Loan", "advanceTitle": "Record Salary Advance" },
+      "fields": { "employee": "Employee *", "loanAmount": "Total Loan Amount (TND) *", "installmentAmount": "Monthly Repayment Installment (TND) *", "startDate": "Start Date *", "advanceAmount": "Amount (TND) *", "requestDate": "Request Date *", "deductionDate": "Deduction Date *" },
+      "placeholders": { "selectEmployee": "Select Employee" },
+      "table": { "employee": "Employee", "totalAmount": "Total Amount", "monthlyInstallment": "Monthly Installment", "remainingBalance": "Remaining Balance", "startDate": "Start Date", "status": "Status", "amount": "Amount", "requestDate": "Request Date", "scheduledDeduction": "Scheduled Deduction" },
+      "states": { "loadingLoans": "Loading loans...", "noLoans": "No employee loans registered.", "loadingAdvances": "Loading advances...", "noAdvances": "No salary advances registered." },
+      "statuses": { "active": "Active", "approved": "Approved", "deducted": "Deducted" },
+      "toasts": { "loanRecorded": "Loan recorded successfully", "advanceRecorded": "Salary advance recorded successfully" }
+    },
+    "components": {
+      "layoutTitle": "Payroll - Components",
+      "title": "Salary Components",
+      "description": "Manage base components, allowances, bonuses, and social/tax rules.",
+      "actions": { "newComponent": "New Component" },
+      "dialogs": { "createTitle": "Create Component", "editTitle": "Edit Component" },
+      "fields": { "code": "Code *", "name": "Name *", "type": "Type *", "taxable": "Taxable *", "subjectToCnss": "Subject to CNSS *", "status": "Status *", "description": "Description" },
+      "placeholders": { "code": "e.g. TRANSPORT_ALLOWANCE", "name": "e.g. Transport Allowance" },
+      "options": { "earning": "EARNING (E.g. Allowance, Bonus)", "deduction": "DEDUCTION (E.g. Taxes, Loan repayment)", "employerContribution": "EMPLOYER CONTRIBUTION", "yes": "Yes", "no": "No", "active": "Active", "inactive": "Inactive" },
+      "table": { "code": "Code", "name": "Name", "type": "Type", "taxable": "Taxable", "cnss": "CNSS", "status": "Status", "actions": "Actions" },
+      "states": { "loading": "Loading components...", "empty": "No salary components found." },
+      "confirmations": { "delete": "Delete component?" },
+      "toasts": { "created": "Salary component created", "updated": "Salary component updated", "deleted": "Salary component deleted" }
+    },
+    "thirteenthMonth": {
+      "layoutTitle": "Payroll - 13th Month",
+      "title": "13th Month Salary",
+      "description": "Generate 13th month payslips for a payroll period.",
+      "actions": { "generate": "Generate 13th Month" },
+      "dialogs": { "generateTitle": "Generate 13th Month Payslips" },
+      "fields": { "payrollPeriod": "Payroll Period" },
+      "placeholders": { "selectPeriod": "Select period..." },
+      "cards": { "generatedPayslips": "Generated Payslips", "grossTotal": "Gross Total (TND)", "netTotal": "Net Total (TND)" },
+      "states": { "enabledAt": "Enabled at {{rate}}% of base salary", "disabled": "13th month is currently disabled in payroll settings." },
+      "toasts": { "generated": "13th month payslips generated", "failed": "Failed to generate 13th month" }
+    },
+    "stc": {
+      "layoutTitle": "Payroll - STC Settlements",
+      "title": "STC Settlements",
+      "description": "Generate STC settlement files for salary transfers.",
+      "actions": { "generateFile": "Generate STC File" },
+      "toasts": { "generated": "STC settlement generated", "popupBlocked": "Popup blocked. Please allow popups to export the settlement PDF." }
     }
   }
 }

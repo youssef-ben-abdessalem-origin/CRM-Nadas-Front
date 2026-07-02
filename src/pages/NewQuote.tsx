@@ -44,8 +44,10 @@ import { useDefaultCurrency } from "@/hooks/useDefaultCurrency";
 import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function NewQuote() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const isEdit = !!id;
   const queryClient = useQueryClient();

@@ -32,8 +32,10 @@ import { Plus, Pencil, Trash2, Package, Layers, DollarSign, BarChart3, Wrench, S
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 const ProductSettings = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState("categories");
@@ -91,7 +93,7 @@ const ProductSettings = () => {
     mutationFn: api.products.createCategory,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-categories"] });
-      toast.success("Category created successfully");
+      toast.success(t("productSettings.statusUpdates.categoryCreated"));
       setShowDialog(false);
       setName("");
     },
@@ -103,7 +105,7 @@ const ProductSettings = () => {
       api.products.updateCategory(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-categories"] });
-      toast.success("Category updated successfully");
+      toast.success(t("productSettings.statusUpdates.categoryUpdated"));
       setShowDialog(false);
       setEditingItem(null);
       setName("");
@@ -115,7 +117,7 @@ const ProductSettings = () => {
     mutationFn: api.products.deleteCategory,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-categories"] });
-      toast.success("Category deleted successfully");
+      toast.success(t("productSettings.statusUpdates.categoryDeleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -124,7 +126,7 @@ const ProductSettings = () => {
     mutationFn: api.products.createUnit,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-units"] });
-      toast.success("Unit created successfully");
+      toast.success(t("productSettings.statusUpdates.unitCreated"));
       setShowDialog(false);
       setName("");
     },
@@ -136,7 +138,7 @@ const ProductSettings = () => {
       api.products.updateUnit(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-units"] });
-      toast.success("Unit updated successfully");
+      toast.success(t("productSettings.statusUpdates.unitUpdated"));
       setShowDialog(false);
       setEditingItem(null);
       setName("");
@@ -148,7 +150,7 @@ const ProductSettings = () => {
     mutationFn: api.products.deleteUnit,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-units"] });
-      toast.success("Unit deleted successfully");
+      toast.success(t("productSettings.statusUpdates.unitDeleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -157,7 +159,7 @@ const ProductSettings = () => {
     mutationFn: api.products.createPricingModel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-pricing-models"] });
-      toast.success("Pricing model created successfully");
+      toast.success(t("productSettings.statusUpdates.pricingModelCreated"));
       setShowDialog(false);
       setName("");
     },
@@ -169,7 +171,7 @@ const ProductSettings = () => {
       api.products.updatePricingModel(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-pricing-models"] });
-      toast.success("Pricing model updated successfully");
+      toast.success(t("productSettings.statusUpdates.pricingModelUpdated"));
       setShowDialog(false);
       setEditingItem(null);
       setName("");
@@ -181,7 +183,7 @@ const ProductSettings = () => {
     mutationFn: api.products.deletePricingModel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-pricing-models"] });
-      toast.success("Pricing model deleted successfully");
+      toast.success(t("productSettings.statusUpdates.pricingModelDeleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -190,7 +192,7 @@ const ProductSettings = () => {
     mutationFn: api.products.createPriceBook,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-price-books"] });
-      toast.success("Price Book created successfully");
+      toast.success(t("productSettings.statusUpdates.priceBookCreated"));
       setShowDialog(false);
       setName("");
     },
@@ -202,7 +204,7 @@ const ProductSettings = () => {
       api.products.updatePriceBook(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-price-books"] });
-      toast.success("Price Book updated successfully");
+      toast.success(t("productSettings.statusUpdates.priceBookUpdated"));
       setShowDialog(false);
       setEditingItem(null);
       setName("");
@@ -214,7 +216,7 @@ const ProductSettings = () => {
     mutationFn: api.products.deletePriceBook,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-price-books"] });
-      toast.success("Price Book deleted successfully");
+      toast.success(t("productSettings.statusUpdates.priceBookDeleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -223,7 +225,7 @@ const ProductSettings = () => {
     mutationFn: api.products.createType,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-types"] });
-      toast.success("Product type created successfully");
+      toast.success(t("productSettings.statusUpdates.productTypeCreated"));
       setShowDialog(false);
       setName(""); setCode(""); setDescription("");
     },
@@ -235,7 +237,7 @@ const ProductSettings = () => {
       api.products.updateType(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-types"] });
-      toast.success("Product type updated successfully");
+      toast.success(t("productSettings.statusUpdates.productTypeUpdated"));
       setShowDialog(false);
       setEditingItem(null);
       setName(""); setCode(""); setDescription("");
@@ -247,7 +249,7 @@ const ProductSettings = () => {
     mutationFn: api.products.deleteType,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-types"] });
-      toast.success("Product type deleted successfully");
+      toast.success(t("productSettings.statusUpdates.productTypeDeleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -256,7 +258,7 @@ const ProductSettings = () => {
     mutationFn: (data: { name: string }) => api.products.createBrand(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-brands"] });
-      toast.success("Brand created successfully");
+      toast.success(t("productSettings.statusUpdates.brandCreated"));
       setShowDialog(false);
       setName("");
     },
@@ -267,7 +269,7 @@ const ProductSettings = () => {
       api.products.updateBrand(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-brands"] });
-      toast.success("Brand updated successfully");
+      toast.success(t("productSettings.statusUpdates.brandUpdated"));
       setShowDialog(false);
       setEditingItem(null);
       setName("");
@@ -278,7 +280,7 @@ const ProductSettings = () => {
     mutationFn: api.products.deleteBrand,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-brands"] });
-      toast.success("Brand deleted successfully");
+      toast.success(t("productSettings.statusUpdates.brandDeleted"));
     },
   });
 
@@ -286,7 +288,7 @@ const ProductSettings = () => {
     mutationFn: api.products.createTaxClass,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-tax-classes"] });
-      toast.success("Tax class created successfully");
+      toast.success(t("productSettings.statusUpdates.taxClassCreated"));
       setShowDialog(false);
       setName(""); setRate(0);
     },
@@ -297,7 +299,7 @@ const ProductSettings = () => {
       api.products.updateTaxClass(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-tax-classes"] });
-      toast.success("Tax class updated successfully");
+      toast.success(t("productSettings.statusUpdates.taxClassUpdated"));
       setShowDialog(false);
       setEditingItem(null);
       setName(""); setRate(0);
@@ -308,12 +310,12 @@ const ProductSettings = () => {
     mutationFn: api.products.deleteTaxClass,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product-tax-classes"] });
-      toast.success("Tax class deleted successfully");
+      toast.success(t("productSettings.statusUpdates.taxClassDeleted"));
     },
   });
 
   const handleSubmit = () => {
-    if (!name.trim()) return toast.error("Name is required");
+    if (!name.trim()) return toast.error(t("productSettings.errors.nameRequired"));
 
     const payload = { name, parentId };
     
@@ -350,10 +352,10 @@ const ProductSettings = () => {
 
   const handleDelete = async (id: string) => {
     if (await confirm({ 
-      title: `Delete ${getActiveTabTitle()}`, 
-      description: `Are you sure you want to delete this ${getActiveTabTitle().toLowerCase()}? This action may impact existing products and records.`,
+      title: t("productSettings.deleteDialog.title", { item: getActiveTabTitle() }), 
+      description: t("productSettings.deleteDialog.description", { item: getActiveTabTitle().toLowerCase() }),
       variant: "destructive",
-      confirmText: "Delete"
+      confirmText: t("common.delete")
     })) {
       const deletions: any = {
         categories: () => deleteCategoryMutation.mutate(id),
@@ -397,59 +399,59 @@ const ProductSettings = () => {
 
   const getActiveTabTitle = () => {
     switch(activeTab) {
-      case "categories": return "Category";
-      case "units": return "Unit";
-      case "brands": return "Brand";
-      case "tax-classes": return "Tax Class";
-      case "pricing-models": return "Pricing Model";
-      case "price-books": return "Price List";
-      case "product-types": return "Product Type";
-      default: return "Item";
+      case "categories": return t("productSettings.tabTitles.category");
+      case "units": return t("productSettings.tabTitles.unit");
+      case "brands": return t("productSettings.tabTitles.brand");
+      case "tax-classes": return t("productSettings.tabTitles.taxClass");
+      case "pricing-models": return t("productSettings.tabTitles.pricingModel");
+      case "price-books": return t("productSettings.tabTitles.priceList");
+      case "product-types": return t("productSettings.tabTitles.productType");
+      default: return t("productSettings.tabTitles.default");
     }
   };
 
   return (
-    <CRMLayout title="Product Catalog Settings">
+    <CRMLayout title={t("productSettings.pageTitle")}>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Product Catalog Settings</h1>
-            <p className="text-muted-foreground">Configure the core definitions that power your product ecosystem</p>
+            <h1 className="text-2xl font-bold">{t("productSettings.pageTitle")}</h1>
+            <p className="text-muted-foreground">{t("productSettings.subtitle")}</p>
           </div>
           <Button onClick={() => { setName(""); setCode(""); setDescription(""); setCurrency("USD"); setIsActive(true); setEditingItem(null); setShowDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" /> Add {getActiveTabTitle()}
+            <Plus className="h-4 w-4 mr-2" /> {t("productSettings.addItem", { item: getActiveTabTitle() })}
           </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-muted/50 p-1">
             <TabsTrigger value="categories" className="flex items-center gap-2">
-              <Layers className="h-4 w-4" /> Categories
+              <Layers className="h-4 w-4" /> {t("productSettings.tabs.categories")}
             </TabsTrigger>
             <TabsTrigger value="product-types" className="flex items-center gap-2">
-              <Wrench className="h-4 w-4" /> Product Types
+              <Wrench className="h-4 w-4" /> {t("productSettings.tabs.productTypes")}
             </TabsTrigger>
             <TabsTrigger value="brands" className="flex items-center gap-2">
-              <Bookmark className="h-4 w-4" /> Brands
+              <Bookmark className="h-4 w-4" /> {t("productSettings.tabs.brands")}
             </TabsTrigger>
             <TabsTrigger value="tax-classes" className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4" /> Tax Rates
+              <ShieldCheck className="h-4 w-4" /> {t("productSettings.tabs.taxClasses")}
             </TabsTrigger>
             <TabsTrigger value="price-books" className="flex items-center gap-2">
-               <DollarSign className="h-4 w-4" /> Price Lists
+               <DollarSign className="h-4 w-4" /> {t("productSettings.tabs.priceBooks")}
             </TabsTrigger>
             <TabsTrigger value="units" className="flex items-center gap-2">
-              <Package className="h-4 w-4" /> Units
+              <Package className="h-4 w-4" /> {t("productSettings.tabs.units")}
             </TabsTrigger>
             <TabsTrigger value="pricing-models" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" /> Pricing Models
+              <BarChart3 className="h-4 w-4" /> {t("productSettings.tabs.pricingModels")}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="categories" className="mt-4">
             <Card className="overflow-hidden">
                {categoriesLoading ? (
-                 <div className="p-8 text-center text-muted-foreground italic">Loading categories...</div>
+                 <div className="p-8 text-center text-muted-foreground italic">{t("productSettings.loading.categories")}</div>
                ) : (
                  <div className="divide-y">
                     {renderCategoryTree(categories)}
@@ -463,15 +465,15 @@ const ProductSettings = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                     <TableHead>Type Name</TableHead>
-                     <TableHead>Internal Code</TableHead>
-                     <TableHead>Description</TableHead>
-                     <TableHead className="text-right">Actions</TableHead>
+                     <TableHead>{t("productSettings.table.typeName")}</TableHead>
+                     <TableHead>{t("productSettings.table.internalCode")}</TableHead>
+                     <TableHead>{t("common.description")}</TableHead>
+                     <TableHead className="text-right">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {productTypesLoading ? (
-                    <TableRow><TableCell colSpan={4} className="text-center italic opacity-40">Loading Types...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={4} className="text-center italic opacity-40">{t("productSettings.loading.types")}</TableCell></TableRow>
                   ) : (
                     productTypes.map((t: any) => (
                       <TableRow key={t.id}>
@@ -492,7 +494,7 @@ const ProductSettings = () => {
                     ))
                   )}
                   {productTypes.length === 0 && !productTypesLoading && (
-                    <TableRow><TableCell colSpan={4} className="text-center py-12 text-muted-foreground italic">No Strategic Product Types Defined</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={4} className="text-center py-12 text-muted-foreground italic">{t("productSettings.empty.types")}</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
@@ -504,13 +506,13 @@ const ProductSettings = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                     <TableHead>Brand Name</TableHead>
-                     <TableHead className="text-right">Actions</TableHead>
+                     <TableHead>{t("productSettings.table.brandName")}</TableHead>
+                     <TableHead className="text-right">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {brandsLoading ? (
-                    <TableRow><TableCell colSpan={2} className="text-center italic opacity-40">Loading Brands...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={2} className="text-center italic opacity-40">{t("productSettings.loading.brands")}</TableCell></TableRow>
                   ) : (
                     brandsList.map((b: any) => (
                       <TableRow key={b.id}>
@@ -529,7 +531,7 @@ const ProductSettings = () => {
                     ))
                   )}
                   {brandsList.length === 0 && !brandsLoading && (
-                    <TableRow><TableCell colSpan={2} className="text-center py-12 text-muted-foreground italic">No Brands Defined</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={2} className="text-center py-12 text-muted-foreground italic">{t("productSettings.empty.brands")}</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
@@ -541,14 +543,14 @@ const ProductSettings = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                     <TableHead>Tax Class Name</TableHead>
-                     <TableHead>Rate (%)</TableHead>
-                     <TableHead className="text-right">Actions</TableHead>
+                     <TableHead>{t("productSettings.table.taxClassName")}</TableHead>
+                     <TableHead>{t("productSettings.table.rate")}</TableHead>
+                     <TableHead className="text-right">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {taxClassesLoading ? (
-                    <TableRow><TableCell colSpan={3} className="text-center italic opacity-40">Loading Tax Classes...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={3} className="text-center italic opacity-40">{t("productSettings.loading.taxClasses")}</TableCell></TableRow>
                   ) : (
                     taxClasses.map((t: any) => (
                       <TableRow key={t.id}>
@@ -568,7 +570,7 @@ const ProductSettings = () => {
                     ))
                   )}
                   {taxClasses.length === 0 && !taxClassesLoading && (
-                    <TableRow><TableCell colSpan={3} className="text-center py-12 text-muted-foreground italic">No Tax Classes Defined</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={3} className="text-center py-12 text-muted-foreground italic">{t("productSettings.empty.taxClasses")}</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
@@ -580,23 +582,23 @@ const ProductSettings = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Price List Name</TableHead>
-                    <TableHead>Currency</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("productSettings.table.priceListName")}</TableHead>
+                    <TableHead>{t("productSettings.table.currency")}</TableHead>
+                    <TableHead>{t("common.status")}</TableHead>
+                    <TableHead className="text-right">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {priceBooksLoading ? (
-                    <TableRow><TableCell colSpan={4} className="text-center">Loading...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={4} className="text-center">{t("common.loading")}</TableCell></TableRow>
                   ) : (
                     priceBooks.map((pb: any) => (
                       <TableRow key={pb.id}>
-                        <TableCell className="font-medium">{pb.name}{pb.isDefault && <Badge variant="outline" className="ml-2">Default</Badge>}</TableCell>
+                        <TableCell className="font-medium">{pb.name}{pb.isDefault && <Badge variant="outline" className="ml-2">{t("common.default")}</Badge>}</TableCell>
                         <TableCell><span className="font-mono text-xs">{pb.currency}</span></TableCell>
                         <TableCell>
                           <Badge variant={pb.isActive ? "default" : "secondary"}>
-                            {pb.isActive ? "Active" : "Inactive"}
+                            {pb.isActive ? t("common.active") : t("common.inactive")}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
@@ -622,13 +624,13 @@ const ProductSettings = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Unit Name</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("productSettings.table.unitName")}</TableHead>
+                    <TableHead className="text-right">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {unitsLoading ? (
-                    <TableRow><TableCell colSpan={2} className="text-center">Loading...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={2} className="text-center">{t("common.loading")}</TableCell></TableRow>
                   ) : (
                     units.map((unit: any) => (
                       <TableRow key={unit.id}>
@@ -656,13 +658,13 @@ const ProductSettings = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Pricing Model Name</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("productSettings.table.pricingModelName")}</TableHead>
+                    <TableHead className="text-right">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pricingModelsLoading ? (
-                    <TableRow><TableCell colSpan={2} className="text-center">Loading...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={2} className="text-center">{t("common.loading")}</TableCell></TableRow>
                   ) : (
                     pricingModels.map((model: any) => (
                       <TableRow key={model.id}>
@@ -690,18 +692,18 @@ const ProductSettings = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingItem ? "Edit" : "Add"} {getActiveTabTitle()}</DialogTitle>
+            <DialogTitle>{editingItem ? t("common.edit") : t("common.add")} {getActiveTabTitle()}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Name *</Label>
+              <Label>{t("common.name")} *</Label>
               <Input
                 placeholder={
                   activeTab === 'price-books' 
-                    ? 'Global Price List' 
+                    ? t("productSettings.placeholders.priceListName")
                     : activeTab === 'product-types' 
-                      ? 'Enterprise Service' 
-                      : 'Software, Unit, etc.'
+                      ? t("productSettings.placeholders.typeName")
+                      : t("productSettings.placeholders.name")
                 }
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -711,18 +713,18 @@ const ProductSettings = () => {
             {activeTab === 'product-types' && (
               <>
                 <div className="space-y-2">
-                   <Label>Code *</Label>
+                   <Label>{t('productSettings.code')} *</Label>
                    <Input 
-                     placeholder="e.g. physical, digital, service" 
+                     placeholder={t("productSettings.placeholders.code")} 
                      value={code} 
                      onChange={(e) => setCode(e.target.value)}
                      className="font-mono"
                    />
                 </div>
                 <div className="space-y-2">
-                   <Label>Description</Label>
+                   <Label>{t('common.description')}</Label>
                    <Input 
-                     placeholder="Brief description..." 
+                     placeholder={t("productSettings.placeholders.description")} 
                      value={description} 
                      onChange={(e) => setDescription(e.target.value)}
                    />
@@ -732,10 +734,10 @@ const ProductSettings = () => {
 
             {activeTab === 'tax-classes' && (
               <div className="space-y-2">
-                 <Label>Tax Rate (%) *</Label>
+                 <Label>{t('productSettings.taxRate')} (%) *</Label>
                  <Input 
                    type="number"
-                   placeholder="e.g. 21" 
+                   placeholder={t("productSettings.placeholders.taxRate")} 
                    value={rate} 
                    onChange={(e) => setRate(Number.parseFloat(e.target.value) || 0)}
                  />
@@ -745,10 +747,10 @@ const ProductSettings = () => {
             {activeTab === 'price-books' && (
                <>
                  <div className="space-y-2">
-                    <Label>Currency</Label>
+                    <Label>{t('productSettings.currency')}</Label>
                     <Select value={currency} onValueChange={setCurrency}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select currency" />
+                        <SelectValue placeholder={t("productSettings.placeholders.selectCurrency")} />
                       </SelectTrigger>
                       <SelectContent>
                         {allCurrencies.map((c: any) => (
@@ -770,13 +772,13 @@ const ProductSettings = () => {
                       onChange={(e) => setIsActive(e.target.checked)}
                       className="rounded border-gray-300"
                     />
-                    <Label htmlFor="isActive" className="cursor-pointer">Active and selectable in sales</Label>
+                    <Label htmlFor="isActive" className="cursor-pointer">{t("productSettings.activeInSales")}</Label>
                  </div>
                </>
             )}
 
             <Button onClick={handleSubmit} className="w-full">
-              {editingItem ? "Save Changes" : "Create Item"}
+              {editingItem ? t("common.saveChanges") : t("productSettings.createItem")}
             </Button>
           </div>
         </DialogContent>

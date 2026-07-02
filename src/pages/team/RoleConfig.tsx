@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -19,6 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { api, Permission } from "@/lib/api";
 
 const RoleConfig = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const isEdit = !!id && id !== "new";
   const navigate = useNavigate();
@@ -52,7 +54,7 @@ const RoleConfig = () => {
     mutationFn: (data: any) => isEdit && id ? api.roles.update(id, data) : api.roles.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["roles"] });
-      toast.success("Security permissions updated");
+      toast.success(t("team.roleConfig.status.updated"));
       navigate("/team/roles");
     },
   });
@@ -78,10 +80,10 @@ const RoleConfig = () => {
 
   if (isEdit && (loadingRole || !hasHydrated)) {
     return (
-      <CRMLayout title="Role Permissions">
+      <CRMLayout title={t("team.roleConfig.loadingTitle")}>
         <div className="flex items-center justify-center h-[60vh]">
           <p className="animate-pulse text-muted-foreground flex items-center gap-2">
-            <Shield className="h-5 w-5 animate-spin text-primary" /> Syncing authorization grid...
+            <Shield className="h-5 w-5 animate-spin text-primary" /> {t("team.roleConfig.loadingText")}
           </p>
         </div>
       </CRMLayout>
@@ -89,18 +91,18 @@ const RoleConfig = () => {
   }
 
   return (
-    <CRMLayout title={`Edit Permissions - ${roleData?.name || ''}`}>
+    <CRMLayout title={t("team.roleConfig.pageTitle", { name: roleData?.name || '' })}>
       <div className="max-w-7xl mx-auto space-y-8 pb-20">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
           <div className="flex items-center gap-5">
 
             <div>
               <h1 className="text-3xl font-black tracking-tighter flex items-center gap-3">
-                Edit Role Permissions
+                {t("team.roleConfig.title")}
 
               </h1>
               <p className="text-xs text-muted-foreground mt-1 font-medium italic opacity-60">
-                Configure individual access hooks and execution rights.
+                {t("team.roleConfig.description")}
               </p>
             </div>
           </div>
@@ -110,7 +112,7 @@ const RoleConfig = () => {
               className="h-10 px-6 font-bold uppercase tracking-widest text-[10px] text-muted-foreground hover:text-white"
               onClick={() => navigate("/team/roles")}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               className="h-10 px-8 font-black uppercase tracking-widest text-[10px] bg-primary hover:bg-secondary text-white shadow-lg transition-all"
@@ -118,7 +120,7 @@ const RoleConfig = () => {
               disabled={mutation.isPending}
             >
               <Save className="h-4 w-4 mr-2" />
-              {mutation.isPending ? "Updating..." : "Save Role"}
+              {mutation.isPending ? t("team.roleConfig.actions.updating") : t("team.roleConfig.actions.save")}
             </Button>
           </div>
         </div>
@@ -129,14 +131,14 @@ const RoleConfig = () => {
               <div className="flex items-center gap-4">
 
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-white">Special Operations & System Hooks</h3>
-                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.1em] opacity-50">Operational Authorization Framework</p>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-white">{t("team.roleConfig.sectionTitle")}</h3>
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-[0.1em] opacity-50">{t("team.roleConfig.sectionSubtitle")}</p>
                 </div>
               </div>
               <div className="relative w-full md:w-80">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground opacity-40" />
                 <Input
-                  placeholder="Search execution hooks..."
+                  placeholder={t("team.roleConfig.searchPlaceholder")}
                   className="pl-9 h-11 bg-background border-[#1f2128] focus:border-primary text-xs font-medium rounded-xl w-full"
                   value={permSearch}
                   onChange={(e) => setPermSearch(e.target.value)}

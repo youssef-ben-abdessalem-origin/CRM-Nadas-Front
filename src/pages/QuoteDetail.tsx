@@ -46,8 +46,10 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { CurrencyNumbers } from "@/components/CurrencyNumbers";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "react-i18next";
 
 const QuotePrintTemplate = ({ quote, company }: { quote: any, company: any }) => {
+  const { t } = useTranslation();
     return (
         <div className="hidden print:block bg-white text-black p-[35px] min-h-[297mm] w-[210mm] mx-auto font-sans leading-tight [print-color-adjust:exact]">
             {/* Header section matching the user image */}

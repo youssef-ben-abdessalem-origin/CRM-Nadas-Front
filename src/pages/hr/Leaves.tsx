@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Check, X, FileText, Settings, CalendarRange, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function getEffectiveBalance(balance: any) {
   return balance.monthlyBreakdown
@@ -20,10 +21,10 @@ function getEffectiveBalance(balance: any) {
 }
 
 export default function Leaves() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("requests");
 
-  // Dialog State: Request Leave
   const [isRequestOpen, setIsRequestOpen] = useState(false);
   const [selectedEmpId, setSelectedEmpId] = useState("");
   const [selectedTypeId, setSelectedTypeId] = useState("");
@@ -45,7 +46,6 @@ export default function Leaves() {
     }
   }, [startDate, endDate]);
 
-  // Dialog State: Create Type
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [typeCode, setTypeCode] = useState("");
   const [typeName, setTypeName] = useState("");
@@ -59,7 +59,6 @@ export default function Leaves() {
   const [typeMaxDays, setTypeMaxDays] = useState("");
   const [typeCarryForward, setTypeCarryForward] = useState("false");
 
-  // Queries
   const { data: requests = [], isLoading: loadingRequests } = useQuery({
     queryKey: ["leaveRequests"],
     queryFn: () => api.hr.leaveRequests.getAll(),
@@ -103,12 +102,11 @@ export default function Leaves() {
     }
   }, [availableLeaveBalances, selectedTypeId]);
 
-  // Mutations
   const createRequestMutation = useMutation({
     mutationFn: api.hr.leaveRequests.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaveRequests"] });
-      toast.success("Leave request submitted successfully");
+      toast.success(t("hr.statusUpdates.leaveRequestSubmitted"));
       setIsRequestOpen(false);
       resetRequestForm();
     },
@@ -118,7 +116,7 @@ export default function Leaves() {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.hr.leaveRequests.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaveRequests"] });
-      toast.success("Leave request updated");
+      toast.success(t("hr.statusUpdates.leaveRequestUpdated"));
     },
   });
 
@@ -126,7 +124,7 @@ export default function Leaves() {
     mutationFn: api.hr.leaveTypes.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaveTypes"] });
-      toast.success("Leave type created successfully");
+      toast.success(t("hr.statusUpdates.leaveTypeCreated"));
       setIsTypeOpen(false);
       resetTypeForm();
     },
@@ -136,7 +134,7 @@ export default function Leaves() {
     mutationFn: api.hr.leaveTypes.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaveTypes"] });
-      toast.success("Leave type deleted");
+      toast.success(t("hr.statusUpdates.leaveTypeDeleted"));
     },
   });
 
@@ -186,37 +184,36 @@ export default function Leaves() {
   };
 
   return (
-    <CRMLayout title="HR - Leaves">
+    <CRMLayout title={t("hr.leaves.pageTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Leaves & Absences</h1>
-            <p className="text-muted-foreground">Manage employee time-off, leave requests, and configurations.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.leaves.title")}</h1>
+            <p className="text-muted-foreground">{t("hr.leaves.description")}</p>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-2 max-w-sm">
-            <TabsTrigger value="requests" className="gap-2"><CalendarRange className="h-4 w-4" /> Requests</TabsTrigger>
-            <TabsTrigger value="types" className="gap-2"><Settings className="h-4 w-4" /> Config Types</TabsTrigger>
+            <TabsTrigger value="requests" className="gap-2"><CalendarRange className="h-4 w-4" /> {t("hr.leaves.tabs.requests")}</TabsTrigger>
+            <TabsTrigger value="types" className="gap-2"><Settings className="h-4 w-4" /> {t("hr.leaves.tabs.types")}</TabsTrigger>
           </TabsList>
 
-          {/* Leave Requests Tab */}
           <TabsContent value="requests" className="mt-4 flex flex-col gap-4">
             <div className="flex justify-end">
               <Dialog open={isRequestOpen} onOpenChange={setIsRequestOpen}>
                 <DialogTrigger asChild>
-                  <Button className="gap-2"><Plus className="h-4 w-4" /> Request Leave</Button>
+                  <Button className="gap-2"><Plus className="h-4 w-4" /> {t("hr.leaves.actions.requestLeave")}</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Submit Leave Request</DialogTitle>
+                    <DialogTitle>{t("hr.leaves.dialog.requestLeave")}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleRequestSubmit} className="flex flex-col gap-4 py-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Employee *</label>
+                      <label className="text-sm font-semibold">{t("hr.leaves.forms.employee")} *</label>
                       <Select value={selectedEmpId} onValueChange={setSelectedEmpId}>
-                        <SelectTrigger><SelectValue placeholder="Select Employee" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t("hr.leaves.placeholders.selectEmployee")} /></SelectTrigger>
                         <SelectContent>
                           {employees.map((emp) => (
                             <SelectItem key={emp.id} value={String(emp.id)}>{emp.firstName} {emp.lastName}</SelectItem>
@@ -225,49 +222,49 @@ export default function Leaves() {
                       </Select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Leave Type *</label>
+                      <label className="text-sm font-semibold">{t("hr.leaves.forms.leaveType")} *</label>
                       <Select value={selectedTypeId} onValueChange={setSelectedTypeId}>
-                        <SelectTrigger><SelectValue placeholder="Select Leave Type" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t("hr.leaves.placeholders.selectLeaveType")} /></SelectTrigger>
                         <SelectContent>
                           {availableLeaveBalances.map((balance) => (
                             <SelectItem key={balance.id} value={String(balance.leaveTypeId)}>
-                              {balance.leaveType?.name || "Unknown Leave Type"} ({balance.effectiveRemainingDays}/{balance.totalDays})
+                              {balance.leaveType?.name || t("hr.leaves.unknownLeaveType")} ({balance.effectiveRemainingDays}/{balance.totalDays})
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                       {selectedEmpId && availableLeaveBalances.length === 0 && (
-                        <p className="text-xs text-muted-foreground">This employee has no leave balances for the current year.</p>
+                        <p className="text-xs text-muted-foreground">{t("hr.leaves.noBalances")}</p>
                       )}
                       {currentBalance && (
                         <p className="text-xs text-muted-foreground">
-                          Remaining: {currentBalance.effectiveRemainingDays} / {currentBalance.totalDays} days
+                          {t("hr.leaves.remaining")}: {currentBalance.effectiveRemainingDays} / {currentBalance.totalDays} {t("hr.leaves.days")}
                         </p>
                       )}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Start Date *</label>
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.startDate")} *</label>
                         <Input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">End Date *</label>
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.endDate")} *</label>
                         <Input required type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Days Count *</label>
+                      <label className="text-sm font-semibold">{t("hr.leaves.forms.daysCount")} *</label>
                       <Input required type="number" step="0.5" value={days} readOnly className="bg-muted" />
                       {currentBalance && days && +days > currentBalance.effectiveRemainingDays && (
-                        <p className="text-xs text-rose-500">Exceeds remaining balance ({currentBalance.effectiveRemainingDays} days)</p>
+                        <p className="text-xs text-rose-500">{t("hr.leaves.exceedsBalance", { remaining: currentBalance.effectiveRemainingDays })}</p>
                       )}
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Reason</label>
-                      <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason for time off" />
+                      <label className="text-sm font-semibold">{t("hr.leaves.forms.reason")}</label>
+                      <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("hr.leaves.placeholders.reason")} />
                     </div>
                     <div className="flex justify-end gap-2 mt-4">
-                      <Button type="button" variant="outline" onClick={() => setIsRequestOpen(false)}>Cancel</Button>
+                      <Button type="button" variant="outline" onClick={() => setIsRequestOpen(false)}>{t("common.cancel")}</Button>
                         <Button
                           type="submit"
                           disabled={
@@ -276,7 +273,7 @@ export default function Leaves() {
                             (!!currentBalance && !!days && +days > currentBalance.effectiveRemainingDays)
                           }
                         >
-                          Submit
+                          {t("hr.leaves.actions.submit")}
                         </Button>
                     </div>
                   </form>
@@ -288,23 +285,23 @@ export default function Leaves() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Days</TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("hr.leaves.table.employee")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.type")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.duration")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.days")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.reason")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.status")}</TableHead>
+                    <TableHead className="text-right">{t("hr.leaves.table.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loadingRequests ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">Loading requests...</TableCell>
+                      <TableCell colSpan={7} className="text-center py-8">{t("hr.leaves.loadingRequests")}</TableCell>
                     </TableRow>
                   ) : requests.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8">No leave requests logged.</TableCell>
+                      <TableCell colSpan={7} className="text-center py-8">{t("hr.leaves.emptyRequests")}</TableCell>
                     </TableRow>
                   ) : (
                     requests.map((req) => (
@@ -339,99 +336,98 @@ export default function Leaves() {
             </Card>
           </TabsContent>
 
-          {/* Config Types Tab */}
           <TabsContent value="types" className="mt-4 flex flex-col gap-4">
             <div className="flex justify-end">
               <Dialog open={isTypeOpen} onOpenChange={setIsTypeOpen}>
                 <DialogTrigger asChild>
-                  <Button className="gap-2"><Plus className="h-4 w-4" /> New Leave Type</Button>
+                  <Button className="gap-2"><Plus className="h-4 w-4" /> {t("hr.leaves.actions.newLeaveType")}</Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
                   <DialogHeader>
-                    <DialogTitle>Create Leave Type</DialogTitle>
+                    <DialogTitle>{t("hr.leaves.dialog.createType")}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleTypeSubmit} className="flex flex-col gap-4 py-4">
                     <div className="grid grid-cols-3 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Code *</label>
-                        <Input required value={typeCode} onChange={(e) => setTypeCode(e.target.value)} placeholder="e.g. AL" />
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.code")} *</label>
+                        <Input required value={typeCode} onChange={(e) => setTypeCode(e.target.value)} placeholder={t("hr.leaves.placeholders.code")} />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Name (EN) *</label>
-                        <Input required value={typeName} onChange={(e) => setTypeName(e.target.value)} placeholder="Annual Leave" />
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.nameEn")} *</label>
+                        <Input required value={typeName} onChange={(e) => setTypeName(e.target.value)} placeholder={t("hr.leaves.placeholders.nameEn")} />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Name (FR)</label>
-                        <Input value={typeNameFr} onChange={(e) => setTypeNameFr(e.target.value)} placeholder="Congé annuel" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Name (AR)</label>
-                        <Input value={typeNameAr} onChange={(e) => setTypeNameAr(e.target.value)} placeholder="إجازة سنوية" />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Description</label>
-                        <Input value={typeDesc} onChange={(e) => setTypeDesc(e.target.value)} placeholder="Brief description" />
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.nameFr")}</label>
+                        <Input value={typeNameFr} onChange={(e) => setTypeNameFr(e.target.value)} placeholder={t("hr.leaves.placeholders.nameFr")} />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Paid Status *</label>
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.nameAr")}</label>
+                        <Input value={typeNameAr} onChange={(e) => setTypeNameAr(e.target.value)} placeholder={t("hr.leaves.placeholders.nameAr")} />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.description")}</label>
+                        <Input value={typeDesc} onChange={(e) => setTypeDesc(e.target.value)} placeholder={t("hr.leaves.placeholders.description")} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.paidStatus")} *</label>
                         <Select value={typePaid} onValueChange={setTypePaid}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="true">Paid Leave</SelectItem>
-                            <SelectItem value="false">Unpaid Leave</SelectItem>
+                            <SelectItem value="true">{t("hr.leaves.options.paid")}</SelectItem>
+                            <SelectItem value="false">{t("hr.leaves.options.unpaid")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Requires Approval</label>
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.requiresApproval")}</label>
                         <Select value={typeRequiresApproval} onValueChange={setTypeRequiresApproval}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="true">Yes</SelectItem>
-                            <SelectItem value="false">No</SelectItem>
+                            <SelectItem value="true">{t("common.yes")}</SelectItem>
+                            <SelectItem value="false">{t("common.no")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Annual Limit (days)</label>
-                        <Input type="number" value={typeLimit} onChange={(e) => setTypeLimit(e.target.value)} placeholder="Optional" />
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.annualLimit")}</label>
+                        <Input type="number" value={typeLimit} onChange={(e) => setTypeLimit(e.target.value)} placeholder={t("hr.leaves.placeholders.optional")} />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Max Consecutive Days</label>
-                        <Input type="number" value={typeMaxDays} onChange={(e) => setTypeMaxDays(e.target.value)} placeholder="Optional" />
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.maxConsecutiveDays")}</label>
+                        <Input type="number" value={typeMaxDays} onChange={(e) => setTypeMaxDays(e.target.value)} placeholder={t("hr.leaves.placeholders.optional")} />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Requires Documents</label>
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.requiresDocs")}</label>
                         <Select value={typeRequiresDocs} onValueChange={setTypeRequiresDocs}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="true">Yes</SelectItem>
-                            <SelectItem value="false">No</SelectItem>
+                            <SelectItem value="true">{t("common.yes")}</SelectItem>
+                            <SelectItem value="false">{t("common.no")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Carry Forward Allowed</label>
+                        <label className="text-sm font-semibold">{t("hr.leaves.forms.carryForward")}</label>
                         <Select value={typeCarryForward} onValueChange={setTypeCarryForward}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="true">Yes</SelectItem>
-                            <SelectItem value="false">No</SelectItem>
+                            <SelectItem value="true">{t("common.yes")}</SelectItem>
+                            <SelectItem value="false">{t("common.no")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <div className="flex justify-end gap-2 mt-4">
-                      <Button type="button" variant="outline" onClick={() => { setIsTypeOpen(false); resetTypeForm(); }}>Cancel</Button>
-                      <Button type="submit" disabled={createTypeMutation.isPending}>Save</Button>
+                      <Button type="button" variant="outline" onClick={() => { setIsTypeOpen(false); resetTypeForm(); }}>{t("common.cancel")}</Button>
+                      <Button type="submit" disabled={createTypeMutation.isPending}>{t("common.save")}</Button>
                     </div>
                   </form>
                 </DialogContent>
@@ -442,24 +438,24 @@ export default function Leaves() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Paid</TableHead>
-                    <TableHead>Annual Limit</TableHead>
-                    <TableHead>Max Days</TableHead>
-                    <TableHead>Approval</TableHead>
-                    <TableHead>Carry Fwd</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("hr.leaves.table.code")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.name")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.paid")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.annualLimit")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.maxDays")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.approval")}</TableHead>
+                    <TableHead>{t("hr.leaves.table.carryFwd")}</TableHead>
+                    <TableHead className="text-right">{t("hr.leaves.table.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loadingTypes ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8">Loading types...</TableCell>
+                      <TableCell colSpan={8} className="text-center py-8">{t("hr.leaves.loadingTypes")}</TableCell>
                     </TableRow>
                   ) : types.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8">No leave types defined.</TableCell>
+                      <TableCell colSpan={8} className="text-center py-8">{t("hr.leaves.emptyTypes")}</TableCell>
                     </TableRow>
                   ) : (
                     types.map((t) => (
@@ -468,15 +464,15 @@ export default function Leaves() {
                         <TableCell>{t.name}</TableCell>
                         <TableCell>
                           <Badge variant={t.paid ? "default" : "secondary"}>
-                            {t.paid ? "Paid" : "Unpaid"}
+                            {t.paid ? t("hr.leaves.options.paid") : t("hr.leaves.options.unpaid")}
                           </Badge>
                         </TableCell>
                         <TableCell>{t.annualLimit ? `${t.annualLimit} d` : "—"}</TableCell>
                         <TableCell>{t.maxConsecutiveDays ? `${t.maxConsecutiveDays} d` : "—"}</TableCell>
-                        <TableCell>{t.requiresApproval ? "Yes" : "No"}</TableCell>
-                        <TableCell>{t.carryForwardAllowed ? "Yes" : "No"}</TableCell>
+                        <TableCell>{t.requiresApproval ? t("common.yes") : t("common.no")}</TableCell>
+                        <TableCell>{t.carryForwardAllowed ? t("common.yes") : t("common.no")}</TableCell>
                         <TableCell className="text-right">
-                          <Button size="icon" variant="ghost" onClick={() => { if (confirm("Delete leave type?")) deleteTypeMutation.mutate(t.id); }}>
+                          <Button size="icon" variant="ghost" onClick={() => { if (confirm(t("hr.leaves.confirmDeleteType"))) deleteTypeMutation.mutate(t.id); }}>
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>
                         </TableCell>

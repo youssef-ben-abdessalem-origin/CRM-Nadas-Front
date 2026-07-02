@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileSignature, FileText, Filter, PenLine } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { CRMLayout } from "@/components/crmlayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { listSignatureTasks, type SignatureTask } from "@/lib/signatures";
 
 export default function SignaturesInbox() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [tasks, setTasks] = useState<SignatureTask[]>([]);
   const [filter, setFilter] = useState<"all" | "pending" | "signed">("all");
@@ -25,19 +27,19 @@ export default function SignaturesInbox() {
   const pendingCount = tasks.filter((task) => task.status === "pending").length;
 
   return (
-    <CRMLayout title="Signatures">
+    <CRMLayout title={t("signatures.inbox.title")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="grid gap-4 lg:grid-cols-[1.6fr,1fr]">
           <Card className="glass-morphism border-violet-500/20 bg-violet-500/10">
             <CardContent className="flex items-center justify-between gap-4 p-6">
               <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-violet-200">My Account</p>
-                <h1 className="mt-3 text-3xl font-bold text-white">Signatures</h1>
-                <p className="mt-2 text-slate-300">Review and sign employee documents that are still awaiting your validation.</p>
+                <p className="text-sm uppercase tracking-[0.3em] text-violet-200">{t("signatures.inbox.account")}</p>
+                <h1 className="mt-3 text-3xl font-bold text-white">{t("signatures.inbox.title")}</h1>
+                <p className="mt-2 text-slate-300">{t("signatures.inbox.description")}</p>
               </div>
               <div className="rounded-3xl border border-white/10 bg-slate-950/40 px-6 py-5 text-center">
                 <div className="text-4xl font-bold text-white">{pendingCount}</div>
-                <div className="text-sm text-slate-300">documents to sign</div>
+                <div className="text-sm text-slate-300">{t("signatures.inbox.documentsToSign")}</div>
               </div>
             </CardContent>
           </Card>
@@ -45,8 +47,8 @@ export default function SignaturesInbox() {
           <Card className="glass-morphism">
             <CardContent className="flex h-full items-center justify-between gap-4 p-6">
               <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Filter</p>
-                <p className="mt-2 text-lg font-semibold text-slate-100">Signature queue</p>
+                <p className="text-sm uppercase tracking-[0.3em] text-slate-400">{t("signatures.inbox.filter")}</p>
+                <p className="mt-2 text-lg font-semibold text-slate-100">{t("signatures.inbox.queue")}</p>
               </div>
               <div className="w-48">
                 <Select value={filter} onValueChange={(value: "all" | "pending" | "signed") => setFilter(value)}>
@@ -55,9 +57,9 @@ export default function SignaturesInbox() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="signed">Signed</SelectItem>
+                    <SelectItem value="all">{t("signatures.status.all")}</SelectItem>
+                    <SelectItem value="pending">{t("signatures.status.pending")}</SelectItem>
+                    <SelectItem value="signed">{t("signatures.status.signed")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -70,8 +72,8 @@ export default function SignaturesInbox() {
             <CardContent className="flex items-center gap-4 p-6">
               <div className="rounded-2xl bg-violet-500/15 p-4 text-violet-300"><PenLine className="h-6 w-6" /></div>
               <div>
-                <p className="text-lg font-semibold">Signatures</p>
-                <p className="text-sm text-muted-foreground">Access documents waiting for signature.</p>
+                <p className="text-lg font-semibold">{t("signatures.inbox.title")}</p>
+                <p className="text-sm text-muted-foreground">{t("signatures.inbox.cards.signatureAccess")}</p>
               </div>
             </CardContent>
           </Card>
@@ -79,8 +81,8 @@ export default function SignaturesInbox() {
             <CardContent className="flex items-center gap-4 p-6">
               <div className="rounded-2xl bg-sky-500/15 p-4 text-sky-300"><FileSignature className="h-6 w-6" /></div>
               <div>
-                <p className="text-lg font-semibold">Signed Files</p>
-                <p className="text-sm text-muted-foreground">Track completed signed documents and saved exports.</p>
+                <p className="text-lg font-semibold">{t("signatures.inbox.cards.signedFiles")}</p>
+                <p className="text-sm text-muted-foreground">{t("signatures.inbox.cards.signedFilesDesc")}</p>
               </div>
             </CardContent>
           </Card>
@@ -88,8 +90,8 @@ export default function SignaturesInbox() {
             <CardContent className="flex items-center gap-4 p-6">
               <div className="rounded-2xl bg-emerald-500/15 p-4 text-emerald-300"><FileText className="h-6 w-6" /></div>
               <div>
-                <p className="text-lg font-semibold">Documents</p>
-                <p className="text-sm text-muted-foreground">See signable payroll and HR documents in one place.</p>
+                <p className="text-lg font-semibold">{t("signatures.inbox.cards.documents")}</p>
+                <p className="text-sm text-muted-foreground">{t("signatures.inbox.cards.documentsDesc")}</p>
               </div>
             </CardContent>
           </Card>
@@ -97,12 +99,12 @@ export default function SignaturesInbox() {
 
         <Card className="glass-morphism">
           <CardHeader>
-            <CardTitle>Documents</CardTitle>
+            <CardTitle>{t("signatures.inbox.documents")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {filteredTasks.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-slate-700 p-10 text-center text-slate-400">
-                No documents in this signature view yet.
+                {t("signatures.inbox.empty")}
               </div>
             ) : (
               filteredTasks.map((task) => (
@@ -118,7 +120,7 @@ export default function SignaturesInbox() {
                   </div>
                   <div className="text-right">
                     <Badge variant={task.status === "signed" ? "default" : "secondary"}>
-                      {task.status === "signed" ? "Signed" : "To Sign"}
+                      {task.status === "signed" ? t("signatures.status.signed") : t("signatures.status.toSign")}
                     </Badge>
                     <p className="mt-2 text-xs text-slate-500">
                       {task.signedAt ? new Date(task.signedAt).toLocaleDateString() : new Date(task.createdAt).toLocaleDateString()}

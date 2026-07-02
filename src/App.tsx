@@ -109,7 +109,7 @@ const App = () => {
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    const lang = i18n.language || 'en';
+    const lang = i18n.language || 'fr';
     const isArabic = lang.startsWith('ar');
     document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;

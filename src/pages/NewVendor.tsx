@@ -4,8 +4,10 @@ import { toast } from "sonner";
 import { CRMLayout } from "@/components/CRMLayout";
 import { VendorForm } from "@/components/vendors/VendorForm";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 const NewVendor = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const queryClient = useQueryClient();

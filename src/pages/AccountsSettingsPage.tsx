@@ -37,6 +37,7 @@ import {
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 interface DynamicOption {
   id: number;
@@ -49,6 +50,7 @@ interface DynamicOption {
 }
 
 export default function AccountsSettingsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [editingItem, setEditingItem] = useState<{ type: string; item: DynamicOption | null }>({ type: "", item: null });
@@ -103,7 +105,7 @@ export default function AccountsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} created successfully`);
+      toast.success(t("accountsSettings.statusUpdates.created", { type }));
       setShowAddDialog(false);
       setAddForm({});
     },
@@ -125,7 +127,7 @@ export default function AccountsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} updated successfully`);
+      toast.success(t("accountsSettings.statusUpdates.updated", { type }));
       setShowEditDialog(false);
       setEditingItem({ type: "", item: null });
       setEditForm({});
@@ -148,7 +150,7 @@ export default function AccountsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} deleted successfully`);
+      toast.success(t("accountsSettings.statusUpdates.deleted", { type }));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -167,7 +169,7 @@ export default function AccountsSettingsPage() {
 
   const handleAdd = () => {
     if (!addForm.name) {
-      toast.error("Name is required");
+      toast.error(t("accountsSettings.errors.nameRequired"));
       return;
     }
     createMutation.mutate({ type: addType, data: addForm });
@@ -175,7 +177,7 @@ export default function AccountsSettingsPage() {
 
   const handleEdit = () => {
     if (!editForm.name) {
-      toast.error("Name is required");
+      toast.error(t("accountsSettings.errors.nameRequired"));
       return;
     }
     if (!editingItem.item) return;
@@ -184,15 +186,15 @@ export default function AccountsSettingsPage() {
 
   const handleDelete = async (type: string, item: DynamicOption) => {
     if (item.isDefault) {
-      toast.error("Cannot delete the default item");
+      toast.error(t("accountsSettings.errors.cannotDeleteDefault"));
       return;
     }
     
     if (await confirm({
-      title: `Delete ${type}`,
-      description: `Are you sure you want to delete the "${item.name}" ${type.toLowerCase()}? This action cannot be undone and may affect associated accounts.`,
+      title: t("accountsSettings.deleteDialog.title", { type }),
+      description: t("accountsSettings.deleteDialog.description", { type, itemName: item.name }),
       variant: "destructive",
-      confirmText: "Delete"
+      confirmText: t("common.delete")
     })) {
       deleteMutation.mutate({ type, id: item.id });
     }
@@ -202,33 +204,32 @@ export default function AccountsSettingsPage() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="capitalize">{type}s</CardTitle>
-          <CardDescription>Manage your account {type.toLowerCase()}s</CardDescription>
+          <CardTitle className="capitalize">{t("accountsSettings.sectionTitle", { type })}</CardTitle>
+          <CardDescription>{t("accountsSettings.sectionDescription", { type })}</CardDescription>
         </div>
         <Button size="sm" onClick={() => openAdd(type)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add {type}
+          <Plus className="h-4 w-4 mr-2" /> {t("accountsSettings.addItem", { type })}
         </Button>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Color</TableHead>
-              <TableHead>Default</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("common.name")}</TableHead>
+              <TableHead>{t("common.color")}</TableHead>
+              <TableHead>{t("common.default")}</TableHead>
+              <TableHead className="text-right">{t("common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">Loading...</TableCell>
+                <TableCell colSpan={4} className="text-center py-8">{t("common.loading")}</TableCell>
               </TableRow>
             ) : items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                  No {type.toLowerCase()}s found
+                  {t("accountsSettings.noResults", { type })}
                 </TableCell>
               </TableRow>
             ) : (
@@ -278,18 +279,18 @@ export default function AccountsSettingsPage() {
   );
 
   return (
-    <CRMLayout title="Account Settings">
+    <CRMLayout title={t("accountsSettings.pageTitle")}>
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <Building2 className="h-6 w-6" />
-          <h1 className="text-2xl font-bold">Account Settings</h1>
+          <h1 className="text-2xl font-bold">{t("accountsSettings.pageTitle")}</h1>
         </div>
         
         <Tabs defaultValue="types" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="types">Types</TabsTrigger>
-            <TabsTrigger value="statuses">Statuses</TabsTrigger>
-            <TabsTrigger value="tiers">Tiers</TabsTrigger>
+            <TabsTrigger value="types">{t("accountsSettings.tabs.types")}</TabsTrigger>
+            <TabsTrigger value="statuses">{t("accountsSettings.tabs.statuses")}</TabsTrigger>
+            <TabsTrigger value="tiers">{t("accountsSettings.tabs.tiers")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="types">
@@ -310,20 +311,20 @@ export default function AccountsSettingsPage() {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add {addType}</DialogTitle>
-            <DialogDescription>Create a new {addType.toLowerCase()} for accounts.</DialogDescription>
+            <DialogTitle>{t("accountsSettings.addDialogTitle", { type: addType })}</DialogTitle>
+            <DialogDescription>{t("accountsSettings.addDialogDescription", { type: addType })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label>{t("common.name")}</Label>
               <Input
                 value={addForm.name || ""}
                 onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                placeholder={`Enter ${addType.toLowerCase()} name`}
+                placeholder={t("accountsSettings.placeholders.name", { type: addType })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("common.color")}</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="color"
@@ -342,10 +343,10 @@ export default function AccountsSettingsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleAdd} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create"}
+              {createMutation.isPending ? t("common.creating") : t("common.create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -355,20 +356,20 @@ export default function AccountsSettingsPage() {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit {editingItem.type}</DialogTitle>
-            <DialogDescription>Update the {editingItem.type?.toLowerCase()} details.</DialogDescription>
+            <DialogTitle>{t("accountsSettings.editDialogTitle", { type: editingItem.type })}</DialogTitle>
+            <DialogDescription>{t("accountsSettings.editDialogDescription", { type: editingItem.type })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label>{t("common.name")}</Label>
               <Input
                 value={editForm.name || ""}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                placeholder="Enter name"
+                placeholder={t("accountsSettings.placeholders.editName")}
               />
             </div>
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("common.color")}</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="color"
@@ -387,10 +388,10 @@ export default function AccountsSettingsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleEdit} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              {updateMutation.isPending ? t("common.saving") : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </DialogContent>

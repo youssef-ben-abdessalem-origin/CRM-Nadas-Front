@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 import { FileSpreadsheet, Download, Eye } from "lucide-react";
 
 export default function BankTransfers() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPeriodId, setSelectedPeriodId] = useState("");
@@ -34,7 +36,7 @@ export default function BankTransfers() {
       api.payroll.bankTransfers.generate(periodId, format),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bankTransfers"] });
-      toast.success("Bank transfer file generated");
+      toast.success(t("payrollPages.bankTransfers.toasts.generated"));
       setIsOpen(false);
     },
   });
@@ -50,26 +52,26 @@ export default function BankTransfers() {
   };
 
   return (
-    <CRMLayout title="Payroll - Bank Transfers">
+    <CRMLayout title={t("payrollPages.bankTransfers.layoutTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Bank Transfers</h1>
-            <p className="text-muted-foreground">Generate SEPA XML or CSV bank transfer files for payroll payments.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("payrollPages.bankTransfers.title")}</h1>
+            <p className="text-muted-foreground">{t("payrollPages.bankTransfers.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) { setSelectedPeriodId(""); setSelectedFormat("sepa"); } }}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><FileSpreadsheet className="h-4 w-4" /> Generate Transfer File</Button>
+              <Button className="gap-2"><FileSpreadsheet className="h-4 w-4" /> {t("payrollPages.bankTransfers.actions.generateFile")}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Generate Bank Transfer File</DialogTitle>
+                <DialogTitle>{t("payrollPages.bankTransfers.dialogs.generateTitle")}</DialogTitle>
               </DialogHeader>
               <div className="flex flex-col gap-4 py-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Payroll Period *</label>
+                  <label className="text-sm font-semibold">{t("payrollPages.bankTransfers.fields.payrollPeriod")}</label>
                   <Select value={selectedPeriodId} onValueChange={setSelectedPeriodId}>
-                    <SelectTrigger><SelectValue placeholder="Select Period" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("payrollPages.bankTransfers.placeholders.selectPeriod")} /></SelectTrigger>
                     <SelectContent>
                       {periods.map((p: any) => (
                         <SelectItem key={p.id} value={String(p.id)}>{p.periodName}</SelectItem>
@@ -78,12 +80,12 @@ export default function BankTransfers() {
                   </Select>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Format</label>
+                  <label className="text-sm font-semibold">{t("payrollPages.bankTransfers.fields.format")}</label>
                   <Select value={selectedFormat} onValueChange={setSelectedFormat}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sepa">SEPA XML (PAIN.001)</SelectItem>
-                      <SelectItem value="csv">CSV File</SelectItem>
+                      <SelectItem value="sepa">{t("payrollPages.bankTransfers.formats.sepa")}</SelectItem>
+                      <SelectItem value="csv">{t("payrollPages.bankTransfers.formats.csv")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -91,7 +93,7 @@ export default function BankTransfers() {
                   onClick={() => generateMutation.mutate({ periodId: +selectedPeriodId, format: selectedFormat })}
                   disabled={!selectedPeriodId || generateMutation.isPending}
                 >
-                  Generate
+                  {t("common.actions.create")}
                 </Button>
               </div>
             </DialogContent>
@@ -103,7 +105,7 @@ export default function BankTransfers() {
             <CardContent className="p-4">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold">{viewing.fileName}</h3>
-                <Button size="sm" variant="outline" onClick={() => setViewing(null)}>Close</Button>
+                <Button size="sm" variant="outline" onClick={() => setViewing(null)}>{t("common.close")}</Button>
               </div>
               <pre className="text-xs bg-muted p-4 rounded overflow-auto max-h-96 whitespace-pre-wrap break-all">
                 {viewing.fileContent}
@@ -116,21 +118,21 @@ export default function BankTransfers() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>File Name</TableHead>
-                <TableHead>Period</TableHead>
-                <TableHead>Format</TableHead>
-                <TableHead>Employees</TableHead>
-                <TableHead>Total Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("payrollPages.bankTransfers.table.fileName")}</TableHead>
+                <TableHead>{t("payrollPages.bankTransfers.table.period")}</TableHead>
+                <TableHead>{t("payrollPages.bankTransfers.table.format")}</TableHead>
+                <TableHead>{t("payrollPages.bankTransfers.table.employees")}</TableHead>
+                <TableHead>{t("payrollPages.bankTransfers.table.totalAmount")}</TableHead>
+                <TableHead>{t("payrollPages.bankTransfers.table.status")}</TableHead>
+                <TableHead>{t("payrollPages.bankTransfers.table.created")}</TableHead>
+                <TableHead>{t("payrollPages.bankTransfers.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-8">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center py-8">{t("common.loading")}</TableCell></TableRow>
               ) : transfers.length === 0 ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-8">No bank transfer files generated yet</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center py-8">{t("payrollPages.bankTransfers.states.empty")}</TableCell></TableRow>
               ) : (
                 transfers.map((f: any) => (
                   <TableRow key={f.id}>
@@ -139,7 +141,7 @@ export default function BankTransfers() {
                     <TableCell><Badge variant="outline">{f.format?.toUpperCase()}</Badge></TableCell>
                     <TableCell>{f.totalEmployees}</TableCell>
                     <TableCell>{Number(f.totalAmount).toFixed(3)} TND</TableCell>
-                    <TableCell><Badge>{f.status}</Badge></TableCell>
+                    <TableCell><Badge>{t(`payrollPages.bankTransfers.statuses.${String(f.status).toLowerCase()}`, { defaultValue: f.status })}</Badge></TableCell>
                     <TableCell>{new Date(f.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">

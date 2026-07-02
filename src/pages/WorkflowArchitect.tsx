@@ -22,8 +22,10 @@ import {
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 export default function WorkflowArchitect() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -43,16 +45,16 @@ export default function WorkflowArchitect() {
     mutationFn: api.automations.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["automation-rules"] });
-      toast.success("Rule deleted successfully");
+      toast.success(t("workflowArchitect.statusUpdates.deleted"));
     },
   });
 
   const handleDelete = async (id: string) => {
     if (await confirm({
-      title: "Delete Automation Rule",
-      description: "Are you sure you want to delete this rule? This action cannot be undone and will stop all automated tasks associated with this trigger.",
+      title: t("workflowArchitect.deleteDialog.title"),
+      description: t("workflowArchitect.deleteDialog.description"),
       variant: "destructive",
-      confirmText: "Delete Rule"
+      confirmText: t("workflowArchitect.deleteDialog.confirm")
     })) {
       deleteMutation.mutate(id);
     }
@@ -60,24 +62,24 @@ export default function WorkflowArchitect() {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Workflow Architect">
+      <CRMLayout title={t("workflowArchitect.pageTitle")}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading workflows...</div>
+          <div className="text-muted-foreground">{t("common.loading")}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Workflow Architect">
+    <CRMLayout title={t("workflowArchitect.pageTitle")}>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Workflow Architect</h1>
-            <p className="text-muted-foreground">Orchestrate automated business operations</p>
+            <h1 className="text-2xl font-bold">{t("workflowArchitect.title")}</h1>
+            <p className="text-muted-foreground">{t("workflowArchitect.subtitle")}</p>
           </div>
           <Button onClick={() => navigate("/automations/new")}>
-            <Plus className="h-4 w-4 mr-2" /> Start New Workflow
+            <Plus className="h-4 w-4 mr-2" /> {t("workflowArchitect.startNew")}
           </Button>
         </div>
 
@@ -85,13 +87,13 @@ export default function WorkflowArchitect() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Workflow Name</TableHead>
-                <TableHead>Trigger</TableHead>
-                <TableHead>Condition</TableHead>
-                <TableHead>Pipeline</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Active</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("workflowArchitect.table.workflowName")}</TableHead>
+                <TableHead>{t("workflowArchitect.table.trigger")}</TableHead>
+                <TableHead>{t("workflowArchitect.table.condition")}</TableHead>
+                <TableHead>{t("workflowArchitect.table.pipeline")}</TableHead>
+                <TableHead>{t("workflowArchitect.table.priority")}</TableHead>
+                <TableHead>{t("workflowArchitect.table.active")}</TableHead>
+                <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -100,7 +102,7 @@ export default function WorkflowArchitect() {
                   <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
                         <Zap className="h-8 w-8 opacity-20" />
-                        <span>No automation rules found</span>
+                        <span>{t("workflowArchitect.noResults")}</span>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -120,10 +122,10 @@ export default function WorkflowArchitect() {
                     <TableCell>
                       {rule.conditions?.length > 0 ? (
                         <span className="text-sm text-amber-600 font-medium">
-                          {rule.conditions.length} filters
+                          {t("workflowArchitect.filters", { count: rule.conditions.length })}
                         </span>
                       ) : (
-                        <span className="text-sm text-muted-foreground italic">Always</span>
+                        <span className="text-sm text-muted-foreground italic">{t("workflowArchitect.always")}</span>
                       )}
                     </TableCell>
                     <TableCell>

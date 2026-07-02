@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type SignatureAdoptDialogProps = {
   open: boolean;
@@ -40,6 +41,7 @@ export function SignatureAdoptDialog({
   onClose,
   onSign,
 }: SignatureAdoptDialogProps) {
+  const { t } = useTranslation();
   const [signerName, setSignerName] = useState(defaultName);
   const [mode, setMode] = useState<SignatureMode>("type");
   const [signatureColor, setSignatureColor] = useState(SIGNATURE_COLORS[0]);
@@ -150,12 +152,12 @@ export function SignatureAdoptDialog({
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent className="border-slate-700 bg-slate-950 text-slate-100 sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Adopt Your Signature</DialogTitle>
+          <DialogTitle className="text-2xl">{t("signatures.dialog.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-200">Full Name</label>
+            <label className="text-sm font-semibold text-slate-200">{t("signatures.dialog.fullName")}</label>
             <Input
               value={signerName}
               onChange={(event) => setSignerName(event.target.value)}
@@ -165,7 +167,7 @@ export function SignatureAdoptDialog({
 
           <div className="grid gap-4 md:grid-cols-[1fr_auto]">
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-200">Signature Size</label>
+              <label className="text-sm font-semibold text-slate-200">{t("signatures.dialog.signatureSize")}</label>
               <input
                 type="range"
                 min="0.7"
@@ -175,17 +177,17 @@ export function SignatureAdoptDialog({
                 onChange={(event) => setSizeScale(Number(event.target.value))}
                 className="w-full accent-violet-400"
               />
-              <p className="text-xs text-slate-400">Scale: {Math.round(sizeScale * 100)}%</p>
+              <p className="text-xs text-slate-400">{t("signatures.dialog.scale", { value: Math.round(sizeScale * 100) })}</p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-200">Color</label>
+              <label className="text-sm font-semibold text-slate-200">{t("signatures.dialog.color")}</label>
               <div className="flex flex-wrap gap-2">
                 {SIGNATURE_COLORS.map((color) => (
                   <button
                     key={color}
                     type="button"
-                    aria-label={`Select ${color} signature color`}
+                    aria-label={t("signatures.dialog.selectColor", { color })}
                     className={cn(
                       "h-9 w-9 rounded-full border-2 transition",
                       signatureColor === color ? "border-white scale-105" : "border-slate-700",
@@ -205,18 +207,18 @@ export function SignatureAdoptDialog({
                 variant={mode === "type" ? "default" : "outline"}
                 onClick={() => setMode("type")}
               >
-                Auto
+                {t("signatures.dialog.auto")}
               </Button>
               <Button
                 type="button"
                 variant={mode === "draw" ? "default" : "outline"}
                 onClick={() => setMode("draw")}
               >
-                Draw
+                {t("signatures.dialog.draw")}
               </Button>
               {mode === "draw" ? (
                 <Button type="button" variant="outline" onClick={clearCanvas}>
-                  Clear
+                  {t("signatures.dialog.clear")}
                 </Button>
               ) : null}
             </div>
@@ -224,7 +226,7 @@ export function SignatureAdoptDialog({
             {mode === "type" ? (
               <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-emerald-500/30 bg-slate-950 p-6">
                 <div className="w-full rounded-xl border border-emerald-500/40 px-6 py-8 text-center">
-                  <p className="text-xs uppercase tracking-[0.3em] text-emerald-700">Signed with Nadas Sign</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-emerald-700">{t("signatures.dialog.signedWith")}</p>
                   <p
                     className="mt-3"
                     style={{
@@ -254,12 +256,12 @@ export function SignatureAdoptDialog({
           </div>
 
           <p className="text-sm text-slate-400">
-            By signing, you confirm that this electronic signature is valid for this document.
+            {t("signatures.dialog.legal")}
           </p>
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              {t("common.actions.cancel")}
             </Button>
             <Button
               type="button"
@@ -273,7 +275,7 @@ export function SignatureAdoptDialog({
                 })
               }
             >
-              Sign
+              {t("signatures.detail.sign")}
             </Button>
           </div>
         </div>

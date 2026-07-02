@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -52,6 +53,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 
 export default function CampaignDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const campaignId = Number(id);
@@ -143,7 +145,7 @@ export default function CampaignDetail() {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Campaign Details">
+      <CRMLayout title={t("campaigns.detail.pageTitle")}>
         <div className="flex h-64 items-center justify-center">
           <div className="text-muted-foreground italic">Loading campaign record...</div>
         </div>

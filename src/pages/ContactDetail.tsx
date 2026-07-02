@@ -45,8 +45,10 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function ContactDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const contactId = Number(id);
@@ -79,7 +81,7 @@ export default function ContactDetail() {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Contact Details">
+      <CRMLayout title={t("contacts.detail.pageTitle")}>
         <div className="flex h-full items-center justify-center bg-background">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>

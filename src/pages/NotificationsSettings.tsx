@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, Check, Trash2, AlertCircle, Info, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 interface Notification {
   id: number;
@@ -19,6 +20,7 @@ interface Notification {
 }
 
 const NotificationsSettings = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -40,7 +42,7 @@ const NotificationsSettings = () => {
     mutationFn: () => api.settings.markAllNotificationsAsRead(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      toast.success("All notifications marked as read");
+      toast.success(t("notifications.statusUpdates.allRead"));
     },
   });
 
@@ -48,7 +50,7 @@ const NotificationsSettings = () => {
     mutationFn: api.settings.deleteNotification,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      toast.success("Notification deleted");
+      toast.success(t("notifications.statusUpdates.deleted"));
     },
   });
 
@@ -95,25 +97,25 @@ const NotificationsSettings = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Notifications">
+      <CRMLayout title={t("notifications.pageTitle")}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t("common.loading")}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Notifications">
+    <CRMLayout title={t("notifications.pageTitle")}>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Notifications</h1>
-            <p className="text-muted-foreground">View and manage your notifications</p>
+            <h1 className="text-2xl font-bold">{t("notifications.pageTitle")}</h1>
+            <p className="text-muted-foreground">{t("notifications.subtitle")}</p>
           </div>
           {unreadCount > 0 && (
             <Button variant="outline" onClick={handleMarkAllAsRead}>
-              <Check className="h-4 w-4 mr-2" /> Mark all as read ({unreadCount})
+              <Check className="h-4 w-4 mr-2" /> {t("notifications.markAllRead", { count: unreadCount })}
             </Button>
           )}
         </div>
@@ -123,7 +125,7 @@ const NotificationsSettings = () => {
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <Bell className="h-12 w-12 mb-4" />
-                <p>No notifications</p>
+                <p>{t("notifications.noResults")}</p>
               </div>
             ) : (
               <div className="divide-y">
@@ -145,7 +147,7 @@ const NotificationsSettings = () => {
                       <div className="flex items-center gap-2">
                         <p className="font-bold text-foreground group-hover:text-primary transition-colors">{notification.title}</p>
                         {!notification.isRead && (
-                          <Badge className="bg-primary text-white text-[10px] h-4 px-1.5 uppercase font-black">New</Badge>
+                          <Badge className="bg-primary text-white text-[10px] h-4 px-1.5 uppercase font-black">{t("notifications.new")}</Badge>
                         )}
                       </div>
                       {notification.message && (

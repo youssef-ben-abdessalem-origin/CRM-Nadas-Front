@@ -8,8 +8,10 @@ import { toast } from "sonner";
 import api from "@/lib/api";
 import { ArrowLeft, Save, X, Loader2 } from "lucide-react";
 import { ProductForm } from "@/components/products/ProductForm";
+import { useTranslation } from "react-i18next";
 
 const EditProduct = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();

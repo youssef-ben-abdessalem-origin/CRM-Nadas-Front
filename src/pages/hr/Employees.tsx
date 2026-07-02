@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { api } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ function getReadinessVariant(readinessStatus?: string) {
 }
 
 export default function Employees() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -61,7 +63,7 @@ export default function Employees() {
     mutationFn: api.hr.employees.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      toast.success("Employee deleted successfully");
+      toast.success(t("hr.statusUpdates.employeeDeleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -76,18 +78,18 @@ export default function Employees() {
   );
 
   return (
-    <CRMLayout title="HR - Employees">
+    <CRMLayout title={t("hr.employees.title")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Employees</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.employees.title")}</h1>
             <p className="text-muted-foreground">
-              Manage personal and administrative employee accounts.
+              {t("hr.employees.description")}
             </p>
           </div>
           <Button className="gap-2" onClick={() => navigate("/hr/employees/new")}>
             <UserPlus className="h-4 w-4" />
-            New Employee
+            {t("hr.employees.actions.newEmployee")}
           </Button>
         </div>
 
@@ -96,7 +98,7 @@ export default function Employees() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.total}</div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Employees
+                {t("hr.employees.stats.total")}
               </p>
             </CardContent>
           </Card>
@@ -104,7 +106,7 @@ export default function Employees() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.active}</div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Active
+                {t("hr.employees.stats.active")}
               </p>
             </CardContent>
           </Card>
@@ -112,7 +114,7 @@ export default function Employees() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.drafts}</div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Drafts
+                {t("hr.employees.stats.drafts")}
               </p>
             </CardContent>
           </Card>
@@ -123,7 +125,7 @@ export default function Employees() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name, employee #, CIN..."
+                placeholder={t("hr.employees.placeholders.search")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
@@ -132,10 +134,10 @@ export default function Employees() {
             <div className="w-56">
               <Select value={deptFilter} onValueChange={setDeptFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter Department" />
+                  <SelectValue placeholder={t("hr.employees.placeholders.filterDepartment")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
+                  <SelectItem value="all">{t("hr.employees.options.allDepartments")}</SelectItem>
                   {departments.map((department: any) => (
                     <SelectItem key={department.id} value={String(department.id)}>
                       {department.name}
@@ -150,13 +152,13 @@ export default function Employees() {
         {isLoading ? (
           <Card className="glass-morphism">
             <CardContent className="py-10 text-center text-muted-foreground">
-              Loading employees...
+              {t("common.loading")}
             </CardContent>
           </Card>
         ) : employees.length === 0 ? (
           <Card className="glass-morphism">
             <CardContent className="py-10 text-center text-muted-foreground">
-              No employees found.
+              {t("hr.employees.noResults")}
             </CardContent>
           </Card>
         ) : (
@@ -178,10 +180,10 @@ export default function Employees() {
                     </div>
                     <div className="flex flex-wrap justify-end gap-2">
                       <Badge variant={getStatusVariant(employee.status)}>
-                        {employee.status}
+                        {t(`common.status.${employee.status}`, employee.status)}
                       </Badge>
                       <Badge variant={getReadinessVariant(employee.readinessStatus)}>
-                        {employee.readinessStatus || "Draft"}
+                        {employee.readinessStatus || t("common.status.Draft")}
                       </Badge>
                     </div>
                   </div>
@@ -189,37 +191,37 @@ export default function Employees() {
                   <div className="grid gap-3 text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Building2 className="h-4 w-4" />
-                      <span>{employee.department?.name || "No department"}</span>
+                      <span>{employee.department?.name || t("hr.employees.noDepartment")}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Briefcase className="h-4 w-4" />
-                      <span>{employee.position?.title || "No position"}</span>
+                      <span>{employee.position?.title || t("hr.employees.noPosition")}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <CalendarDays className="h-4 w-4" />
                       <span>
                         {employee.hireDate
                           ? new Date(employee.hireDate).toLocaleDateString()
-                          : "No hire date"}
+                          : t("hr.employees.noHireDate")}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Mail className="h-4 w-4" />
-                      <span>{employee.workEmail || employee.email || "No email"}</span>
+                      <span>{employee.workEmail || employee.email || t("hr.employees.noEmail")}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Phone className="h-4 w-4" />
-                      <span>{employee.phone || "No phone"}</span>
+                      <span>{employee.phone || t("hr.employees.noPhone")}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <ShieldCheck className="h-4 w-4" />
-                      <span>Cost Center: {employee.costCenter || "Not assigned"}</span>
+                      <span>{t("hr.employees.costCenter")}: {employee.costCenter || t("hr.employees.notAssigned")}</span>
                     </div>
                   </div>
 
                   {employee.status === "Draft" ? (
                     <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800">
-                      This employee onboarding is still in draft. You can reopen it and continue from where you left off.
+                      {t("hr.employees.draftNotice")}
                     </div>
                   ) : null}
 
@@ -231,7 +233,7 @@ export default function Employees() {
                       onClick={() => navigate(`/hr/employees/${employee.id}`)}
                     >
                       <Eye className="h-4 w-4" />
-                      View
+                      {t("hr.employees.actions.view")}
                     </Button>
                     <Button
                       size="sm"
@@ -240,14 +242,14 @@ export default function Employees() {
                       onClick={() => navigate(`/hr/employees/edit/${employee.id}`)}
                     >
                       <Edit className="h-4 w-4" />
-                      {employee.status === "Draft" ? "Resume" : "Edit"}
+                      {employee.status === "Draft" ? t("hr.employees.actions.resume") : t("common.edit")}
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       className="gap-2"
                       onClick={() => {
-                        if (confirm("Delete employee?")) {
+                        if (confirm(t("common.actions.confirm_delete"))) {
                           deleteMutation.mutate(employee.id);
                         }
                       }}

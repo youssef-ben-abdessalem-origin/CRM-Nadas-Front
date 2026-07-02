@@ -25,6 +25,7 @@ import { Plus, Pencil, Trash2, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 interface Industry {
   id: number;
@@ -35,6 +36,7 @@ interface Industry {
 }
 
 const IndustriesSettings = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [showDialog, setShowDialog] = useState(false);
@@ -54,7 +56,7 @@ const IndustriesSettings = () => {
     mutationFn: api.settings.createIndustry,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["industries"] });
-      toast.success("Industry created successfully");
+      toast.success(t("industries.statusUpdates.created"));
       setShowDialog(false);
       resetForm();
     },
@@ -66,7 +68,7 @@ const IndustriesSettings = () => {
       api.settings.updateIndustry(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["industries"] });
-      toast.success("Industry updated successfully");
+      toast.success(t("industries.statusUpdates.updated"));
       setShowDialog(false);
       setEditingIndustry(null);
       resetForm();
@@ -78,7 +80,7 @@ const IndustriesSettings = () => {
     mutationFn: api.settings.deleteIndustry,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["industries"] });
-      toast.success("Industry deleted successfully");
+      toast.success(t("industries.statusUpdates.deleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -89,7 +91,7 @@ const IndustriesSettings = () => {
 
   const handleSubmit = () => {
     if (!formData.name) {
-      toast.error("Please fill in required fields");
+      toast.error(t("industries.errors.requiredFields"));
       return;
     }
     if (editingIndustry) {
@@ -111,10 +113,10 @@ const IndustriesSettings = () => {
 
   const handleDelete = async (id: number) => {
     if (await confirm({ 
-      title: "Delete Industry", 
-      description: "Are you sure you want to delete this industry? Records associated with this industry may be affected.",
+      title: t("industries.deleteDialog.title"), 
+      description: t("industries.deleteDialog.description"),
       variant: "destructive",
-      confirmText: "Delete"
+      confirmText: t("common.delete")
     })) {
       deleteMutation.mutate(id);
     }
@@ -122,24 +124,24 @@ const IndustriesSettings = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Industries">
+      <CRMLayout title={t("industries.pageTitle")}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t("common.loading")}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Industries">
+    <CRMLayout title={t("industries.pageTitle")}>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Industries</h1>
-            <p className="text-muted-foreground">Manage company industries</p>
+            <h1 className="text-2xl font-bold">{t("industries.pageTitle")}</h1>
+            <p className="text-muted-foreground">{t("industries.subtitle")}</p>
           </div>
           <Button onClick={() => { resetForm(); setEditingIndustry(null); setShowDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" /> Add Industry
+            <Plus className="h-4 w-4 mr-2" /> {t("industries.addIndustry")}
           </Button>
         </div>
 
@@ -147,17 +149,17 @@ const IndustriesSettings = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("common.name")}</TableHead>
+                <TableHead>{t("common.description")}</TableHead>
+                <TableHead>{t("common.status")}</TableHead>
+                <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {industries.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                    No industries found
+                    {t("industries.noResults")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -167,10 +169,10 @@ const IndustriesSettings = () => {
                     <TableCell className="text-muted-foreground">{industry.description || "—"}</TableCell>
                     <TableCell>
                       {industry.isDefault && (
-                        <Badge className="bg-green-500">Default</Badge>
+                        <Badge className="bg-green-500">{t("common.default")}</Badge>
                       )}
                       {!industry.isActive && (
-                        <Badge variant="secondary">Inactive</Badge>
+                        <Badge variant="secondary">{t("common.inactive")}</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -196,21 +198,21 @@ const IndustriesSettings = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingIndustry ? "Edit Industry" : "Add Industry"}</DialogTitle>
+            <DialogTitle>{editingIndustry ? t("industries.edit") : t("industries.add")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Name *</Label>
+              <Label>{t("common.name")} *</Label>
               <Input
-                placeholder="Technology"
+                placeholder={t("industries.namePlaceholder")}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t("common.description")}</Label>
               <Textarea
-                placeholder="Industry description..."
+                placeholder={t("industries.descriptionPlaceholder")}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
@@ -222,10 +224,10 @@ const IndustriesSettings = () => {
                 checked={formData.isDefault}
                 onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
               />
-              <Label htmlFor="isDefault">Set as default industry</Label>
+              <Label htmlFor="isDefault">{t("industries.setDefault")}</Label>
             </div>
             <Button onClick={handleSubmit} className="w-full">
-              {editingIndustry ? "Update" : "Create"}
+              {editingIndustry ? t("common.update") : t("common.create")}
             </Button>
           </div>
         </DialogContent>

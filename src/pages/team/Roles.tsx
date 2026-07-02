@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Shield,
@@ -46,6 +47,7 @@ const PRESET_COLORS = [
 ];
 
 const Roles = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
@@ -72,7 +74,7 @@ const Roles = () => {
     mutationFn: (data: any) => api.roles.create(data),
     onSuccess: (newRole) => {
       queryClient.invalidateQueries({ queryKey: ["roles"] });
-      toast.success("Security protocol generated");
+      toast.success(t("team.roles.status.created"));
       setIsDialogOpen(false);
       navigate(`/team/roles/${newRole.id}`);
     },
@@ -82,7 +84,7 @@ const Roles = () => {
     mutationFn: ({ id, data }: { id: string, data: any }) => api.roles.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["roles"] });
-      toast.success("System signature updated");
+      toast.success(t("team.roles.status.updated"));
       setIsDialogOpen(false);
     },
   });
@@ -91,7 +93,7 @@ const Roles = () => {
     mutationFn: api.roles.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["roles"] });
-      toast.success("Role decommissioned");
+      toast.success(t("team.roles.status.deleted"));
     },
   });
 
@@ -113,7 +115,7 @@ const Roles = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name) return toast.error("Identity name required");
+    if (!formData.name) return toast.error(t("team.roles.validation.nameRequired"));
 
     if (editingRole) {
       updateMutation.mutate({ id: editingRole.id, data: formData });
@@ -123,18 +125,18 @@ const Roles = () => {
   };
 
   return (
-    <CRMLayout title="Team - Roles">
+    <CRMLayout title={t("team.roles.pageTitle")}>
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Team Roles</h2>
+            <h2 className="text-3xl font-bold tracking-tight">{t("team.roles.title")}</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Configure the access levels and feature permissions for your organization.
+              {t("team.roles.description")}
             </p>
           </div>
           <div className="flex gap-2 w-full md:w-auto">
             <Input
-              placeholder="Search roles..."
+              placeholder={t("team.roles.searchPlaceholder")}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -146,7 +148,7 @@ const Roles = () => {
               onClick={openCreateDialog}
               className="bg-primary hover:bg-secondary text-white h-11 px-6 rounded-lg font-medium transition-all"
             >
-              <Plus className="h-4 w-4 mr-2" /> Add New Role
+              <Plus className="h-4 w-4 mr-2" /> {t("team.roles.actions.create")}
             </Button>
           </div>
         </div>
@@ -183,7 +185,7 @@ const Roles = () => {
                     </div>
                     {role.isSystem && (
                       <Badge variant="secondary" className="bg-[#1a1d23] text-muted-foreground border-none text-[10px] uppercase font-bold px-2 py-0.5">
-                        System
+                        {t("team.roles.systemBadge")}
                       </Badge>
                     )}
                   </div>
@@ -194,14 +196,14 @@ const Roles = () => {
 
                 <CardContent className="space-y-6">
                   <p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
-                    {role.description || "Active operational descriptor for system personnel."}
+                    {role.description || t("team.roles.defaultDescription")}
                   </p>
 
                   <Separator className="bg-[#1f2128]" />
 
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
-                      {role.permissions?.length || 0} Permissions
+                      {t("team.roles.permissionsCount", { count: role.permissions?.length || 0 })}
                     </span>
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button
@@ -227,10 +229,10 @@ const Roles = () => {
                           className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
                           onClick={async () => {
                             if (await confirm({ 
-                              title: "Decommission Role", 
-                              description: `Are you sure you want to delete the ${role.name} role? This action will affect all users currently assigned to this role.`,
+                              title: t("team.roles.confirmDelete.title"), 
+                              description: t("team.roles.confirmDelete.description", { name: role.name }),
                               variant: "destructive",
-                              confirmText: "Decommission"
+                              confirmText: t("team.roles.confirmDelete.confirmText")
                             })) {
                               deleteMutation.mutate(role.id);
                             }
@@ -248,7 +250,7 @@ const Roles = () => {
         </div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>
-            Showing {roles.length} of {totalRoles} roles
+            {t("team.roles.pagination.showing", { count: roles.length, total: totalRoles })}
           </span>
           <div className="flex items-center gap-2">
             <Button
@@ -257,10 +259,10 @@ const Roles = () => {
               disabled={page <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
-              Previous
+              {t("team.roles.pagination.previous")}
             </Button>
             <span>
-              Page {page} / {Math.max(1, totalPages)}
+              {t("team.roles.pagination.pageOf", { page, total: Math.max(1, totalPages) })}
             </span>
             <Button
               variant="outline"
@@ -268,7 +270,7 @@ const Roles = () => {
               disabled={page >= totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >
-              Next
+              {t("team.roles.pagination.next")}
             </Button>
           </div>
         </div>
@@ -279,7 +281,7 @@ const Roles = () => {
         <DialogContent className="sm:max-w-[480px]  text-white p-0 overflow-hidden rounded-xl shadow-2xl">
           <div className="p-6 border-b flex items-center justify-between">
             <DialogTitle className="text-lg font-bold">
-              {editingRole ? "Change Role Details" : "Create New Role"}
+              {editingRole ? t("team.roles.dialog.editTitle") : t("team.roles.dialog.createTitle")}
             </DialogTitle>
           </div>
           
@@ -287,11 +289,11 @@ const Roles = () => {
             <div className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="pro-name" className="text-sm font-medium text-white">
-                  Role Name *
+                  {t("team.roles.form.name")}
                 </Label>
                 <Input
                   id="pro-name"
-                  placeholder="e.g. Sales Manager"
+                  placeholder={t("team.roles.placeholders.name")}
                   className=" border-2 focus-visible:ring-0 focus-visible:border-primary h-11 text-white placeholder:text-muted-foreground rounded-lg"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -301,7 +303,7 @@ const Roles = () => {
               
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-white block">Badge Color</Label>
+                  <Label className="text-sm font-medium text-white block">{t("team.roles.form.badgeColor")}</Label>
                   <div className="grid grid-cols-8 gap-2">
                     {PRESET_COLORS.map((c) => (
                       <button
@@ -320,11 +322,11 @@ const Roles = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="pro-desc" className="text-sm font-medium text-white">
-                  Role Description
+                  {t("team.roles.form.description")}
                 </Label>
                 <Textarea
                   id="pro-desc"
-                  placeholder="Primary responsibilities and permissions..."
+                  placeholder={t("team.roles.placeholders.description")}
                   className=" border-2 focus-visible:ring-0 focus-visible:border-primary min-h-[100px] text-white placeholder:text-muted-foreground rounded-lg resize-none p-3"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -343,7 +345,7 @@ const Roles = () => {
                     navigate(`/team/roles/${editingRole.id}`);
                   }}
                 >
-                  Configure Matrix <ChevronRight className="h-3 w-3 inline" />
+                  {t("team.roles.dialog.configureMatrix")} <ChevronRight className="h-3 w-3 inline" />
                 </Button>
               )}
               <div className="flex gap-3 ml-auto">
@@ -353,14 +355,14 @@ const Roles = () => {
                   onClick={() => setIsDialogOpen(false)}
                   className="text-white hover:bg-[#1a1d23] px-6 h-10 font-medium"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"
                   className="bg-[#6366f1] hover:bg-[#4f46e5] text-white px-6 h-10 font-medium rounded-lg shadow-lg shadow-indigo-500/20"
                   disabled={createMutation.isPending || updateMutation.isPending}
                 >
-                  {editingRole ? (updateMutation.isPending ? "Updating..." : "Update Signature") : (createMutation.isPending ? "Creating..." : "Create Role")}
+                  {editingRole ? (updateMutation.isPending ? t("team.roles.actions.updating") : t("team.roles.actions.updateSignature")) : (createMutation.isPending ? t("team.roles.actions.creating") : t("team.roles.actions.create"))}
                 </Button>
               </div>
             </div>

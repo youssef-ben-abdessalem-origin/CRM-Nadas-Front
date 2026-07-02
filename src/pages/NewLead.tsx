@@ -4,8 +4,10 @@ import { toast } from "sonner";
 import { CRMLayout } from "@/components/CRMLayout";
 import { LeadForm } from "@/components/leads/LeadForm";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 const NewLead = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const queryClient = useQueryClient();
@@ -58,7 +60,7 @@ const NewLead = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      toast.success("Lead created successfully");
+      toast.success(t("leads.new.statusUpdates.created"));
       navigate("/leads");
     },
     onError: (err: Error) => toast.error(err.message),

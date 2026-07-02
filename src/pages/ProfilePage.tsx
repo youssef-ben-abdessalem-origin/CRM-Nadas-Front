@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { User, Mail, Phone, Save, Camera } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface UserProfile {
   id: number;
@@ -21,6 +22,7 @@ interface UserProfile {
 }
 
 const ProfilePage = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
@@ -47,7 +49,7 @@ const ProfilePage = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       localStorage.setItem("user", JSON.stringify(data));
-      toast.success("Profile updated successfully");
+      toast.success(t("profile.statusUpdates.updated"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -58,7 +60,7 @@ const ProfilePage = () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       localStorage.setItem("user", JSON.stringify({ ...user, avatar: data.url }));
-      toast.success("Avatar updated successfully");
+      toast.success(t("profile.statusUpdates.avatarUpdated"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -67,7 +69,7 @@ const ProfilePage = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB");
+        toast.error(t("profile.errors.fileSizeTooLarge"));
         return;
       }
       uploadMutation.mutate(file);
@@ -90,16 +92,16 @@ const ProfilePage = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Profile">
+      <CRMLayout title={t("profile.pageTitle")}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t("common.loading")}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Profile">
+    <CRMLayout title={t("profile.pageTitle")}>
       <div className="max-w-2xl mx-auto space-y-6">
         <Card>
           <CardHeader className="text-center">
@@ -147,12 +149,12 @@ const ProfilePage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">{t("profile.fullName")}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="name"
-                    placeholder="Your name"
+                    placeholder={t("profile.placeholders.name")}
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="pl-10"
@@ -161,12 +163,12 @@ const ProfilePage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">{t("profile.phoneNumber")}</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="phone"
-                    placeholder="Your phone number"
+                    placeholder={t("profile.placeholders.phone")}
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="pl-10"
@@ -175,14 +177,14 @@ const ProfilePage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Email</Label>
+                <Label>{t("profile.email")}</Label>
                 <Input value={profile?.email || ""} disabled className="bg-muted" />
-                <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                <p className="text-xs text-muted-foreground">{t("profile.emailCannotBeChanged")}</p>
               </div>
 
               <Button type="submit" className="w-full" disabled={updateMutation.isPending}>
                 <Save className="h-4 w-4 mr-2" />
-                {updateMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateMutation.isPending ? t("common.saving") : t("common.saveChanges")}
               </Button>
             </form>
           </CardContent>

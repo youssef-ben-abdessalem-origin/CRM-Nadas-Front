@@ -40,6 +40,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslation } from "react-i18next";
 import {
     Dialog,
     DialogContent,
@@ -49,6 +50,7 @@ import {
 } from "@/components/ui/dialog";
 
 const PaymentsPage: React.FC = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");

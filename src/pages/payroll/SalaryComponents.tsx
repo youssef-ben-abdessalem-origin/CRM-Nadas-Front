@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api, SalaryComponent } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const PROTECTED_COMPONENT_CODES = new Set([
 ]);
 
 export default function SalaryComponents() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editingComp, setEditingComp] = useState<SalaryComponent | null>(null);
@@ -53,7 +55,7 @@ export default function SalaryComponents() {
     mutationFn: api.payroll.components.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["components"] });
-      toast.success("Salary component created");
+      toast.success(t("payrollPages.components.toasts.created"));
       setIsOpen(false);
       resetForm();
     },
@@ -63,7 +65,7 @@ export default function SalaryComponents() {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.payroll.components.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["components"] });
-      toast.success("Salary component updated");
+      toast.success(t("payrollPages.components.toasts.updated"));
       setIsOpen(false);
       resetForm();
     },
@@ -73,7 +75,7 @@ export default function SalaryComponents() {
     mutationFn: api.payroll.components.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["components"] });
-      toast.success("Salary component deleted");
+      toast.success(t("payrollPages.components.toasts.deleted"));
     },
   });
 
@@ -120,82 +122,82 @@ export default function SalaryComponents() {
   };
 
   return (
-    <CRMLayout title="Payroll - Components">
+    <CRMLayout title={t("payrollPages.components.layoutTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Salary Components</h1>
-            <p className="text-muted-foreground">Manage base components, allowances, bonuses, and social/tax rules.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("payrollPages.components.title")}</h1>
+            <p className="text-muted-foreground">{t("payrollPages.components.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gap-2">
-                <Plus className="h-4 w-4" /> New Component
+                <Plus className="h-4 w-4" /> {t("payrollPages.components.actions.newComponent")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{editingComp ? "Edit Component" : "Create Component"}</DialogTitle>
+                <DialogTitle>{editingComp ? t("payrollPages.components.dialogs.editTitle") : t("payrollPages.components.dialogs.createTitle")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Code *</label>
-                  <Input required value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g. TRANSPORT_ALLOWANCE" disabled={!!editingComp && PROTECTED_COMPONENT_CODES.has(editingComp.code)} />
+                  <label className="text-sm font-semibold">{t("payrollPages.components.fields.code")}</label>
+                  <Input required value={code} onChange={(e) => setCode(e.target.value)} placeholder={t("payrollPages.components.placeholders.code")} disabled={!!editingComp && PROTECTED_COMPONENT_CODES.has(editingComp.code)} />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Name *</label>
-                  <Input required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Transport Allowance" />
+                  <label className="text-sm font-semibold">{t("payrollPages.components.fields.name")}</label>
+                  <Input required value={name} onChange={(e) => setName(e.target.value)} placeholder={t("payrollPages.components.placeholders.name")} />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Type *</label>
+                  <label className="text-sm font-semibold">{t("payrollPages.components.fields.type")}</label>
                   <Select value={type} onValueChange={setType} disabled={!!editingComp && PROTECTED_COMPONENT_CODES.has(editingComp.code)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="EARNING">EARNING (E.g. Allowance, Bonus)</SelectItem>
-                      <SelectItem value="DEDUCTION">DEDUCTION (E.g. Taxes, Loan repayment)</SelectItem>
-                      <SelectItem value="EMPLOYER_CONTRIBUTION">EMPLOYER CONTRIBUTION</SelectItem>
+                      <SelectItem value="EARNING">{t("payrollPages.components.options.earning")}</SelectItem>
+                      <SelectItem value="DEDUCTION">{t("payrollPages.components.options.deduction")}</SelectItem>
+                      <SelectItem value="EMPLOYER_CONTRIBUTION">{t("payrollPages.components.options.employerContribution")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Taxable *</label>
+                    <label className="text-sm font-semibold">{t("payrollPages.components.fields.taxable")}</label>
                     <Select value={taxable} onValueChange={setTaxable}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">Yes</SelectItem>
-                        <SelectItem value="false">No</SelectItem>
+                        <SelectItem value="true">{t("payrollPages.components.options.yes")}</SelectItem>
+                        <SelectItem value="false">{t("payrollPages.components.options.no")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Subject to CNSS *</label>
+                    <label className="text-sm font-semibold">{t("payrollPages.components.fields.subjectToCnss")}</label>
                     <Select value={subjectToCnss} onValueChange={setSubjectToCnss}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">Yes</SelectItem>
-                        <SelectItem value="false">No</SelectItem>
+                        <SelectItem value="true">{t("payrollPages.components.options.yes")}</SelectItem>
+                        <SelectItem value="false">{t("payrollPages.components.options.no")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Status *</label>
+                  <label className="text-sm font-semibold">{t("payrollPages.components.fields.status")}</label>
                   <Select value={active} onValueChange={setActive}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="true">Active</SelectItem>
-                      <SelectItem value="false">Inactive</SelectItem>
+                      <SelectItem value="true">{t("payrollPages.components.options.active")}</SelectItem>
+                      <SelectItem value="false">{t("payrollPages.components.options.inactive")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Description</label>
+                  <label className="text-sm font-semibold">{t("payrollPages.components.fields.description")}</label>
                   <Input value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>{t("common.save")}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -207,23 +209,23 @@ export default function SalaryComponents() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Taxable</TableHead>
-                <TableHead>CNSS</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("payrollPages.components.table.code")}</TableHead>
+                <TableHead>{t("payrollPages.components.table.name")}</TableHead>
+                <TableHead>{t("payrollPages.components.table.type")}</TableHead>
+                <TableHead>{t("payrollPages.components.table.taxable")}</TableHead>
+                <TableHead>{t("payrollPages.components.table.cnss")}</TableHead>
+                <TableHead>{t("payrollPages.components.table.status")}</TableHead>
+                <TableHead className="text-right">{t("payrollPages.components.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">Loading components...</TableCell>
+                  <TableCell colSpan={7} className="text-center py-8">{t("payrollPages.components.states.loading")}</TableCell>
                 </TableRow>
               ) : components.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">No salary components found.</TableCell>
+                  <TableCell colSpan={7} className="text-center py-8">{t("payrollPages.components.states.empty")}</TableCell>
                 </TableRow>
               ) : (
                 components.map((comp) => (
@@ -233,17 +235,17 @@ export default function SalaryComponents() {
                     <TableCell>{comp.type}</TableCell>
                     <TableCell>
                       <Badge variant={comp.taxable ? "default" : "secondary"}>
-                        {comp.taxable ? "Yes" : "No"}
+                        {comp.taxable ? t("payrollPages.components.options.yes") : t("payrollPages.components.options.no")}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={comp.subjectToCnss ? "default" : "secondary"}>
-                        {comp.subjectToCnss ? "Yes" : "No"}
+                        {comp.subjectToCnss ? t("payrollPages.components.options.yes") : t("payrollPages.components.options.no")}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={comp.active ? "default" : "secondary"}>
-                        {comp.active ? "Active" : "Inactive"}
+                        {comp.active ? t("payrollPages.components.options.active") : t("payrollPages.components.options.inactive")}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -251,7 +253,7 @@ export default function SalaryComponents() {
                         <Edit className="h-4 w-4" />
                       </Button>
                       {!PROTECTED_COMPONENT_CODES.has(comp.code) && (
-                        <Button size="icon" variant="ghost" onClick={() => { if (confirm("Delete component?")) deleteMutation.mutate(comp.id); }}>
+                        <Button size="icon" variant="ghost" onClick={() => { if (confirm(t("payrollPages.components.confirmations.delete"))) deleteMutation.mutate(comp.id); }}>
                           <Trash className="h-4 w-4 text-red-500" />
                         </Button>
                       )}

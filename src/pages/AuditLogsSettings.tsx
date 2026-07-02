@@ -33,6 +33,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 interface AuditLog {
   id: number;
@@ -46,6 +47,7 @@ interface AuditLog {
 }
 
 const AuditLogsSettings = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
@@ -95,13 +97,13 @@ const AuditLogsSettings = () => {
   }, [auditLogs]);
 
   return (
-    <CRMLayout title="Audit Logs">
+    <CRMLayout title={t("auditLogs.pageTitle")}>
       <div className="space-y-4">
         {/* Header section matching Leads Page style */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Audit Logs</h1>
-            <p className="text-muted-foreground">Track all changes in the system</p>
+            <h1 className="text-2xl font-bold">{t("auditLogs.title")}</h1>
+            <p className="text-muted-foreground">{t("auditLogs.subtitle")}</p>
           </div>
         </div>
 
@@ -111,7 +113,7 @@ const AuditLogsSettings = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search logs..."
+                placeholder={t("auditLogs.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -128,10 +130,10 @@ const AuditLogsSettings = () => {
               }}
             >
               <SelectTrigger className="h-9 w-40">
-                <SelectValue placeholder="All Entities" />
+                <SelectValue placeholder={t("auditLogs.allEntities")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Entities</SelectItem>
+                <SelectItem value="all">{t("auditLogs.allEntities")}</SelectItem>
                 {uniqueEntities.map((entity: any) => (
                   <SelectItem key={entity} value={entity} className="capitalize">
                     {entity}
@@ -140,7 +142,7 @@ const AuditLogsSettings = () => {
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm">
-              <Filter className="h-3.5 w-3.5 mr-1" /> Filter
+              <Filter className="h-3.5 w-3.5 mr-1" /> {t("auditLogs.filter")}
             </Button>
           </div>
         </div>
@@ -150,13 +152,13 @@ const AuditLogsSettings = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[80px]">ID</TableHead>
-                <TableHead>Entity</TableHead>
-                <TableHead>Record Name</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Performed By</TableHead>
-                <TableHead>Performed At</TableHead>
-                <TableHead className="text-right">Time Ago</TableHead>
+                <TableHead className="w-[80px]">{t("auditLogs.id")}</TableHead>
+                <TableHead>{t("auditLogs.entity")}</TableHead>
+                <TableHead>{t("auditLogs.recordName")}</TableHead>
+                <TableHead>{t("auditLogs.action")}</TableHead>
+                <TableHead>{t("auditLogs.performedBy")}</TableHead>
+                <TableHead>{t("auditLogs.performedAt")}</TableHead>
+                <TableHead className="text-right">{t("auditLogs.timeAgo")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -174,7 +176,7 @@ const AuditLogsSettings = () => {
                     colSpan={7}
                     className="text-center py-8 text-muted-foreground"
                   >
-                    No audit records found
+                    {t("auditLogs.noResults")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -257,7 +259,7 @@ const AuditLogsSettings = () => {
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
-                <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+                <ChevronLeft className="h-4 w-4 mr-1" /> {t("common.previous")}
               </Button>
               <span>
                 Page {page} / {Math.max(1, totalPages)}
@@ -268,7 +270,7 @@ const AuditLogsSettings = () => {
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               >
-                Next <ChevronRight className="h-4 w-4 ml-1" />
+                {t("common.next")} <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
           </div>

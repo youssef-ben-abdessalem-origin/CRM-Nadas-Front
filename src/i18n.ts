@@ -19,7 +19,7 @@ const resources = {
   },
 };
 
-const savedLanguage = localStorage.getItem('language') || Cookies.get('language') || 'en';
+const savedLanguage = localStorage.getItem('language') || Cookies.get('language') || 'fr';
 
 i18n
   .use(LanguageDetector)
@@ -27,7 +27,7 @@ i18n
   .init({
     resources,
     lng: savedLanguage,
-    fallbackLng: 'en',
+    fallbackLng: 'fr',
     interpolation: {
       escapeValue: false,
     },

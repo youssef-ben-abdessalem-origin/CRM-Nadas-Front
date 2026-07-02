@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 interface DynamicOption {
   id: number;
@@ -48,6 +49,7 @@ interface DynamicOption {
 }
 
 export default function ContactsSettingsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [editingItem, setEditingItem] = useState<{ type: string; item: DynamicOption | null }>({ type: "", item: null });
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -90,7 +92,7 @@ export default function ContactsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} created successfully`);
+      toast.success(t("contactsSettings.statusUpdates.created", { type }));
       setShowAddDialog(false);
       setAddForm({});
     },
@@ -110,7 +112,7 @@ export default function ContactsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} updated successfully`);
+      toast.success(t("contactsSettings.statusUpdates.updated", { type }));
       setShowEditDialog(false);
       setEditingItem({ type: "", item: null });
     },
@@ -130,7 +132,7 @@ export default function ContactsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} deleted successfully`);
+      toast.success(t("contactsSettings.statusUpdates.deleted", { type }));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -159,7 +161,7 @@ export default function ContactsSettingsPage() {
 
   const handleAdd = () => {
     if (!addForm.name) {
-      toast.error("Name is required");
+      toast.error(t("contactsSettings.errors.nameRequired"));
       return;
     }
     const data: Record<string, any> = { name: addForm.name };
@@ -211,25 +213,25 @@ export default function ContactsSettingsPage() {
   };
 
   return (
-    <CRMLayout title="Contacts Settings">
+    <CRMLayout title={t("contactsSettings.pageTitle")}>
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <SettingsIcon className="h-6 w-6" />
-          <h1 className="text-2xl font-bold">Contacts Settings</h1>
+          <h1 className="text-2xl font-bold">{t("contactsSettings.pageTitle")}</h1>
         </div>
         <p className="text-muted-foreground">
-          Manage your Contacts configuration options. These settings control how contacts are categorized and tracked.
+          {t("contactsSettings.subtitle")}
         </p>
 
         <Tabs defaultValue="statuses" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="statuses">
               <ToggleLeft className="h-4 w-4 mr-2" />
-              Statuses
+              {t("contactsSettings.tabs.statuses")}
             </TabsTrigger>
             <TabsTrigger value="tiers">
               <Star className="h-4 w-4 mr-2" />
-              Tiers
+              {t("contactsSettings.tabs.tiers")}
             </TabsTrigger>
           </TabsList>
 
@@ -237,32 +239,32 @@ export default function ContactsSettingsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Contact Statuses</CardTitle>
-                  <CardDescription>Manage contact statuses (Active, Inactive, Churned, etc.)</CardDescription>
+                  <CardTitle>{t("contactsSettings.sectionTitle", { type: "status" })}</CardTitle>
+                  <CardDescription>{t("contactsSettings.sectionDescription", { type: "status" })}</CardDescription>
                 </div>
                 <Button onClick={() => openAddDialog("status")}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Status
+                  <Plus className="h-4 w-4 mr-2" /> {t("contactsSettings.addItem", { type: "status" })}
                 </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">Order</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Color</TableHead>
-                      <TableHead>Default</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="w-12">{t("contactsSettings.order")}</TableHead>
+                      <TableHead>{t("common.name")}</TableHead>
+                      <TableHead>{t("common.color")}</TableHead>
+                      <TableHead>{t("common.default")}</TableHead>
+                      <TableHead className="text-right">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {statusesLoading ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                        <TableCell colSpan={5} className="text-center">{t("common.loading")}</TableCell>
                       </TableRow>
                     ) : statuses.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center">No statuses found</TableCell>
+                        <TableCell colSpan={5} className="text-center">{t("contactsSettings.noResults", { type: "status" })}</TableCell>
                       </TableRow>
                     ) : (
                       statuses.map((status: DynamicOption) => (
@@ -285,7 +287,7 @@ export default function ContactsSettingsPage() {
                           <TableCell>
                             {status.isDefault ? (
                               <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                                Default
+                                {t("common.default")}
                               </span>
                             ) : (
                               "—"
@@ -321,31 +323,31 @@ export default function ContactsSettingsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Contact Tiers</CardTitle>
+                  <CardTitle>{t("contactsSettings.sectionTitle", { type: "tier" })}</CardTitle>
                   <CardDescription>Manage contact tiers (Enterprise, Professional, Starter, etc.)</CardDescription>
                 </div>
                 <Button onClick={() => openAddDialog("tier")}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Tier
+                  <Plus className="h-4 w-4 mr-2" /> {t("contactsSettings.addItem", { type: "tier" })}
                 </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">Order</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Color</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="w-12">{t("contactsSettings.order")}</TableHead>
+                      <TableHead>{t("common.name")}</TableHead>
+                      <TableHead>{t("common.color")}</TableHead>
+                      <TableHead className="text-right">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {tiersLoading ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center">Loading...</TableCell>
+                        <TableCell colSpan={4} className="text-center">{t("common.loading")}</TableCell>
                       </TableRow>
                     ) : tiers.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center">No tiers found</TableCell>
+                        <TableCell colSpan={4} className="text-center">{t("contactsSettings.noResults", { type: "tier" })}</TableCell>
                       </TableRow>
                     ) : (
                       tiers.map((tier: DynamicOption) => (
@@ -409,11 +411,11 @@ export default function ContactsSettingsPage() {
               <Input
                 value={addForm.name || ""}
                 onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                placeholder={`Enter ${addType} name`}
+                placeholder={t("contactsSettings.placeholders.name", { type: addType })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("common.color")}</Label>
               <ColorPicker
                 value={addForm.color || ""}
                 onChange={(v) => setAddForm({ ...addForm, color: v })}
@@ -422,10 +424,10 @@ export default function ContactsSettingsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleAdd} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create"}
+              {createMutation.isPending ? t("common.creating") : t("common.create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -443,15 +445,15 @@ export default function ContactsSettingsPage() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label>{t("common.name")}</Label>
               <Input
                 value={editForm.name || ""}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                placeholder="Enter name"
+                placeholder={t("contactsSettings.placeholders.editName")}
               />
             </div>
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("common.color")}</Label>
               <ColorPicker
                 value={editForm.color || ""}
                 onChange={(v) => setEditForm({ ...editForm, color: v })}
@@ -460,10 +462,10 @@ export default function ContactsSettingsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              {updateMutation.isPending ? t("common.saving") : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </DialogContent>

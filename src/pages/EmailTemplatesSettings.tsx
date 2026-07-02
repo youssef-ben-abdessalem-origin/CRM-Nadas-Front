@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Mail } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 interface EmailTemplate {
   id: number;
@@ -34,6 +35,7 @@ interface EmailTemplate {
 }
 
 const EmailTemplatesSettings = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [showDialog, setShowDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
@@ -214,17 +216,17 @@ const EmailTemplatesSettings = () => {
             <div className="space-y-2">
               <Label>Body</Label>
               <Textarea
-                placeholder="Hi {{name}},"
+                placeholder={t("emailTemplates.placeholders.body")}
                 value={formData.body}
                 onChange={(e) => setFormData({ ...formData, body: e.target.value })}
                 className="min-h-[200px]"
               />
               <p className="text-xs text-muted-foreground">
-                Use placeholders like {'{{name}}'}, {'{{company}}'}, {'{{topic}}'} for dynamic content.
+                {t("emailTemplates.placeholderHint")}
               </p>
             </div>
             <Button onClick={handleSubmit} className="w-full">
-              {editingTemplate ? "Update" : "Create"}
+              {editingTemplate ? t("common.update") : t("common.create")}
             </Button>
           </div>
         </DialogContent>

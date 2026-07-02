@@ -12,8 +12,10 @@ import { Plus, Pencil, Trash2, Truck, Percent, ChevronLeft } from "lucide-react"
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function LogisticsSettings() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [editingItem, setEditingItem] = useState<{ type: 'carrier' | 'tax', item: any } | null>(null);
@@ -34,7 +36,7 @@ export default function LogisticsSettings() {
     mutationFn: (data: any) => data.id ? api.settings.updateCarrier(data.id, data) : api.settings.createCarrier(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["carriers"] });
-      toast.success("Carrier updated successfully");
+      toast.success(t("logistics.statusUpdates.carrierUpdated"));
       setShowDialog(false);
     },
     onError: (err: any) => toast.error(err.message),
@@ -44,7 +46,7 @@ export default function LogisticsSettings() {
     mutationFn: (data: any) => data.id ? api.products.updateTaxClass(data.id, data) : api.products.createTaxClass(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tax-classes"] });
-      toast.success("Tax setting updated successfully");
+      toast.success(t("logistics.statusUpdates.taxUpdated"));
       setShowDialog(false);
     },
     onError: (err: any) => toast.error(err.message),
@@ -54,7 +56,7 @@ export default function LogisticsSettings() {
     mutationFn: api.settings.deleteCarrier,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["carriers"] });
-      toast.success("Carrier removed");
+      toast.success(t("logistics.statusUpdates.carrierRemoved"));
     },
   });
 
@@ -62,7 +64,7 @@ export default function LogisticsSettings() {
     mutationFn: api.products.deleteTaxClass,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tax-classes"] });
-      toast.success("Tax setting removed");
+      toast.success(t("logistics.statusUpdates.taxRemoved"));
     },
   });
 
@@ -81,23 +83,23 @@ export default function LogisticsSettings() {
   };
 
   return (
-    <CRMLayout title="Logistics & Tax Settings">
+    <CRMLayout title={t("logistics.pageTitle")}>
       <div className="space-y-6 max-w-5xl mx-auto">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}><ChevronLeft /></Button>
           <div>
-            <h1 className="text-2xl font-bold">Logistics & Financials</h1>
-            <p className="text-muted-foreground">Manage shipping carriers and global tax configurations</p>
+            <h1 className="text-2xl font-bold">{t("logistics.title")}</h1>
+            <p className="text-muted-foreground">{t("logistics.subtitle")}</p>
           </div>
         </div>
 
         <Tabs defaultValue="carriers" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md">
             <TabsTrigger value="carriers">
-              <Truck className="h-4 w-4 mr-2" /> Carriers
+              <Truck className="h-4 w-4 mr-2" /> {t("logistics.tabs.carriers")}
             </TabsTrigger>
             <TabsTrigger value="tax">
-              <Percent className="h-4 w-4 mr-2" /> Tax Settings
+              <Percent className="h-4 w-4 mr-2" /> {t("logistics.tabs.tax")}
             </TabsTrigger>
           </TabsList>
 
@@ -105,20 +107,20 @@ export default function LogisticsSettings() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between border-b py-4">
                 <div>
-                  <CardTitle className="text-sm uppercase tracking-widest font-bold text-muted-foreground">Shipping Carriers</CardTitle>
+                  <CardTitle className="text-sm uppercase tracking-widest font-bold text-muted-foreground">{t("logistics.carriers.title")}</CardTitle>
                 </div>
                 <Button size="sm" onClick={() => openEdit('carrier')}>
-                   <Plus className="h-4 w-4 mr-2" /> New Carrier
+                   <Plus className="h-4 w-4 mr-2" /> {t("logistics.carriers.addNew")}
                 </Button>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="pl-6">Carrier Name</TableHead>
-                      <TableHead>Code</TableHead>
-                      <TableHead>Tracking Template</TableHead>
-                      <TableHead className="text-right pr-6">Actions</TableHead>
+                      <TableHead className="pl-6">{t("logistics.carriers.carrierName")}</TableHead>
+                      <TableHead>{t("logistics.carriers.code")}</TableHead>
+                      <TableHead>{t("logistics.carriers.trackingTemplate")}</TableHead>
+                      <TableHead className="text-right pr-6">{t("logistics.carriers.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -143,19 +145,19 @@ export default function LogisticsSettings() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between border-b py-4">
                 <div>
-                  <CardTitle className="text-sm uppercase tracking-widest font-bold text-muted-foreground">Tax Classes</CardTitle>
+                  <CardTitle className="text-sm uppercase tracking-widest font-bold text-muted-foreground">{t("logistics.tax.title")}</CardTitle>
                 </div>
                 <Button size="sm" onClick={() => openEdit('tax')}>
-                   <Plus className="h-4 w-4 mr-2" /> New Tax Protocol
+                   <Plus className="h-4 w-4 mr-2" /> {t("logistics.tax.addNew")}
                 </Button>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="pl-6">Protocol Name</TableHead>
-                      <TableHead>Tax Rate (%)</TableHead>
-                      <TableHead className="text-right pr-6">Actions</TableHead>
+                      <TableHead className="pl-6">{t("logistics.tax.protocolName")}</TableHead>
+                      <TableHead>{t("logistics.tax.taxRate")}</TableHead>
+                      <TableHead className="text-right pr-6">{t("logistics.carriers.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -183,36 +185,36 @@ export default function LogisticsSettings() {
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingItem?.item.id ? 'Edit' : 'Add'} {editingItem?.type === 'carrier' ? 'Carrier' : 'Tax Protocol'}</DialogTitle>
-              <DialogDescription>Define your logistics and financial rules here.</DialogDescription>
+              <DialogTitle>{editingItem?.item.id ? t("common.edit") : t("common.add")} {editingItem?.type === 'carrier' ? t("logistics.dialog.carrier") : t("logistics.dialog.taxProtocol")}</DialogTitle>
+              <DialogDescription>{t("logistics.dialog.description")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>Label / Name</Label>
-                <Input value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={editingItem?.type === 'carrier' ? 'e.g. Aramex' : 'e.g. Standard VAT'} />
+                <Label>{t("logistics.dialog.labelName")}</Label>
+                <Input value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={editingItem?.type === 'carrier' ? t("logistics.dialog.placeholders.carrier") : t("logistics.dialog.placeholders.taxProtocol")} />
               </div>
               {editingItem?.type === 'carrier' ? (
                 <>
                   <div className="space-y-2">
-                    <Label>Carrier Code</Label>
-                    <Input value={formData.code || ''} onChange={(e) => setFormData({ ...formData, code: e.target.value })} placeholder="e.g. ARAMEX" />
+                    <Label>{t("logistics.dialog.carrierCode")}</Label>
+                    <Input value={formData.code || ''} onChange={(e) => setFormData({ ...formData, code: e.target.value })} placeholder={t("logistics.dialog.placeholders.code")} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Tracking URL Template</Label>
-                    <Input value={formData.trackingUrlTemplate || ''} onChange={(e) => setFormData({ ...formData, trackingUrlTemplate: e.target.value })} placeholder="https://.../{{trackingNumber}}" />
+                    <Label>{t("logistics.dialog.trackingUrlTemplate")}</Label>
+                    <Input value={formData.trackingUrlTemplate || ''} onChange={(e) => setFormData({ ...formData, trackingUrlTemplate: e.target.value })} placeholder={t("logistics.dialog.placeholders.trackingTemplate")} />
                     <p className="text-[10px] text-muted-foreground">Use <code>{`{{trackingNumber}}`}</code> as a placeholder.</p>
                   </div>
                 </>
               ) : (
                 <div className="space-y-2">
-                  <Label>Rate (%)</Label>
-                  <Input type="number" value={formData.rate || ''} onChange={(e) => setFormData({ ...formData, rate: Number(e.target.value) })} placeholder="e.g. 19" />
+                  <Label>{t("logistics.dialog.rate")}</Label>
+                  <Input type="number" value={formData.rate || ''} onChange={(e) => setFormData({ ...formData, rate: Number(e.target.value) })} placeholder={t("logistics.dialog.placeholders.rate")} />
                 </div>
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDialog(false)}>Cancel</Button>
-              <Button onClick={handleSave}>Save Rule</Button>
+              <Button variant="outline" onClick={() => setShowDialog(false)}>{t("common.cancel")}</Button>
+              <Button onClick={handleSave}>{t("logistics.dialog.saveRule")}</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

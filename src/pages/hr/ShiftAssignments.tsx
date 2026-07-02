@@ -11,8 +11,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Edit, Trash, CalendarDays } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function ShiftAssignments() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState<ShiftAssignment | null>(null);
@@ -42,7 +44,7 @@ export default function ShiftAssignments() {
     mutationFn: (data: any) => api.hr.shiftAssignments.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shiftAssignments"] });
-      toast.success("Shift assignment created");
+      toast.success(t("hr.statusUpdates.shiftAssignmentCreated"));
       setIsOpen(false);
       resetForm();
     },
@@ -52,7 +54,7 @@ export default function ShiftAssignments() {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.hr.shiftAssignments.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shiftAssignments"] });
-      toast.success("Shift assignment updated");
+      toast.success(t("hr.statusUpdates.shiftAssignmentUpdated"));
       setIsOpen(false);
       resetForm();
     },
@@ -62,7 +64,7 @@ export default function ShiftAssignments() {
     mutationFn: (id: number) => api.hr.shiftAssignments.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shiftAssignments"] });
-      toast.success("Shift assignment deleted");
+      toast.success(t("hr.statusUpdates.shiftAssignmentDeleted"));
     },
   });
 
@@ -96,26 +98,26 @@ export default function ShiftAssignments() {
   };
 
   return (
-    <CRMLayout title="HR - Shift Assignments">
+    <CRMLayout title={t("hr.shiftAssignments.pageTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Shift Assignments</h1>
-            <p className="text-muted-foreground">Assign work shifts to employees for specific date ranges.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.shiftAssignments.title")}</h1>
+            <p className="text-muted-foreground">{t("hr.shiftAssignments.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><CalendarDays className="h-4 w-4" /> New Assignment</Button>
+              <Button className="gap-2"><CalendarDays className="h-4 w-4" /> {t("hr.shiftAssignments.actions.create")}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>{editing ? "Edit Assignment" : "New Shift Assignment"}</DialogTitle>
+                <DialogTitle>{editing ? t("hr.shiftAssignments.dialog.edit") : t("hr.shiftAssignments.dialog.create")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Employee *</label>
+                  <label className="text-sm font-semibold">{t("hr.shiftAssignments.forms.employee")} *</label>
                   <Select value={employeeId} onValueChange={setEmployeeId}>
-                    <SelectTrigger><SelectValue placeholder="Select Employee" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("hr.shiftAssignments.placeholders.selectEmployee")} /></SelectTrigger>
                     <SelectContent>
                       {employees.map((emp: any) => (
                         <SelectItem key={emp.id} value={String(emp.id)}>{emp.firstName} {emp.lastName}</SelectItem>
@@ -124,9 +126,9 @@ export default function ShiftAssignments() {
                   </Select>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Shift *</label>
+                  <label className="text-sm font-semibold">{t("hr.shiftAssignments.forms.shift")} *</label>
                   <Select value={shiftId} onValueChange={setShiftId}>
-                    <SelectTrigger><SelectValue placeholder="Select Shift" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("hr.shiftAssignments.placeholders.selectShift")} /></SelectTrigger>
                     <SelectContent>
                       {shifts.map((s: any) => (
                         <SelectItem key={s.id} value={String(s.id)}>{s.name} ({s.startTime}-{s.endTime})</SelectItem>
@@ -136,21 +138,21 @@ export default function ShiftAssignments() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Start Date *</label>
+                    <label className="text-sm font-semibold">{t("hr.shiftAssignments.forms.startDate")} *</label>
                     <Input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">End Date</label>
+                    <label className="text-sm font-semibold">{t("hr.shiftAssignments.forms.endDate")}</label>
                     <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Notes</label>
-                  <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes" />
+                  <label className="text-sm font-semibold">{t("hr.shiftAssignments.forms.notes")}</label>
+                  <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t("hr.shiftAssignments.placeholders.notes")} />
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>{t("common.save")}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -161,21 +163,21 @@ export default function ShiftAssignments() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Shift</TableHead>
-                <TableHead>Start Date</TableHead>
-                <TableHead>End Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("hr.shiftAssignments.table.employee")}</TableHead>
+                <TableHead>{t("hr.shiftAssignments.table.shift")}</TableHead>
+                <TableHead>{t("hr.shiftAssignments.table.startDate")}</TableHead>
+                <TableHead>{t("hr.shiftAssignments.table.endDate")}</TableHead>
+                <TableHead className="text-right">{t("hr.shiftAssignments.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">Loading assignments...</TableCell>
+                  <TableCell colSpan={5} className="text-center py-8">{t("hr.shiftAssignments.loading")}</TableCell>
                 </TableRow>
               ) : assignments.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">No shift assignments found.</TableCell>
+                  <TableCell colSpan={5} className="text-center py-8">{t("hr.shiftAssignments.empty")}</TableCell>
                 </TableRow>
               ) : (
                 assignments.map((a) => (
@@ -192,7 +194,7 @@ export default function ShiftAssignments() {
                       ) : "-"}
                     </TableCell>
                     <TableCell>{new Date(a.startDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{a.endDate ? new Date(a.endDate).toLocaleDateString() : "Ongoing"}</TableCell>
+                    <TableCell>{a.endDate ? new Date(a.endDate).toLocaleDateString() : t("hr.shiftAssignments.ongoing")}</TableCell>
                     <TableCell className="text-right">
                       <Button size="icon" variant="ghost" onClick={() => handleEdit(a)}>
                         <Edit className="h-4 w-4" />

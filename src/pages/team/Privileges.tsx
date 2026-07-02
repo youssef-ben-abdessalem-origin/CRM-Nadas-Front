@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Lock, Info, AlertCircle, ShieldCheck } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -16,6 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { api, Role, Permission } from "@/lib/api";
 
 const Privileges = () => {
+  const { t } = useTranslation();
   const { data: roles = [], isLoading: loadingRoles } = useQuery({
     queryKey: ["roles"],
     queryFn: api.roles.getAll,
@@ -38,35 +40,36 @@ const Privileges = () => {
 
   if (loadingRoles || loadingPerms) {
     return (
-      <CRMLayout title="Team - Privileges">
+      <CRMLayout title={t("team.privileges.pageTitle")}>
         <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground animate-pulse">Loading privilege matrix...</p>
+          <p className="text-muted-foreground animate-pulse">{t("team.privileges.loading")}</p>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Team - Privileges">
+    <CRMLayout title={t("team.privileges.pageTitle")}>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold tracking-tight flex items-center">
               <Lock className="h-5 w-5 mr-2 text-primary" />
-              Privilege Control Matrix
+              {t("team.privileges.title")}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Global overview of permission mapping across system roles.
+              {t("team.privileges.description")}
             </p>
           </div>
         </div>
 
         <Alert className="bg-primary/5 border-primary/20">
           <ShieldCheck className="h-4 w-4 text-primary" />
-          <AlertTitle>Read-Only View</AlertTitle>
+          <AlertTitle>{t("team.privileges.readOnlyTitle")}</AlertTitle>
           <AlertDescription>
-            This matrix provides a comprehensive overview. To modify permissions for a specific role, please use the 
-            <span className="font-semibold mx-1">Roles management</span> page.
+            {t("team.privileges.readOnlyDescription")}
+            <span className="font-semibold mx-1">{t("team.privileges.rolesManagementLink")}</span>
+            {t("team.privileges.readOnlyDescriptionEnd")}
           </AlertDescription>
         </Alert>
 
@@ -74,7 +77,7 @@ const Privileges = () => {
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead className="w-[200px] sticky left-0 bg-muted/50 z-10">Capability / Module</TableHead>
+                <TableHead className="w-[200px] sticky left-0 bg-muted/50 z-10">{t("team.privileges.table.capabilityModule")}</TableHead>
                 {roles.map((role: Role) => (
                   <TableHead key={role.id} className="text-center min-w-[120px]">
                     <div className="flex flex-col items-center gap-1">
@@ -106,7 +109,7 @@ const Privileges = () => {
                           <TableCell key={role.id} className="text-center">
                             {granted ? (
                               <Badge variant="secondary" className="bg-green-500/10 text-green-700 hover:bg-green-500/15 border-transparent">
-                                Granted
+                                {t("team.privileges.granted")}
                               </Badge>
                             ) : (
                               <span className="text-muted-foreground/30 text-[10px]">&mdash;</span>
@@ -128,12 +131,12 @@ const Privileges = () => {
                <div className="flex items-start gap-3">
                  <Info className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
                  <div>
-                   <h4 className="font-bold text-sm">Hierarchy</h4>
-                   <p className="text-xs text-muted-foreground mt-1">
-                     Roles are horizontal. To create a hierarchical permission structure, simply add more permissions to the higher-level roles.
-                   </p>
-                 </div>
-               </div>
+                    <h4 className="font-bold text-sm">{t("team.privileges.cards.hierarchy.title")}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("team.privileges.cards.hierarchy.description")}
+                    </p>
+                  </div>
+                </div>
             </CardContent>
            </Card>
            
@@ -142,9 +145,9 @@ const Privileges = () => {
                <div className="flex items-start gap-3">
                  <AlertCircle className="h-5 w-5 text-orange-500 shrink-0 mt-0.5" />
                  <div>
-                   <h4 className="font-bold text-sm">System Roles</h4>
+                   <h4 className="font-bold text-sm">{t("team.privileges.cards.systemRoles.title")}</h4>
                    <p className="text-xs text-muted-foreground mt-1">
-                     Roles marked as "System" cannot be deleted. They are critical for core platform operations.
+                     {t("team.privileges.cards.systemRoles.description")}
                    </p>
                  </div>
                </div>
@@ -156,9 +159,9 @@ const Privileges = () => {
                <div className="flex items-start gap-3">
                  <Lock className="h-5 w-5 text-purple-500 shrink-0 mt-0.5" />
                  <div>
-                   <h4 className="font-bold text-sm">Security Policy</h4>
+                   <h4 className="font-bold text-sm">{t("team.privileges.cards.securityPolicy.title")}</h4>
                    <p className="text-xs text-muted-foreground mt-1">
-                     Changes to permissions take effect immediately for all active sessions assigned to the role.
+                     {t("team.privileges.cards.securityPolicy.description")}
                    </p>
                  </div>
                </div>

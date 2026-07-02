@@ -43,9 +43,11 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useConfirm } from "@/hooks/use-confirm";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
 
 
 export default function QuotesPage() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
@@ -66,7 +68,7 @@ export default function QuotesPage() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quotes"] });
-      toast.success("Quote status updated");
+      toast.success(t("quotes.statusUpdates.statusUpdated"));
     },
   });
 
@@ -75,7 +77,7 @@ export default function QuotesPage() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["quotes"] });
-      toast.success("Quote removed from system");
+      toast.success(t("quotes.statusUpdates.removed"));
     },
   });
 
@@ -89,16 +91,16 @@ export default function QuotesPage() {
   const stats = {
     total: quotes.length,
     volume: quotes.reduce((acc: number, q: any) => acc + (q.total || 0), 0),
-    accepted: quotes.filter((q: any) => q.status === 'accepted').length,
-    pending: quotes.filter((q: any) => q.status === 'sent').length,
-    successRate: quotes.length > 0 ? Math.round((quotes.filter((q: any) => q.status === 'accepted').length / quotes.length) * 100) : 0
+    accepted: quotes.filter((q: any) => q.status === t('quotes.statuses.accepted')).length,
+    pending: quotes.filter((q: any) => q.status === t('quotes.statuses.sent')).length,
+    successRate: quotes.length > 0 ? Math.round((quotes.filter((q: any) => q.status === t('quotes.statuses.accepted')).length / quotes.length) * 100) : 0
   };
 
   const getStatusBadge = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'accepted': return <Badge className="bg-green-500 hover:bg-green-600">Accepted</Badge>;
-      case 'sent': return <Badge variant="secondary" className="bg-blue-500/10 text-blue-600">Sent</Badge>;
-      case 'draft': return <Badge variant="outline">Draft</Badge>;
+      case t('quotes.statuses.accepted'): return <Badge className="bg-green-500 hover:bg-green-600">Accepted</Badge>;
+      case t('quotes.statuses.sent'): return <Badge variant="secondary" className="bg-blue-500/10 text-blue-600">Sent</Badge>;
+      case t('quotes.statuses.draft'): return <Badge variant="outline">Draft</Badge>;
       case 'declined': return <Badge variant="destructive">Declined</Badge>;
       default: return <Badge variant="outline">{status}</Badge>;
     }
@@ -117,7 +119,7 @@ export default function QuotesPage() {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Quotes">
+      <CRMLayout title={t("quotes.pageTitle")}>
         <div className="flex items-center justify-center h-64">
           <div className="text-muted-foreground italic">Syncing business records...</div>
         </div>
@@ -126,7 +128,7 @@ export default function QuotesPage() {
   }
 
   return (
-    <CRMLayout title="Quotes">
+    <CRMLayout title={t("quotes.pageTitle")}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

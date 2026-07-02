@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api, Attendance as AttendanceRecord, Employee } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -117,6 +118,7 @@ function getDayLabel(year: number, monthIndex: number, day: number) {
 }
 
 export default function Attendance() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState<"daily" | "monthly">("daily");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
@@ -163,7 +165,7 @@ export default function Attendance() {
     mutationFn: api.hr.attendance.log,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["attendance"] });
-      toast.success("Attendance saved");
+      toast.success(t("hr.statusUpdates.attendanceSaved"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -223,7 +225,7 @@ export default function Attendance() {
     const groups = new Map<string, Employee[]>();
 
     for (const employee of employees) {
-      const departmentName = employee.department?.name || "Unassigned";
+      const departmentName = employee.department?.name || t("hr.attendance.unassigned");
       const current = groups.get(departmentName) || [];
       current.push(employee);
       groups.set(departmentName, current);
@@ -284,24 +286,24 @@ export default function Attendance() {
   }, [employees, monthlyLogs]);
 
   return (
-    <CRMLayout title="HR - Attendance">
+    <CRMLayout title={t("hr.attendance.title")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Attendance Tracking</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.attendance.title")}</h1>
             <p className="text-muted-foreground">
-              Shift-aware attendance with daily entry and monthly matrix supervision.
+              {t("hr.attendance.description")}
             </p>
           </div>
           <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "daily" | "monthly")}>
             <TabsList className="grid w-[260px] grid-cols-2">
               <TabsTrigger value="daily" className="gap-2">
                 <Table2 className="h-4 w-4" />
-                Daily
+                {t("hr.attendance.tabs.daily")}
               </TabsTrigger>
               <TabsTrigger value="monthly" className="gap-2">
                 <Grid3X3 className="h-4 w-4" />
-                Monthly Matrix
+                {t("hr.attendance.tabs.monthlyMatrix")}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -325,27 +327,27 @@ export default function Attendance() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Employee ID</TableHead>
-                    <TableHead>Employee Name</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Check-in</TableHead>
-                    <TableHead>Check-out</TableHead>
-                    <TableHead>Hours</TableHead>
-                    <TableHead>Notes</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
+                    <TableHead>{t("hr.attendance.table.employeeId")}</TableHead>
+                    <TableHead>{t("hr.attendance.table.employeeName")}</TableHead>
+                    <TableHead>{t("hr.attendance.table.status")}</TableHead>
+                    <TableHead>{t("hr.attendance.table.checkIn")}</TableHead>
+                    <TableHead>{t("hr.attendance.table.checkOut")}</TableHead>
+                    <TableHead>{t("hr.attendance.table.hours")}</TableHead>
+                    <TableHead>{t("hr.attendance.table.notes")}</TableHead>
+                    <TableHead className="text-right">{t("hr.attendance.table.action")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loadingEmployees || loadingDailyLogs ? (
                     <TableRow>
                       <TableCell colSpan={8} className="py-8 text-center">
-                        Loading logs...
+                        {t("common.loading")}
                       </TableCell>
                     </TableRow>
                   ) : employees.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={8} className="py-8 text-center">
-                        No active employees found to log attendance.
+                        {t("hr.attendance.noEmployees")}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -361,7 +363,7 @@ export default function Attendance() {
                               <div>{employee.firstName} {employee.lastName}</div>
                               {log?.shiftName ? (
                                 <div className="text-xs text-muted-foreground">
-                                  Shift: {log.shiftName}
+                                  {t("hr.attendance.shiftLabel")}: {log.shiftName}
                                 </div>
                               ) : null}
                             </div>
@@ -415,7 +417,7 @@ export default function Attendance() {
                               />
                               {log ? (
                                 <div className="text-xs text-muted-foreground">
-                                  Late {log.lateMinutes || 0}m • OT {log.overtimeHours || 0}h
+                                  {t("hr.attendance.lateLabel")} {log.lateMinutes || 0}m • {t("hr.attendance.otLabel")} {log.overtimeHours || 0}h
                                 </div>
                               ) : null}
                             </div>
@@ -424,7 +426,7 @@ export default function Attendance() {
                             <Input
                               value={state.notes}
                               onChange={(e) => updateRowState(employee.id, { notes: e.target.value })}
-                              placeholder="Optional note"
+                              placeholder={t("hr.attendance.placeholders.optionalNote")}
                               className="min-w-[180px]"
                             />
                           </TableCell>
@@ -435,8 +437,8 @@ export default function Attendance() {
                               className="gap-1"
                             >
                               <Save className="h-4 w-4" />
-                              Save
-                            </Button>
+                                {t("common.save")}
+                              </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -458,7 +460,7 @@ export default function Attendance() {
                   className="w-56"
                 />
                 <div className="text-sm text-muted-foreground">
-                  Click any day cell to edit the attendance record.
+                  {t("hr.attendance.monthlyHint")}
                 </div>
               </CardContent>
             </Card>
@@ -469,7 +471,7 @@ export default function Attendance() {
                   <thead>
                     <tr className="border-b bg-muted/30">
                       <th className="sticky left-0 z-10 min-w-[280px] border-r bg-muted/30 px-4 py-3 text-left font-semibold text-foreground">
-                        Employee
+                        {t("hr.attendance.table.employee")}
                       </th>
                       {Array.from({ length: monthRange.daysInMonth }, (_, index) => {
                         const day = index + 1;
@@ -486,9 +488,9 @@ export default function Attendance() {
                           </th>
                         );
                       })}
-                      <th className="min-w-[70px] px-2 py-3 text-center text-xs font-semibold text-muted-foreground">%</th>
-                      <th className="min-w-[50px] px-2 py-3 text-center text-xs font-semibold text-muted-foreground">P</th>
-                      <th className="min-w-[50px] px-2 py-3 text-center text-xs font-semibold text-muted-foreground">A</th>
+                      <th className="min-w-[70px] px-2 py-3 text-center text-xs font-semibold text-muted-foreground">{t("hr.attendance.monthly.rate")}</th>
+                      <th className="min-w-[50px] px-2 py-3 text-center text-xs font-semibold text-muted-foreground">{t("hr.attendance.monthly.present")}</th>
+                      <th className="min-w-[50px] px-2 py-3 text-center text-xs font-semibold text-muted-foreground">{t("hr.attendance.monthly.absent")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -498,7 +500,7 @@ export default function Attendance() {
                           colSpan={monthRange.daysInMonth + 4}
                           className="px-4 py-12 text-center text-muted-foreground"
                         >
-                          Loading monthly attendance...
+                          {t("hr.attendance.loadingMonthly")}
                         </td>
                       </tr>
                     ) : groupedEmployees.map((group) => (
@@ -508,7 +510,7 @@ export default function Attendance() {
                             colSpan={monthRange.daysInMonth + 4}
                             className="px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground"
                           >
-                            {group.department} ({group.members.length} employees)
+                            {group.department} ({group.members.length} {t("hr.attendance.employees")})
                           </td>
                         </tr>
                         {group.members.map((employee) => {
@@ -565,7 +567,7 @@ export default function Attendance() {
                                       title={
                                         record
                                           ? `${status} - ${record.checkIn || ""} ${record.checkOut || ""}`.trim()
-                                          : "No attendance record"
+                                          : t("hr.attendance.noRecord")
                                       }
                                     >
                                       {theme ? theme.label : "•"}
@@ -597,11 +599,11 @@ export default function Attendance() {
         <Dialog open={matrixEditorOpen} onOpenChange={setMatrixEditorOpen}>
           <DialogContent className="sm:max-w-xl">
             <DialogHeader>
-              <DialogTitle>Attendance Entry</DialogTitle>
+              <DialogTitle>{t("hr.attendance.dialog.title")}</DialogTitle>
               <DialogDescription>
                 {selectedCell
                   ? `${selectedCell.employee.firstName} ${selectedCell.employee.lastName} - ${selectedCell.dateKey}`
-                  : "Update attendance status and timings"}
+                  : t("hr.attendance.dialog.description")}
               </DialogDescription>
             </DialogHeader>
             {selectedCell ? (
@@ -614,7 +616,7 @@ export default function Attendance() {
                 className="grid gap-4 md:grid-cols-2"
               >
                 <div className="space-y-2">
-                  <Label>Status</Label>
+                  <Label>{t("hr.attendance.dialog.status")}</Label>
                   <Select
                     value={cellForm.status}
                     onValueChange={(value) =>
@@ -642,7 +644,7 @@ export default function Attendance() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Source</Label>
+                  <Label>{t("hr.attendance.dialog.source")}</Label>
                   <Input
                     value={cellForm.source}
                     onChange={(e) =>
@@ -651,7 +653,7 @@ export default function Attendance() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Check-in</Label>
+                  <Label>{t("hr.attendance.dialog.checkIn")}</Label>
                   <Input
                     type="time"
                     value={cellForm.checkIn}
@@ -662,7 +664,7 @@ export default function Attendance() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Check-out</Label>
+                  <Label>{t("hr.attendance.dialog.checkOut")}</Label>
                   <Input
                     type="time"
                     value={cellForm.checkOut}
@@ -673,7 +675,7 @@ export default function Attendance() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Worked Hours</Label>
+                  <Label>{t("hr.attendance.dialog.workedHours")}</Label>
                   <Input
                     type="number"
                     step="0.5"
@@ -685,33 +687,33 @@ export default function Attendance() {
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Notes</Label>
+                  <Label>{t("hr.attendance.dialog.notes")}</Label>
                   <Textarea
                     rows={3}
                     value={cellForm.notes}
                     onChange={(e) =>
                       setCellForm((prev) => ({ ...prev, notes: e.target.value }))
                     }
-                    placeholder="Optional HR note"
+                    placeholder={t("hr.attendance.placeholders.hrNote")}
                   />
                 </div>
                 {selectedCell.record ? (
                   <div className="rounded-xl border border-border/60 bg-muted/30 p-3 text-xs text-muted-foreground md:col-span-2">
                     <div className="flex flex-wrap gap-3">
-                      <Badge variant="outline">Shift: {selectedCell.record.shiftName || "N/A"}</Badge>
-                      <Badge variant="outline">Late: {selectedCell.record.lateMinutes || 0} min</Badge>
-                      <Badge variant="outline">Early Leave: {selectedCell.record.earlyDepartureMinutes || 0} min</Badge>
-                      <Badge variant="outline">OT: {selectedCell.record.overtimeHours || 0} h</Badge>
+                      <Badge variant="outline">{t("hr.attendance.dialog.shiftBadge")}: {selectedCell.record.shiftName || "N/A"}</Badge>
+                      <Badge variant="outline">{t("hr.attendance.dialog.lateBadge")}: {selectedCell.record.lateMinutes || 0} min</Badge>
+                      <Badge variant="outline">{t("hr.attendance.dialog.earlyLeaveBadge")}: {selectedCell.record.earlyDepartureMinutes || 0} min</Badge>
+                      <Badge variant="outline">{t("hr.attendance.dialog.otBadge")}: {selectedCell.record.overtimeHours || 0} h</Badge>
                     </div>
                   </div>
                 ) : null}
                 <DialogFooter className="md:col-span-2">
                   <Button type="button" variant="outline" onClick={() => setMatrixEditorOpen(false)}>
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                   <Button type="submit" disabled={logMutation.isPending} className="gap-2">
                     <Save className="h-4 w-4" />
-                    {logMutation.isPending ? "Saving..." : "Save Attendance"}
+                    {logMutation.isPending ? t("common.actions.saving") : t("hr.attendance.actions.saveAttendance")}
                   </Button>
                 </DialogFooter>
               </form>

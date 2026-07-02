@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ type DragState = {
 } | null;
 
 export default function SignatureWorkspace() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { taskId } = useParams();
   const [task, setTask] = useState<SignatureTask | null>(null);
@@ -182,7 +184,7 @@ export default function SignatureWorkspace() {
               onPointerDown={(event) => handleAreaPointerDown(event, zone.id)}
             >
               <GripHorizontal className="h-3 w-3" />
-              Move
+              {t("signatures.workspace.move")}
             </button>
             <span>{zone.label}</span>
           </div>
@@ -232,7 +234,7 @@ export default function SignatureWorkspace() {
               setDialogOpen(true);
             }}
           >
-            Click to add {zone.label.toLowerCase()}
+            {t("signatures.workspace.clickToAdd", { label: zone.label.toLowerCase() })}
           </button>
         )}
       </div>
@@ -272,16 +274,16 @@ export default function SignatureWorkspace() {
     pdf.save(filename);
     markSignatureTaskSigned(task.id, filename);
     refreshTask();
-    toast.success("Signed PDF saved");
+    toast.success(t("signatures.workspace.saved"));
     navigate(`/signatures/${task.id}`);
   };
 
   if (!task) {
     return (
-      <CRMLayout title="Sign Document">
+      <CRMLayout title={t("signatures.workspace.pageTitle")}>
         <div className="p-6">
           <Card className="glass-morphism">
-            <CardContent className="py-12 text-center text-slate-300">Signature task not found.</CardContent>
+            <CardContent className="py-12 text-center text-slate-300">{t("signatures.detail.notFound")}</CardContent>
           </Card>
         </div>
       </CRMLayout>
@@ -290,10 +292,10 @@ export default function SignatureWorkspace() {
 
   if (!payslip) {
     return (
-      <CRMLayout title="Sign Document">
+      <CRMLayout title={t("signatures.workspace.pageTitle")}>
         <div className="p-6">
           <Card className="glass-morphism">
-            <CardContent className="py-12 text-center text-slate-300">Loading signable document...</CardContent>
+            <CardContent className="py-12 text-center text-slate-300">{t("signatures.workspace.loading")}</CardContent>
           </Card>
         </div>
       </CRMLayout>
@@ -301,17 +303,17 @@ export default function SignatureWorkspace() {
   }
 
   return (
-    <CRMLayout title={`Sign - ${task.title}`}>
+    <CRMLayout title={t("signatures.workspace.titleWithDocument", { title: task.title })}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Button variant="outline" className="gap-2" onClick={() => navigate(`/signatures/${task.id}`)}>
               <ArrowLeft className="h-4 w-4" />
-              Back
+              {t("common.actions.close")}
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-100">Sign Document</h1>
-              <p className="text-slate-400">Place your signature in the highlighted section, then validate the final PDF.</p>
+              <h1 className="text-3xl font-bold tracking-tight text-slate-100">{t("signatures.workspace.pageTitle")}</h1>
+              <p className="text-slate-400">{t("signatures.workspace.description")}</p>
             </div>
           </div>
 
@@ -320,7 +322,7 @@ export default function SignatureWorkspace() {
               variant="outline"
               onClick={moveToNextSignatureField}
             >
-              Next Signature Field
+              {t("signatures.workspace.nextField")}
             </Button>
             <Button
               disabled={!allZonesSigned}
@@ -328,7 +330,7 @@ export default function SignatureWorkspace() {
               className="gap-2 bg-emerald-600 hover:bg-emerald-500"
             >
               <CheckCircle2 className="h-4 w-4" />
-              Validate
+              {t("signatures.workspace.validate")}
             </Button>
           </div>
         </div>
@@ -340,7 +342,12 @@ export default function SignatureWorkspace() {
                 <span>{task.title}</span>
               </div>
             <span className="text-sm text-slate-400">
-              {activeZone ? `${activeZone.label}${activeZone.placement ? " signed" : " waiting signature"}` : "Waiting signature"}
+              {activeZone
+                ? t("signatures.workspace.zoneStatus", {
+                    label: activeZone.label,
+                    status: activeZone.placement ? t("signatures.status.signed").toLowerCase() : t("signatures.status.waiting").toLowerCase(),
+                  })
+                : t("signatures.status.waiting")}
             </span>
           </div>
 

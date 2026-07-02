@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = [
@@ -24,6 +25,7 @@ const MONTHS = [
 ];
 
 const CalendarPage = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -47,7 +49,7 @@ const CalendarPage = () => {
     mutationFn: (id: number) => api.activities.complete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities"] });
-      toast.success("Activity completed");
+      toast.success(t("calendar.statusUpdates.activityCompleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -116,7 +118,7 @@ const CalendarPage = () => {
     : [];
 
   return (
-    <CRMLayout title="Calendar">
+    <CRMLayout title={t("calendar.pageTitle")}>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
           <Card>

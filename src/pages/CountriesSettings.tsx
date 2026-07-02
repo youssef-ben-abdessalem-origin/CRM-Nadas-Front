@@ -24,6 +24,7 @@ import { Plus, Pencil, Trash2, Globe } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 interface Country {
   id: number;
@@ -35,6 +36,7 @@ interface Country {
 }
 
 const CountriesSettings = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [showDialog, setShowDialog] = useState(false);
@@ -55,7 +57,7 @@ const CountriesSettings = () => {
     mutationFn: api.settings.createCountry,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["countries"] });
-      toast.success("Country created successfully");
+      toast.success(t("countries.statusUpdates.created"));
       setShowDialog(false);
       resetForm();
     },
@@ -67,7 +69,7 @@ const CountriesSettings = () => {
       api.settings.updateCountry(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["countries"] });
-      toast.success("Country updated successfully");
+      toast.success(t("countries.statusUpdates.updated"));
       setShowDialog(false);
       setEditingCountry(null);
       resetForm();
@@ -79,7 +81,7 @@ const CountriesSettings = () => {
     mutationFn: api.settings.deleteCountry,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["countries"] });
-      toast.success("Country deleted successfully");
+      toast.success(t("countries.statusUpdates.deleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -90,7 +92,7 @@ const CountriesSettings = () => {
 
   const handleSubmit = () => {
     if (!formData.name || !formData.code) {
-      toast.error("Please fill in required fields");
+      toast.error(t("countries.errors.requiredFields"));
       return;
     }
     if (editingCountry) {
@@ -113,10 +115,10 @@ const CountriesSettings = () => {
 
   const handleDelete = async (id: number) => {
     if (await confirm({ 
-      title: "Delete Country", 
-      description: "Are you sure you want to delete this country? This may affect records currently using this location.",
+      title: t("countries.deleteDialog.title"), 
+      description: t("countries.deleteDialog.description"),
       variant: "destructive",
-      confirmText: "Delete"
+      confirmText: t("countries.deleteDialog.confirmText")
     })) {
       deleteMutation.mutate(id);
     }
@@ -124,24 +126,24 @@ const CountriesSettings = () => {
 
   if (isLoading) {
     return (
-      <CRMLayout title="Countries">
+      <CRMLayout title={t("countries.pageTitle")}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
+          <div className="text-muted-foreground">{t("common.loading")}</div>
         </div>
       </CRMLayout>
     );
   }
 
   return (
-    <CRMLayout title="Countries">
+    <CRMLayout title={t("countries.pageTitle")}>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Countries</h1>
-            <p className="text-muted-foreground">Manage countries and regions</p>
+            <h1 className="text-2xl font-bold">{t("countries.pageTitle")}</h1>
+            <p className="text-muted-foreground">{t("countries.subtitle")}</p>
           </div>
           <Button onClick={() => { resetForm(); setEditingCountry(null); setShowDialog(true); }}>
-            <Plus className="h-4 w-4 mr-2" /> Add Country
+            <Plus className="h-4 w-4 mr-2" /> {t("countries.addCountry")}
           </Button>
         </div>
 
@@ -149,18 +151,18 @@ const CountriesSettings = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead>Phone Code</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("common.name")}</TableHead>
+                <TableHead>{t("countries.code")}</TableHead>
+                <TableHead>{t("countries.phoneCode")}</TableHead>
+                <TableHead>{t("common.status")}</TableHead>
+                <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {countries.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    No countries found
+                    {t("countries.noResults")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -171,10 +173,10 @@ const CountriesSettings = () => {
                     <TableCell>{country.phoneCode}</TableCell>
                     <TableCell>
                       {country.isDefault && (
-                        <Badge className="bg-green-500">Default</Badge>
+                        <Badge className="bg-green-500">{t("common.default")}</Badge>
                       )}
                       {!country.isActive && (
-                        <Badge variant="secondary">Inactive</Badge>
+                        <Badge variant="secondary">{t("common.inactive")}</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
@@ -200,29 +202,29 @@ const CountriesSettings = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingCountry ? "Edit Country" : "Add Country"}</DialogTitle>
+            <DialogTitle>{editingCountry ? t("countries.edit") : t("countries.add")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Name *</Label>
+              <Label>{t("common.name")} *</Label>
               <Input
-                placeholder="United States"
+                placeholder={t("countries.namePlaceholder")}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Code *</Label>
+              <Label>{t("countries.code")} *</Label>
               <Input
-                placeholder="US"
+                placeholder={t("countries.codePlaceholder")}
                 value={formData.code}
                 onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Phone Code</Label>
+              <Label>{t("countries.phoneCode")}</Label>
               <Input
-                placeholder="+1"
+                placeholder={t("countries.phoneCodePlaceholder")}
                 value={formData.phoneCode}
                 onChange={(e) => setFormData({ ...formData, phoneCode: e.target.value })}
               />
@@ -234,10 +236,10 @@ const CountriesSettings = () => {
                 checked={formData.isDefault}
                 onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
               />
-              <Label htmlFor="isDefault">Set as default country</Label>
+              <Label htmlFor="isDefault">{t("countries.setDefault")}</Label>
             </div>
             <Button onClick={handleSubmit} className="w-full">
-              {editingCountry ? "Update" : "Create"}
+              {editingCountry ? t("common.update") : t("common.create")}
             </Button>
           </div>
         </DialogContent>

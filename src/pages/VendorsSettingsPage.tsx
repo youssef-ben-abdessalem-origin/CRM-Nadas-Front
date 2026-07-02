@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 interface VendorCategory {
   id: number;
@@ -38,6 +39,7 @@ interface VendorCategory {
 }
 
 export default function VendorsSettingsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [editingItem, setEditingItem] = useState<VendorCategory | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -58,81 +60,81 @@ export default function VendorsSettingsPage() {
     mutationFn: (data: Partial<VendorCategory>) => api.vendors.createCategory(data),
     onSuccess: () => {
       invalidateQueries();
-      toast.success("Vertical classification forge successful");
+      toast.success(t("vendorsSettings.statusUpdates.created"));
       setShowAddDialog(false);
       setAddForm({});
     },
-    onError: (err: any) => toast.error(err.message || "Failed to forge classification"),
+    onError: (err: any) => toast.error(err.message || t("vendorsSettings.errors.createFailed")),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<VendorCategory> }) => api.vendors.updateCategory(id, data),
     onSuccess: () => {
       invalidateQueries();
-      toast.success("Vertical classification refined");
+      toast.success(t("vendorsSettings.statusUpdates.updated"));
       setShowEditDialog(false);
       setEditingItem(null);
       setEditForm({});
     },
-    onError: (err: any) => toast.error(err.message || "Failed to refine classification"),
+    onError: (err: any) => toast.error(err.message || t("vendorsSettings.errors.updateFailed")),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.vendors.deleteCategory(id),
     onSuccess: () => {
       invalidateQueries();
-      toast.success("Vertical classification archived");
+      toast.success(t("vendorsSettings.statusUpdates.deleted"));
     },
-    onError: (err: any) => toast.error(err.message || "Archive protocol failed"),
+    onError: (err: any) => toast.error(err.message || t("vendorsSettings.errors.deleteFailed")),
   });
 
   const handleAdd = () => {
-    if (!addForm.name) return toast.error("Classification name required");
+    if (!addForm.name) return toast.error(t("vendorsSettings.errors.nameRequired"));
     createMutation.mutate(addForm);
   };
 
   const handleEdit = () => {
-    if (!editForm.name || !editingItem) return toast.error("Classification name required");
+    if (!editForm.name || !editingItem) return toast.error(t("vendorsSettings.errors.nameRequired"));
     updateMutation.mutate({ id: editingItem.id, data: editForm });
   };
 
   return (
-    <CRMLayout title="Vendor Intelligence Settings">
+    <CRMLayout title={t("vendorsSettings.pageTitle")}>
       <div className="space-y-6 pb-20">
         <div className="flex items-center justify-between border-b pb-6">
           <div className="flex items-center gap-4">
 
             <div>
-              <h1 className="text-3xl font-black tracking-tight tracking-tighter">Vertical Classifications</h1>
-              <p className="text-muted-foreground font-medium text-sm">Manage dynamic vendor sectors and commercial categories</p>
+              <h1 className="text-3xl font-black tracking-tight tracking-tighter">{t("vendorsSettings.pageTitle")}</h1>
+              <p className="text-muted-foreground font-medium text-sm">{t("vendorsSettings.subtitle")}</p>
             </div>
           </div>
           <Button onClick={() => setShowAddDialog(true)} className="rounded-xl px-6 h-12 font-bold transition-all active:scale-95 shadow-lg shadow-primary/20">
             <Plus className="h-4 w-4 mr-2" />
-            Add Classification
+            {t("vendorsSettings.addItem")}
           </Button>
         </div>
 
         <Card className="border-primary/10 overflow-hidden shadow-2xl bg-card/50 backdrop-blur-sm">
           <CardHeader className="bg-muted/30 border-b">
             <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-              <Settings2 className="h-3 w-3" /> Active Registries
+              <Settings2 className="h-3 w-3" /> {t("vendorsSettings.sectionTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow className="hover:bg-transparent border-b-primary/5">
-                  <TableHead className="w-1/2 pl-8 py-5 text-[10px] font-black uppercase text-muted-foreground tracking-widest">Classification Name</TableHead>
-                  <TableHead className="py-5 text-[10px] font-black uppercase text-muted-foreground tracking-widest">Visual Marker</TableHead>
-                  <TableHead className="text-right pr-8 py-5 text-[10px] font-black uppercase text-muted-foreground tracking-widest">Tactical Actions</TableHead>
+                  <TableHead className="w-1/2 pl-8 py-5 text-[10px] font-black uppercase text-muted-foreground tracking-widest">{t("vendorsSettings.table.name")}</TableHead>
+                  <TableHead className="py-5 text-[10px] font-black uppercase text-muted-foreground tracking-widest">{t("vendorsSettings.table.visualMarker")}</TableHead>
+                  <TableHead className="text-right pr-8 py-5 text-[10px] font-black uppercase text-muted-foreground tracking-widest">{t("vendorsSettings.table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={3} className="text-center py-20 animate-pulse font-medium text-muted-foreground">Syncing Classification Data...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={3} className="text-center py-20 animate-pulse font-medium text-muted-foreground">{t("vendorsSettings.loading")}</TableCell></TableRow>
                 ) : categories.length === 0 ? (
-                  <TableRow><TableCell colSpan={3} className="text-center py-20 text-muted-foreground italic">No classifications archived in the registry.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={3} className="text-center py-20 text-muted-foreground italic">{t("vendorsSettings.noResults")}</TableCell></TableRow>
                 ) : (
                   categories.map((cat: any) => (
                     <TableRow key={cat.id} className="group hover:bg-primary/[0.02] transition-colors border-b-primary/5">
@@ -180,21 +182,21 @@ export default function VendorsSettingsPage() {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="rounded-3xl border-primary/20 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black tracking-tighter">Forge Classification</DialogTitle>
-            <DialogDescription className="font-medium">Define a new dynamic vertical for your vendor registry.</DialogDescription>
+            <DialogTitle className="text-2xl font-black tracking-tighter">{t("vendorsSettings.addDialogTitle")}</DialogTitle>
+            <DialogDescription className="font-medium">{t("vendorsSettings.addDialogDescription")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-6">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">Display Name</Label>
+              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">{t("vendorsSettings.displayName")}</Label>
               <Input
                 className="h-12 rounded-xl border-primary/10 focus:ring-primary/20"
                 value={addForm.name || ""}
                 onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                placeholder="e.g. Logistics & Supply"
+                placeholder={t("vendorsSettings.placeholders.name")}
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">Identity Color</Label>
+              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">{t("vendorsSettings.identityColor")}</Label>
               <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-2xl border border-primary/5">
                 <Input
                   type="color"
@@ -212,9 +214,9 @@ export default function VendorsSettingsPage() {
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="ghost" className="rounded-xl h-12 font-bold px-8" onClick={() => setShowAddDialog(false)}>Cancel</Button>
+            <Button variant="ghost" className="rounded-xl h-12 font-bold px-8" onClick={() => setShowAddDialog(false)}>{t("common.cancel")}</Button>
             <Button onClick={handleAdd} disabled={createMutation.isPending} className="rounded-xl h-12 font-bold px-10 shadow-lg shadow-primary/20">
-              {createMutation.isPending ? "Forging..." : "Create Registry"}
+              {createMutation.isPending ? t("vendorsSettings.creating") : t("vendorsSettings.createRecord")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -224,21 +226,21 @@ export default function VendorsSettingsPage() {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="rounded-3xl border-primary/20 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black tracking-tighter">Refine Classification</DialogTitle>
-            <DialogDescription className="font-medium">Update the vertical specification for this registry entry.</DialogDescription>
+            <DialogTitle className="text-2xl font-black tracking-tighter">{t("vendorsSettings.editDialogTitle")}</DialogTitle>
+            <DialogDescription className="font-medium">{t("vendorsSettings.editDialogDescription")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-6">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">Display Name</Label>
+              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">{t("vendorsSettings.displayName")}</Label>
               <Input
                 className="h-12 rounded-xl border-primary/10 focus:ring-primary/20"
                 value={editForm.name || ""}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                placeholder="Name"
+                placeholder={t("vendorsSettings.placeholders.editName")}
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">Identity Color</Label>
+              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">{t("vendorsSettings.identityColor")}</Label>
               <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-2xl border border-primary/5">
                 <Input
                   type="color"
@@ -256,9 +258,9 @@ export default function VendorsSettingsPage() {
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="ghost" className="rounded-xl h-12 font-bold px-8" onClick={() => setShowEditDialog(false)}>Cancel</Button>
+            <Button variant="ghost" className="rounded-xl h-12 font-bold px-8" onClick={() => setShowEditDialog(false)}>{t("common.cancel")}</Button>
             <Button onClick={handleEdit} disabled={updateMutation.isPending} className="rounded-xl h-12 font-bold px-10 shadow-lg shadow-primary/20">
-              {updateMutation.isPending ? "Refining..." : "Update Registry"}
+              {updateMutation.isPending ? t("vendorsSettings.saving") : t("vendorsSettings.updateRecord")}
             </Button>
           </DialogFooter>
         </DialogContent>

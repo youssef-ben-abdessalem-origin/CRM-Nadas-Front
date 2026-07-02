@@ -14,24 +14,6 @@
     "cancel": "Annuler",
     "edit": "Modifier",
     "delete": "Supprimer",
-    "actions": "Actions",
-    "allStatuses": "Tous les statuts",
-    "allTiers": "Tous les niveaux",
-    "loading": "Chargement...",
-    "noResults": "Aucun résultat trouvé",
-    "success": "Succès",
-    "error": "Erreur",
-    "errors": {
-      "fillRequired": "Veuillez remplir tous les champs obligatoires"
-    },
-    "unknown": "Inconnu",
-    "stats": {
-      "inDatabase": "En base de données",
-      "engaged": "Éléments engagés",
-      "paying": "Clients payants",
-      "wonDeals": "Affaires gagnantes",
-      "openOpps": "Opportunités ouvertes"
-    },
     "actions": {
       "create_success": "Enregistrement créé avec succès",
       "update_success": "Enregistrement mis à jour avec succès",
@@ -44,7 +26,30 @@
       "creating": "Création...",
       "bulkActions": "Actions groupées",
       "bulkDesc": "Appliquer des actions à {{count}} éléments sélectionnés",
-      "deleteSelected": "Supprimer la sélection"
+      "deleteSelected": "Supprimer la sélection",
+      "close": "Fermer",
+      "confirm_delete": "Voulez-vous vraiment supprimer cet enregistrement ?",
+      "filter": "Filtrer",
+      "moved_to": "d?plac? vers"
+    },
+    "allStatuses": "Tous les statuts",
+    "allTiers": "Tous les niveaux",
+    "loading": "Chargement...",
+    "noResults": "Aucun résultat trouvé",
+    "success": "Succès",
+    "error": "Erreur",
+    "errors": {
+      "fillRequired": "Veuillez remplir tous les champs obligatoires",
+      "create_failed": "?chec de cr?ation de l?enregistrement",
+      "update_failed": "?chec de mise ? jour de l?enregistrement"
+    },
+    "unknown": "Inconnu",
+    "stats": {
+      "inDatabase": "En base de données",
+      "engaged": "Éléments engagés",
+      "paying": "Clients payants",
+      "wonDeals": "Affaires gagnantes",
+      "openOpps": "Opportunités ouvertes"
     },
     "address": {
       "title": "Adresse",
@@ -56,6 +61,21 @@
     },
     "time": {
       "justNow": "À l'instant"
+    },
+    "allScores": "Tous les scores",
+    "allSources": "Toutes les sources",
+    "entities": {
+      "account": "Compte",
+      "company": "Entreprise",
+      "contact": "Contact",
+      "deal": "Affaire",
+      "lead": "Lead"
+    },
+    "priorities": {
+      "high": "Haute",
+      "low": "Basse",
+      "medium": "Moyenne",
+      "urgent": "Urgente"
     }
   },
   "nav": {
@@ -72,7 +92,17 @@
     "products": "Produits",
     "vendors": "Fournisseurs",
     "forecast": "Prévisions",
-    "documents": "Documents",
+    "documents": {
+      "title": "Génération de Documents",
+      "description": "Générer des attestations de travail et des contrats de travail.",
+      "selectEmployee": "Sélectionner un Employé",
+      "selectEmployeePlaceholder": "Choisir un employé...",
+      "workCertificate": "Attestation de Travail",
+      "workCertificateDesc": "Attestation de travail — preuve officielle d'emploi avec poste, salaire et date d'embauche.",
+      "employmentContract": "Contrat de Travail",
+      "employmentContractDesc": "Contrat de travail — accord d'emploi détaillé avec clauses, salaire et conditions.",
+      "download": "Télécharger"
+    },
     "tasks": "Tâches",
     "activities": "Activités",
     "team": "Équipe",
@@ -146,17 +176,6 @@
       "periodComparison": "Comparaison des Périodes",
       "period": "Période"
     },
-    "documents": {
-      "title": "Génération de Documents",
-      "description": "Générer des attestations de travail et des contrats de travail.",
-      "selectEmployee": "Sélectionner un Employé",
-      "selectEmployeePlaceholder": "Choisir un employé...",
-      "workCertificate": "Attestation de Travail",
-      "workCertificateDesc": "Attestation de travail — preuve officielle d'emploi avec poste, salaire et date d'embauche.",
-      "employmentContract": "Contrat de Travail",
-      "employmentContractDesc": "Contrat de travail — accord d'emploi détaillé avec clauses, salaire et conditions.",
-      "download": "Télécharger"
-    },
     "payroll": {
       "title": "Gestion de la Paie",
       "components": "Éléments de Salaire",
@@ -176,7 +195,9 @@
       "auditLogs": "Journaux d'Audit",
       "notifications": "Notifications",
       "automations": "Automations"
-    }
+    },
+    "emails": "Emails",
+    "calendar": "Calendrier"
   },
   "dashboard": {
     "title": "Centre de Commandement",
@@ -566,6 +587,16 @@
     },
     "actions": {
       "completed": "Activité terminée avec succès"
+    },
+    "statusUpdates": {
+      "completeFailed": "Impossible de marquer l?activit? comme termin?e",
+      "createFailed": "Impossible de cr?er l?activit?",
+      "created": "Activit? cr??e avec succ?s",
+      "deleteFailed": "Impossible de supprimer l?activit?",
+      "deleted": "Activit? supprim?e avec succ?s",
+      "markedComplete": "Activit? marqu?e comme termin?e",
+      "updateFailed": "Impossible de mettre ? jour l?activit?",
+      "updated": "Activit? mise ? jour avec succ?s"
     }
   },
   "documents": {
@@ -626,7 +657,8 @@
       "teamNameSub": "Donnez un nom à votre équipe (Vous pourrez le changer plus tard)",
       "teamNamePlaceholder": "Ex: Équipe Ingénierie",
       "submit_pending": "Configuration du Hub...",
-      "submit": "Convertir et Synchroniser"
+      "submit": "Convertir et Synchroniser",
+      "success": "Espace documentaire configur? avec succ?s"
     },
     "createFolder": {
       "title": "Créer un Dossier d'Équipe",
@@ -635,7 +667,8 @@
       "namePlaceholder": "Entrez le Nom du Dossier d'Équipe",
       "selectUsers": "Sélectionner les utilisateurs...",
       "submit_pending": "Création...",
-      "submit": "Créer le Dossier"
+      "submit": "Créer le Dossier",
+      "success": "Dossier cr?? avec succ?s"
     },
     "userSelector": {
       "title": "Sélectionner le Partage Personnalisé",
@@ -807,7 +840,9 @@
       "parent": "Compte Parent",
       "tags": "Étiquettes (séparées par une virgule)",
       "description": "Description",
-      "notes": "Notes Internes"
+      "notes": "Notes Internes",
+      "submit": "Cr?er le compte",
+      "submitEdit": "Mettre ? jour le compte"
     },
     "actions": {
       "statusUpdated": "Statut mis à jour vers {{status}}"
@@ -829,6 +864,1420 @@
       "updateSuccess": "Comptes mis à jour avec succès",
       "deleteSuccess": "Comptes supprimés avec succès",
       "confirmDelete": "Êtes-vous sûr de vouloir supprimer {{count}} comptes ?"
+    }
+  },
+  "reports": {
+    "title": "Rapports RH & Paie",
+    "description": "Rapports consolidés pour l'analyse RH et les coûts salariaux.",
+    "totalEmployees": "Total Employés",
+    "activeEmployees": "Actifs",
+    "turnoverRate": "Taux de Rotation",
+    "leftThisYear": "Partis cette Année",
+    "hiredThisYear": "Nouveaux Recrutements",
+    "byDepartment": "Par Département",
+    "byStatus": "Par Statut",
+    "byGender": "Par Genre",
+    "department": "Département",
+    "status": "Statut",
+    "gender": "Genre",
+    "count": "Nombre",
+    "yes": "Oui",
+    "no": "Non",
+    "unassigned": "Non attribué",
+    "notAvailable": "N/A",
+    "leaveTrends": "Tendances des Congés",
+    "leaveType": "Type de Congé",
+    "paid": "Payé",
+    "approved": "Approuvé",
+    "pending": "En Attente",
+    "totalDays": "Total Jours",
+    "payrollCost": "Coût Salarial",
+    "grossSalary": "Salaire Brut",
+    "netSalary": "Salaire Net",
+    "deductions": "Déductions",
+    "employerContributions": "Cot. Employeur",
+    "avgNetSalary": "Salaire Net Moyen",
+    "employees": "Employés",
+    "deptCost": "Coût par Département",
+    "periodComparison": "Comparaison des Périodes",
+    "period": "Période"
+  },
+  "hr": {
+    "documents": {
+      "title": "G?n?ration de Documents",
+      "description": "G?n?rer des attestations de travail et des contrats de travail.",
+      "selectEmployee": "S?lectionner un Employ?",
+      "selectEmployeePlaceholder": "Choisir un employ?...",
+      "workCertificate": "Attestation de Travail",
+      "workCertificateDesc": "Attestation de travail ? preuve officielle d'emploi avec poste, salaire et date d'embauche.",
+      "employmentContract": "Contrat de Travail",
+      "employmentContractDesc": "Contrat de travail ? accord d'emploi d?taill? avec clauses, salaire et conditions.",
+      "download": "T?l?charger"
+    },
+    "employees": {
+      "pageTitle": "RH - Employ?s",
+      "title": "Employ?s",
+      "description": "G?rer les dossiers employ?s, les salari?s actifs et les fiches d'onboarding en brouillon.",
+      "stats": {
+        "total": "Total Employ?s",
+        "active": "Actifs",
+        "drafts": "Brouillons"
+      },
+      "placeholders": {
+        "search": "Rechercher par employ?, email, d?partement ou poste...",
+        "filterDepartment": "Filtrer par d?partement"
+      },
+      "options": {
+        "allDepartments": "Tous les d?partements"
+      },
+      "actions": {
+        "newEmployee": "Nouvel Employ?",
+        "view": "Voir",
+        "resume": "Reprendre le Brouillon",
+        "edit": "Modifier"
+      },
+      "draftNotice": "Cette fiche employ? est encore en brouillon. Compl?tez les champs obligatoires manquants pour l'activer.",
+      "noDepartment": "Aucun d?partement",
+      "noPosition": "Aucun poste",
+      "noHireDate": "Aucune date d'embauche",
+      "noEmail": "Aucun email",
+      "noPhone": "Aucun t?l?phone",
+      "costCenter": "Centre de co?t",
+      "notAssigned": "Non affect?",
+      "noResults": "Aucun employ? trouv?."
+    },
+    "positions": {
+      "pageTitle": "RH - Postes",
+      "title": "Postes",
+      "description": "Définir les rôles, titres et alignements départementaux.",
+      "actions": {
+        "create": "Nouveau Poste"
+      },
+      "dialog": {
+        "create": "Créer un Poste",
+        "edit": "Modifier le Poste"
+      },
+      "forms": {
+        "code": "Code",
+        "title": "Titre",
+        "department": "Département",
+        "description": "Description",
+        "status": "Statut"
+      },
+      "placeholders": {
+        "autoGenerated": "Auto-généré",
+        "title": "ex: Ingénieur Senior",
+        "selectDepartment": "Sélectionner un Département",
+        "description": "Brève description du rôle"
+      },
+      "table": {
+        "code": "Code",
+        "title": "Titre",
+        "department": "Département",
+        "description": "Description",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "loading": "Chargement des postes...",
+      "empty": "Aucun poste défini.",
+      "confirmDelete": "Supprimer le poste ?"
+    },
+    "leaveBalances": {
+      "pageTitle": "RH - Soldes de Congés",
+      "title": "Soldes de Congés",
+      "description": "Suivre les soldes de congés des employés par année et type.",
+      "detailDescription": "Gérer tous les types de soldes de congés pour cet employé, y compris les congés annuels, maladie, paternité, etc.",
+      "actions": {
+        "backToEmployees": "Retour aux Employés",
+        "synchronize": "Synchroniser",
+        "synchronizeBalance": "Synchroniser le Solde",
+        "create": "Nouveau Solde"
+      },
+      "dialog": {
+        "create": "Créer un Solde",
+        "edit": "Modifier le Solde"
+      },
+      "forms": {
+        "employee": "Employé",
+        "year": "Année",
+        "leaveType": "Type de Congé",
+        "totalDays": "Jours Totaux",
+        "used": "Utilisés",
+        "remaining": "Restants"
+      },
+      "placeholders": {
+        "selectType": "Sélectionner un Type",
+        "filterYear": "Filtrer par Année",
+        "search": "Rechercher par employé, département, poste, type de congé..."
+      },
+      "table": {
+        "year": "Année",
+        "leaveType": "Type de Congé",
+        "total": "Total",
+        "used": "Utilisés",
+        "remaining": "Restants",
+        "actions": "Actions"
+      },
+      "employee": "Employé",
+      "unknownEmployee": "Employé inconnu",
+      "noEmployeeNumber": "Pas de matricule",
+      "departmentPosition": "Département / Poste",
+      "noDepartment": "Aucun département",
+      "noPosition": "Aucun poste",
+      "contact": "Contact",
+      "noEmail": "Aucun email",
+      "noPhone": "Aucun téléphone",
+      "balancesByType": "Soldes par type de congé",
+      "balancesDescription": "Chaque ligne représente une politique de congé différente pour cet employé et cette année.",
+      "allYears": "Toutes les Années",
+      "loading": "Chargement des soldes...",
+      "emptyDetail": "Aucun solde trouvé pour cet employé.",
+      "empty": "Aucun solde de congé trouvé.",
+      "employeeNotUsable": "Cet employé n'est pas utilisable dans les soldes de congés.",
+      "draftExcludedHint": "Les employés en brouillon sont exclus des opérations de solde jusqu'à leur activation.",
+      "employeeLeaveBalances": "Soldes de Congés de l'Employé",
+      "carriedForward": "Reporté : {{days}} jours de l'année précédente",
+      "monthlyAccrualRate": "Taux d'accumulation mensuel : {{rate}} jours/mois",
+      "allocationPolicy": "Politique d'allocation : {{policy}}",
+      "monthTable": {
+        "month": "Mois",
+        "accrued": "Acquis",
+        "used": "Utilisés",
+        "balance": "Solde"
+      },
+      "projected": "projeté",
+      "stats": {
+        "employeesWithBalances": "Employés Avec Soldes",
+        "leaveBalanceRecords": "Enregistrements de Soldes",
+        "currentYearRemaining": "Jours Restants cette Année"
+      },
+      "total": "Total",
+      "used": "Utilisés",
+      "remaining": "Restants",
+      "currentYearRemaining": "Restants cette Année",
+      "types": "types",
+      "days": "jours"
+    },
+    "leaves": {
+      "pageTitle": "RH - Congés",
+      "title": "Congés et Absences",
+      "description": "Gérer les congés, absences et configurations.",
+      "tabs": {
+        "requests": "Demandes",
+        "types": "Types de Congés"
+      },
+      "actions": {
+        "requestLeave": "Demander un Congé",
+        "newLeaveType": "Nouveau Type",
+        "submit": "Soumettre"
+      },
+      "dialog": {
+        "requestLeave": "Soumettre une Demande",
+        "createType": "Créer un Type de Congé"
+      },
+      "forms": {
+        "employee": "Employé",
+        "leaveType": "Type de Congé",
+        "startDate": "Date de Début",
+        "endDate": "Date de Fin",
+        "daysCount": "Nombre de Jours",
+        "reason": "Motif",
+        "code": "Code",
+        "nameEn": "Nom (EN)",
+        "nameFr": "Nom (FR)",
+        "nameAr": "Nom (AR)",
+        "description": "Description",
+        "paidStatus": "Payé",
+        "requiresApproval": "Approbation Requise",
+        "annualLimit": "Limite Annuelle (jours)",
+        "maxConsecutiveDays": "Jours Consécutifs Max",
+        "requiresDocs": "Documents Requis",
+        "carryForward": "Report Autorisé"
+      },
+      "placeholders": {
+        "selectEmployee": "Sélectionner un Employé",
+        "selectLeaveType": "Sélectionner le Type",
+        "reason": "Motif du congé",
+        "code": "ex: CA",
+        "nameEn": "Annual Leave",
+        "nameFr": "Congé annuel",
+        "nameAr": "إجازة سنوية",
+        "description": "Brève description",
+        "optional": "Optionnel"
+      },
+      "table": {
+        "employee": "Employé",
+        "type": "Type",
+        "duration": "Durée",
+        "days": "Jours",
+        "reason": "Motif",
+        "status": "Statut",
+        "actions": "Actions",
+        "code": "Code",
+        "name": "Nom",
+        "paid": "Payé",
+        "annualLimit": "Limite Annuelle",
+        "maxDays": "Jours Max",
+        "approval": "Approbation",
+        "carryFwd": "Report"
+      },
+      "loadingRequests": "Chargement des demandes...",
+      "emptyRequests": "Aucune demande de congé.",
+      "loadingTypes": "Chargement des types...",
+      "emptyTypes": "Aucun type de congé défini.",
+      "unknownLeaveType": "Type de Congé Inconnu",
+      "noBalances": "Cet employé n'a pas de solde de congé pour l'année en cours.",
+      "remaining": "Restants",
+      "days": "jours",
+      "exceedsBalance": "Dépasse le solde restant ({{remaining}} jours)",
+      "confirmDeleteType": "Supprimer ce type de congé ?"
+    },
+    "shifts": {
+      "pageTitle": "RH - Horaires",
+      "title": "Horaires",
+      "description": "Définir les modèles d'horaires (Matin, Après-midi, Nuit).",
+      "actions": {
+        "create": "Nouvel Horaire"
+      },
+      "dialog": {
+        "create": "Créer un Horaire",
+        "edit": "Modifier l'Horaire"
+      },
+      "forms": {
+        "code": "Code",
+        "name": "Nom",
+        "startTime": "Heure de Début",
+        "endTime": "Heure de Fin",
+        "breakDuration": "Pause (heures)",
+        "color": "Couleur",
+        "description": "Description",
+        "flexible": "Horaire flexible"
+      },
+      "placeholders": {
+        "autoGenerated": "Auto-généré si vide",
+        "name": "Horaire Matin",
+        "description": "Notes optionnelles"
+      },
+      "table": {
+        "code": "Code",
+        "name": "Nom",
+        "hours": "Heures",
+        "break": "Pause",
+        "flexible": "Flexible",
+        "actions": "Actions"
+      },
+      "loading": "Chargement des horaires...",
+      "empty": "Aucun horaire défini."
+    },
+    "shiftAssignments": {
+      "pageTitle": "RH - Affectations d'Horaires",
+      "title": "Affectations d'Horaires",
+      "description": "Assigner des horaires aux employés pour des périodes spécifiques.",
+      "actions": {
+        "create": "Nouvelle Affectation"
+      },
+      "dialog": {
+        "create": "Nouvelle Affectation",
+        "edit": "Modifier l'Affectation"
+      },
+      "forms": {
+        "employee": "Employé",
+        "shift": "Horaire",
+        "startDate": "Date de Début",
+        "endDate": "Date de Fin",
+        "notes": "Notes"
+      },
+      "placeholders": {
+        "selectEmployee": "Sélectionner un Employé",
+        "selectShift": "Sélectionner un Horaire",
+        "notes": "Notes optionnelles"
+      },
+      "table": {
+        "employee": "Employé",
+        "shift": "Horaire",
+        "startDate": "Date de Début",
+        "endDate": "Date de Fin",
+        "actions": "Actions"
+      },
+      "loading": "Chargement des affectations...",
+      "empty": "Aucune affectation trouvée.",
+      "ongoing": "En cours"
+    },
+    "overtimeRequests": {
+      "pageTitle": "RH - Heures Supplémentaires",
+      "title": "Heures Supplémentaires",
+      "description": "Gérer les heures supplémentaires des employés.",
+      "actions": {
+        "create": "Nouvelle Demande",
+        "approve": "Approuver",
+        "reject": "Rejeter"
+      },
+      "dialog": {
+        "create": "Nouvelle Demande HS",
+        "edit": "Modifier la Demande"
+      },
+      "forms": {
+        "employee": "Employé",
+        "category": "Catégorie",
+        "approvalAuthority": "Approbateur",
+        "date": "Date",
+        "startTime": "Heure de Début",
+        "endTime": "Heure de Fin",
+        "totalHours": "Heures Totales",
+        "multiplier": "Coefficient",
+        "description": "Description",
+        "status": "Statut"
+      },
+      "placeholders": {
+        "selectEmployee": "Sélectionner un Employé",
+        "description": "Motif des heures supp."
+      },
+      "categoryLabels": {
+        "weekday": "Jour de semaine (125%)",
+        "night": "Nuit (150%)",
+        "restDay": "Jour de repos/Férié (200%)"
+      },
+      "options": {
+        "manager": "Manager de l'Employé",
+        "ceo": "CEO",
+        "hr": "RH",
+        "mgr": "Mgr",
+        "approved": "Approuvé",
+        "rejected": "Rejeté"
+      },
+      "approvalDescriptions": {
+        "manager": "Le manager direct peut approuver",
+        "ceo": "Seul le CEO peut approuver",
+        "hr": "Seul un rôle RH peut approuver"
+      },
+      "hints": {
+        "weekday": "Avant/après les heures normales",
+        "nightTime": "Heures de nuit : {{nightStart}}:00 - {{nightEnd}}:00",
+        "restDay": "À tout moment un jour de repos/férié"
+      },
+      "restDaySelected": "Jour de repos/férié sélectionné",
+      "validation": {
+        "startMustBe": "Début doit être ≥ {{nightStart}}:00 pour le shift de nuit",
+        "endMustBe": "Fin doit être ≤ {{nightEnd}}:00 pour le shift de nuit"
+      },
+      "autoFromSettings": "Auto depuis Paramètres RH",
+      "table": {
+        "employee": "Employé",
+        "date": "Date",
+        "category": "Catégorie",
+        "hours": "Heures",
+        "rate": "Taux",
+        "approval": "Approbation",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "loading": "Chargement des demandes...",
+      "empty": "Aucune demande trouvée."
+    },
+    "performanceReviews": {
+      "pageTitle": "RH - Évaluations",
+      "title": "Évaluations de Performance",
+      "description": "Réaliser et gérer les évaluations de performance des employés.",
+      "actions": {
+        "create": "Nouvelle Évaluation"
+      },
+      "dialog": {
+        "create": "Nouvelle Évaluation",
+        "edit": "Modifier l'Évaluation"
+      },
+      "forms": {
+        "employee": "Employé",
+        "reviewer": "Évaluateur",
+        "reviewDate": "Date d'Évaluation",
+        "rating": "Note (0-10)",
+        "status": "Statut",
+        "strengths": "Points Forts",
+        "weaknesses": "Points Faibles",
+        "summary": "Résumé"
+      },
+      "placeholders": {
+        "select": "Sélectionner"
+      },
+      "table": {
+        "employee": "Employé",
+        "reviewer": "Évaluateur",
+        "date": "Date",
+        "rating": "Note",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "empty": "Aucune évaluation."
+    },
+    "kpis": {
+      "pageTitle": "RH - KPI",
+      "title": "Indicateurs de Performance",
+      "description": "Définir les KPI pour la mesure de la performance des employés.",
+      "actions": {
+        "create": "Nouveau KPI"
+      },
+      "dialog": {
+        "create": "Créer un KPI",
+        "edit": "Modifier le KPI"
+      },
+      "forms": {
+        "code": "Code",
+        "name": "Nom",
+        "description": "Description",
+        "category": "Catégorie",
+        "unit": "Unité",
+        "targetValue": "Valeur Cible"
+      },
+      "placeholders": {
+        "autoGenerated": "Auto-généré",
+        "name": "Satisfaction Client",
+        "category": "Ventes, Support...",
+        "unit": "%, nombre, TND..."
+      },
+      "table": {
+        "code": "Code",
+        "name": "Nom",
+        "category": "Catégorie",
+        "target": "Cible",
+        "active": "Actif",
+        "actions": "Actions"
+      },
+      "empty": "Aucun KPI défini."
+    },
+    "kpiAssignments": {
+      "pageTitle": "RH - Assignations KPI",
+      "title": "Assignations KPI",
+      "description": "Assigner des KPI aux employés et suivre les résultats réels.",
+      "actions": {
+        "create": "Assigner un KPI"
+      },
+      "dialog": {
+        "create": "Assigner un KPI",
+        "edit": "Modifier l'Assignation"
+      },
+      "forms": {
+        "employee": "Employé",
+        "kpi": "KPI",
+        "targetValue": "Valeur Cible",
+        "actualValue": "Valeur Réelle",
+        "period": "Période",
+        "notes": "Notes"
+      },
+      "placeholders": {
+        "select": "Sélectionner",
+        "period": "ex: 2025-T1"
+      },
+      "table": {
+        "employee": "Employé",
+        "kpi": "KPI",
+        "period": "Période",
+        "target": "Cible",
+        "actual": "Réel",
+        "actions": "Actions"
+      },
+      "empty": "Aucune assignation."
+    },
+    "irppTaxProfiles": {
+      "pageTitle": "RH - Profils IRPP",
+      "title": "Profils IRPP",
+      "description": "Configurer le statut fiscal des employés pour le calcul IRPP.",
+      "actions": {
+        "create": "Nouveau Profil"
+      },
+      "dialog": {
+        "create": "Créer un Profil IRPP",
+        "edit": "Modifier le Profil"
+      },
+      "forms": {
+        "employee": "Employé",
+        "maritalStatus": "Situation Familiale",
+        "children": "Enfants",
+        "disabledDependents": "Personnes à Charge Handicapées",
+        "taxExemptions": "Exonérations (TND)"
+      },
+      "placeholders": {
+        "selectEmployee": "Sélectionner un Employé"
+      },
+      "options": {
+        "single": "Célibataire",
+        "married": "Marié(e)",
+        "divorced": "Divorcé(e)",
+        "widowed": "Veuf/Veuve"
+      },
+      "hints": {
+        "autoCalculated": "Auto-calculé :"
+      },
+      "table": {
+        "employee": "Employé",
+        "maritalStatus": "Situation Familiale",
+        "children": "Enfants",
+        "disabled": "Handicapés",
+        "exemptions": "Exonérations",
+        "actions": "Actions"
+      },
+      "loading": "Chargement des profils...",
+      "empty": "Aucun profil trouvé."
+    },
+    "vacationAccrualRules": {
+      "pageTitle": "RH - Règles d'Acquisition",
+      "title": "Règles d'Acquisition de Congés",
+      "description": "Définir les taux d'acquisition automatique de jours de congés par employé.",
+      "actions": {
+        "runAccrual": "Exécuter l'Acquisition",
+        "create": "Nouvelle Règle"
+      },
+      "dialog": {
+        "create": "Nouvelle Règle d'Acquisition",
+        "edit": "Modifier la Règle",
+        "runAccrual": "Exécuter l'Acquisition"
+      },
+      "forms": {
+        "employee": "Employé",
+        "leaveType": "Type de Congé",
+        "accrualRate": "Taux d'Acquisition (jours/mois)",
+        "maxAccrual": "Acquisition Max (jours)",
+        "employeeOptional": "Employé (optionnel - laisser vide pour tous)",
+        "year": "Année",
+        "month": "Mois"
+      },
+      "placeholders": {
+        "selectEmployee": "Sélectionner un Employé",
+        "selectLeaveType": "Sélectionner le Type",
+        "allEmployees": "Tous les Employés"
+      },
+      "allEmployees": "Tous les Employés",
+      "table": {
+        "employee": "Employé",
+        "leaveType": "Type de Congé",
+        "rate": "Taux (jours/mois)",
+        "maxAccrual": "Acquisition Max",
+        "active": "Actif",
+        "actions": "Actions"
+      },
+      "empty": "Aucune règle définie",
+      "results": "Résultats"
+    },
+    "employeePortal": {
+      "pageTitle": "Portail Employé",
+      "title": "Portail Employé",
+      "description": "Tableau de bord en libre-service pour les employés.",
+      "placeholders": {
+        "selectEmployee": "Sélectionner un Employé..."
+      },
+      "selectPrompt": "Sélectionnez un employé pour voir son portail",
+      "cards": {
+        "profile": "Profil",
+        "leaveBalances": "Soldes de Congés",
+        "goalsProgress": "Progrès des Objectifs",
+        "signatures": "Signatures",
+        "recentAttendance": "Présences Récentes",
+        "recentLeaveRequests": "Demandes de Congé",
+        "recentPayslips": "Bulletins de Paie"
+      },
+      "fields": {
+        "name": "Nom",
+        "employeeNumber": "Matricule",
+        "department": "Département",
+        "position": "Poste",
+        "cin": "CIN",
+        "status": "Statut"
+      },
+      "noLeaveBalances": "Aucun solde de congé",
+      "daysUsed": "jours utilisés",
+      "noGoals": "Aucun objectif assigné",
+      "signaturesDescription": "Ouvrir la file de signature et compléter les signatures en attente.",
+      "pending": "en attente",
+      "table": {
+        "date": "Date",
+        "checkIn": "Arrivée",
+        "checkOut": "Départ",
+        "hours": "Heures",
+        "status": "Statut",
+        "type": "Type",
+        "start": "Début",
+        "end": "Fin",
+        "days": "Jours",
+        "period": "Période",
+        "gross": "Brut",
+        "deductions": "Déductions",
+        "net": "Net"
+      },
+      "noAttendance": "Aucun enregistrement de présence",
+      "noLeaveRequests": "Aucune demande de congé",
+      "noPayslips": "Aucun bulletin de paie"
+    },
+    "employeeForm": {
+      "title": "RH - Nouvel Employé",
+      "editTitle": "RH - Modifier l'Employé",
+      "description": "Intégration RH complète avec employé, contrat, paie, CNSS et IRPP.",
+      "loadingTitle": "RH - Modifier l'Employé",
+      "loadingText": "Chargement du profil d'intégration RH...",
+      "editEmployee": "Modifier l'Employé",
+      "createEmployee": "Créer un Employé",
+      "updatingDossier": "Mise à jour du dossier RH",
+      "newDossier": "Nouveau dossier RH",
+      "stepOf": "Étape {{current}} sur {{total}}",
+      "progress": "Progression",
+      "autoGenerated": "Auto-généré",
+      "autoGeneratedBySystem": "Auto-généré par le système",
+      "steps": {
+        "identity": "Identité",
+        "identityDesc": "Identité civile et contact personnel",
+        "employment": "Emploi",
+        "employmentDesc": "Département, manager et configuration",
+        "contract": "Contrat",
+        "contractDesc": "Contrat de travail et salaire",
+        "payroll": "Paie",
+        "payrollDesc": "CNSS, IRPP, paiement et banque",
+        "compliance": "Conformité",
+        "complianceDesc": "Champs réglementaires pour étrangers",
+        "review": "Révision",
+        "reviewDesc": "Enregistrer le dossier complet"
+      },
+      "actions": {
+        "backToEmployees": "Retour aux employés",
+        "previous": "Précédent",
+        "next": "Suivant",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "create": "Créer",
+        "addComponent": "Ajouter un Composant"
+      },
+      "forms": {
+        "employeeId": "Matricule",
+        "cin": "CIN",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "dateOfBirth": "Date de Naissance",
+        "placeOfBirth": "Lieu de Naissance",
+        "gender": "Genre",
+        "nationality": "Nationalité",
+        "maritalStatus": "Situation Familiale",
+        "childrenCount": "Nombre d'Enfants",
+        "disabledDependents": "Personnes à Charge Handicapées",
+        "phone": "Téléphone",
+        "personalEmail": "Email Personnel",
+        "workEmail": "Email Professionnel",
+        "passportNumber": "Numéro de Passeport",
+        "emergencyContactName": "Contact d'Urgence",
+        "emergencyContactPhone": "Tél. d'Urgence",
+        "address": "Adresse",
+        "city": "Ville",
+        "postalCode": "Code Postal",
+        "hireDate": "Date d'Embauche",
+        "employeeStatus": "Statut Employé",
+        "department": "Département",
+        "position": "Poste",
+        "manager": "Manager",
+        "workLocation": "Lieu de Travail",
+        "costCenter": "Centre de Coût",
+        "employmentCategory": "Catégorie d'Emploi",
+        "attendanceMode": "Mode de Présence",
+        "education": "Formation",
+        "skills": "Compétences",
+        "certifications": "Certifications",
+        "contractNumber": "Numéro de Contrat",
+        "contractType": "Type de Contrat",
+        "cddLegalReason": "Motif Légal CDD",
+        "contractStartDate": "Date de Début du Contrat",
+        "contractEndDate": "Date de Fin du Contrat",
+        "probationEndDate": "Fin de Période d'Essai",
+        "contractStatus": "Statut du Contrat",
+        "baseSalary": "Salaire de Base (TND)",
+        "workingHours": "Heures/Semaine",
+        "socialRegime": "Régime Social",
+        "cnssNumber": "Numéro CNSS",
+        "cnssRegistrationDate": "Date d'Immatriculation CNSS",
+        "cnssStatus": "Statut CNSS",
+        "cnrpsNumber": "Numéro CNRPS",
+        "taxStatus": "Statut Fiscal",
+        "taxExemptions": "Exonérations Fiscales",
+        "paymentMethod": "Mode de Paiement",
+        "bankName": "Nom de la Banque",
+        "bankAccount": "Compte Bancaire",
+        "rib": "RIB",
+        "defaultShift": "Horaire par Défaut",
+        "shiftStartDate": "Début d'Horaire",
+        "shiftEndDate": "Fin d'Horaire",
+        "shiftNotes": "Notes d'Horaire",
+        "leaveType": "Type de Congé",
+        "leaveBalanceYear": "Année du Solde",
+        "initialLeaveDays": "Jours de Congé Initiaux",
+        "accrualRate": "Taux d'Acquisition/Mois",
+        "maxAccrual": "Acquisition Maximale",
+        "accrualEffectiveDate": "Date d'Effet de l'Acquisition",
+        "attendanceLeaveInit": "Initialisation présence et congés",
+        "payrollComponentsInit": "Initialisation des composants de paie",
+        "component": "Composant",
+        "amount": "Montant",
+        "effectiveDate": "Date d'Effet",
+        "foreignCompliance": "Conformité employé étranger",
+        "residenceCardNumber": "Numéro de Carte de Séjour",
+        "residenceCardExpiry": "Expiration Carte de Séjour",
+        "workPermitType": "Type de Permis de Travail",
+        "workPermitNumber": "Numéro de Permis de Travail",
+        "workPermitStatus": "Statut du Permis",
+        "workPermitExpiry": "Expiration du Permis",
+        "mandatoryDocuments": "Documents obligatoires",
+        "expiryDate": "Date d'Expiration",
+        "notes": "Notes"
+      },
+      "placeholders": {
+        "cin": "09876543",
+        "passportNumber": "AB123456",
+        "selectDepartment": "Sélectionner un Département",
+        "selectPosition": "Sélectionner un Poste",
+        "selectManager": "Sélectionner un Manager",
+        "selectCostCenter": "Sélectionner un Centre de Coût",
+        "workLocation": "Tunis HQ",
+        "education": "Licence en Informatique",
+        "skills": "Excel, Paie, Recrutement",
+        "certifications": "PMP, RH Analytics",
+        "selectLegalReason": "Sélectionner un motif légal",
+        "baseSalary": "1500.000",
+        "cnssNumber": "123456789",
+        "cnrpsNumber": "Réf. secteur public (optionnel)",
+        "rib": "20 chiffres",
+        "selectShift": "Sélectionner un Horaire",
+        "selectLeavePolicy": "Sélectionner une Politique",
+        "shiftNotes": "Note optionnelle",
+        "selectComponent": "Sélectionner un Composant",
+        "optionalNote": "Note optionnelle"
+      },
+      "options": {
+        "male": "Masculin",
+        "female": "Féminin",
+        "tunisian": "Tunisien",
+        "nonTunisian": "Non Tunisien",
+        "single": "Célibataire",
+        "married": "Marié(e)",
+        "divorced": "Divorcé(e)",
+        "widowed": "Veuf/Veuve",
+        "marriedWithChildren": "Marié + Enfants",
+        "noManager": "Aucun manager",
+        "noCostCenter": "Aucun centre de coût",
+        "legacy": "(hérité)",
+        "employeeCategory": "Employé",
+        "cadre": "Cadre",
+        "agentDeMaitrise": "Agent de maîtrise",
+        "ouvrier": "Ouvrier",
+        "intern": "Stagiaire",
+        "onSite": "Sur Site",
+        "hybrid": "Hybride",
+        "remote": "Distanciel",
+        "shiftBased": "Basé sur Horaire",
+        "cdi": "CDI",
+        "cdd": "CDD",
+        "sivp": "SIVP",
+        "stage": "Stage",
+        "partTime": "Temps Partiel",
+        "freelance": "Freelance",
+        "replacement": "Remplacement d'employé absent",
+        "temporaryIncrease": "Augmentation temporaire d'activité",
+        "seasonalWork": "Travail saisonnier",
+        "cnss": "CNSS",
+        "cnrps": "CNRPS",
+        "bankTransfer": "Virement Bancaire",
+        "cash": "Espèces",
+        "check": "Chèque",
+        "contractVisa": "Visa Contrat",
+        "detachment": "Détachement",
+        "investmentExemption": "Exonération d'Investissement",
+        "seasonalPermit": "Saisonnier",
+        "pending": "En Attente",
+        "approved": "Approuvé",
+        "renewalNeeded": "Renouvellement Nécessaire",
+        "expired": "Expiré"
+      },
+      "documents": {
+        "cin": "Copie CIN",
+        "contract": "Contrat Signé",
+        "rib": "RIB",
+        "diploma": "Copie Diplôme",
+        "passport": "Copie Passeport",
+        "permit": "Permis de Travail",
+        "noFile": "Aucun fichier sélectionné"
+      },
+      "hints": {
+        "employeeStatus": "Géré par le système. Devient Actif seulement quand tous les champs sont remplis.",
+        "contractStatus": "Géré par le système selon l'état du contrat.",
+        "workingHours": "Rempli automatiquement depuis l'horaire par défaut.",
+        "cnssStatus": "Géré par le système selon le régime social.",
+        "taxStatus": "Géré par le système selon la situation familiale.",
+        "attendanceLeaveInit": "Assigner l'horaire par défaut et initialiser la politique de congé.",
+        "payrollComponentsInit": "Assigner les éléments récurrents de paie.",
+        "noComponents": "Ajoutez au moins un composant récurrent.",
+        "foreignCompliance": "Ces champs concernent les employés non Tunisiens.",
+        "mandatoryDocuments": "Téléchargez les documents RH/paie minimum avant de finaliser."
+      },
+      "validation": {
+        "cddRestrictedTitle": "CDD restreint par la réforme 2025",
+        "cddRestrictedDesc": "Utiliser CDD seulement pour les exceptions légales."
+      },
+      "review": {
+        "readyTitle": "Prêt à enregistrer le dossier complet",
+        "readyDesc": "Cela créera/mettra à jour l'employé, le contrat, le profil paie, CNSS et IRPP."
+      },
+      "sidebar": {
+        "title": "Couverture RH Tunisie",
+        "employeeMaster": "Fiche employé",
+        "employeeMasterDesc": "Identité, état civil, contacts, organisation.",
+        "employmentContract": "Contrat de travail",
+        "employmentContractDesc": "Numéro, type, salaire, heures, période d'essai.",
+        "payrollAndTax": "Paie et fiscalité",
+        "payrollAndTaxDesc": "CNSS/CNRPS, IRPP, virement bancaire, exonérations.",
+        "foreignWorker": "Travailleur étranger",
+        "foreignWorkerDesc": "Carte de séjour et permis de travail."
+      },
+      "readiness": {
+        "hrComplete": "Profil RH rempli",
+        "contractComplete": "Contrat de travail enregistré",
+        "payrollReady": "Profil paie configuré",
+        "documentsComplete": "Documents RH téléchargés",
+        "attendanceReady": "Horaire assigné et congé initialisé",
+        "legallyActive": "Conformité réglementaire (permis)"
+      },
+      "summary": {
+        "employee": "Employé",
+        "department": "Département",
+        "position": "Poste",
+        "manager": "Manager",
+        "contract": "Contrat",
+        "baseSalary": "Salaire de Base",
+        "cnss": "CNSS",
+        "payment": "Paiement",
+        "shift": "Horaire",
+        "leavePolicy": "Politique de Congé",
+        "payrollComponents": "Composants Paie",
+        "documents": "Documents",
+        "autoGenerated": "Auto-généré",
+        "tnd": "TND",
+        "days": "jours",
+        "configured": "configuré",
+        "uploaded": "téléchargé"
+      }
+    },
+    "statusUpdates": {
+      "goalCreated": "Objectif créé avec succès",
+      "goalUpdated": "Objectif mis à jour",
+      "goalDeleted": "Objectif supprimé",
+      "employeeCreated": "Employé créé avec succès",
+      "employeeUpdated": "Employé mis à jour",
+      "employeeDeleted": "Employé supprimé",
+      "employeeArchived": "Employé archivé",
+      "cnssProfileCreated": "Profil CNSS créé",
+      "cnssProfileUpdated": "Profil CNSS mis à jour",
+      "cnssProfileDeleted": "Profil CNSS supprimé",
+      "documentUploaded": "Document téléchargé",
+      "documentDeleted": "Document supprimé",
+      "settingsSaved": "Paramètres enregistrés",
+      "costCenterCreated": "Centre de coût créé",
+      "costCenterUpdated": "Centre de coût mis à jour",
+      "costCenterDeleted": "Centre de coût supprimé",
+      "attendanceRecorded": "Présence enregistrée",
+      "attendanceUpdated": "Présence mise à jour",
+      "attendanceSaved": "Présence enregistrée",
+      "contractCreated": "Contrat créé",
+      "contractDeleted": "Contrat supprimé",
+      "contractTerminated": "Contrat résilié",
+      "contractRenewed": "Contrat renouvelé",
+      "contractArchived": "Contrat archivé",
+      "payrollProfileUpdated": "Profil paie mis à jour",
+      "componentAssigned": "Composant assigné",
+      "componentUnassigned": "Composant désassigné",
+      "positionCreated": "Poste créé",
+      "positionUpdated": "Poste mis à jour",
+      "positionDeleted": "Poste supprimé",
+      "leaveBalanceCreated": "Solde de congé créé",
+      "leaveBalanceUpdated": "Solde de congé mis à jour",
+      "leaveBalanceDeleted": "Solde de congé supprimé",
+      "synchronized": "Synchronisé",
+      "syncFailed": "Échec de synchronisation",
+      "validEmployeeRequired": "Un employé valide est requis",
+      "selectLeaveType": "Veuillez sélectionner un type de congé",
+      "leaveRequestSubmitted": "Demande de congé soumise",
+      "leaveRequestUpdated": "Demande mise à jour",
+      "leaveTypeCreated": "Type de congé créé",
+      "leaveTypeDeleted": "Type de congé supprimé",
+      "shiftCreated": "Horaire créé",
+      "shiftUpdated": "Horaire mis à jour",
+      "shiftDeleted": "Horaire supprimé",
+      "shiftAssignmentCreated": "Affectation créée",
+      "shiftAssignmentUpdated": "Affectation mise à jour",
+      "shiftAssignmentDeleted": "Affectation supprimée",
+      "overtimeCreated": "Demande HS créée",
+      "overtimeUpdated": "Demande HS mise à jour",
+      "overtimeDeleted": "Demande HS supprimée",
+      "overtimeApproved": "HS approuvée",
+      "overtimeRejected": "HS rejetée",
+      "reviewCreated": "Évaluation créée",
+      "reviewUpdated": "Évaluation mise à jour",
+      "reviewDeleted": "Évaluation supprimée",
+      "kpiCreated": "KPI créé",
+      "kpiUpdated": "KPI mis à jour",
+      "kpiDeleted": "KPI supprimé",
+      "kpiAssigned": "KPI assigné",
+      "assignmentUpdated": "Assignation mise à jour",
+      "assignmentDeleted": "Assignation supprimée",
+      "irppTaxProfileSaved": "Profil IRPP enregistré",
+      "accrualRuleCreated": "Règle d'acquisition créée",
+      "accrualRuleUpdated": "Règle d'acquisition mise à jour",
+      "accrualRuleDeleted": "Règle d'acquisition supprimée",
+      "accrualRunCompleted": "Acquisition terminée",
+      "draftCreated": "Brouillon d'employé créé",
+      "draftUpdated": "Brouillon d'employé mis à jour",
+      "onboardingUpdated": "Intégration RH mise à jour",
+      "onboardingCreated": "Employé créé avec intégration RH",
+      "saveError": "Impossible d'enregistrer l'intégration",
+      "missingCnss": "Ajouter le numéro CNSS",
+      "missingRib": "Ajouter le RIB",
+      "missingBankName": "Ajouter le nom de la banque",
+      "missingBankAccount": "Ajouter le compte bancaire",
+      "missingWorkEmail": "Ajouter l'email professionnel",
+      "missingAddress": "Compléter l'adresse",
+      "missingEmergencyContact": "Compléter le contact d'urgence",
+      "missingEducation": "Ajouter la formation",
+      "missingSkills": "Ajouter les compétences",
+      "missingPassportOrResidence": "Ajouter le passeport ou la carte de séjour",
+      "missingWorkPermit": "Ajouter le permis de travail",
+      "missingShift": "Assigner un horaire",
+      "missingLeavePolicy": "Initialiser la politique de congé",
+      "missingComponents": "Assigner les composants de paie",
+      "missingUpload": "Télécharger {{label}}"
+    },
+    "costCenters": {
+      "title": "Centres de Co?ts",
+      "description": "G?rer les centres de co?ts, les responsables et l?affectation des employ?s.",
+      "stats": {
+        "total": "Total Centres",
+        "active": "Actifs",
+        "assigned": "Affect?s"
+      },
+      "table": {
+        "code": "Code",
+        "name": "Nom",
+        "department": "D?partement",
+        "manager": "Responsable",
+        "employees": "Employ?s",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "noDescription": "Aucune description",
+      "notLinked": "Non li?",
+      "notSet": "Non d?fini",
+      "noResults": "Aucun centre de co?ts trouv?.",
+      "deleteTitle": "Supprimer le centre de co?ts",
+      "deleteDescription": "Voulez-vous vraiment supprimer {{name}} ?",
+      "formDescription": "Configurez les d?tails du centre de co?ts, son responsable et son statut.",
+      "forms": {
+        "code": "Code",
+        "name": "Nom",
+        "description": "Description",
+        "department": "D?partement",
+        "manager": "Responsable",
+        "status": "Statut"
+      },
+      "placeholders": {
+        "autoGenerated": "Auto-g?n?r?",
+        "name": "Saisir le nom du centre de co?ts",
+        "description": "Ajouter une br?ve description",
+        "selectDepartment": "S?lectionner un d?partement",
+        "selectManager": "S?lectionner un responsable"
+      },
+      "options": {
+        "noDepartment": "Aucun d?partement",
+        "noManager": "Aucun responsable",
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "actions": {
+        "new": "Nouveau Centre de Co?ts",
+        "create": "Cr?er le Centre de Co?ts",
+        "edit": "Modifier le Centre de Co?ts",
+        "saveChanges": "Enregistrer les Modifications"
+      }
+    },
+    "cnssProfiles": {
+      "title": "Profils CNSS",
+      "description": "G?rer les profils de s?curit? sociale CNSS des employ?s.",
+      "forms": {
+        "employee": "Employ?",
+        "cnssNumber": "Num?ro CNSS",
+        "registrationDate": "Date d'immatriculation",
+        "regime": "R?gime",
+        "status": "Statut"
+      },
+      "placeholders": {
+        "selectEmployee": "S?lectionner un Employ?",
+        "cnssNumber": "Saisir le num?ro CNSS"
+      },
+      "options": {
+        "active": "Actif",
+        "inactive": "Inactif",
+        "suspended": "Suspendu"
+      },
+      "actions": {
+        "new": "Nouveau Profil CNSS",
+        "create": "Cr?er le Profil CNSS",
+        "edit": "Modifier"
+      },
+      "table": {
+        "employee": "Employ?",
+        "cnssNumber": "Num?ro CNSS",
+        "regime": "R?gime",
+        "registrationDate": "Date d'immatriculation",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "noResults": "Aucun profil CNSS trouv?."
+    },
+    "settings": {
+      "title": "Param?tres RH",
+      "description": "Configurer les param?tres RH, les heures suppl?mentaires et les politiques de cong?s.",
+      "overtimeConfig": "Configuration des Heures Suppl?mentaires",
+      "leavePolicy": "Politique de Cong?s",
+      "forms": {
+        "weekdayRate": "Taux heures supp. jours ouvrables",
+        "nightRate": "Taux heures supp. nuit",
+        "restDayRate": "Taux heures supp. jour de repos",
+        "nightStartHour": "Heure de d?but de nuit",
+        "nightEndHour": "Heure de fin de nuit",
+        "yearEndPolicy": "Politique de fin d'ann?e",
+        "cashOutRate": "Taux de mon?tisation",
+        "maxCarryForward": "Maximum de jours reportables"
+      },
+      "hints": {
+        "weekdayRate": "Coefficient appliqu? aux heures suppl?mentaires effectu?es en jours ouvrables.",
+        "nightRate": "Coefficient appliqu? aux heures suppl?mentaires effectu?es la nuit.",
+        "restDayRate": "Coefficient appliqu? aux heures suppl?mentaires effectu?es les jours de repos ou f?ri?s.",
+        "nightStartHour": "Heure ? partir de laquelle la p?riode de nuit commence.",
+        "nightEndHour": "Heure ? laquelle la p?riode de nuit se termine.",
+        "carryForwardDesc": "Reporter les cong?s non utilis?s vers l?ann?e suivante.",
+        "cashOutDesc": "Payer les cong?s non utilis?s selon la formule l?gale d?finie.",
+        "cashOutRateFormula": "Bas? sur le salaire journalier moyen de l?employ?.",
+        "maxCarryForwardDesc": "Nombre maximum de jours pouvant ?tre report?s sur l?ann?e suivante."
+      },
+      "options": {
+        "carryForward": "Reporter",
+        "cashOut": "Mon?tiser"
+      },
+      "placeholders": {
+        "cashOutRateFormula": "Calcul? automatiquement selon la formule l?gale"
+      },
+      "actions": {
+        "saveSettings": "Enregistrer les Param?tres"
+      }
+    },
+    "contracts": {
+      "title": "Contrats",
+      "description": "G?rer les contrats et accords des employ?s.",
+      "createDescription": "Renseignez les informations pour cr?er un nouveau contrat.",
+      "noResults": "Aucun contrat trouv?.",
+      "indefinite": "Ind?termin?",
+      "actions": {
+        "newContract": "Nouveau Contrat",
+        "createContract": "Cr?er le Contrat",
+        "downloadPrint": "T?l?charger / Imprimer",
+        "terminate": "Mettre Fin",
+        "renew": "Renouveler",
+        "setActive": "D?finir comme Actif",
+        "archive": "Archiver"
+      },
+      "placeholders": {
+        "autoGenerated": "Auto-g?n?r?",
+        "selectEmployee": "S?lectionner un Employ?",
+        "filterEmployee": "Filtrer par employ?"
+      },
+      "forms": {
+        "contractNumber": "Num?ro de Contrat",
+        "employee": "Employ?",
+        "contractType": "Type de Contrat",
+        "startDate": "Date de D?but",
+        "endDate": "Date de Fin",
+        "probationEnd": "Fin de P?riode d'Essai",
+        "baseSalary": "Salaire de Base",
+        "hoursPerWeek": "Heures / Semaine",
+        "status": "Statut"
+      },
+      "table": {
+        "contractNumber": "Num?ro de Contrat",
+        "employee": "Employ?",
+        "type": "Type",
+        "startDate": "D?but",
+        "endDate": "Fin",
+        "baseSalary": "Salaire de Base",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "options": {
+        "allEmployees": "Tous les Employ?s",
+        "active": "Actif",
+        "draft": "Brouillon",
+        "ended": "Termin?",
+        "terminated": "R?sili?",
+        "inactive": "Inactif",
+        "suspended": "Suspendu"
+      },
+      "dialog": {
+        "details": "D?tails du Contrat",
+        "detailsDescription": "Consultez les informations compl?tes du contrat s?lectionn?.",
+        "terminate": "Mettre Fin au Contrat",
+        "terminateDescription": "Confirmez la fin de ce contrat et renseignez les informations de cl?ture.",
+        "renew": "Renouveler le Contrat",
+        "renewDescription": "Cr?ez un brouillon de renouvellement ? partir du contrat actuel.",
+        "endDate": "Date de Fin",
+        "newStartDate": "Nouvelle Date de D?but",
+        "newEndDate": "Nouvelle Date de Fin",
+        "status": "Statut"
+      },
+      "view": {
+        "contractNumber": "Num?ro de Contrat",
+        "employee": "Employ?",
+        "contractType": "Type de Contrat",
+        "startDate": "Date de D?but",
+        "endDate": "Date de Fin",
+        "probationEnd": "Fin de P?riode d'Essai",
+        "baseSalary": "Salaire de Base",
+        "workingHours": "Heures / Semaine",
+        "status": "Statut",
+        "createdAt": "Cr?? le"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "brand": "Nexus CRM",
+      "subtitle": "Connectez-vous ? votre compte",
+      "welcome": "Bon retour",
+      "description": "Saisissez vos identifiants pour acc?der ? votre compte",
+      "email": "E-mail",
+      "emailPlaceholder": "nom@entreprise.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "????????",
+      "signIn": "Se connecter",
+      "signingIn": "Connexion en cours...",
+      "demoCredentials": "Identifiants de d?monstration :",
+      "footer": "? 2024 Nexus CRM. Tous droits r?serv?s.",
+      "success": "Connexion r?ussie !",
+      "error": "?chec de connexion. Veuillez v?rifier vos identifiants."
+    }
+  },
+  "errors": {
+    "notFound": {
+      "title": "Oups ! Page introuvable",
+      "backHome": "Retour ? l?accueil"
+    }
+  },
+  "signatures": {
+    "status": {
+      "all": "Tous",
+      "pending": "En attente",
+      "signed": "Sign?",
+      "toSign": "? signer",
+      "waiting": "En attente de signature"
+    },
+    "inbox": {
+      "account": "Mon compte",
+      "title": "Signatures",
+      "description": "Examinez et signez les documents des employ?s qui attendent encore votre validation.",
+      "documentsToSign": "documents ? signer",
+      "filter": "Filtre",
+      "queue": "File de signature",
+      "documents": "Documents",
+      "empty": "Aucun document dans cette vue de signature pour le moment.",
+      "cards": {
+        "signatureAccess": "Acc?dez aux documents en attente de signature.",
+        "signedFiles": "Fichiers sign?s",
+        "signedFilesDesc": "Suivez les documents sign?s et les exports enregistr?s.",
+        "documents": "Documents",
+        "documentsDesc": "Consultez en un seul endroit les documents RH et de paie ? signer."
+      }
+    },
+    "detail": {
+      "pageTitle": "D?tail de signature",
+      "notFound": "T?che de signature introuvable.",
+      "breadcrumb": "Accueil / Signatures / {{title}}",
+      "summary": "R?sum?",
+      "creationDate": "Date de cr?ation",
+      "employee": "Employ?",
+      "viewSignedFile": "Voir le fichier sign?",
+      "sign": "Signer",
+      "history": "Historique de communication",
+      "historyDescription": "Ce document est suivi dans le flux de signature. Une fois valid?, l?export sign? est enregistr? localement et le statut se met ? jour automatiquement.",
+      "yourInformation": "Vos informations"
+    },
+    "workspace": {
+      "pageTitle": "Signer le document",
+      "titleWithDocument": "Signer - {{title}}",
+      "description": "Placez votre signature dans la zone mise en ?vidence, puis validez le PDF final.",
+      "move": "D?placer",
+      "clickToAdd": "Cliquez pour ajouter {{label}}",
+      "saved": "PDF sign? enregistr?",
+      "loading": "Chargement du document ? signer...",
+      "nextField": "Champ de signature suivant",
+      "validate": "Valider",
+      "zoneStatus": "{{label}} {{status}}"
+    },
+    "dialog": {
+      "title": "Adoptez votre signature",
+      "fullName": "Nom complet",
+      "signatureSize": "Taille de la signature",
+      "scale": "?chelle : {{value}}%",
+      "color": "Couleur",
+      "selectColor": "Choisir la couleur de signature {{color}}",
+      "auto": "Auto",
+      "draw": "Dessiner",
+      "clear": "Effacer",
+      "signedWith": "Sign? avec Nadas Sign",
+      "legal": "En signant, vous confirmez que cette signature ?lectronique est valable pour ce document."
+    }
+  },
+  "payroll": {
+    "payslip": {
+      "loading": "Chargement du bulletin de paie...",
+      "notFound": "Bulletin de paie introuvable.",
+      "titleWithEmployee": "Bulletin de paie - {{name}}",
+      "detailTitle": "Détail du bulletin",
+      "detailDescription": "Consultez et imprimez le bulletin de paie mensuel de l’employé.",
+      "print": "Imprimer le bulletin",
+      "sign": "Signer"
+    },
+    "document": {
+      "moduleSubtitle": "Module ERP tunisien de paie",
+      "payslip": "Bulletin de paie",
+      "payrollPeriod": "Période de paie",
+      "generatedOn": "Généré le {{date}}",
+      "monthTitle": "Bulletin de paie du mois de {{period}}",
+      "employeePaySummary": "Résumé de paie de l’employé",
+      "employeeName": "Nom de l’employé",
+      "designation": "Fonction",
+      "dateOfJoining": "Date d’entrée",
+      "payPeriod": "Période de paie",
+      "payDate": "Date de paie",
+      "department": "Département",
+      "cinCnss": "CIN / CNSS",
+      "employeeNetPay": "Salaire net de l’employé",
+      "grossEarnings": "Gains bruts",
+      "totalDeductions": "Total des retenues",
+      "earnings": "Gains",
+      "amount": "Montant",
+      "deductions": "Retenues",
+      "netPay": "Net à payer",
+      "totalNetPayable": "Total net à payer",
+      "footerNote": "Ce document reflète le calcul de paie généré par NADAS ERP Suite.",
+      "employeeSignature": "Signature de l’employé"
+    }
+  },
+  "payrollPages": {
+    "periods": {
+      "layoutTitle": "Paie - P\u00e9riodes et bulletins",
+      "title": "Ex\u00e9cutions de paie",
+      "description": "G\u00e9rez les cycles de paie p\u00e9riodiques et les bulletins.",
+      "actions": { "newPeriod": "Nouvelle p\u00e9riode", "openPeriod": "Ouvrir la p\u00e9riode", "generateRecalculate": "G\u00e9n\u00e9rer / recalculer" },
+      "dialogs": { "openTitle": "Ouvrir une nouvelle p\u00e9riode de paie" },
+      "fields": { "periodName": "Nom de la p\u00e9riode *", "startDate": "Date de d\u00e9but *", "endDate": "Date de fin *" },
+      "placeholders": { "periodName": "ex. Juin 2026" },
+      "sections": { "periods": "P\u00e9riodes", "payslipsFor": "Bulletins pour {{period}}" },
+      "table": { "employee": "Employ\u00e9", "gross": "Brut (TND)", "deductions": "Retenues (TND)", "netSalary": "Salaire net (TND)", "status": "Statut", "actions": "Actions" },
+      "states": { "loadingRuns": "Chargement des cycles...", "noPeriods": "Aucune p\u00e9riode de paie ouverte.", "loadingPayslips": "Chargement des bulletins...", "noPayslips": "Aucun bulletin g\u00e9n\u00e9r\u00e9. Cliquez sur G\u00e9n\u00e9rer ci-dessus.", "selectPeriod": "S\u00e9lectionnez une p\u00e9riode de paie \u00e0 gauche pour g\u00e9rer les bulletins." },
+      "statuses": { "draft": "Brouillon", "approved": "Approuv\u00e9", "paid": "Pay\u00e9", "closed": "Cl\u00f4tur\u00e9e", "open": "Ouverte" },
+      "toasts": { "periodCreated": "P\u00e9riode de paie cr\u00e9\u00e9e", "payslipsGenerated": "Bulletins g\u00e9n\u00e9r\u00e9s / mis \u00e0 jour pour cette p\u00e9riode", "payslipApproved": "Bulletin approuv\u00e9", "payslipPaid": "Bulletin marqu\u00e9 comme pay\u00e9" }
+    },
+    "settings": {
+      "layoutTitle": "Paie - Param\u00e8tres",
+      "title": "Param\u00e8tres de paie",
+      "description": "Configurez les taux sociaux, les variables fiscales et les constantes de calcul.",
+      "sections": { "rulesRates": "R\u00e8gles et taux", "thirteenthMonth": "13\u00e8me mois", "seniorityBonus": "Prime d'anciennet\u00e9", "absenceDeduction": "D\u00e9duction d'absence" },
+      "toggles": { "enableThirteenthMonth": "Activer le 13\u00e8me mois", "enableSeniorityBonus": "Activer la prime d'anciennet\u00e9", "enableAbsenceDeduction": "Activer la d\u00e9duction d'absence" },
+      "actions": { "saveAll": "Enregistrer tous les param\u00e8tres" },
+      "states": { "loading": "Chargement des param\u00e8tres..." },
+      "toasts": { "updated": "Param\u00e8tres de paie mis \u00e0 jour" }
+    },
+    "bankTransfers": {
+      "layoutTitle": "Paie - Virements bancaires",
+      "title": "Virements bancaires",
+      "description": "G\u00e9n\u00e9rez des fichiers de virement SEPA XML ou CSV pour les paiements de paie.",
+      "actions": { "generateFile": "G\u00e9n\u00e9rer le fichier de virement" },
+      "dialogs": { "generateTitle": "G\u00e9n\u00e9rer un fichier de virement bancaire" },
+      "fields": { "payrollPeriod": "P\u00e9riode de paie *", "format": "Format" },
+      "placeholders": { "selectPeriod": "S\u00e9lectionner une p\u00e9riode" },
+      "formats": { "sepa": "SEPA XML (PAIN.001)", "csv": "Fichier CSV" },
+      "table": { "fileName": "Nom du fichier", "period": "P\u00e9riode", "format": "Format", "employees": "Employ\u00e9s", "totalAmount": "Montant total", "status": "Statut", "created": "Cr\u00e9\u00e9 le", "actions": "Actions" },
+      "states": { "empty": "Aucun fichier de virement bancaire g\u00e9n\u00e9r\u00e9" },
+      "statuses": { "generated": "G\u00e9n\u00e9r\u00e9" },
+      "toasts": { "generated": "Fichier de virement bancaire g\u00e9n\u00e9r\u00e9" }
+    },
+    "cnss": {
+      "layoutTitle": "Paie - D\u00e9clarations CNSS",
+      "title": "D\u00e9clarations CNSS",
+      "description": "G\u00e9n\u00e9rez et consultez les d\u00e9clarations mensuelles CNSS.",
+      "actions": { "generateDeclaration": "G\u00e9n\u00e9rer la d\u00e9claration" },
+      "dialogs": { "generateTitle": "G\u00e9n\u00e9rer une d\u00e9claration CNSS", "detailsTitle": "D\u00e9tail de la d\u00e9claration CNSS" },
+      "fields": { "payrollPeriod": "P\u00e9riode de paie *", "accidentInsurance": "Assurance accident", "totalEmployer": "Total employeur" },
+      "placeholders": { "selectPeriod": "S\u00e9lectionner une p\u00e9riode" },
+      "table": { "period": "P\u00e9riode", "date": "Date", "employees": "Employ\u00e9s", "grossSalary": "Salaire brut", "cnssEmployee": "CNSS salari\u00e9", "cnssEmployer": "CNSS employeur", "status": "Statut", "actions": "Actions" },
+      "sections": { "financialSummary": "R\u00e9sum\u00e9 financier" },
+      "states": { "loading": "Chargement des d\u00e9clarations...", "empty": "Aucune d\u00e9claration g\u00e9n\u00e9r\u00e9e." },
+      "statuses": { "generated": "G\u00e9n\u00e9r\u00e9" },
+      "toasts": { "generated": "D\u00e9claration CNSS g\u00e9n\u00e9r\u00e9e" }
+    },
+    "irpp": {
+      "layoutTitle": "Paie - D\u00e9clarations IRPP",
+      "title": "D\u00e9clarations IRPP",
+      "description": "D\u00e9clarations annuelles d'imp\u00f4t sur le revenu par employ\u00e9.",
+      "actions": { "generateAnnual": "G\u00e9n\u00e9rer l'IRPP annuel" },
+      "dialogs": { "generateTitle": "G\u00e9n\u00e9rer une d\u00e9claration IRPP", "detailsTitle": "D\u00e9tail de la d\u00e9claration IRPP" },
+      "fields": { "taxYear": "Ann\u00e9e fiscale *" },
+      "table": { "employee": "Employ\u00e9", "taxYear": "Ann\u00e9e fiscale", "taxableIncome": "Revenu imposable", "taxDeducted": "Imp\u00f4t retenu", "cnssDeducted": "CNSS retenue", "status": "Statut", "actions": "Actions" },
+      "states": { "loading": "Chargement des d\u00e9clarations...", "empty": "Aucune d\u00e9claration g\u00e9n\u00e9r\u00e9e." },
+      "statuses": { "generated": "G\u00e9n\u00e9r\u00e9" },
+      "toasts": { "generated": "D\u00e9clarations IRPP g\u00e9n\u00e9r\u00e9es" }
+    },
+    "loans": {
+      "layoutTitle": "Paie - Pr\u00eats et avances",
+      "title": "Pr\u00eats et avances",
+      "description": "G\u00e9rez et suivez les aides financi\u00e8res aux employ\u00e9s.",
+      "tabs": { "loans": "Pr\u00eats employ\u00e9s", "advances": "Avances sur salaire" },
+      "actions": { "recordLoan": "Enregistrer un pr\u00eat", "requestAdvance": "Demander une avance" },
+      "dialogs": { "loanTitle": "Enregistrer un pr\u00eat employ\u00e9", "advanceTitle": "Enregistrer une avance sur salaire" },
+      "fields": { "employee": "Employ\u00e9 *", "loanAmount": "Montant total du pr\u00eat (TND) *", "installmentAmount": "Mensualit\u00e9 (TND) *", "startDate": "Date de d\u00e9but *", "advanceAmount": "Montant (TND) *", "requestDate": "Date de demande *", "deductionDate": "Date de d\u00e9duction *" },
+      "placeholders": { "selectEmployee": "S\u00e9lectionner un employ\u00e9" },
+      "table": { "employee": "Employ\u00e9", "totalAmount": "Montant total", "monthlyInstallment": "Mensualit\u00e9", "remainingBalance": "Solde restant", "startDate": "Date de d\u00e9but", "status": "Statut", "amount": "Montant", "requestDate": "Date de demande", "scheduledDeduction": "D\u00e9duction planifi\u00e9e" },
+      "states": { "loadingLoans": "Chargement des pr\u00eats...", "noLoans": "Aucun pr\u00eat employ\u00e9 enregistr\u00e9.", "loadingAdvances": "Chargement des avances...", "noAdvances": "Aucune avance sur salaire enregistr\u00e9e." },
+      "statuses": { "active": "Actif", "approved": "Approuv\u00e9", "deducted": "D\u00e9duit" },
+      "toasts": { "loanRecorded": "Pr\u00eat enregistr\u00e9 avec succ\u00e8s", "advanceRecorded": "Avance sur salaire enregistr\u00e9e avec succ\u00e8s" }
+    },
+    "components": {
+      "layoutTitle": "Paie - Composants",
+      "title": "Composants de salaire",
+      "description": "G\u00e9rez les composants de base, indemnit\u00e9s, primes et r\u00e8gles sociales/fiscales.",
+      "actions": { "newComponent": "Nouveau composant" },
+      "dialogs": { "createTitle": "Cr\u00e9er un composant", "editTitle": "Modifier le composant" },
+      "fields": { "code": "Code *", "name": "Nom *", "type": "Type *", "taxable": "Imposable *", "subjectToCnss": "Soumis \u00e0 la CNSS *", "status": "Statut *", "description": "Description" },
+      "placeholders": { "code": "ex. TRANSPORT_ALLOWANCE", "name": "ex. Indemnit\u00e9 de transport" },
+      "options": { "earning": "GAIN (ex. indemnit\u00e9, prime)", "deduction": "RETENUE (ex. imp\u00f4ts, remboursement de pr\u00eat)", "employerContribution": "COTISATION EMPLOYEUR", "yes": "Oui", "no": "Non", "active": "Actif", "inactive": "Inactif" },
+      "table": { "code": "Code", "name": "Nom", "type": "Type", "taxable": "Imposable", "cnss": "CNSS", "status": "Statut", "actions": "Actions" },
+      "states": { "loading": "Chargement des composants...", "empty": "Aucun composant de salaire trouv\u00e9." },
+      "confirmations": { "delete": "Supprimer le composant ?" },
+      "toasts": { "created": "Composant de salaire cr\u00e9\u00e9", "updated": "Composant de salaire mis \u00e0 jour", "deleted": "Composant de salaire supprim\u00e9" }
+    },
+    "thirteenthMonth": {
+      "layoutTitle": "Paie - 13\u00e8me mois",
+      "title": "Salaire du 13\u00e8me mois",
+      "description": "G\u00e9n\u00e9rez les bulletins du 13\u00e8me mois pour une p\u00e9riode de paie.",
+      "actions": { "generate": "G\u00e9n\u00e9rer le 13\u00e8me mois" },
+      "dialogs": { "generateTitle": "G\u00e9n\u00e9rer les bulletins du 13\u00e8me mois" },
+      "fields": { "payrollPeriod": "P\u00e9riode de paie" },
+      "placeholders": { "selectPeriod": "S\u00e9lectionner une p\u00e9riode..." },
+      "cards": { "generatedPayslips": "Bulletins g\u00e9n\u00e9r\u00e9s", "grossTotal": "Total brut (TND)", "netTotal": "Total net (TND)" },
+      "states": { "enabledAt": "Activ\u00e9 \u00e0 {{rate}}% du salaire de base", "disabled": "Le 13\u00e8me mois est actuellement d\u00e9sactiv\u00e9 dans les param\u00e8tres de paie." },
+      "toasts": { "generated": "Bulletins du 13\u00e8me mois g\u00e9n\u00e9r\u00e9s", "failed": "\u00c9chec de g\u00e9n\u00e9ration du 13\u00e8me mois" }
+    },
+    "stc": {
+      "layoutTitle": "Paie - R\u00e8glements STC",
+      "title": "R\u00e8glements STC",
+      "description": "G\u00e9n\u00e9rez les fichiers de r\u00e8glement STC pour les virements salariaux.",
+      "actions": { "generateFile": "G\u00e9n\u00e9rer le fichier STC" },
+      "toasts": { "generated": "R\u00e8glement STC g\u00e9n\u00e9r\u00e9", "popupBlocked": "Popup bloqu\u00e9e. Autorisez les popups pour exporter le PDF du r\u00e8glement." }
     }
   }
 }

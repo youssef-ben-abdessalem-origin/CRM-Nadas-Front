@@ -1,4 +1,5 @@
 import { CRMLayout } from "@/components/CRMLayout";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -196,12 +197,13 @@ const settingsCards: SettingsCard[] = [
 ];
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   return (
-    <CRMLayout title="CRM Settings">
+    <CRMLayout title={t("settingsPage.pageTitle")}>
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold">Settings</h1>
+            <h1 className="text-2xl font-bold">{t("settingsPage.title")}</h1>
             <p className="text-muted-foreground">
               Manage your CRM configuration
             </p>

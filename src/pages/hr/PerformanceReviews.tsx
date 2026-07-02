@@ -11,8 +11,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Edit, Trash, ClipboardCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function PerformanceReviews() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState<PerformanceReview | null>(null);
@@ -28,9 +30,9 @@ export default function PerformanceReviews() {
   const { data: items = [], isLoading } = useQuery({ queryKey: ["performanceReviews"], queryFn: () => api.hr.performanceReviews.getAll() });
   const { data: employees = [] } = useQuery({ queryKey: ["employees"], queryFn: () => api.hr.employees.getAll() });
 
-  const createMut = useMutation({ mutationFn: (d: any) => api.hr.performanceReviews.create(d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["performanceReviews"] }); toast.success("Review created"); setIsOpen(false); resetForm(); } });
-  const updateMut = useMutation({ mutationFn: ({ id, d }: any) => api.hr.performanceReviews.update(id, d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["performanceReviews"] }); toast.success("Review updated"); setIsOpen(false); resetForm(); } });
-  const deleteMut = useMutation({ mutationFn: (id: number) => api.hr.performanceReviews.delete(id), onSuccess: () => { qc.invalidateQueries({ queryKey: ["performanceReviews"] }); toast.success("Review deleted"); } });
+  const createMut = useMutation({ mutationFn: (d: any) => api.hr.performanceReviews.create(d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["performanceReviews"] }); toast.success(t("hr.statusUpdates.reviewCreated")); setIsOpen(false); resetForm(); } });
+  const updateMut = useMutation({ mutationFn: ({ id, d }: any) => api.hr.performanceReviews.update(id, d), onSuccess: () => { qc.invalidateQueries({ queryKey: ["performanceReviews"] }); toast.success(t("hr.statusUpdates.reviewUpdated")); setIsOpen(false); resetForm(); } });
+  const deleteMut = useMutation({ mutationFn: (id: number) => api.hr.performanceReviews.delete(id), onSuccess: () => { qc.invalidateQueries({ queryKey: ["performanceReviews"] }); toast.success(t("hr.statusUpdates.reviewDeleted")); } });
 
   const resetForm = () => {
     setEditing(null); setEmployeeId(""); setReviewerId(""); setReviewDate(""); setOverallRating(0); setStrengths(""); setWeaknesses(""); setSummary(""); setStatus("Draft");
@@ -47,70 +49,70 @@ export default function PerformanceReviews() {
   };
 
   return (
-    <CRMLayout title="HR - Performance Reviews">
+    <CRMLayout title={t("hr.performanceReviews.pageTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Performance Reviews</h1>
-            <p className="text-muted-foreground">Conduct and manage employee performance evaluations.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.performanceReviews.title")}</h1>
+            <p className="text-muted-foreground">{t("hr.performanceReviews.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) resetForm(); }}>
-            <DialogTrigger asChild><Button className="gap-2"><ClipboardCheck className="h-4 w-4" /> New Review</Button></DialogTrigger>
+            <DialogTrigger asChild><Button className="gap-2"><ClipboardCheck className="h-4 w-4" /> {t("hr.performanceReviews.actions.create")}</Button></DialogTrigger>
             <DialogContent className="max-w-lg">
-              <DialogHeader><DialogTitle>{editing ? "Edit Review" : "New Review"}</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{editing ? t("hr.performanceReviews.dialog.edit") : t("hr.performanceReviews.dialog.create")}</DialogTitle></DialogHeader>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Employee *</label>
+                  <label className="text-sm font-semibold">{t("hr.performanceReviews.forms.employee")} *</label>
                   <Select value={employeeId} onValueChange={setEmployeeId}>
-                    <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("hr.performanceReviews.placeholders.select")} /></SelectTrigger>
                     <SelectContent>{employees.map((e: any) => (<SelectItem key={e.id} value={String(e.id)}>{e.firstName} {e.lastName}</SelectItem>))}</SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Reviewer</label>
+                    <label className="text-sm font-semibold">{t("hr.performanceReviews.forms.reviewer")}</label>
                     <Select value={reviewerId} onValueChange={setReviewerId}>
-                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("hr.performanceReviews.placeholders.select")} /></SelectTrigger>
                       <SelectContent>{employees.map((e: any) => (<SelectItem key={e.id} value={String(e.id)}>{e.firstName} {e.lastName}</SelectItem>))}</SelectContent>
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Review Date *</label>
+                    <label className="text-sm font-semibold">{t("hr.performanceReviews.forms.reviewDate")} *</label>
                     <Input required type="date" value={reviewDate} onChange={(e) => setReviewDate(e.target.value)} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Rating (0-10)</label>
+                    <label className="text-sm font-semibold">{t("hr.performanceReviews.forms.rating")}</label>
                     <Input type="number" min={0} max={10} step={0.5} value={overallRating} onChange={(e) => setOverallRating(+e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Status</label>
+                    <label className="text-sm font-semibold">{t("hr.performanceReviews.forms.status")}</label>
                     <Select value={status} onValueChange={setStatus}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Draft">Draft</SelectItem>
-                        <SelectItem value="Submitted">Submitted</SelectItem>
-                        <SelectItem value="Acknowledged">Acknowledged</SelectItem>
+                        <SelectItem value="Draft">{t("common.status.draft")}</SelectItem>
+                        <SelectItem value="Submitted">{t("hr.performanceReviews.options.submitted")}</SelectItem>
+                        <SelectItem value="Acknowledged">{t("hr.performanceReviews.options.acknowledged")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Strengths</label>
+                  <label className="text-sm font-semibold">{t("hr.performanceReviews.forms.strengths")}</label>
                   <textarea className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={strengths} onChange={(e) => setStrengths(e.target.value)} />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Weaknesses</label>
+                  <label className="text-sm font-semibold">{t("hr.performanceReviews.forms.weaknesses")}</label>
                   <textarea className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={weaknesses} onChange={(e) => setWeaknesses(e.target.value)} />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Summary</label>
+                  <label className="text-sm font-semibold">{t("hr.performanceReviews.forms.summary")}</label>
                   <textarea className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm" value={summary} onChange={(e) => setSummary(e.target.value)} />
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                  <Button type="submit">Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit">{t("common.save")}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -120,17 +122,17 @@ export default function PerformanceReviews() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Reviewer</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("hr.performanceReviews.table.employee")}</TableHead>
+                <TableHead>{t("hr.performanceReviews.table.reviewer")}</TableHead>
+                <TableHead>{t("hr.performanceReviews.table.date")}</TableHead>
+                <TableHead>{t("hr.performanceReviews.table.rating")}</TableHead>
+                <TableHead>{t("hr.performanceReviews.table.status")}</TableHead>
+                <TableHead className="text-right">{t("hr.performanceReviews.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? <TableRow><TableCell colSpan={6} className="text-center py-8">Loading...</TableCell></TableRow>
-              : items.length === 0 ? <TableRow><TableCell colSpan={6} className="text-center py-8">No reviews.</TableCell></TableRow>
+              {isLoading ? <TableRow><TableCell colSpan={6} className="text-center py-8">{t("common.loading")}</TableCell></TableRow>
+              : items.length === 0 ? <TableRow><TableCell colSpan={6} className="text-center py-8">{t("hr.performanceReviews.empty")}</TableCell></TableRow>
               : items.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell className="font-semibold">{r.employee ? `${r.employee.firstName} ${r.employee.lastName}` : "-"}</TableCell>

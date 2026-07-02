@@ -9,8 +9,10 @@ import api from "@/lib/api";
 import { ArrowLeft, Save, X } from "lucide-react";
 
 import { ProductForm } from "@/components/products/ProductForm";
+import { useTranslation } from "react-i18next";
 
 const CreateProduct = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -62,7 +64,7 @@ const CreateProduct = () => {
     mutationFn: api.products.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      toast.success("Product created successfully");
+      toast.success(t("products.create.statusUpdates.created"));
       navigate("/products");
     },
     onError: (err: Error) => toast.error(err.message),

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api, Loan, Advance } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { toast } from "sonner";
 import { Plus, CreditCard, Banknote } from "lucide-react";
 
 export default function LoansAdvances() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("loans");
 
@@ -52,7 +54,7 @@ export default function LoansAdvances() {
     mutationFn: api.payroll.loans.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["loans"] });
-      toast.success("Loan recorded successfully");
+      toast.success(t("payrollPages.loans.toasts.loanRecorded"));
       setIsLoanOpen(false);
       setSelectedEmpLoanId("");
       setLoanAmount("");
@@ -65,7 +67,7 @@ export default function LoansAdvances() {
     mutationFn: api.payroll.advances.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["advances"] });
-      toast.success("Salary advance recorded successfully");
+      toast.success(t("payrollPages.loans.toasts.advanceRecorded"));
       setIsAdvanceOpen(false);
       setSelectedEmpAdvId("");
       setAdvAmount("");
@@ -97,19 +99,19 @@ export default function LoansAdvances() {
   };
 
   return (
-    <CRMLayout title="Payroll - Loans & Advances">
+    <CRMLayout title={t("payrollPages.loans.layoutTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Loans & Advances</h1>
-            <p className="text-muted-foreground">Manage and track employee financial assistance programs.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("payrollPages.loans.title")}</h1>
+            <p className="text-muted-foreground">{t("payrollPages.loans.description")}</p>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-2 max-w-sm">
-            <TabsTrigger value="loans" className="gap-2"><CreditCard className="h-4 w-4" /> Employee Loans</TabsTrigger>
-            <TabsTrigger value="advances" className="gap-2"><Banknote className="h-4 w-4" /> Salary Advances</TabsTrigger>
+            <TabsTrigger value="loans" className="gap-2"><CreditCard className="h-4 w-4" /> {t("payrollPages.loans.tabs.loans")}</TabsTrigger>
+            <TabsTrigger value="advances" className="gap-2"><Banknote className="h-4 w-4" /> {t("payrollPages.loans.tabs.advances")}</TabsTrigger>
           </TabsList>
 
           {/* Loans Tab */}
@@ -117,17 +119,17 @@ export default function LoansAdvances() {
             <div className="flex justify-end">
               <Dialog open={isLoanOpen} onOpenChange={setIsLoanOpen}>
                 <DialogTrigger asChild>
-                  <Button className="gap-2"><Plus className="h-4 w-4" /> Record Loan</Button>
+                  <Button className="gap-2"><Plus className="h-4 w-4" /> {t("payrollPages.loans.actions.recordLoan")}</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Record Employee Loan</DialogTitle>
+                    <DialogTitle>{t("payrollPages.loans.dialogs.loanTitle")}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleLoanSubmit} className="flex flex-col gap-4 py-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Employee *</label>
+                      <label className="text-sm font-semibold">{t("payrollPages.loans.fields.employee")}</label>
                       <Select value={selectedEmpLoanId} onValueChange={setSelectedEmpLoanId}>
-                        <SelectTrigger><SelectValue placeholder="Select Employee" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t("payrollPages.loans.placeholders.selectEmployee")} /></SelectTrigger>
                         <SelectContent>
                           {employees.map((emp) => (
                             <SelectItem key={emp.id} value={String(emp.id)}>{emp.firstName} {emp.lastName}</SelectItem>
@@ -136,20 +138,20 @@ export default function LoansAdvances() {
                       </Select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Total Loan Amount (TND) *</label>
+                      <label className="text-sm font-semibold">{t("payrollPages.loans.fields.loanAmount")}</label>
                       <Input required type="number" step="0.001" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Monthly Repayment Installment (TND) *</label>
+                      <label className="text-sm font-semibold">{t("payrollPages.loans.fields.installmentAmount")}</label>
                       <Input required type="number" step="0.001" value={installmentAmount} onChange={(e) => setInstallmentAmount(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Start Date *</label>
+                      <label className="text-sm font-semibold">{t("payrollPages.loans.fields.startDate")}</label>
                       <Input required type="date" value={loanStartDate} onChange={(e) => setLoanStartDate(e.target.value)} />
                     </div>
                     <div className="flex justify-end gap-2 mt-4">
-                      <Button type="button" variant="outline" onClick={() => setIsLoanOpen(false)}>Cancel</Button>
-                      <Button type="submit" disabled={createLoanMutation.isPending}>Save</Button>
+                      <Button type="button" variant="outline" onClick={() => setIsLoanOpen(false)}>{t("common.cancel")}</Button>
+                      <Button type="submit" disabled={createLoanMutation.isPending}>{t("common.save")}</Button>
                     </div>
                   </form>
                 </DialogContent>
@@ -160,22 +162,22 @@ export default function LoansAdvances() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Total Amount</TableHead>
-                    <TableHead>Monthly Installment</TableHead>
-                    <TableHead>Remaining Balance</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.employee")}</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.totalAmount")}</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.monthlyInstallment")}</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.remainingBalance")}</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.startDate")}</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.status")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loadingLoans ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">Loading loans...</TableCell>
+                      <TableCell colSpan={6} className="text-center py-8">{t("payrollPages.loans.states.loadingLoans")}</TableCell>
                     </TableRow>
                   ) : loans.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">No employee loans registered.</TableCell>
+                      <TableCell colSpan={6} className="text-center py-8">{t("payrollPages.loans.states.noLoans")}</TableCell>
                     </TableRow>
                   ) : (
                     loans.map((loan) => (
@@ -187,7 +189,7 @@ export default function LoansAdvances() {
                         <TableCell>{new Date(loan.startDate).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <Badge variant={loan.status === "Active" ? "default" : "secondary"}>
-                            {loan.status}
+                            {t(`payrollPages.loans.statuses.${String(loan.status).toLowerCase()}`, { defaultValue: loan.status })}
                           </Badge>
                         </TableCell>
                       </TableRow>
@@ -203,17 +205,17 @@ export default function LoansAdvances() {
             <div className="flex justify-end">
               <Dialog open={isAdvanceOpen} onOpenChange={setIsAdvanceOpen}>
                 <DialogTrigger asChild>
-                  <Button className="gap-2"><Plus className="h-4 w-4" /> Request Advance</Button>
+                  <Button className="gap-2"><Plus className="h-4 w-4" /> {t("payrollPages.loans.actions.requestAdvance")}</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Record Salary Advance</DialogTitle>
+                    <DialogTitle>{t("payrollPages.loans.dialogs.advanceTitle")}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleAdvSubmit} className="flex flex-col gap-4 py-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Employee *</label>
+                      <label className="text-sm font-semibold">{t("payrollPages.loans.fields.employee")}</label>
                       <Select value={selectedEmpAdvId} onValueChange={setSelectedEmpAdvId}>
-                        <SelectTrigger><SelectValue placeholder="Select Employee" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t("payrollPages.loans.placeholders.selectEmployee")} /></SelectTrigger>
                         <SelectContent>
                           {employees.map((emp) => (
                             <SelectItem key={emp.id} value={String(emp.id)}>{emp.firstName} {emp.lastName}</SelectItem>
@@ -222,22 +224,22 @@ export default function LoansAdvances() {
                       </Select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Amount (TND) *</label>
+                      <label className="text-sm font-semibold">{t("payrollPages.loans.fields.advanceAmount")}</label>
                       <Input required type="number" step="0.001" value={advAmount} onChange={(e) => setAdvAmount(e.target.value)} />
                     </div>
                     <div className="flex grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Request Date *</label>
+                        <label className="text-sm font-semibold">{t("payrollPages.loans.fields.requestDate")}</label>
                         <Input required type="date" value={advRequestDate} onChange={(e) => setAdvRequestDate(e.target.value)} />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Deduction Date *</label>
+                        <label className="text-sm font-semibold">{t("payrollPages.loans.fields.deductionDate")}</label>
                         <Input required type="date" value={advDeductionDate} onChange={(e) => setAdvDeductionDate(e.target.value)} />
                       </div>
                     </div>
                     <div className="flex justify-end gap-2 mt-4">
-                      <Button type="button" variant="outline" onClick={() => setIsAdvanceOpen(false)}>Cancel</Button>
-                      <Button type="submit" disabled={createAdvMutation.isPending}>Save</Button>
+                      <Button type="button" variant="outline" onClick={() => setIsAdvanceOpen(false)}>{t("common.cancel")}</Button>
+                      <Button type="submit" disabled={createAdvMutation.isPending}>{t("common.save")}</Button>
                     </div>
                   </form>
                 </DialogContent>
@@ -248,21 +250,21 @@ export default function LoansAdvances() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Request Date</TableHead>
-                    <TableHead>Scheduled Deduction</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.employee")}</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.amount")}</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.requestDate")}</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.scheduledDeduction")}</TableHead>
+                    <TableHead>{t("payrollPages.loans.table.status")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loadingAdvances ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">Loading advances...</TableCell>
+                      <TableCell colSpan={5} className="text-center py-8">{t("payrollPages.loans.states.loadingAdvances")}</TableCell>
                     </TableRow>
                   ) : advances.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">No salary advances registered.</TableCell>
+                      <TableCell colSpan={5} className="text-center py-8">{t("payrollPages.loans.states.noAdvances")}</TableCell>
                     </TableRow>
                   ) : (
                     advances.map((adv) => (
@@ -273,7 +275,7 @@ export default function LoansAdvances() {
                         <TableCell>{new Date(adv.deductionDate).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <Badge variant={adv.status === "Approved" ? "outline" : adv.status === "Deducted" ? "default" : "secondary"}>
-                            {adv.status}
+                            {t(`payrollPages.loans.statuses.${String(adv.status).toLowerCase()}`, { defaultValue: adv.status })}
                           </Badge>
                         </TableCell>
                       </TableRow>

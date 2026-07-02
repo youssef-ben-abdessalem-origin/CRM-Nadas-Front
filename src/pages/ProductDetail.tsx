@@ -36,8 +36,10 @@ import api from "@/lib/api";
 import { formatCurrencyValue } from "@/utils/number";
 import { useProfileCurrency } from "@/hooks/useProfileCurrency";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 export default function ProductDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { currency } = useProfileCurrency();

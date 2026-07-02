@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,7 @@ interface LoginProps {
 }
 
 const Login = ({ onLogin }: LoginProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
@@ -35,81 +37,81 @@ const Login = ({ onLogin }: LoginProps) => {
         localStorage.setItem("user", JSON.stringify(response.user || { email }));
         onLogin(response.accessToken, response.user);
         queryClient.invalidateQueries();
-        toast.success("Login successful!");
+        toast.success(t("auth.login.success"));
         navigate("/");
       }
     } catch (err: any) {
-      toast.error(err.message || "Login failed. Please check your credentials.");
+      toast.error(err.message || t("auth.login.error"));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white tracking-tight">Nexus CRM</h1>
-          <p className="text-slate-400 mt-2">Sign in to your account</p>
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold tracking-tight text-white">{t("auth.login.brand")}</h1>
+          <p className="mt-2 text-slate-400">{t("auth.login.subtitle")}</p>
         </div>
 
         <Card className="border-slate-700/50 bg-slate-800/50 backdrop-blur">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-white">Welcome back</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white">{t("auth.login.welcome")}</CardTitle>
             <CardDescription className="text-slate-400">
-              Enter your credentials to access your account
+              {t("auth.login.description")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-300">Email</Label>
+                <Label htmlFor="email" className="text-slate-300">{t("auth.login.email")}</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="name@company.com"
+                    placeholder={t("auth.login.emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-slate-600 bg-slate-700/50 pl-10 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-300">Password</Label>
+                <Label htmlFor="password" className="text-slate-300">{t("auth.login.password")}</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     id="password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t("auth.login.passwordPlaceholder")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-blue-500"
+                    className="border-slate-600 bg-slate-700/50 pl-10 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
               </div>
               <Button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full bg-blue-600 text-white hover:bg-blue-700"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing in..." : "Sign In"}
+                {isLoading ? t("auth.login.signingIn") : t("auth.login.signIn")}
               </Button>
             </form>
 
             <div className="mt-4 text-center text-sm text-slate-400">
-              <p>Demo credentials:</p>
+              <p>{t("auth.login.demoCredentials")}</p>
               <p className="text-slate-500">admin@nexus.com / admin123</p>
             </div>
           </CardContent>
         </Card>
 
-        <p className="text-center text-slate-500 text-sm mt-6">
-          © 2024 Nexus CRM. All rights reserved.
+        <p className="mt-6 text-center text-sm text-slate-500">
+          {t("auth.login.footer")}
         </p>
       </div>
     </div>

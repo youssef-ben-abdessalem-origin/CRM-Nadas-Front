@@ -1,44 +1,40 @@
 import { useLocation, Link } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const routeLabels: Record<string, string> = {
-  "/": "Dashboard",
-  "/leads": "Leads",
-  "/contacts": "Contacts",
-  "/accounts": "Accounts",
-  "/deals": "Deals",
-  "/quotes": "Quotes",
-  "/orders": "Orders",
-  "/invoices": "Invoices",
-  "/payments": "Payments",
-  "/products": "Products",
-  "/emails": "Emails",
-  "/calendar": "Calendar",
-  "/activities": "Activities",
-  "/reports": "Reports",
-  "/automations": "Automations",
-  "/team": "Team",
-  "/audit-logs": "Audit Logs",
-  "/notifications": "Notifications",
-  "/vendors": "Vendors",
-  "/vendors/settings": "Vendor Settings",
-  "/settings": "Settings",
+  "/": "nav.dashboard",
+  "/leads": "nav.leads",
+  "/contacts": "nav.contacts",
+  "/accounts": "nav.accounts",
+  "/deals": "nav.deals",
+  "/quotes": "nav.quotes",
+  "/orders": "nav.orders",
+  "/invoices": "nav.invoices",
+  "/payments": "nav.payments",
+  "/products": "nav.products",
+  "/activities": "nav.activities",
+  "/automations": "nav.labels.automations",
+  "/vendors": "nav.vendors",
+  "/settings": "nav.labels.settings",
 };
 
 export function Breadcrumbs() {
+  const { t } = useTranslation();
   const location = useLocation();
   const segments = location.pathname.split("/").filter(Boolean);
 
   const crumbs: { label: string; path: string }[] = [
-    { label: "Home", path: "/" },
+    { label: t("nav.dashboard"), path: "/" },
   ];
 
   if (segments.length > 0) {
     let accumulated = "";
     for (const seg of segments) {
       accumulated += `/${seg}`;
+      const translatedLabel = routeLabels[accumulated] ? t(routeLabels[accumulated]) : null;
       crumbs.push({
-        label: routeLabels[accumulated] || seg.charAt(0).toUpperCase() + seg.slice(1),
+        label: translatedLabel || seg.charAt(0).toUpperCase() + seg.slice(1),
         path: accumulated,
       });
     }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { api, Employee, Contract, SalaryComponent } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const NON_ASSIGNABLE_COMPONENT_CODES = new Set([
 ]);
 
 export default function EmployeeDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -132,7 +134,7 @@ export default function EmployeeDetail() {
     mutationFn: api.hr.contracts.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contracts", employeeId] });
-      toast.success("Contract created successfully");
+      toast.success(t("hr.statusUpdates.contractCreated"));
       setIsContractOpen(false);
       resetContractForm();
     },
@@ -142,7 +144,7 @@ export default function EmployeeDetail() {
     mutationFn: api.hr.contracts.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contracts", employeeId] });
-      toast.success("Contract deleted successfully");
+      toast.success(t("hr.statusUpdates.contractDeleted"));
     },
   });
 
@@ -150,7 +152,7 @@ export default function EmployeeDetail() {
     mutationFn: (data: any) => api.payroll.profiles.createOrUpdate(employeeId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payrollProfile", employeeId] });
-      toast.success("Payroll profile updated successfully");
+      toast.success(t("hr.statusUpdates.payrollProfileUpdated"));
     },
   });
 
@@ -158,7 +160,7 @@ export default function EmployeeDetail() {
     mutationFn: api.payroll.employeeComponents.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employeeComponents", employeeId] });
-      toast.success("Component assigned successfully");
+      toast.success(t("hr.statusUpdates.componentAssigned"));
       setIsComponentOpen(false);
       setCompAmount("");
       setSelectedCompId("");
@@ -170,7 +172,7 @@ export default function EmployeeDetail() {
     mutationFn: api.payroll.employeeComponents.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employeeComponents", employeeId] });
-      toast.success("Component unassigned successfully");
+      toast.success(t("hr.statusUpdates.componentUnassigned"));
     },
   });
 
@@ -226,37 +228,37 @@ export default function EmployeeDetail() {
     });
   };
 
-  if (isLoading) return <div className="p-8 text-center">Loading employee profile...</div>;
-  if (!employee) return <div className="p-8 text-center text-red-500">Employee not found.</div>;
+  if (isLoading) return <div className="p-8 text-center">{t("hr.employeeDetail.loadingProfile")}</div>;
+  if (!employee) return <div className="p-8 text-center text-red-500">{t("hr.employeeDetail.notFound")}</div>;
 
   return (
-    <CRMLayout title={`Employee - ${employee.firstName} ${employee.lastName}`}>
+    <CRMLayout title={`${t("hr.employeeDetail.pageTitle")} - ${employee.firstName} ${employee.lastName}`}>
       <div className="flex flex-col gap-6 p-6">
         {onboardingResult && (
           <Card className="border-emerald-500/30 bg-emerald-500/10">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                {onboardingResult.mode === "created" ? "Employee onboarding completed" : "Employee onboarding updated"}
+                {onboardingResult.mode === "created" ? t("hr.employeeDetail.onboardingCreated") : t("hr.employeeDetail.onboardingUpdated")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="grid gap-3 md:grid-cols-5">
                 {[
-                  { key: "employee", label: "Employee" },
-                  { key: "contract", label: "Contract" },
-                  { key: "payroll", label: "Payroll" },
-                  { key: "cnss", label: "CNSS" },
-                  { key: "irpp", label: "IRPP" },
-                  { key: "components", label: "Components" },
-                  { key: "attendance", label: "Shift & Leave" },
-                  { key: "documents", label: "Documents" },
+                  { key: "employee", label: t("hr.employeeDetail.steps.employee") },
+                  { key: "contract", label: t("hr.employeeDetail.steps.contract") },
+                  { key: "payroll", label: t("hr.employeeDetail.steps.payroll") },
+                  { key: "cnss", label: t("hr.employeeDetail.steps.cnss") },
+                  { key: "irpp", label: t("hr.employeeDetail.steps.irpp") },
+                  { key: "components", label: t("hr.employeeDetail.steps.components") },
+                  { key: "attendance", label: t("hr.employeeDetail.steps.attendance") },
+                  { key: "documents", label: t("hr.employeeDetail.steps.documents") },
                 ].map((item) => {
                   const done = onboardingResult.steps[item.key as keyof typeof onboardingResult.steps];
                   return (
                     <div key={item.key} className={`rounded-2xl border p-4 ${done ? "border-emerald-500/30 bg-background/70" : "border-amber-500/30 bg-amber-500/10"}`}>
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</p>
-                      <p className="mt-2 text-sm font-semibold">{done ? "Configured" : "Pending"}</p>
+                      <p className="mt-2 text-sm font-semibold">{done ? t("hr.employeeDetail.configured") : t("hr.employeeDetail.pending")}</p>
                     </div>
                   );
                 })}
@@ -264,15 +266,15 @@ export default function EmployeeDetail() {
 
                 <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
                   <div className="mb-4 rounded-xl border border-border/60 bg-muted/20 px-3 py-3">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Readiness Status</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("hr.employeeDetail.readinessStatus")}</p>
                     <p className="mt-1 text-base font-semibold">{onboardingResult.readinessStatus}</p>
                   </div>
                   <div className="mb-3 flex items-center gap-2">
                     <CircleAlert className="h-4 w-4 text-amber-600" />
-                    <p className="font-semibold">Remaining onboarding checklist</p>
+                    <p className="font-semibold">{t("hr.employeeDetail.remainingChecklist")}</p>
                 </div>
                 {onboardingResult.missingItems.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No remaining checklist items.</p>
+                  <p className="text-sm text-muted-foreground">{t("hr.employeeDetail.noRemainingItems")}</p>
                 ) : (
                   <div className="grid gap-2 md:grid-cols-2">
                     {onboardingResult.missingItems.map((item) => (
@@ -293,62 +295,62 @@ export default function EmployeeDetail() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{employee.firstName} {employee.lastName}</h1>
-            <p className="text-muted-foreground">ID: {employee.employeeNumber} | {employee.position?.title} ({employee.department?.name})</p>
+            <p className="text-muted-foreground">{t("hr.employeeDetail.idLabel")}: {employee.employeeNumber} | {employee.position?.title} ({employee.department?.name})</p>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-3 max-w-md">
-            <TabsTrigger value="profile" className="gap-2"><User className="h-4 w-4" /> Profile</TabsTrigger>
-            <TabsTrigger value="contracts" className="gap-2"><FileText className="h-4 w-4" /> Contracts</TabsTrigger>
-            <TabsTrigger value="payroll" className="gap-2"><Settings className="h-4 w-4" /> Payroll Profile</TabsTrigger>
+            <TabsTrigger value="profile" className="gap-2"><User className="h-4 w-4" /> {t("hr.employeeDetail.tabs.profile")}</TabsTrigger>
+            <TabsTrigger value="contracts" className="gap-2"><FileText className="h-4 w-4" /> {t("hr.employeeDetail.tabs.contracts")}</TabsTrigger>
+            <TabsTrigger value="payroll" className="gap-2"><Settings className="h-4 w-4" /> {t("hr.employeeDetail.tabs.payroll")}</TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="mt-4">
             <Card className="glass-morphism">
               <CardHeader>
-                <CardTitle>Personal Details</CardTitle>
+                <CardTitle>{t("hr.employeeDetail.personalDetails")}</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Full Name</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.fullName")}</p>
                   <p className="text-lg font-semibold">{employee.firstName} {employee.lastName}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">CIN (Card ID)</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.cin")}</p>
                   <p className="text-lg font-semibold">{employee.cin}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Date of Birth</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.dateOfBirth")}</p>
                   <p className="text-lg font-semibold">{new Date(employee.dateOfBirth).toLocaleDateString()}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Place of Birth</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.placeOfBirth")}</p>
                   <p className="text-lg font-semibold">{employee.placeOfBirth || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Phone Number</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.phone")}</p>
                   <p className="text-lg font-semibold">{employee.phone}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Email Address</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.email")}</p>
                   <p className="text-lg font-semibold">{employee.email || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Gender & Nationality</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.genderNationality")}</p>
                   <p className="text-lg font-semibold">{employee.gender} | {employee.nationality}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Readiness Status</p>
-                  <p className="text-lg font-semibold">{employee.readinessStatus || "Draft"}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.readinessStatus")}</p>
+                  <p className="text-lg font-semibold">{employee.readinessStatus || t("common.status.Draft")}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Marital Status & Children</p>
-                  <p className="text-lg font-semibold">{employee.maritalStatus} ({employee.childrenCount} children)</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.maritalStatusChildren")}</p>
+                  <p className="text-lg font-semibold">{employee.maritalStatus} ({employee.childrenCount} {t("hr.employeeDetail.children")})</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-sm font-medium text-muted-foreground">Full Address</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t("hr.employeeDetail.fullAddress")}</p>
                   <p className="text-lg font-semibold">
                     {employee.address || "-"}, {employee.city || "-"} {employee.postalCode || ""}
                   </p>
@@ -360,57 +362,57 @@ export default function EmployeeDetail() {
           {/* Contracts Tab */}
           <TabsContent value="contracts" className="mt-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Employment Agreements</h2>
+              <h2 className="text-xl font-bold">{t("hr.employeeDetail.employmentAgreements")}</h2>
               <Dialog open={isContractOpen} onOpenChange={setIsContractOpen}>
                 <DialogTrigger asChild>
-                  <Button className="gap-2"><Plus className="h-4 w-4" /> New Contract</Button>
+                  <Button className="gap-2"><Plus className="h-4 w-4" /> {t("hr.employeeDetail.actions.newContract")}</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Add Employment Contract</DialogTitle>
+                    <DialogTitle>{t("hr.employeeDetail.addContractTitle")}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleContractSubmit} className="grid grid-cols-2 gap-4 py-4">
                     <div className="col-span-2 flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Contract Number *</label>
+                      <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.contractNumber")}</label>
                       <Input required value={contractNumber} onChange={(e) => setContractNumber(e.target.value)} placeholder="CONT-2026-001" />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Contract Type *</label>
+                      <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.contractType")}</label>
                       <Select value={contractType} onValueChange={setContractType}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="CDI">CDI (Permanent)</SelectItem>
-                          <SelectItem value="CDD">CDD (Temporary)</SelectItem>
+                          <SelectItem value="CDI">{t("hr.employeeDetail.options.cdiPermanent")}</SelectItem>
+                          <SelectItem value="CDD">{t("hr.employeeDetail.options.cddTemporary")}</SelectItem>
                           <SelectItem value="SIVP">SIVP</SelectItem>
-                          <SelectItem value="Stage">Internship</SelectItem>
-                          <SelectItem value="Freelance">Freelance</SelectItem>
-                          <SelectItem value="Part Time">Part Time</SelectItem>
+                          <SelectItem value="Stage">{t("hr.employeeDetail.options.internship")}</SelectItem>
+                          <SelectItem value="Freelance">{t("hr.employeeDetail.options.freelance")}</SelectItem>
+                          <SelectItem value="Part Time">{t("hr.employeeDetail.options.partTime")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Base Salary (Monthly TND) *</label>
+                      <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.baseSalary")}</label>
                       <Input required type="number" step="0.001" value={baseSalary} onChange={(e) => setBaseSalary(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Start Date *</label>
+                      <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.startDate")}</label>
                       <Input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">End Date</label>
+                      <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.endDate")}</label>
                       <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Probation End Date</label>
+                      <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.probationEndDate")}</label>
                       <Input type="date" value={probationEndDate} onChange={(e) => setProbationEndDate(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold">Working Hours / Week *</label>
+                      <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.workingHours")}</label>
                       <Input type="number" value={workingHoursPerWeek} onChange={(e) => setWorkingHoursPerWeek(+e.target.value)} />
                     </div>
                     <div className="col-span-2 flex justify-end gap-2 mt-4">
-                      <Button type="button" variant="outline" onClick={() => setIsContractOpen(false)}>Cancel</Button>
-                      <Button type="submit" disabled={createContractMutation.isPending}>Save</Button>
+                      <Button type="button" variant="outline" onClick={() => setIsContractOpen(false)}>{t("common.cancel")}</Button>
+                      <Button type="submit" disabled={createContractMutation.isPending}>{t("common.save")}</Button>
                     </div>
                   </form>
                 </DialogContent>
@@ -421,18 +423,18 @@ export default function EmployeeDetail() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Contract Number</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Base Salary (TND)</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("hr.employeeDetail.table.contractNumber")}</TableHead>
+                    <TableHead>{t("hr.employeeDetail.table.type")}</TableHead>
+                    <TableHead>{t("hr.employeeDetail.table.baseSalary")}</TableHead>
+                    <TableHead>{t("hr.employeeDetail.table.duration")}</TableHead>
+                    <TableHead>{t("hr.employeeDetail.table.status")}</TableHead>
+                    <TableHead className="text-right">{t("hr.employeeDetail.table.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {contracts.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">No contracts registered.</TableCell>
+                      <TableCell colSpan={6} className="text-center py-8">{t("hr.employeeDetail.noContracts")}</TableCell>
                     </TableRow>
                   ) : (
                     contracts.map((c) => (
@@ -441,11 +443,11 @@ export default function EmployeeDetail() {
                         <TableCell>{c.contractType}</TableCell>
                         <TableCell>{Number(c.baseSalary).toFixed(3)}</TableCell>
                         <TableCell>
-                          {new Date(c.startDate).toLocaleDateString()} to {c.endDate ? new Date(c.endDate).toLocaleDateString() : "Indefinite"}
+                          {new Date(c.startDate).toLocaleDateString()} {t("hr.employeeDetail.to")} {c.endDate ? new Date(c.endDate).toLocaleDateString() : t("hr.employeeDetail.indefinite")}
                         </TableCell>
                         <TableCell>{c.status}</TableCell>
                         <TableCell className="text-right">
-                          <Button size="icon" variant="ghost" onClick={() => { if (confirm("Delete contract?")) deleteContractMutation.mutate(c.id); }}>
+                          <Button size="icon" variant="ghost" onClick={() => { if (confirm(t("hr.employeeDetail.confirmDeleteContract"))) deleteContractMutation.mutate(c.id); }}>
                             <Trash className="h-4 w-4 text-red-500" />
                           </Button>
                         </TableCell>
@@ -463,13 +465,13 @@ export default function EmployeeDetail() {
               {/* Profile Config */}
               <Card className="glass-morphism">
                 <CardHeader>
-                  <CardTitle>Social Regime & Payments</CardTitle>
+                  <CardTitle>{t("hr.employeeDetail.socialRegimePayments")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Social Regime *</label>
+                        <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.socialRegime")}</label>
                         <Select value={socialRegime} onValueChange={(val) => {
                           setSocialRegime(val);
                           if (payrollProfile) {
@@ -478,45 +480,45 @@ export default function EmployeeDetail() {
                         }}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="CNSS">CNSS</SelectItem>
-                            <SelectItem value="CNRPS">CNRPS</SelectItem>
+                            <SelectItem value="CNSS">{t("hr.employeeDetail.options.cnss")}</SelectItem>
+                            <SelectItem value="CNRPS">{t("hr.employeeDetail.options.cnrps")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">CNSS Number</label>
-                        <Input value={cnssNumber} onChange={(e) => setCnssNumber(e.target.value)} placeholder="e.g. 12345678-90" />
+                        <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.cnssNumber")}</label>
+                        <Input value={cnssNumber} onChange={(e) => setCnssNumber(e.target.value)} placeholder={t("hr.employeeDetail.placeholders.cnssNumber")} />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">CNRPS Number</label>
-                        <Input value={cnrpsNumber} onChange={(e) => setCnrpsNumber(e.target.value)} placeholder="e.g. 987654" />
+                        <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.cnrpsNumber")}</label>
+                        <Input value={cnrpsNumber} onChange={(e) => setCnrpsNumber(e.target.value)} placeholder={t("hr.employeeDetail.placeholders.cnrpsNumber")} />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Payment Method *</label>
+                        <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.paymentMethod")}</label>
                         <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                            <SelectItem value="Cash">Cash</SelectItem>
-                            <SelectItem value="Check">Check</SelectItem>
+                            <SelectItem value="Bank Transfer">{t("hr.employeeDetail.options.bankTransfer")}</SelectItem>
+                            <SelectItem value="Cash">{t("hr.employeeDetail.options.cash")}</SelectItem>
+                            <SelectItem value="Check">{t("hr.employeeDetail.options.check")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Bank Name</label>
-                        <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="BIAT, Attijari..." />
+                        <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.bankName")}</label>
+                        <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder={t("hr.employeeDetail.placeholders.bankName")} />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-semibold">Bank Account</label>
-                        <Input value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} placeholder="Account Number" />
+                        <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.bankAccount")}</label>
+                        <Input value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} placeholder={t("hr.employeeDetail.placeholders.bankAccount")} />
                       </div>
                       <div className="col-span-2 flex flex-col gap-2">
-                        <label className="text-sm font-semibold">RIB (24 digits)</label>
+                        <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.rib")}</label>
                         <Input value={rib} onChange={(e) => setRib(e.target.value)} placeholder="012345678901234567890123" maxLength={24} />
                       </div>
                     </div>
                     <Button type="submit" className="self-end mt-4" disabled={updateProfileMutation.isPending}>
-                      Save Profile
+                      {t("hr.employeeDetail.actions.saveProfile")}
                     </Button>
                   </form>
                 </CardContent>
@@ -525,20 +527,20 @@ export default function EmployeeDetail() {
               {/* Salary Components Assignments */}
               <Card className="glass-morphism">
                 <CardHeader className="flex flex-row justify-between items-center">
-                  <CardTitle>Assigned Allowances & Deductions</CardTitle>
+                  <CardTitle>{t("hr.employeeDetail.assignedAllowances")}</CardTitle>
                   <Dialog open={isComponentOpen} onOpenChange={setIsComponentOpen}>
                     <DialogTrigger asChild>
-                      <Button size="sm" className="gap-1"><Plus className="h-4 w-4" /> Assign</Button>
+                      <Button size="sm" className="gap-1"><Plus className="h-4 w-4" /> {t("hr.employeeDetail.actions.assign")}</Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Assign Salary Component</DialogTitle>
+                        <DialogTitle>{t("hr.employeeDetail.assignComponentTitle")}</DialogTitle>
                       </DialogHeader>
                       <form onSubmit={handleComponentSubmit} className="flex flex-col gap-4 py-4">
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-semibold">Component *</label>
+                          <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.component")}</label>
                           <Select value={selectedCompId} onValueChange={setSelectedCompId}>
-                            <SelectTrigger><SelectValue placeholder="Select Component" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t("hr.employeeDetail.placeholders.selectComponent")} /></SelectTrigger>
                             <SelectContent>
                               {allComponents.filter(c => !NON_ASSIGNABLE_COMPONENT_CODES.has(c.code)).map((c) => (
                                 <SelectItem key={c.id} value={String(c.id)}>{c.name} ({c.type})</SelectItem>
@@ -547,16 +549,16 @@ export default function EmployeeDetail() {
                           </Select>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-semibold">Amount (Monthly TND) *</label>
+                          <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.amount")}</label>
                           <Input required type="number" step="0.001" value={compAmount} onChange={(e) => setCompAmount(e.target.value)} />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-semibold">Effective Date *</label>
+                          <label className="text-sm font-semibold">{t("hr.employeeDetail.forms.effectiveDate")}</label>
                           <Input required type="date" value={compEffectiveDate} onChange={(e) => setCompEffectiveDate(e.target.value)} />
                         </div>
                         <div className="flex justify-end gap-2 mt-4">
-                          <Button type="button" variant="outline" onClick={() => setIsComponentOpen(false)}>Cancel</Button>
-                          <Button type="submit" disabled={createEmpCompMutation.isPending}>Save</Button>
+                          <Button type="button" variant="outline" onClick={() => setIsComponentOpen(false)}>{t("common.cancel")}</Button>
+                          <Button type="submit" disabled={createEmpCompMutation.isPending}>{t("common.save")}</Button>
                         </div>
                       </form>
                     </DialogContent>
@@ -566,16 +568,16 @@ export default function EmployeeDetail() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Component</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{t("hr.employeeDetail.table.component")}</TableHead>
+                        <TableHead>{t("hr.employeeDetail.table.type")}</TableHead>
+                        <TableHead>{t("hr.employeeDetail.table.amount")}</TableHead>
+                        <TableHead className="text-right">{t("hr.employeeDetail.table.actions")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {employeeComponents.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={4} className="text-center py-8">No custom allowances or deductions assigned.</TableCell>
+                          <TableCell colSpan={4} className="text-center py-8">{t("hr.employeeDetail.noComponents")}</TableCell>
                         </TableRow>
                       ) : (
                         employeeComponents.map((ec) => (
@@ -584,7 +586,7 @@ export default function EmployeeDetail() {
                             <TableCell>{ec.component?.type}</TableCell>
                             <TableCell>{Number(ec.amount).toFixed(3)} TND</TableCell>
                             <TableCell className="text-right">
-                              <Button size="icon" variant="ghost" onClick={() => { if (confirm("Remove component assignment?")) deleteEmpCompMutation.mutate(ec.id); }}>
+                              <Button size="icon" variant="ghost" onClick={() => { if (confirm(t("hr.employeeDetail.confirmRemoveComponent"))) deleteEmpCompMutation.mutate(ec.id); }}>
                                 <Trash className="h-4 w-4 text-red-500" />
                               </Button>
                             </TableCell>

@@ -55,6 +55,7 @@ import {
   DialogDescription as UI_DialogDescription
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
 
 const CurrencyBadge = ({ amount, className }: { amount: number, className?: string }) => (
   <span className={className}>
@@ -63,6 +64,7 @@ const CurrencyBadge = ({ amount, className }: { amount: number, className?: stri
 );
 
 const Forecast = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [activePeriodId, setActivePeriodId] = useState<number | null>(null);
   const [selectedRep, setSelectedRep] = useState<any>(null);
@@ -126,7 +128,7 @@ const Forecast = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forecast-targets"] });
       queryClient.invalidateQueries({ queryKey: ["forecast-dashboard"] });
-      toast.success("Target updated");
+      toast.success(t("forecast.statusUpdates.targetUpdated"));
     }
   });
 
@@ -135,7 +137,7 @@ const Forecast = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forecast-mappings"] });
       queryClient.invalidateQueries({ queryKey: ["forecast-dashboard"] });
-      toast.success("Mapping updated");
+      toast.success(t("forecast.statusUpdates.mappingUpdated"));
     }
   });
 
@@ -144,7 +146,7 @@ const Forecast = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forecast-dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["forecast-my"] });
-      toast.success("Forecast adjusted");
+      toast.success(t("forecast.statusUpdates.forecastAdjusted"));
       setShowAdjustment(false);
     }
   });
@@ -153,7 +155,7 @@ const Forecast = () => {
     mutationFn: api.forecast.createPeriod,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forecast-periods"] });
-      toast.success("New forecast period created");
+      toast.success(t("forecast.statusUpdates.periodCreated"));
       setShowNewPeriod(false);
       setNewPeriodData({ name: "", startDate: "", endDate: "", type: "MONTH" });
     }
@@ -163,7 +165,7 @@ const Forecast = () => {
     mutationFn: (id: number) => api.forecast.updatePeriod(id, { status: "LOCKED" as any }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["forecast-periods"] });
-      toast.success("Period locked");
+      toast.success(t("forecast.statusUpdates.periodLocked"));
     }
   });
 
@@ -189,7 +191,7 @@ const Forecast = () => {
   }, { target: 0, pipeline: 0, bestCase: 0, commit: 0, closed: 0, gap: 0 });
 
   return (
-    <CRMLayout title="Forescasting">
+    <CRMLayout title={t("forecast.pageTitle")}>
       <div className="space-y-6">
         {/* Header Actions */}
         <div className="flex items-center justify-between">
@@ -199,7 +201,7 @@ const Forecast = () => {
               onValueChange={(v) => setActivePeriodId(Number(v))}
             >
               <SelectTrigger className="w-[200px] h-9 font-semibold">
-                <SelectValue placeholder="Select Period" />
+                <SelectValue placeholder={t("forecast.selectPeriod")} />
               </SelectTrigger>
               <SelectContent>
                 {periods.map((p: any) => (
@@ -210,7 +212,7 @@ const Forecast = () => {
               </SelectContent>
             </Select>
             <Badge variant="outline" className="h-6 px-3 bg-primary/5 text-primary border-primary/20 font-bold uppercase tracking-wider text-[10px]">
-              Currency: {currencyCode}
+              {t("forecast.currency", { code: currencyCode })}
             </Badge>
           </div>
           <div className="flex items-center gap-2">
@@ -224,7 +226,7 @@ const Forecast = () => {
               disabled={lockPeriodMutation.isPending || (periods.find((p: any) => p.id === activePeriodId)?.status === 'LOCKED')}
             >
               <Lock className="h-4 w-4 mr-2" /> 
-              {periods.find((p: any) => p.id === activePeriodId)?.status === 'LOCKED' ? 'Period Locked' : 'Lock Period'}
+              {periods.find((p: any) => p.id === activePeriodId)?.status === 'LOCKED' ? t('forecast.periodLocked') : t('forecast.lockPeriod')}
             </Button>
           </div>
         </div>
@@ -234,29 +236,29 @@ const Forecast = () => {
           <Card className="border-none shadow-sm bg-primary/5">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] uppercase font-bold text-primary tracking-widest flex items-center gap-2">
-                <Target className="h-3 w-3" /> Team Target
+                <Target className="h-3 w-3" /> {t("forecast.kpis.teamTarget")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-black tracking-tight">{formatCurrency(totals.target)}</div>
-              <p className="text-[11px] text-muted-foreground mt-1 font-medium">Goal for this period</p>
+              <p className="text-[11px] text-muted-foreground mt-1 font-medium">{t("forecast.kpis.goalForPeriod")}</p>
             </CardContent>
           </Card>
           <Card className="border-none shadow-sm bg-amber-500/[0.03]">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] uppercase font-bold text-amber-600 tracking-widest flex items-center gap-2">
-                <TrendingUp className="h-3 w-3" /> Commit Forecast
+                <TrendingUp className="h-3 w-3" /> {t("forecast.kpis.commitForecast")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-black tracking-tight text-amber-600">{formatCurrency(totals.commit)}</div>
-              <p className="text-[11px] text-muted-foreground mt-1 font-medium italic">Including adjustments</p>
+              <p className="text-[11px] text-muted-foreground mt-1 font-medium italic">{t("forecast.kpis.includingAdjustments")}</p>
             </CardContent>
           </Card>
           <Card className="border-none shadow-sm bg-green-500/[0.03]">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] uppercase font-bold text-green-600 tracking-widest flex items-center gap-2">
-                <BarChart3 className="h-3 w-3" /> Closed Revenue
+                <BarChart3 className="h-3 w-3" /> {t("forecast.kpis.closedRevenue")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -272,21 +274,21 @@ const Forecast = () => {
           <Card className="border-none shadow-sm bg-destructive/[0.03]">
             <CardHeader className="pb-2">
               <CardTitle className="text-[10px] uppercase font-bold text-destructive tracking-widest flex items-center gap-2">
-                <Users className="h-3 w-3" /> Remaining Gap
+                <Users className="h-3 w-3" /> {t("forecast.kpis.remainingGap")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-black tracking-tight text-destructive">{formatCurrency(totals.gap)}</div>
-              <p className="text-[11px] text-muted-foreground mt-1 font-medium">To hit commitment</p>
+              <p className="text-[11px] text-muted-foreground mt-1 font-medium">{t("forecast.kpis.toHitCommitment")}</p>
             </CardContent>
           </Card>
         </div>
 
         <Tabs defaultValue="manager" className="w-full">
           <TabsList className="mb-4 bg-muted/50 p-1 border border-border/50">
-            <TabsTrigger value="manager" className="font-bold text-xs px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm">Manager View</TabsTrigger>
-            <TabsTrigger value="rep" className="font-bold text-xs px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm">Sales Rep View</TabsTrigger>
-            <TabsTrigger value="config" className="font-bold text-xs px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm">Configuration</TabsTrigger>
+            <TabsTrigger value="manager" className="font-bold text-xs px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm">{t("forecast.tabs.managerView")}</TabsTrigger>
+            <TabsTrigger value="rep" className="font-bold text-xs px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm">{t("forecast.tabs.salesRepView")}</TabsTrigger>
+            <TabsTrigger value="config" className="font-bold text-xs px-6 data-[state=active]:bg-white data-[state=active]:shadow-sm">{t("forecast.tabs.configuration")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="manager">
@@ -294,24 +296,24 @@ const Forecast = () => {
               <Table>
                 <TableHeader className="bg-muted/30">
                   <TableRow className="hover:bg-transparent border-b border-border/50">
-                    <TableHead className="text-[10px] font-black uppercase tracking-wider py-4 outline-none">Sales Rep</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">Target</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">Pipeline</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">Best Case</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">Commit</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">Closed</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">Gap</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">Actions</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-wider py-4 outline-none">{t("forecast.managerTable.salesRep")}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">{t("forecast.managerTable.target")}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">{t("forecast.managerTable.pipeline")}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">{t("forecast.managerTable.bestCase")}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">{t("forecast.managerTable.commit")}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">{t("forecast.managerTable.closed")}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">{t("forecast.managerTable.gap")}</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-wider text-right py-4 outline-none">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isDashboardLoading ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-20 text-muted-foreground animate-pulse">Loading dashboard telemetry...</TableCell>
+                      <TableCell colSpan={8} className="text-center py-20 text-muted-foreground animate-pulse">{t("forecast.loadingDashboard")}</TableCell>
                     </TableRow>
                   ) : dashboard.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-20 text-muted-foreground">No forecast data found for this period.</TableCell>
+                      <TableCell colSpan={8} className="text-center py-20 text-muted-foreground">{t("forecast.noData")}</TableCell>
                     </TableRow>
                   ) : (
                     dashboard.map((rep: any) => (
@@ -379,17 +381,17 @@ const Forecast = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <Card className="border border-border/50 shadow-sm col-span-2">
                     <CardHeader className="pb-3 border-b border-border/50">
-                      <CardTitle className="text-sm font-black uppercase tracking-tight">Contributing Deals</CardTitle>
+                      <CardTitle className="text-sm font-black uppercase tracking-tight">{t("forecast.repView.contributingDeals")}</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <Table>
                         <TableHeader className="bg-muted/30">
                           <TableRow className="hover:bg-transparent">
-                            <TableHead className="text-[9px] font-black uppercase py-4">Deal Name</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase py-4">Category</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase py-4 text-right">Value</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase py-4 text-right">Prob.</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase py-4 text-right">Expected</TableHead>
+                            <TableHead className="text-[9px] font-black uppercase py-4">{t("forecast.repView.dealName")}</TableHead>
+                            <TableHead className="text-[9px] font-black uppercase py-4">{t("forecast.repView.category")}</TableHead>
+                            <TableHead className="text-[9px] font-black uppercase py-4 text-right">{t("forecast.repView.value")}</TableHead>
+                            <TableHead className="text-[9px] font-black uppercase py-4 text-right">{t("forecast.repView.probability")}</TableHead>
+                            <TableHead className="text-[9px] font-black uppercase py-4 text-right">{t("forecast.repView.expected")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -415,7 +417,7 @@ const Forecast = () => {
                           ))}
                           {(!myForecast.deals || myForecast.deals.length === 0) && (
                             <TableRow>
-                              <TableCell colSpan={5} className="text-center py-10 text-muted-foreground text-xs italic">No contributing deals for this period.</TableCell>
+                              <TableCell colSpan={5} className="text-center py-10 text-muted-foreground text-xs italic">{t("forecast.repView.noContributingDeals")}</TableCell>
                             </TableRow>
                           )}
                         </TableBody>
@@ -426,13 +428,13 @@ const Forecast = () => {
                   <div className="space-y-6">
                     <Card className="border border-border/50 shadow-sm bg-primary/5">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-[10px] uppercase font-black tracking-widest text-primary">Personal Target</CardTitle>
+                        <CardTitle className="text-[10px] uppercase font-black tracking-widest text-primary">{t("forecast.repView.personalTarget")}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="text-2xl font-black tracking-tight">{formatCurrency(myForecast.stats?.target || 0)}</div>
                         <div className="mt-4 space-y-3">
                           <div className="flex justify-between items-center text-xs">
-                            <span className="text-muted-foreground font-medium uppercase tracking-tighter">Attainment</span>
+                            <span className="text-muted-foreground font-medium uppercase tracking-tighter">{t("forecast.repView.attainment")}</span>
                             <span className="font-black text-green-600">
                               {Math.round(((myForecast.stats?.closed || 0) / Math.max(1, myForecast.stats?.target || 0)) * 100)}%
                             </span>
@@ -449,17 +451,17 @@ const Forecast = () => {
 
                     <Card className="border border-border/50 shadow-sm">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-[10px] uppercase font-black tracking-widest">Commitment Summary</CardTitle>
+                        <CardTitle className="text-[10px] uppercase font-black tracking-widest">{t("forecast.repView.commitmentSummary")}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="flex items-center justify-between border-b border-border/30 pb-3">
-                           <div className="text-[10px] font-bold text-muted-foreground uppercase">Calculated</div>
+                           <div className="text-[10px] font-bold text-muted-foreground uppercase">{t("forecast.repView.calculated")}</div>
                            <div className="text-sm font-black">{formatCurrency(myForecast.stats?.commit || 0)}</div>
                         </div>
                         {myForecast.stats?.hasAdjustment && (
                           <div className="p-3 rounded-lg bg-amber-50 border border-amber-100 space-y-1">
                              <div className="text-[9px] font-black text-amber-700 uppercase flex items-center gap-1.5">
-                                <Edit2 className="h-2.5 w-2.5" /> Manager Adjustment
+                                <Edit2 className="h-2.5 w-2.5" /> {t("forecast.repView.managerAdjustment")}
                              </div>
                              <div className="text-xs font-medium text-amber-800 italic">"{myForecast.stats?.adjustmentNote}"</div>
                           </div>
@@ -470,7 +472,7 @@ const Forecast = () => {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-20 text-muted-foreground">Rep profile data not available for this period.</div>
+              <div className="text-center py-20 text-muted-foreground">{t("forecast.repView.noData")}</div>
             )}
           </TabsContent>
 
@@ -479,22 +481,22 @@ const Forecast = () => {
                 <Card className="border border-border/50 shadow-sm">
                    <CardHeader>
                       <CardTitle className="text-[10px] uppercase font-black tracking-widest text-primary flex items-center justify-between">
-                         Stage to Category Mapping
-                         <Button variant="ghost" size="sm" className="h-6 text-[9px] font-black uppercase text-muted-foreground hover:text-primary">Configure</Button>
+                         {t("forecast.config.stageToCategoryMapping")}
+                         <Button variant="ghost" size="sm" className="h-6 text-[9px] font-black uppercase text-muted-foreground hover:text-primary">{t("forecast.config.configure")}</Button>
                       </CardTitle>
                    </CardHeader>
                    <CardContent className="p-0">
                       <Table>
                         <TableHeader className="bg-muted/30">
                           <TableRow className="hover:bg-transparent">
-                            <TableHead className="text-[9px] font-black uppercase py-4">CRM Stage</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase py-4">Forecast Category</TableHead>
+                            <TableHead className="text-[9px] font-black uppercase py-4">{t("forecast.config.crmStage")}</TableHead>
+                            <TableHead className="text-[9px] font-black uppercase py-4">{t("forecast.config.forecastCategory")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {mappings.length === 0 ? (
                             <TableRow>
-                              <TableCell colSpan={2} className="text-center py-10 text-muted-foreground text-xs font-medium italic">No mappings defined yet. Go to Global Settings to initialize.</TableCell>
+                              <TableCell colSpan={2} className="text-center py-10 text-muted-foreground text-xs font-medium italic">{t("forecast.config.noMappings")}</TableCell>
                             </TableRow>
                           ) : (
                             mappings.map((m: any) => (
@@ -509,11 +511,11 @@ const Forecast = () => {
                                         <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="PIPELINE">Pipeline</SelectItem>
-                                        <SelectItem value="BEST_CASE">Best Case</SelectItem>
-                                        <SelectItem value="COMMIT">Commit</SelectItem>
-                                        <SelectItem value="CLOSED">Closed</SelectItem>
-                                        <SelectItem value="OMIT">Omit</SelectItem>
+                                        <SelectItem value="PIPELINE">{t("forecast.config.categories.pipeline")}</SelectItem>
+                                        <SelectItem value="BEST_CASE">{t("forecast.config.categories.bestCase")}</SelectItem>
+                                        <SelectItem value="COMMIT">{t("forecast.config.categories.commit")}</SelectItem>
+                                        <SelectItem value="CLOSED">{t("forecast.config.categories.closed")}</SelectItem>
+                                        <SelectItem value="OMIT">{t("forecast.config.categories.omit")}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                 </TableCell>
@@ -528,8 +530,8 @@ const Forecast = () => {
                 <Card className="border border-border/50 shadow-sm">
                    <CardHeader>
                       <CardTitle className="text-[10px] uppercase font-black tracking-widest text-primary flex items-center justify-between">
-                         Target Assignment
-                         <Button variant="ghost" size="sm" className="h-6 text-[9px] font-black uppercase text-muted-foreground hover:text-primary">Bulk Edit</Button>
+                         {t("forecast.config.targetAssignment")}
+                         <Button variant="ghost" size="sm" className="h-6 text-[9px] font-black uppercase text-muted-foreground hover:text-primary">{t("forecast.config.bulkEdit")}</Button>
                       </CardTitle>
                    </CardHeader>
                    <CardContent className="space-y-4">
@@ -569,16 +571,16 @@ const Forecast = () => {
         <Dialog open={showAdjustment} onOpenChange={setShowAdjustment}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle className="text-lg font-black tracking-tight">Manual Adjustment</DialogTitle>
-              <DialogDescription className="text-xs font-medium"> Override system calculations for {selectedRep?.userName}</DialogDescription>
+              <DialogTitle className="text-lg font-black tracking-tight">{t("forecast.adjustDialog.title")}</DialogTitle>
+              <DialogDescription className="text-xs font-medium"> {t("forecast.adjustDialog.description", { name: selectedRep?.userName })}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">Best Case Override</label>
+                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">{t("forecast.adjustDialog.bestCaseOverride")}</label>
                 <div className="relative">
                    <TrendingUp className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
                    <Input 
-                    placeholder="Enter value..." 
+                    placeholder={t("forecast.adjustDialog.placeholders.enterValue")} 
                     className="pl-10 font-bold"
                     value={adjustmentData.bestCase}
                     onChange={(e) => setAdjustmentData({...adjustmentData, bestCase: e.target.value})}
@@ -586,11 +588,11 @@ const Forecast = () => {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">Commitment Override</label>
+                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">{t("forecast.adjustDialog.commitmentOverride")}</label>
                 <div className="relative">
                    <Target className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
                    <Input 
-                    placeholder="Enter value..." 
+                    placeholder={t("forecast.adjustDialog.placeholders.enterValue")} 
                     className="pl-10 font-black"
                     value={adjustmentData.commit}
                     onChange={(e) => setAdjustmentData({...adjustmentData, commit: e.target.value})}
@@ -598,9 +600,9 @@ const Forecast = () => {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">Justification / Reason</label>
+                <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest pl-1">{t("forecast.adjustDialog.justification")}</label>
                 <Input 
-                  placeholder="Why this override?" 
+                  placeholder={t("forecast.adjustDialog.placeholders.whyOverride")} 
                   className="font-medium h-12"
                   value={adjustmentData.note}
                   onChange={(e) => setAdjustmentData({...adjustmentData, note: e.target.value})}
@@ -608,13 +610,13 @@ const Forecast = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAdjustment(false)} className="font-bold text-xs uppercase tracking-wider">Cancel</Button>
+              <Button variant="outline" onClick={() => setShowAdjustment(false)} className="font-bold text-xs uppercase tracking-wider">{t("common.cancel")}</Button>
               <Button 
                 onClick={handleAdjust} 
                 disabled={adjustMutation.isPending}
                 className="font-bold text-xs uppercase tracking-wider bg-primary text-white shadow-lg shadow-primary/20"
               >
-                {adjustMutation.isPending ? "Applying..." : "Confirm Adjustment"}
+                {adjustMutation.isPending ? t("forecast.adjustDialog.applying") : t("forecast.adjustDialog.confirm")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -624,17 +626,17 @@ const Forecast = () => {
         <Dialog open={showNewPeriod} onOpenChange={setShowNewPeriod}>
           <DialogContent className="sm:max-w-[400px]">
             <DialogHeader>
-              <DialogTitle className="text-xl font-black">Create Forecast Period</DialogTitle>
+              <DialogTitle className="text-xl font-black">{t("forecast.newPeriodDialog.title")}</DialogTitle>
               <DialogDescription className="text-xs">
-                Set up a new timeframe for tracking sales targets and revenue.
+                {t("forecast.newPeriodDialog.description")}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="period-name" className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Period Name</Label>
+                <Label htmlFor="period-name" className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{t("forecast.newPeriodDialog.periodName")}</Label>
                 <Input
                   id="period-name"
-                  placeholder="e.g. Q3 2026 or April 2026"
+                  placeholder={t("forecast.newPeriodDialog.placeholders.periodName")}
                   value={newPeriodData.name}
                   onChange={(e) => setNewPeriodData({ ...newPeriodData, name: e.target.value })}
                   className="font-medium h-10"
@@ -642,7 +644,7 @@ const Forecast = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="start-date" className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Start Date</Label>
+                  <Label htmlFor="start-date" className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{t("forecast.newPeriodDialog.startDate")}</Label>
                   <Input
                     id="start-date"
                     type="date"
@@ -652,7 +654,7 @@ const Forecast = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end-date" className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">End Date</Label>
+                  <Label htmlFor="end-date" className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{t("forecast.newPeriodDialog.endDate")}</Label>
                   <Input
                     id="end-date"
                     type="date"
@@ -663,7 +665,7 @@ const Forecast = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="period-type" className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Interval Type</Label>
+                <Label htmlFor="period-type" className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{t("forecast.newPeriodDialog.intervalType")}</Label>
                 <Select 
                   value={newPeriodData.type} 
                   onValueChange={(v) => setNewPeriodData({ ...newPeriodData, type: v })}
@@ -672,20 +674,20 @@ const Forecast = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MONTH">Monthly</SelectItem>
-                    <SelectItem value="QUARTER">Quarterly</SelectItem>
+                    <SelectItem value="MONTH">{t("forecast.newPeriodDialog.monthly")}</SelectItem>
+                    <SelectItem value="QUARTER">{t("forecast.newPeriodDialog.quarterly")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter className="mt-2">
-              <Button variant="ghost" onClick={() => setShowNewPeriod(false)} className="font-bold">Cancel</Button>
+              <Button variant="ghost" onClick={() => setShowNewPeriod(false)} className="font-bold">{t("common.cancel")}</Button>
               <Button 
                 onClick={() => createPeriodMutation.mutate(newPeriodData)}
                 disabled={!newPeriodData.name || !newPeriodData.startDate || !newPeriodData.endDate || createPeriodMutation.isPending}
                 className="font-bold bg-primary shadow-lg shadow-primary/20 min-w-[120px]"
               >
-                {createPeriodMutation.isPending ? "Creating..." : "Create Period"}
+                {createPeriodMutation.isPending ? t("common.creating") : t("forecast.newPeriodDialog.createPeriod")}
               </Button>
             </DialogFooter>
           </DialogContent>

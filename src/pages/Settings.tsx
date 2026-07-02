@@ -42,6 +42,7 @@ import {
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useTranslation } from "react-i18next";
 
 interface DynamicOption {
   id: number;
@@ -54,6 +55,7 @@ interface DynamicOption {
 }
 
 export default function LeadsSettingsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [editingItem, setEditingItem] = useState<{
@@ -134,7 +136,7 @@ export default function LeadsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} created successfully`);
+      toast.success(t("leadsSettings.statusUpdates.created", { type }));
       setShowAddDialog(false);
       setAddForm({});
     },
@@ -168,7 +170,7 @@ export default function LeadsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} updated successfully`);
+      toast.success(t("leadsSettings.statusUpdates.updated", { type }));
       setShowEditDialog(false);
       setEditingItem({ type: "", item: null });
     },
@@ -194,7 +196,7 @@ export default function LeadsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} deleted successfully`);
+      toast.success(t("leadsSettings.statusUpdates.deleted", { type }));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -227,7 +229,7 @@ export default function LeadsSettingsPage() {
 
   const handleAdd = () => {
     if (!addForm.name) {
-      toast.error("Name is required");
+      toast.error(t("leadsSettings.errors.nameRequired"));
       return;
     }
     const data: Record<string, any> = { name: addForm.name };
@@ -239,10 +241,10 @@ export default function LeadsSettingsPage() {
 
   const handleDelete = async (type: string, id: number, name: string) => {
     if (await confirm({ 
-      title: `Delete ${type.charAt(0).toUpperCase() + type.slice(1)}`, 
-      description: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+      title: t("leadsSettings.deleteDialog.title", { type }), 
+      description: t("leadsSettings.deleteDialog.description", { name }),
       variant: "destructive",
-      confirmText: "Delete"
+      confirmText: t("common.delete")
     })) {
       deleteMutation.mutate({ type, id });
     }
@@ -303,11 +305,11 @@ export default function LeadsSettingsPage() {
   };
 
   return (
-    <CRMLayout title="Settings">
+    <CRMLayout title={t("leadsSettings.pageTitle")}>
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <SettingsIcon className="h-6 w-6" />
-          <h1 className="text-2xl font-bold">CRM Settings</h1>
+          <h1 className="text-2xl font-bold">{t("leadsSettings.pageTitle")}</h1>
         </div>
         <p className="text-muted-foreground">
           Manage your CRM configuration options. These settings control how
@@ -318,23 +320,23 @@ export default function LeadsSettingsPage() {
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="stages">
               <Layers className="h-4 w-4 mr-2" />
-              Stages
+              {t("leadsSettings.tabs.stages")}
             </TabsTrigger>
             <TabsTrigger value="sources">
               <Tag className="h-4 w-4 mr-2" />
-              Sources
+              {t("leadsSettings.tabs.sources")}
             </TabsTrigger>
             <TabsTrigger value="scores">
               <Flag className="h-4 w-4 mr-2" />
-              Scores
+              {t("leadsSettings.tabs.scores")}
             </TabsTrigger>
             <TabsTrigger value="priorities">
               <Flag className="h-4 w-4 mr-2" />
-              Priorities
+              {t("leadsSettings.tabs.priorities")}
             </TabsTrigger>
             <TabsTrigger value="qualifications">
               <CheckCircle className="h-4 w-4 mr-2" />
-              Qualifications
+              {t("leadsSettings.tabs.qualifications")}
             </TabsTrigger>
           </TabsList>
 
@@ -342,35 +344,35 @@ export default function LeadsSettingsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Pipeline Stages</CardTitle>
-                  <CardDescription>Manage lead pipeline stages</CardDescription>
+                  <CardTitle>{t("leadsSettings.sectionTitle", { type: "stage" })}</CardTitle>
+                  <CardDescription>{t("leadsSettings.sectionDescription", { type: "stage" })}</CardDescription>
                 </div>
                 <Button onClick={() => openAddDialog("stage")}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Stage
+                  <Plus className="h-4 w-4 mr-2" /> {t("leadsSettings.addItem", { type: "stage" })}
                 </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">Order</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Color</TableHead>
-                      <TableHead>Default</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="w-12">{t("leadsSettings.order")}</TableHead>
+                      <TableHead>{t("common.name")}</TableHead>
+                      <TableHead>{t("common.color")}</TableHead>
+                      <TableHead>{t("common.default")}</TableHead>
+                      <TableHead className="text-right">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {stagesLoading ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center">
-                          Loading...
+                          {t("common.loading")}
                         </TableCell>
                       </TableRow>
                     ) : stages.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center">
-                          No stages found
+                          {t("leadsSettings.noResults", { type: "stage" })}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -398,7 +400,7 @@ export default function LeadsSettingsPage() {
                           <TableCell>
                             {stage.isDefault ? (
                               <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                                Default
+                                {t("common.default")}
                               </span>
                             ) : (
                               "—"
@@ -436,34 +438,34 @@ export default function LeadsSettingsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Lead Sources</CardTitle>
+                  <CardTitle>{t("leadsSettings.sectionTitle", { type: "source" })}</CardTitle>
                   <CardDescription>
                     Manage where leads come from
                   </CardDescription>
                 </div>
                 <Button onClick={() => openAddDialog("source")}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Source
+                  <Plus className="h-4 w-4 mr-2" /> {t("leadsSettings.addItem", { type: "source" })}
                 </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t("common.name")}</TableHead>
+                      <TableHead className="text-right">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {sourcesLoading ? (
                       <TableRow>
                         <TableCell colSpan={2} className="text-center">
-                          Loading...
+                          {t("common.loading")}
                         </TableCell>
                       </TableRow>
                     ) : sources.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={2} className="text-center">
-                          No sources found
+                          {t("leadsSettings.noResults", { type: "source" })}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -504,36 +506,36 @@ export default function LeadsSettingsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Lead Score Categories</CardTitle>
+                  <CardTitle>{t("leadsSettings.sectionTitle", { type: "score" })}</CardTitle>
                   <CardDescription>
                     Manage lead scoring categories
                   </CardDescription>
                 </div>
                 <Button onClick={() => openAddDialog("score")}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Score
+                  <Plus className="h-4 w-4 mr-2" /> {t("leadsSettings.addItem", { type: "score" })}
                 </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">Order</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Color</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="w-12">{t("leadsSettings.order")}</TableHead>
+                      <TableHead>{t("common.name")}</TableHead>
+                      <TableHead>{t("common.color")}</TableHead>
+                      <TableHead className="text-right">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {scoresLoading ? (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center">
-                          Loading...
+                          {t("common.loading")}
                         </TableCell>
                       </TableRow>
                     ) : scores.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center">
-                          No scores found
+                          {t("leadsSettings.noResults", { type: "score" })}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -588,34 +590,34 @@ export default function LeadsSettingsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Lead Priorities</CardTitle>
-                  <CardDescription>Manage lead priority levels</CardDescription>
+                  <CardTitle>{t("leadsSettings.sectionTitle", { type: "priority" })}</CardTitle>
+                  <CardDescription>{t("leadsSettings.sectionDescription", { type: "priority" })}</CardDescription>
                 </div>
                 <Button onClick={() => openAddDialog("priority")}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Priority
+                  <Plus className="h-4 w-4 mr-2" /> {t("leadsSettings.addItem", { type: "priority" })}
                 </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">Order</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Color</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="w-12">{t("leadsSettings.order")}</TableHead>
+                      <TableHead>{t("common.name")}</TableHead>
+                      <TableHead>{t("common.color")}</TableHead>
+                      <TableHead className="text-right">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {prioritiesLoading ? (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center">
-                          Loading...
+                          {t("common.loading")}
                         </TableCell>
                       </TableRow>
                     ) : priorities.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={4} className="text-center">
-                          No priorities found
+                          {t("leadsSettings.noResults", { type: "priority" })}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -674,35 +676,35 @@ export default function LeadsSettingsPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Qualification Stages</CardTitle>
+                  <CardTitle>{t("leadsSettings.sectionTitle", { type: "qualification" })}</CardTitle>
                   <CardDescription>
                     Manage lead qualification stages
                   </CardDescription>
                 </div>
                 <Button onClick={() => openAddDialog("qualification")}>
-                  <Plus className="h-4 w-4 mr-2" /> Add Qualification
+                  <Plus className="h-4 w-4 mr-2" /> {t("leadsSettings.addItem", { type: "qualification" })}
                 </Button>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">Order</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="w-12">{t("leadsSettings.order")}</TableHead>
+                      <TableHead>{t("common.name")}</TableHead>
+                      <TableHead className="text-right">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {qualificationsLoading ? (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center">
-                          Loading...
+                          {t("common.loading")}
                         </TableCell>
                       </TableRow>
                     ) : qualifications.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center">
-                          No qualifications found
+                          {t("leadsSettings.noResults", { type: "qualification" })}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -750,30 +752,30 @@ export default function LeadsSettingsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              Add {addType.charAt(0).toUpperCase() + addType.slice(1)}
+              {t("leadsSettings.addDialogTitle", { type: addType })}
             </DialogTitle>
             <DialogDescription>
-              Fill in the details to create a new {addType}.
+              {t("leadsSettings.addDialogDescription", { type: addType })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>
-                Name <span className="text-red-500">*</span>
+                {t("common.name")} <span className="text-red-500">*</span>
               </Label>
               <Input
                 value={addForm.name || ""}
                 onChange={(e) =>
                   setAddForm({ ...addForm, name: e.target.value })
                 }
-                placeholder={`Enter ${addType} name`}
+                placeholder={t("leadsSettings.placeholders.name", { type: addType })}
               />
             </div>
             {(addType === "stage" ||
               addType === "score" ||
               addType === "priority") && (
               <div className="space-y-2">
-                <Label>Color</Label>
+                <Label>{t("common.color")}</Label>
                 <ColorPicker
                   value={addForm.color || ""}
                   onChange={(v) => setAddForm({ ...addForm, color: v })}
@@ -785,7 +787,7 @@ export default function LeadsSettingsPage() {
               addType === "priority" ||
               addType === "qualification") && (
               <div className="space-y-2">
-                <Label>Order</Label>
+                <Label>{t("leadsSettings.order")}</Label>
                 <Input
                   type="number"
                   value={addForm.order || ""}
@@ -795,43 +797,43 @@ export default function LeadsSettingsPage() {
                       order: parseInt(e.target.value) || undefined,
                     })
                   }
-                  placeholder="Display order"
+                  placeholder={t("leadsSettings.placeholders.order")}
                 />
               </div>
             )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleAdd} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create"}
+              {createMutation.isPending ? t("common.creating") : t("common.create")}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+      <Dialog open={showEditDialog} onOpenChange={setshowEditDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              Edit{" "}
+              {t("common.edit")}{" "}
               {editingItem.type?.charAt(0).toUpperCase() +
                 editingItem.type?.slice(1) || ""}
             </DialogTitle>
             <DialogDescription>
-              Update the details for this {editingItem.type}.
+              {t("leadsSettings.editDialogDescription", { type: editingItem.type })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label>{t("common.name")}</Label>
               <Input
                 value={editForm.name || ""}
                 onChange={(e) =>
                   setEditForm({ ...editForm, name: e.target.value })
                 }
-                placeholder="Enter name"
+                placeholder={t("leadsSettings.placeholders.editName")}
               />
             </div>
             {(editingItem.type === "stage" ||
@@ -839,14 +841,14 @@ export default function LeadsSettingsPage() {
               editingItem.type === "priority") && (
               <>
                 <div className="space-y-2">
-                  <Label>Color</Label>
+                  <Label>{t("common.color")}</Label>
                   <ColorPicker
                     value={editForm.color || ""}
                     onChange={(v) => setEditForm({ ...editForm, color: v })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Order</Label>
+                  <Label>{t("leadsSettings.order")}</Label>
                   <Input
                     type="number"
                     value={editForm.order || 0}
@@ -876,11 +878,11 @@ export default function LeadsSettingsPage() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-              Cancel
+            <Button variant="outline" onClick={() => setshowEditDialog(false)}>
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              {updateMutation.isPending ? t("common.saving") : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </DialogContent>

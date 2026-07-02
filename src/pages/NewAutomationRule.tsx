@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const ENTITIES = ["lead", "contact", "deal", "invoice"];
 const EVENTS = ["created", "updated", "deleted", "stage_changed"];
@@ -42,6 +43,7 @@ const ACTION_TYPES = [
 ];
 
 export default function NewAutomationRule() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   
@@ -64,7 +66,7 @@ export default function NewAutomationRule() {
     mutationFn: api.automations.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["automation-rules"] });
-      toast.success("Workflow rule created successfully");
+      toast.success(t("newAutomationRule.statusUpdates.created"));
       navigate("/automations");
     },
   });
@@ -86,8 +88,8 @@ export default function NewAutomationRule() {
   };
 
   const handleCreateRule = () => {
-    if (!ruleName) return toast.error("Rule name is required");
-    if (actions.length === 0) return toast.error("At least one action is required");
+    if (!ruleName) return toast.error(t("newAutomationRule.errors.nameRequired"));
+    if (actions.length === 0) return toast.error(t("newAutomationRule.errors.actionRequired"));
 
     createMutation.mutate({
       name: ruleName,
@@ -102,7 +104,7 @@ export default function NewAutomationRule() {
   };
 
   return (
-    <CRMLayout title="New Automation Rule">
+    <CRMLayout title={t("newAutomationRule.pageTitle")}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -110,8 +112,8 @@ export default function NewAutomationRule() {
                 <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-                <h1 className="text-2xl font-bold">Create Automation Rule</h1>
-                <p className="text-muted-foreground">Define your business logic and triggers</p>
+                <h1 className="text-2xl font-bold">{t("newAutomationRule.title")}</h1>
+                <p className="text-muted-foreground">{t("newAutomationRule.subtitle")}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -123,7 +125,7 @@ export default function NewAutomationRule() {
                 disabled={createMutation.isPending}
             >
                 <Save className="h-4 w-4 mr-2" />
-                {createMutation.isPending ? "Creating..." : "Save Rule"}
+                {createMutation.isPending ? t("common.creating") : t("newAutomationRule.saveRule")}
             </Button>
           </div>
         </div>
@@ -135,14 +137,14 @@ export default function NewAutomationRule() {
                 <CardHeader>
                     <CardTitle className="text-sm font-semibold flex items-center gap-2">
                         <Box className="h-4 w-4" />
-                        General Settings
+                        {t("newAutomationRule.generalSettings")}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label>Rule Name *</Label>
+                        <Label>{t("newAutomationRule.ruleName")}</Label>
                         <Input 
-                            placeholder="e.g. Assign Leads to Sales Team" 
+                            placeholder={t("newAutomationRule.placeholders.ruleName")} 
                             value={ruleName}
                             onChange={(e) => setRuleName(e.target.value)}
                         />
@@ -150,7 +152,7 @@ export default function NewAutomationRule() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Trigger Entity</Label>
+                            <Label>{t("newAutomationRule.triggerEntity")}</Label>
                             <Select value={selectedEntity} onValueChange={setSelectedEntity}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -159,7 +161,7 @@ export default function NewAutomationRule() {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label>Trigger Event</Label>
+                            <Label>{t("newAutomationRule.triggerEvent")}</Label>
                             <Select value={selectedEvent} onValueChange={setSelectedEvent}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -176,20 +178,20 @@ export default function NewAutomationRule() {
                 <CardHeader className="flex flex-row items-center justify-between py-4">
                     <CardTitle className="text-sm font-semibold flex items-center gap-2">
                         <ShieldCheck className="h-4 w-4" />
-                        Conditions (Filters)
+                        {t("newAutomationRule.conditionsTitle")}
                     </CardTitle>
                     <Button variant="outline" size="sm" onClick={addCondition}>
-                        <Plus className="h-4 w-4 mr-1" /> Add Condition
+                        <Plus className="h-4 w-4 mr-1" /> {t("newAutomationRule.addCondition")}
                     </Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {conditions.map((cond, idx) => (
                         <div key={idx} className="flex gap-2 items-end border p-4 rounded-lg relative bg-muted/30">
                              <div className="flex-1 space-y-1">
-                                <Label className="text-xs text-muted-foreground">Field</Label>
+                                <Label className="text-xs text-muted-foreground">{t("newAutomationRule.field")}</Label>
                                 <Input 
                                     className="h-8"
-                                    placeholder="revenue" 
+                                    placeholder={t("newAutomationRule.placeholders.field")} 
                                     value={cond.field}
                                     onChange={(e) => {
                                         const newConds = [...conditions];
@@ -199,7 +201,7 @@ export default function NewAutomationRule() {
                                 />
                             </div>
                             <div className="w-24 space-y-1">
-                                <Label className="text-xs text-muted-foreground">Operator</Label>
+                                <Label className="text-xs text-muted-foreground">{t("newAutomationRule.operator")}</Label>
                                 <Select value={cond.operator} onValueChange={(v) => {
                                     const newConds = [...conditions];
                                     newConds[idx].operator = v;
@@ -212,7 +214,7 @@ export default function NewAutomationRule() {
                                 </Select>
                             </div>
                             <div className="flex-1 space-y-1">
-                                <Label className="text-xs text-muted-foreground">Value</Label>
+                                <Label className="text-xs text-muted-foreground">{t("newAutomationRule.value")}</Label>
                                 <Input 
                                     className="h-8"
                                     value={cond.value}
@@ -224,7 +226,7 @@ export default function NewAutomationRule() {
                                 />
                             </div>
                             <div className="w-24 space-y-1">
-                                <Label className="text-xs text-muted-foreground">Logic</Label>
+                                <Label className="text-xs text-muted-foreground">{t("newAutomationRule.logic")}</Label>
                                 <Select value={cond.logic} onValueChange={(v) => {
                                 const newConds = [...conditions];
                                 newConds[idx].logic = v;
@@ -244,7 +246,7 @@ export default function NewAutomationRule() {
                     ))}
                     {conditions.length === 0 && (
                         <p className="text-sm text-center text-muted-foreground py-4 border border-dashed rounded-lg">
-                            No conditions set. Rule will always execute on trigger.
+                            {t("newAutomationRule.noConditions")}
                         </p>
                     )}
                 </CardContent>
@@ -255,10 +257,10 @@ export default function NewAutomationRule() {
                 <CardHeader className="flex flex-row items-center justify-between py-4">
                     <CardTitle className="text-sm font-semibold flex items-center gap-2">
                         <Zap className="h-4 w-4" />
-                        Actions Sequence
+                        {t("newAutomationRule.actionsTitle")}
                     </CardTitle>
                     <Button variant="outline" size="sm" onClick={addAction}>
-                        <Plus className="h-4 w-4 mr-1" /> Add Action
+                        <Plus className="h-4 w-4 mr-1" /> {t("newAutomationRule.addAction")}
                     </Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -291,7 +293,7 @@ export default function NewAutomationRule() {
                                 {action.type === "assign_owner" && (
                                     <>
                                         <div className="space-y-1">
-                                            <Label className="text-xs text-muted-foreground">Mode</Label>
+                                            <Label className="text-xs text-muted-foreground">{t("newAutomationRule.mode")}</Label>
                                             <Select 
                                                 value={action.config.mode || "single"} 
                                                 onValueChange={(v) => {
@@ -302,14 +304,14 @@ export default function NewAutomationRule() {
                                             >
                                                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="single">Single Owner</SelectItem>
-                                                    <SelectItem value="round_robin">Round Robin</SelectItem>
+                                                    <SelectItem value="single">{t("newAutomationRule.singleOwner")}</SelectItem>
+                                                    <SelectItem value="round_robin">{t("newAutomationRule.roundRobin")}</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
                                         {action.config.mode === "single" ? (
                                             <div className="space-y-1">
-                                                <Label className="text-xs text-muted-foreground">Agent</Label>
+                                                <Label className="text-xs text-muted-foreground">{t("newAutomationRule.agent")}</Label>
                                                 <Select onValueChange={(v) => {
                                                     const newActions = [...actions];
                                                     newActions[idx].config.ownerId = Number(v);
@@ -324,7 +326,7 @@ export default function NewAutomationRule() {
                                         ) : (
                                             <div className="col-span-2 text-xs text-muted-foreground flex items-center gap-2">
                                                 <CheckCircle2 className="h-3 w-3" />
-                                                Leads will rotate among active sales agents.
+                                                {t("newAutomationRule.rotatingLeads")}
                                             </div>
                                         )}
                                     </>
@@ -333,10 +335,10 @@ export default function NewAutomationRule() {
                                 {action.type === "create_task" && (
                                     <>
                                         <div className="col-span-2 space-y-1">
-                                            <Label className="text-xs text-muted-foreground">Subject</Label>
+                                            <Label className="text-xs text-muted-foreground">{t("newAutomationRule.subject")}</Label>
                                             <Input 
                                                 className="h-8"
-                                                placeholder="Task details..." 
+                                                placeholder={t("newAutomationRule.placeholders.taskDetails")} 
                                                 onChange={(e) => {
                                                     const newActions = [...actions];
                                                     newActions[idx].config.title = e.target.value;
@@ -345,11 +347,11 @@ export default function NewAutomationRule() {
                                             />
                                         </div>
                                         <div className="space-y-1">
-                                            <Label className="text-xs text-muted-foreground">Due (Days)</Label>
+                                            <Label className="text-xs text-muted-foreground">{t("newAutomationRule.dueDays")}</Label>
                                             <Input 
                                                 className="h-8"
                                                 type="number" 
-                                                placeholder="0"
+                                                placeholder={t("newAutomationRule.placeholders.dueDays")}
                                                 onChange={(e) => {
                                                     const newActions = [...actions];
                                                     newActions[idx].config.dueInDays = Number(e.target.value);
@@ -364,7 +366,7 @@ export default function NewAutomationRule() {
                                     <div className="col-span-2 space-y-2">
                                         <Input 
                                             className="h-8"
-                                            placeholder="Subject" 
+                                            placeholder={t("newAutomationRule.placeholders.subject")} 
                                             onChange={(e) => {
                                                 const newActions = [...actions];
                                                 newActions[idx].config.subject = e.target.value;
@@ -372,7 +374,7 @@ export default function NewAutomationRule() {
                                             }}
                                         />
                                         <Textarea 
-                                            placeholder="Content..." 
+                                            placeholder={t("newAutomationRule.placeholders.content")} 
                                             rows={2} 
                                             onChange={(e) => {
                                                 const newActions = [...actions];
@@ -387,7 +389,7 @@ export default function NewAutomationRule() {
                     ))}
                     {actions.length === 0 && (
                         <p className="text-sm text-center text-muted-foreground py-4 border border-dashed rounded-lg">
-                            Add at least one action.
+                            {t("newAutomationRule.noActions")}
                         </p>
                     )}
                 </CardContent>
@@ -398,20 +400,20 @@ export default function NewAutomationRule() {
               {/* Controls */}
               <Card>
                 <CardHeader>
-                    <CardTitle className="text-sm font-semibold">Settings</CardTitle>
+                    <CardTitle className="text-sm font-semibold">{t("newAutomationRule.settings")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                    <div className="flex items-center justify-between">
-                        <Label className="text-sm">Active</Label>
+                        <Label className="text-sm">{t("newAutomationRule.active")}</Label>
                         <Switch checked={isActive} onCheckedChange={setIsActive} />
                    </div>
                    <div className="flex items-center justify-between">
-                        <Label className="text-sm">Stop if match</Label>
+                        <Label className="text-sm">{t("newAutomationRule.stopIfMatch")}</Label>
                         <Switch checked={stopIfMatched} onCheckedChange={setStopIfMatched} />
                    </div>
                    <div className="space-y-2 pt-2 border-t">
                         <div className="flex justify-between items-center text-xs">
-                            <Label>Priority</Label>
+                            <Label>{t("newAutomationRule.priority")}</Label>
                             <span className="font-bold text-primary">{priority}</span>
                         </div>
                         <Input 

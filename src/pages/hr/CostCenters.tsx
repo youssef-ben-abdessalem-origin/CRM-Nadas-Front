@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { CRMLayout } from "@/components/CRMLayout";
 import { api, CostCenter, Employee } from "@/lib/api";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -52,6 +53,7 @@ const emptyForm: FormState = {
 };
 
 export default function CostCentersPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const [open, setOpen] = useState(false);
@@ -77,7 +79,7 @@ export default function CostCentersPage() {
     mutationFn: api.costCenters.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["costCenters"] });
-      toast.success("Cost center created");
+      toast.success(t("hr.statusUpdates.costCenterCreated"));
       resetForm();
     },
     onError: (err: Error) => toast.error(err.message),
@@ -87,7 +89,7 @@ export default function CostCentersPage() {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.costCenters.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["costCenters"] });
-      toast.success("Cost center updated");
+      toast.success(t("hr.statusUpdates.costCenterUpdated"));
       resetForm();
     },
     onError: (err: Error) => toast.error(err.message),
@@ -97,7 +99,7 @@ export default function CostCentersPage() {
     mutationFn: api.costCenters.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["costCenters"] });
-      toast.success("Cost center deleted");
+      toast.success(t("hr.statusUpdates.costCenterDeleted"));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -147,7 +149,7 @@ export default function CostCentersPage() {
     e.preventDefault();
 
     if (!form.name.trim()) {
-      toast.error("Cost center name is required");
+      toast.error(t("hr.statusUpdates.costCenterNameRequired"));
       return;
     }
 
@@ -168,18 +170,18 @@ export default function CostCentersPage() {
   };
 
   return (
-    <CRMLayout title="HR - Cost Centers">
+    <CRMLayout title={t("hr.costCenters.title")}>
       <div className="space-y-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-xl font-bold tracking-tight">Cost Centers</h2>
+            <h2 className="text-xl font-bold tracking-tight">{t("hr.costCenters.title")}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Structure payroll and analytical allocation with controlled cost center codes.
+              {t("hr.costCenters.description")}
             </p>
           </div>
           <Button onClick={openCreate} className="gap-2">
             <Plus className="h-4 w-4" />
-            New Cost Center
+            {t("hr.costCenters.actions.new")}
           </Button>
         </div>
 
@@ -188,7 +190,7 @@ export default function CostCentersPage() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.total}</div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Cost Centers
+                {t("hr.costCenters.stats.total")}
               </p>
             </CardContent>
           </Card>
@@ -196,7 +198,7 @@ export default function CostCentersPage() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.active}</div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Active
+                {t("hr.costCenters.stats.active")}
               </p>
             </CardContent>
           </Card>
@@ -204,7 +206,7 @@ export default function CostCentersPage() {
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.assigned}</div>
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Assigned to Employees
+                {t("hr.costCenters.stats.assigned")}
               </p>
             </CardContent>
           </Card>
@@ -214,26 +216,26 @@ export default function CostCentersPage() {
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Manager</TableHead>
-                <TableHead>Employees</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("hr.costCenters.table.code")}</TableHead>
+                <TableHead>{t("hr.costCenters.table.name")}</TableHead>
+                <TableHead>{t("hr.costCenters.table.department")}</TableHead>
+                <TableHead>{t("hr.costCenters.table.manager")}</TableHead>
+                <TableHead>{t("hr.costCenters.table.employees")}</TableHead>
+                <TableHead>{t("hr.costCenters.table.status")}</TableHead>
+                <TableHead className="text-right">{t("hr.costCenters.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-20 text-center text-muted-foreground">
-                    Loading cost centers...
+                    {t("common.loading")}
                   </TableCell>
                 </TableRow>
               ) : costCenters.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-20 text-center text-muted-foreground">
-                    No cost centers yet.
+                    {t("hr.costCenters.noResults")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -246,16 +248,16 @@ export default function CostCentersPage() {
                         <div>
                           <div className="font-medium">{costCenter.name}</div>
                           <div className="text-xs text-muted-foreground">
-                            {costCenter.description || "No description"}
+                            {costCenter.description || t("hr.costCenters.noDescription")}
                           </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{costCenter.department?.name || "Not linked"}</TableCell>
+                    <TableCell>{costCenter.department?.name || t("hr.costCenters.notLinked")}</TableCell>
                     <TableCell>
                       {costCenter.manager
                         ? `${costCenter.manager.firstName} ${costCenter.manager.lastName}`
-                        : "Not set"}
+                        : t("hr.costCenters.notSet")}
                     </TableCell>
                     <TableCell>{usageByCode[costCenter.code] || 0}</TableCell>
                     <TableCell>
@@ -274,10 +276,10 @@ export default function CostCentersPage() {
                           onClick={async () => {
                             if (
                               await confirm({
-                                title: "Delete Cost Center",
-                                description: `Delete "${costCenter.name}"? Assigned cost centers cannot be deleted.`,
+                                title: t("hr.costCenters.deleteTitle"),
+                                description: t("hr.costCenters.deleteDescription", { name: costCenter.name }),
                                 variant: "destructive",
-                                confirmText: "Delete",
+                                confirmText: t("common.delete"),
                               })
                             ) {
                               deleteMutation.mutate(costCenter.id);
@@ -305,54 +307,54 @@ export default function CostCentersPage() {
           <DialogContent className="sm:max-w-2xl">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
-                <DialogTitle>{editing ? "Edit Cost Center" : "Create Cost Center"}</DialogTitle>
+                <DialogTitle>{editing ? t("hr.costCenters.actions.edit") : t("hr.costCenters.actions.create")}</DialogTitle>
                 <DialogDescription>
-                  Cost center code is auto-generated and stays stable for payroll allocation.
+                  {t("hr.costCenters.formDescription")}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>Code</Label>
+                  <Label>{t("hr.costCenters.forms.code")}</Label>
                   <Input
                     readOnly
                     disabled
-                    value={editing?.code || "Auto-generated"}
+                    value={editing?.code || t("hr.costCenters.placeholders.autoGenerated")}
                     className="cursor-not-allowed bg-muted text-muted-foreground"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Name *</Label>
+                  <Label>{t("hr.costCenters.forms.name")}</Label>
                   <Input
                     value={form.name}
                     onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                    placeholder="Administration Tunis"
+                    placeholder={t("hr.costCenters.placeholders.name")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Description</Label>
+                  <Label>{t("hr.costCenters.forms.description")}</Label>
                   <Textarea
                     rows={3}
                     value={form.description}
                     onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-                    placeholder="Optional allocation purpose"
+                    placeholder={t("hr.costCenters.placeholders.description")}
                   />
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>Department</Label>
+                    <Label>{t("hr.costCenters.forms.department")}</Label>
                     <Select
                       value={form.departmentId || "none"}
                       onValueChange={(value) => setForm((prev) => ({ ...prev, departmentId: value === "none" ? "" : value }))}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select department" />
+                        <SelectValue placeholder={t("hr.costCenters.placeholders.selectDepartment")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">No department</SelectItem>
+                        <SelectItem value="none">{t("hr.costCenters.options.noDepartment")}</SelectItem>
                         {departments.map((department: any) => (
                           <SelectItem key={department.id} value={String(department.id)}>
                             {department.name}
@@ -363,16 +365,16 @@ export default function CostCentersPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Manager</Label>
+                    <Label>{t("hr.costCenters.forms.manager")}</Label>
                     <Select
                       value={form.managerId || "none"}
                       onValueChange={(value) => setForm((prev) => ({ ...prev, managerId: value === "none" ? "" : value }))}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select manager" />
+                        <SelectValue placeholder={t("hr.costCenters.placeholders.selectManager")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">No manager</SelectItem>
+                        <SelectItem value="none">{t("hr.costCenters.options.noManager")}</SelectItem>
                         {employees.map((employee: Employee) => (
                           <SelectItem key={employee.id} value={String(employee.id)}>
                             {employee.firstName} {employee.lastName} ({employee.employeeNumber})
@@ -384,7 +386,7 @@ export default function CostCentersPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Status *</Label>
+                  <Label>{t("hr.costCenters.forms.status")}</Label>
                   <Select
                     value={form.status}
                     onValueChange={(value) => setForm((prev) => ({ ...prev, status: value }))}
@@ -393,8 +395,8 @@ export default function CostCentersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="Active">{t("hr.costCenters.options.active")}</SelectItem>
+                      <SelectItem value="Inactive">{t("hr.costCenters.options.inactive")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -402,16 +404,16 @@ export default function CostCentersPage() {
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={resetForm}>
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
                   {editing
                     ? updateMutation.isPending
-                      ? "Saving..."
-                      : "Save Changes"
+                      ? t("common.actions.saving")
+                      : t("hr.costCenters.actions.saveChanges")
                     : createMutation.isPending
-                      ? "Creating..."
-                      : "Create Cost Center"}
+                      ? t("common.actions.creating")
+                      : t("hr.costCenters.actions.create")}
                 </Button>
               </DialogFooter>
             </form>

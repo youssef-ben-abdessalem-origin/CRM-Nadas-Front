@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Edit, Trash2, Timer } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const statusColors: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   Pending: "outline",
@@ -18,13 +19,8 @@ const statusColors: Record<string, "default" | "secondary" | "destructive" | "ou
   Rejected: "destructive",
 };
 
-const categoryLabels: Record<string, string> = {
-  weekday: "Weekday (125%)",
-  night: "Night (150%)",
-  restDay: "Rest Day / Holiday (200%)",
-};
-
 export default function OvertimeRequests() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editing, setEditing] = useState<OvertimeRequest | null>(null);
@@ -102,9 +98,9 @@ export default function OvertimeRequests() {
 
   const getTimeHint = (): string => {
     switch (category) {
-      case "night": return `Night hours: ${String(nightStart).padStart(2, "0")}:00 - ${String(nightEnd).padStart(2, "0")}:00`;
-      case "restDay": return "Any time on rest day / public holiday";
-      default: return "Before/after normal work hours";
+      case "night": return t("hr.overtimeRequests.hints.nightTime", { nightStart: String(nightStart).padStart(2, "0"), nightEnd: String(nightEnd).padStart(2, "0") });
+      case "restDay": return t("hr.overtimeRequests.hints.restDay");
+      default: return t("hr.overtimeRequests.hints.weekday");
     }
   };
 
@@ -126,7 +122,7 @@ export default function OvertimeRequests() {
     mutationFn: (data: any) => api.hr.overtimeRequests.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["overtimeRequests"] });
-      toast.success("Overtime assignment created");
+      toast.success(t("hr.statusUpdates.overtimeCreated"));
       setIsOpen(false);
       resetForm();
     },
@@ -136,7 +132,7 @@ export default function OvertimeRequests() {
     mutationFn: ({ id, data }: { id: number; data: any }) => api.hr.overtimeRequests.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["overtimeRequests"] });
-      toast.success("Overtime assignment updated");
+      toast.success(t("hr.statusUpdates.overtimeUpdated"));
       setIsOpen(false);
       resetForm();
     },
@@ -146,7 +142,7 @@ export default function OvertimeRequests() {
     mutationFn: (id: number) => api.hr.overtimeRequests.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["overtimeRequests"] });
-      toast.success("Overtime assignment deleted");
+      toast.success(t("hr.statusUpdates.overtimeDeleted"));
     },
   });
 
@@ -154,7 +150,7 @@ export default function OvertimeRequests() {
     mutationFn: (id: number) => api.hr.overtimeRequests.approve(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["overtimeRequests"] });
-      toast.success("Overtime approved");
+      toast.success(t("hr.statusUpdates.overtimeApproved"));
     },
   });
 
@@ -162,7 +158,7 @@ export default function OvertimeRequests() {
     mutationFn: (id: number) => api.hr.overtimeRequests.reject(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["overtimeRequests"] });
-      toast.success("Overtime rejected");
+      toast.success(t("hr.statusUpdates.overtimeRejected"));
     },
   });
 
@@ -211,27 +207,33 @@ export default function OvertimeRequests() {
     }
   };
 
+  const categoryLabels: Record<string, string> = {
+    weekday: t("hr.overtimeRequests.categoryLabels.weekday"),
+    night: t("hr.overtimeRequests.categoryLabels.night"),
+    restDay: t("hr.overtimeRequests.categoryLabels.restDay"),
+  };
+
   return (
-    <CRMLayout title="HR - Overtime Assignments">
+    <CRMLayout title={t("hr.overtimeRequests.pageTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Overtime Assignments</h1>
-            <p className="text-muted-foreground">Assign and manage employee overtime (company-initiated).</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.overtimeRequests.title")}</h1>
+            <p className="text-muted-foreground">{t("hr.overtimeRequests.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><Timer className="h-4 w-4" /> New Overtime Assignment</Button>
+              <Button className="gap-2"><Timer className="h-4 w-4" /> {t("hr.overtimeRequests.actions.create")}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>{editing ? "Edit Overtime Assignment" : "New Overtime Assignment"}</DialogTitle>
+                <DialogTitle>{editing ? t("hr.overtimeRequests.dialog.edit") : t("hr.overtimeRequests.dialog.create")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Employee *</label>
+                  <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.employee")} *</label>
                   <Select value={employeeId} onValueChange={setEmployeeId}>
-                    <SelectTrigger><SelectValue placeholder="Select Employee" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("hr.overtimeRequests.placeholders.selectEmployee")} /></SelectTrigger>
                     <SelectContent>
                       {employees.map((emp: any) => (
                         <SelectItem key={emp.id} value={String(emp.id)}>{emp.firstName} {emp.lastName}</SelectItem>
@@ -240,86 +242,86 @@ export default function OvertimeRequests() {
                   </Select>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Category *</label>
+                  <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.category")} *</label>
                   <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="weekday">Weekday (×{hrSettings?.overtimeWeekdayRate ?? "1.25"})</SelectItem>
-                      <SelectItem value="night">Night (×{hrSettings?.overtimeNightRate ?? "1.50"})</SelectItem>
-                      <SelectItem value="restDay">Rest Day / Holiday (×{hrSettings?.overtimeRestDayRate ?? "2.00"})</SelectItem>
+                      <SelectItem value="weekday">{t("hr.overtimeRequests.categoryLabels.weekday")} (×{hrSettings?.overtimeWeekdayRate ?? "1.25"})</SelectItem>
+                      <SelectItem value="night">{t("hr.overtimeRequests.categoryLabels.night")} (×{hrSettings?.overtimeNightRate ?? "1.50"})</SelectItem>
+                      <SelectItem value="restDay">{t("hr.overtimeRequests.categoryLabels.restDay")} (×{hrSettings?.overtimeRestDayRate ?? "2.00"})</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">{getTimeHint()}</p>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Approval Required By</label>
+                  <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.approvalAuthority")}</label>
                   <Select value={approvalAuthority} onValueChange={setApprovalAuthority}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="manager">Employee's Manager</SelectItem>
-                      <SelectItem value="ceo">CEO</SelectItem>
-                      <SelectItem value="hr">HR</SelectItem>
+                      <SelectItem value="manager">{t("hr.overtimeRequests.options.manager")}</SelectItem>
+                      <SelectItem value="ceo">{t("hr.overtimeRequests.options.ceo")}</SelectItem>
+                      <SelectItem value="hr">{t("hr.overtimeRequests.options.hr")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    {approvalAuthority === "manager" ? "The employee's direct manager can approve" :
-                     approvalAuthority === "ceo" ? "Only the CEO can approve" :
-                     "Only an HR role can approve"}
+                    {approvalAuthority === "manager" ? t("hr.overtimeRequests.approvalDescriptions.manager") :
+                     approvalAuthority === "ceo" ? t("hr.overtimeRequests.approvalDescriptions.ceo") :
+                     t("hr.overtimeRequests.approvalDescriptions.hr")}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Date *</label>
+                  <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.date")} *</label>
                   <Input required type="date" value={date} onChange={(e) => setDate(e.target.value)}
                     className={category === "restDay" ? "border-amber-400" : ""} />
-                  {category === "restDay" && <p className="text-xs text-amber-500">Rest day / public holiday selected</p>}
+                  {category === "restDay" && <p className="text-xs text-amber-500">{t("hr.overtimeRequests.restDaySelected")}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Start Time *</label>
+                    <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.startTime")} *</label>
                     <Input required type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)}
                       className={category === "night" && startTime && !timeInRange(startTime, nightStart, 23) ? "border-red-400" : ""} />
                     {category === "night" && startTime && !timeInRange(startTime, nightStart, 23) && (
-                      <p className="text-xs text-red-500">Start must be ≥ {String(nightStart).padStart(2, "0")}:00 for night shift</p>
+                      <p className="text-xs text-red-500">{t("hr.overtimeRequests.validation.startMustBe", { nightStart: String(nightStart).padStart(2, "0") })}</p>
                     )}
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">End Time *</label>
+                    <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.endTime")} *</label>
                     <Input required type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)}
                       className={category === "night" && endTime && !timeInRange(endTime, 0, nightEnd) ? "border-red-400" : ""} />
                     {category === "night" && endTime && !timeInRange(endTime, 0, nightEnd) && (
-                      <p className="text-xs text-red-500">End must be ≤ {String(nightEnd).padStart(2, "0")}:00 for night shift</p>
+                      <p className="text-xs text-red-500">{t("hr.overtimeRequests.validation.endMustBe", { nightEnd: String(nightEnd).padStart(2, "0") })}</p>
                     )}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Total Hours *</label>
+                    <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.totalHours")} *</label>
                     <Input required type="number" readOnly value={totalHours} className="bg-muted" />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Multiplier</label>
+                    <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.multiplier")}</label>
                     <Input type="number" readOnly value={currentMultiplier} className="bg-muted" />
-                    <p className="text-xs text-muted-foreground">Auto from HR Settings</p>
+                    <p className="text-xs text-muted-foreground">{t("hr.overtimeRequests.autoFromSettings")}</p>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Description</label>
-                  <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Reason for overtime" />
+                  <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.description")}</label>
+                  <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t("hr.overtimeRequests.placeholders.description")} />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Status</label>
+                  <label className="text-sm font-semibold">{t("hr.overtimeRequests.forms.status")}</label>
                   <Select value={status} onValueChange={setStatus}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Approved">Approved</SelectItem>
-                      <SelectItem value="Rejected">Rejected</SelectItem>
+                      <SelectItem value="Pending">{t("common.status.pending")}</SelectItem>
+                      <SelectItem value="Approved">{t("hr.overtimeRequests.options.approved")}</SelectItem>
+                      <SelectItem value="Rejected">{t("hr.overtimeRequests.options.rejected")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>{t("common.save")}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -330,24 +332,24 @@ export default function OvertimeRequests() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Hours</TableHead>
-                <TableHead>Rate</TableHead>
-                <TableHead>Approval</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("hr.overtimeRequests.table.employee")}</TableHead>
+                <TableHead>{t("hr.overtimeRequests.table.date")}</TableHead>
+                <TableHead>{t("hr.overtimeRequests.table.category")}</TableHead>
+                <TableHead>{t("hr.overtimeRequests.table.hours")}</TableHead>
+                <TableHead>{t("hr.overtimeRequests.table.rate")}</TableHead>
+                <TableHead>{t("hr.overtimeRequests.table.approval")}</TableHead>
+                <TableHead>{t("hr.overtimeRequests.table.status")}</TableHead>
+                <TableHead className="text-right">{t("hr.overtimeRequests.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">Loading assignments...</TableCell>
+                  <TableCell colSpan={8} className="text-center py-8">{t("hr.overtimeRequests.loading")}</TableCell>
                 </TableRow>
               ) : requests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">No overtime assignments found.</TableCell>
+                  <TableCell colSpan={8} className="text-center py-8">{t("hr.overtimeRequests.empty")}</TableCell>
                 </TableRow>
               ) : (
                 requests.map((ot) => (
@@ -364,7 +366,7 @@ export default function OvertimeRequests() {
                     <TableCell>
                       {ot.approvedBy
                         ? <Badge variant="secondary">{ot.approvedBy.firstName} {ot.approvedBy.lastName}</Badge>
-                        : <Badge variant="outline">{ot.approvalAuthority === "manager" ? "Mgr" : ot.approvalAuthority === "ceo" ? "CEO" : "HR"}</Badge>}
+                        : <Badge variant="outline">{ot.approvalAuthority === "manager" ? t("hr.overtimeRequests.options.mgr") : ot.approvalAuthority === "ceo" ? t("hr.overtimeRequests.options.ceo") : t("hr.overtimeRequests.options.hr")}</Badge>}
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusColors[ot.status] || "outline"}>{ot.status}</Badge>
@@ -373,10 +375,10 @@ export default function OvertimeRequests() {
                       {canApprove(ot) && (
                         <>
                           <Button size="sm" variant="default" className="mr-1" onClick={() => approveMutation.mutate(ot.id)}>
-                            Approve
+                            {t("hr.overtimeRequests.actions.approve")}
                           </Button>
                           <Button size="sm" variant="destructive" onClick={() => rejectMutation.mutate(ot.id)}>
-                            Reject
+                            {t("hr.overtimeRequests.actions.reject")}
                           </Button>
                         </>
                       )}

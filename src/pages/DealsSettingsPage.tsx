@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 interface DynamicOption {
   id: number;
@@ -49,6 +50,7 @@ interface DynamicOption {
 }
 
 export default function DealsSettingsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [editingItem, setEditingItem] = useState<{ type: string; item: DynamicOption | null }>({ type: "", item: null });
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -92,7 +94,7 @@ export default function DealsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} created successfully`);
+      toast.success(t("dealsSettings.statusUpdates.created", { type }));
       setShowAddDialog(false);
       setAddForm({});
     },
@@ -112,7 +114,7 @@ export default function DealsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} updated successfully`);
+      toast.success(t("dealsSettings.statusUpdates.updated", { type }));
       setShowEditDialog(false);
       setEditingItem({ type: "", item: null });
       setEditForm({});
@@ -133,7 +135,7 @@ export default function DealsSettingsPage() {
     },
     onSuccess: (_, { type }) => {
       invalidateQueries();
-      toast.success(`${type} deleted successfully`);
+      toast.success(t("dealsSettings.statusUpdates.deleted", { type }));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -152,7 +154,7 @@ export default function DealsSettingsPage() {
 
   const handleAdd = () => {
     if (!addForm.name) {
-      toast.error("Name is required");
+      toast.error(t("dealsSettings.errors.nameRequired"));
       return;
     }
     createMutation.mutate({ type: addType, data: addForm });
@@ -160,7 +162,7 @@ export default function DealsSettingsPage() {
 
   const handleEdit = () => {
     if (!editForm.name) {
-      toast.error("Name is required");
+      toast.error(t("dealsSettings.errors.nameRequired"));
       return;
     }
     if (!editingItem.item) return;
@@ -169,7 +171,7 @@ export default function DealsSettingsPage() {
 
   const handleDelete = (type: string, item: DynamicOption) => {
     if (item.isDefault) {
-      toast.error("Cannot delete the default item");
+      toast.error(t("dealsSettings.errors.cannotDeleteDefault"));
       return;
     }
     deleteMutation.mutate({ type, id: item.id });
@@ -191,16 +193,16 @@ export default function DealsSettingsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Color</TableHead>
-              <TableHead>Default</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("common.name")}</TableHead>
+              <TableHead>{t("common.color")}</TableHead>
+              <TableHead>{t("common.default")}</TableHead>
+              <TableHead className="text-right">{t("common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">Loading...</TableCell>
+                <TableCell colSpan={4} className="text-center py-8">{t("common.loading")}</TableCell>
               </TableRow>
             ) : items.length === 0 ? (
               <TableRow>
@@ -255,16 +257,16 @@ export default function DealsSettingsPage() {
   );
 
   return (
-    <CRMLayout title="Deal Settings">
+    <CRMLayout title={t("dealsSettings.pageTitle")}>
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <Handshake className="h-6 w-6" />
-          <h1 className="text-2xl font-bold">Deal Settings</h1>
+          <h1 className="text-2xl font-bold">{t("dealsSettings.pageTitle")}</h1>
         </div>
         
         <Tabs defaultValue="stages" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="stages">Stages</TabsTrigger>
+            <TabsTrigger value="stages">{t("dealsSettings.tabs.stages")}</TabsTrigger>
             <TabsTrigger value="reasons">Reasons</TabsTrigger>
           </TabsList>
 
@@ -300,12 +302,12 @@ export default function DealsSettingsPage() {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add {addType}</DialogTitle>
+            <DialogTitle>{t("dealsSettings.addDialogTitle", { type: addType })}</DialogTitle>
             <DialogDescription>Create a new {addType.toLowerCase()} for deals.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label>{t("common.name")}</Label>
               <Input
                 value={addForm.name || ""}
                 onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
@@ -313,7 +315,7 @@ export default function DealsSettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("common.color")}</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="color"
@@ -332,10 +334,10 @@ export default function DealsSettingsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleAdd} disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create"}
+              {createMutation.isPending ? t("common.creating") : t("common.create")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -345,20 +347,20 @@ export default function DealsSettingsPage() {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit {editingItem.type}</DialogTitle>
+            <DialogTitle>{t("dealsSettings.editDialogTitle", { type: editingItem.type })}</DialogTitle>
             <DialogDescription>Update the {editingItem.type?.toLowerCase()} details.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Name</Label>
+              <Label>{t("common.name")}</Label>
               <Input
                 value={editForm.name || ""}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                placeholder="Enter name"
+                placeholder={t("dealsSettings.placeholders.editName")}
               />
             </div>
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("common.color")}</Label>
               <div className="flex items-center gap-2">
                 <Input
                   type="color"
@@ -377,10 +379,10 @@ export default function DealsSettingsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={handleEdit} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              {updateMutation.isPending ? t("common.saving") : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { api, PayrollPeriod, Payslip } from "@/lib/api";
 import { CRMLayout } from "@/components/crmlayout.tsx";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 import { Plus, Play, Eye, CheckCircle2, DollarSign, Calendar } from "lucide-react";
 
 export default function PayrollPeriods() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedPeriod, setSelectedPeriod] = useState<PayrollPeriod | null>(null);
@@ -40,7 +42,7 @@ export default function PayrollPeriods() {
     mutationFn: api.payroll.periods.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["periods"] });
-      toast.success("Payroll period created");
+      toast.success(t("payrollPages.periods.toasts.periodCreated"));
       setIsOpen(false);
       setPeriodName("");
       setStartDate("");
@@ -52,7 +54,7 @@ export default function PayrollPeriods() {
     mutationFn: api.payroll.payslips.generate,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payslips", selectedPeriod?.id] });
-      toast.success("Payslips generated/updated for this period");
+      toast.success(t("payrollPages.periods.toasts.payslipsGenerated"));
     },
   });
 
@@ -60,7 +62,7 @@ export default function PayrollPeriods() {
     mutationFn: api.payroll.payslips.approve,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payslips", selectedPeriod?.id] });
-      toast.success("Payslip approved");
+      toast.success(t("payrollPages.periods.toasts.payslipApproved"));
     },
   });
 
@@ -68,7 +70,7 @@ export default function PayrollPeriods() {
     mutationFn: api.payroll.payslips.pay,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payslips", selectedPeriod?.id] });
-      toast.success("Payslip marked as paid");
+      toast.success(t("payrollPages.periods.toasts.payslipPaid"));
     },
   });
 
@@ -83,41 +85,41 @@ export default function PayrollPeriods() {
   };
 
   return (
-    <CRMLayout title="Payroll - Periods & Payslips">
+    <CRMLayout title={t("payrollPages.periods.layoutTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Payroll Runs</h1>
-            <p className="text-muted-foreground">Manage periodic salary runs and issue payslips.</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("payrollPages.periods.title")}</h1>
+            <p className="text-muted-foreground">{t("payrollPages.periods.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
-                <Plus className="h-4 w-4" /> New Period
+                <Plus className="h-4 w-4" /> {t("payrollPages.periods.actions.newPeriod")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Open New Payroll Period</DialogTitle>
+                <DialogTitle>{t("payrollPages.periods.dialogs.openTitle")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Period Name *</label>
-                  <Input required value={periodName} onChange={(e) => setPeriodName(e.target.value)} placeholder="e.g. June 2026" />
+                  <label className="text-sm font-semibold">{t("payrollPages.periods.fields.periodName")}</label>
+                  <Input required value={periodName} onChange={(e) => setPeriodName(e.target.value)} placeholder={t("payrollPages.periods.placeholders.periodName")} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Start Date *</label>
+                    <label className="text-sm font-semibold">{t("payrollPages.periods.fields.startDate")}</label>
                     <Input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">End Date *</label>
+                    <label className="text-sm font-semibold">{t("payrollPages.periods.fields.endDate")}</label>
                     <Input required type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                   </div>
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                  <Button type="submit" disabled={createPeriodMutation.isPending}>Open Period</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit" disabled={createPeriodMutation.isPending}>{t("payrollPages.periods.actions.openPeriod")}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -127,11 +129,11 @@ export default function PayrollPeriods() {
         <div className="grid grid-cols-3 gap-6">
           {/* Period Selection */}
           <div className="col-span-1 flex flex-col gap-4">
-            <h2 className="text-lg font-bold">Periods</h2>
+            <h2 className="text-lg font-bold">{t("payrollPages.periods.sections.periods")}</h2>
             {loadingPeriods ? (
-              <div>Loading runs...</div>
+              <div>{t("payrollPages.periods.states.loadingRuns")}</div>
             ) : periods.length === 0 ? (
-              <div className="text-muted-foreground text-sm">No payroll periods opened yet.</div>
+              <div className="text-muted-foreground text-sm">{t("payrollPages.periods.states.noPeriods")}</div>
             ) : (
               periods.map((p) => (
                 <Card
@@ -147,7 +149,7 @@ export default function PayrollPeriods() {
                       </p>
                     </div>
                     <Badge variant={p.status === "Closed" ? "secondary" : "default"}>
-                      {p.status}
+                      {t(`payrollPages.periods.statuses.${String(p.status).toLowerCase()}`, { defaultValue: p.status })}
                     </Badge>
                   </CardContent>
                 </Card>
@@ -160,9 +162,9 @@ export default function PayrollPeriods() {
             {selectedPeriod ? (
               <>
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-bold">Payslips for {selectedPeriod.periodName}</h2>
+                  <h2 className="text-lg font-bold">{t("payrollPages.periods.sections.payslipsFor", { period: selectedPeriod.periodName })}</h2>
                   <Button size="sm" className="gap-1 bg-green-600 hover:bg-green-700" onClick={() => generateMutation.mutate(selectedPeriod.id)}>
-                    <Play className="h-4 w-4" /> Generate / Recalculate
+                    <Play className="h-4 w-4" /> {t("payrollPages.periods.actions.generateRecalculate")}
                   </Button>
                 </div>
 
@@ -170,22 +172,22 @@ export default function PayrollPeriods() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Employee</TableHead>
-                        <TableHead>Gross (TND)</TableHead>
-                        <TableHead>Deductions (TND)</TableHead>
-                        <TableHead>Net Salary (TND)</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>{t("payrollPages.periods.table.employee")}</TableHead>
+                        <TableHead>{t("payrollPages.periods.table.gross")}</TableHead>
+                        <TableHead>{t("payrollPages.periods.table.deductions")}</TableHead>
+                        <TableHead>{t("payrollPages.periods.table.netSalary")}</TableHead>
+                        <TableHead>{t("payrollPages.periods.table.status")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPages.periods.table.actions")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {loadingPayslips ? (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center py-8">Loading payslips...</TableCell>
+                          <TableCell colSpan={6} className="text-center py-8">{t("payrollPages.periods.states.loadingPayslips")}</TableCell>
                         </TableRow>
                       ) : payslips.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center py-8">No payslips generated. Click Generate above.</TableCell>
+                          <TableCell colSpan={6} className="text-center py-8">{t("payrollPages.periods.states.noPayslips")}</TableCell>
                         </TableRow>
                       ) : (
                         payslips.map((ps) => (
@@ -196,7 +198,7 @@ export default function PayrollPeriods() {
                             <TableCell className="font-bold text-green-600">{Number(ps.netSalary).toFixed(3)}</TableCell>
                             <TableCell>
                               <Badge variant={ps.status === "Paid" ? "default" : ps.status === "Approved" ? "outline" : "secondary"}>
-                                {ps.status}
+                                {t(`payrollPages.periods.statuses.${String(ps.status).toLowerCase()}`, { defaultValue: ps.status })}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right flex justify-end gap-1">
@@ -224,7 +226,7 @@ export default function PayrollPeriods() {
             ) : (
               <div className="flex flex-col items-center justify-center h-64 border border-dashed rounded-lg glass-morphism text-muted-foreground">
                 <Calendar className="h-10 w-10 mb-2 opacity-50" />
-                <p>Select a payroll period on the left to manage payslips.</p>
+                <p>{t("payrollPages.periods.states.selectPeriod")}</p>
               </div>
             )}
           </div>

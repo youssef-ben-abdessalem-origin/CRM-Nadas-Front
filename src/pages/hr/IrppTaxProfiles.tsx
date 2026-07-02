@@ -11,8 +11,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Edit, Receipt } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function IrppTaxProfiles() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<IrppTaxProfile | null>(null);
@@ -37,7 +39,7 @@ export default function IrppTaxProfiles() {
       api.hr.irppTaxProfiles.createOrUpdate(employeeId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["irppTaxProfiles"] });
-      toast.success("IRPP tax profile saved successfully");
+      toast.success(t("hr.statusUpdates.irppTaxProfileSaved"));
       setIsOpen(false);
       resetForm();
     },
@@ -76,27 +78,27 @@ export default function IrppTaxProfiles() {
   };
 
   return (
-    <CRMLayout title="HR - IRPP Tax Profiles">
+    <CRMLayout title={t("hr.irppTaxProfiles.pageTitle")}>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">IRPP Tax Profiles</h1>
-            <p className="text-muted-foreground">Configure employee tax status for IRPP calculation (marital status, dependents, exemptions).</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("hr.irppTaxProfiles.title")}</h1>
+            <p className="text-muted-foreground">{t("hr.irppTaxProfiles.description")}</p>
           </div>
           <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button className="gap-2"><Receipt className="h-4 w-4" /> New Tax Profile</Button>
+              <Button className="gap-2"><Receipt className="h-4 w-4" /> {t("hr.irppTaxProfiles.actions.create")}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>{editingProfile ? "Edit Tax Profile" : "Create Tax Profile"}</DialogTitle>
+                <DialogTitle>{editingProfile ? t("hr.irppTaxProfiles.dialog.edit") : t("hr.irppTaxProfiles.dialog.create")}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
                 {!editingProfile && (
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Employee *</label>
+                    <label className="text-sm font-semibold">{t("hr.irppTaxProfiles.forms.employee")} *</label>
                     <Select value={employeeId} onValueChange={setEmployeeId}>
-                      <SelectTrigger><SelectValue placeholder="Select Employee" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("hr.irppTaxProfiles.placeholders.selectEmployee")} /></SelectTrigger>
                       <SelectContent>
                         {employees.map((emp: any) => (
                           <SelectItem key={emp.id} value={String(emp.id)}>
@@ -108,35 +110,35 @@ export default function IrppTaxProfiles() {
                   </div>
                 )}
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Marital Status *</label>
+                  <label className="text-sm font-semibold">{t("hr.irppTaxProfiles.forms.maritalStatus")} *</label>
                   <Select value={maritalStatus} onValueChange={setMaritalStatus}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Single">Single</SelectItem>
-                      <SelectItem value="Married">Married</SelectItem>
-                      <SelectItem value="Divorced">Divorced</SelectItem>
-                      <SelectItem value="Widowed">Widowed</SelectItem>
+                      <SelectItem value="Single">{t("hr.irppTaxProfiles.options.single")}</SelectItem>
+                      <SelectItem value="Married">{t("hr.irppTaxProfiles.options.married")}</SelectItem>
+                      <SelectItem value="Divorced">{t("hr.irppTaxProfiles.options.divorced")}</SelectItem>
+                      <SelectItem value="Widowed">{t("hr.irppTaxProfiles.options.widowed")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Children</label>
+                    <label className="text-sm font-semibold">{t("hr.irppTaxProfiles.forms.children")}</label>
                     <Input type="number" min={0} value={childrenCount} onChange={(e) => setChildrenCount(+e.target.value)} />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold">Disabled Dependents</label>
+                    <label className="text-sm font-semibold">{t("hr.irppTaxProfiles.forms.disabledDependents")}</label>
                     <Input type="number" min={0} value={disabledDependents} onChange={(e) => setDisabledDependents(+e.target.value)} />
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold">Tax Exemptions (TND)</label>
+                  <label className="text-sm font-semibold">{t("hr.irppTaxProfiles.forms.taxExemptions")}</label>
                   <Input type="number" value={(maritalStatus === "Married" ? 300 : 0) + (childrenCount * 100) + (disabledDependents * 100)} readOnly />
-                  <p className="text-xs text-muted-foreground">Auto-calculated: {(maritalStatus === "Married" ? "300 (married)" : "0 (single)")} + {childrenCount} × 100 (children) + {disabledDependents} × 100 (disabled)</p>
+                  <p className="text-xs text-muted-foreground">{t("hr.irppTaxProfiles.hints.autoCalculated")}: {maritalStatus === "Married" ? `300 (${t("hr.irppTaxProfiles.options.married").toLowerCase()})` : `0 (${t("hr.irppTaxProfiles.options.single").toLowerCase()})`} + {childrenCount} × 100 ({t("hr.irppTaxProfiles.forms.children").toLowerCase()}) + {disabledDependents} × 100 ({t("hr.irppTaxProfiles.forms.disabledDependents").toLowerCase()})</p>
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                  <Button type="submit" disabled={createMutation.isPending}>Save</Button>
+                  <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>{t("common.cancel")}</Button>
+                  <Button type="submit" disabled={createMutation.isPending}>{t("common.save")}</Button>
                 </div>
               </form>
             </DialogContent>
@@ -147,22 +149,22 @@ export default function IrppTaxProfiles() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Marital Status</TableHead>
-                <TableHead>Children</TableHead>
-                <TableHead>Disabled</TableHead>
-                <TableHead>Exemptions</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("hr.irppTaxProfiles.table.employee")}</TableHead>
+                <TableHead>{t("hr.irppTaxProfiles.table.maritalStatus")}</TableHead>
+                <TableHead>{t("hr.irppTaxProfiles.table.children")}</TableHead>
+                <TableHead>{t("hr.irppTaxProfiles.table.disabled")}</TableHead>
+                <TableHead>{t("hr.irppTaxProfiles.table.exemptions")}</TableHead>
+                <TableHead className="text-right">{t("hr.irppTaxProfiles.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">Loading profiles...</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8">{t("hr.irppTaxProfiles.loading")}</TableCell>
                 </TableRow>
               ) : profiles.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">No tax profiles found.</TableCell>
+                  <TableCell colSpan={6} className="text-center py-8">{t("hr.irppTaxProfiles.empty")}</TableCell>
                 </TableRow>
               ) : (
                 profiles.map((profile) => (
